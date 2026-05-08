@@ -169,6 +169,7 @@ export type Database = {
           bar_admissions: string[] | null
           bio: string | null
           city: string | null
+          communication_prefs: string[]
           created_at: string
           firm: string | null
           full_name: string | null
@@ -177,6 +178,7 @@ export type Database = {
           is_mentee: boolean
           is_mentor: boolean
           linkedin_url: string | null
+          meeting_cadence: string | null
           onboarded: boolean
           practice_areas: string[] | null
           state: string | null
@@ -190,6 +192,7 @@ export type Database = {
           bar_admissions?: string[] | null
           bio?: string | null
           city?: string | null
+          communication_prefs?: string[]
           created_at?: string
           firm?: string | null
           full_name?: string | null
@@ -198,6 +201,7 @@ export type Database = {
           is_mentee?: boolean
           is_mentor?: boolean
           linkedin_url?: string | null
+          meeting_cadence?: string | null
           onboarded?: boolean
           practice_areas?: string[] | null
           state?: string | null
@@ -211,6 +215,7 @@ export type Database = {
           bar_admissions?: string[] | null
           bio?: string | null
           city?: string | null
+          communication_prefs?: string[]
           created_at?: string
           firm?: string | null
           full_name?: string | null
@@ -219,6 +224,7 @@ export type Database = {
           is_mentee?: boolean
           is_mentor?: boolean
           linkedin_url?: string | null
+          meeting_cadence?: string | null
           onboarded?: boolean
           practice_areas?: string[] | null
           state?: string | null
