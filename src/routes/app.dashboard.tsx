@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CONVERSATIONS, MEETINGS, findById } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
-import { useMyProfile, useDirectory, initialsOf, locationOf } from "@/hooks/use-profiles";
+import { useMyProfile, useDirectory, initialsOf } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/dashboard")({
