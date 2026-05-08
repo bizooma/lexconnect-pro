@@ -1,6 +1,9 @@
-import { createFileRoute, Link, Outlet, useLocation, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { Avatar } from "@/components/avatar";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -21,6 +24,40 @@ const NAV = [
 
 function AppLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, loading, signOut } = useAuth();
+  const [profileName, setProfileName] = useState<string>("");
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login" });
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfileName(data?.full_name ?? user.email ?? ""));
+  }, [user]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+
+  const initials = (profileName || user.email || "?")
+    .split(/[\s@]/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase())
+    .join("");
 
   return (
     <div className="min-h-screen bg-background lg:flex">
@@ -45,10 +82,13 @@ function AppLayout() {
         </nav>
         <div className="border-t border-border p-3">
           <div className="flex items-center gap-3 rounded-lg p-2">
-            <Avatar initials="CH" size={36} />
+            <Avatar initials={initials} size={36} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">Christopher Hale</p>
-              <p className="truncate text-xs text-muted-foreground">Mentor · Mentee</p>
+              <p className="truncate text-sm font-medium text-foreground">{profileName || user.email}</p>
+              <button
+                onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
+                className="truncate text-xs text-muted-foreground hover:text-foreground"
+              >Sign out</button>
             </div>
           </div>
         </div>
@@ -57,7 +97,9 @@ function AppLayout() {
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <Logo />
-        <Avatar initials="CH" size={36} />
+        <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }}>
+          <Avatar initials={initials} size={36} />
+        </button>
       </header>
 
       <main className="flex-1 pb-24 lg:pb-0">

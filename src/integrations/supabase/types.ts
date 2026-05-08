@@ -14,16 +14,262 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          attendee_id: string
+          created_at: string
+          duration_minutes: number
+          host_id: string
+          id: string
+          location: string | null
+          notes: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attendee_id: string
+          created_at?: string
+          duration_minutes?: number
+          host_id: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attendee_id?: string
+          created_at?: string
+          duration_minutes?: number
+          host_id?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mentorships: {
+        Row: {
+          created_at: string
+          id: string
+          intro_message: string | null
+          mentee_id: string
+          mentor_id: string
+          status: Database["public"]["Enums"]["mentorship_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intro_message?: string | null
+          mentee_id: string
+          mentor_id: string
+          status?: Database["public"]["Enums"]["mentorship_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intro_message?: string | null
+          mentee_id?: string
+          mentor_id?: string
+          status?: Database["public"]["Enums"]["mentorship_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          accepting_mentees: boolean
+          avatar_url: string | null
+          bar_admissions: string[] | null
+          bio: string | null
+          city: string | null
+          created_at: string
+          firm: string | null
+          full_name: string | null
+          headline: string | null
+          id: string
+          is_mentee: boolean
+          is_mentor: boolean
+          linkedin_url: string | null
+          onboarded: boolean
+          practice_areas: string[] | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          accepting_mentees?: boolean
+          avatar_url?: string | null
+          bar_admissions?: string[] | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          firm?: string | null
+          full_name?: string | null
+          headline?: string | null
+          id?: string
+          is_mentee?: boolean
+          is_mentor?: boolean
+          linkedin_url?: string | null
+          onboarded?: boolean
+          practice_areas?: string[] | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          accepting_mentees?: boolean
+          avatar_url?: string | null
+          bar_admissions?: string[] | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          firm?: string | null
+          full_name?: string | null
+          headline?: string | null
+          id?: string
+          is_mentee?: boolean
+          is_mentor?: boolean
+          linkedin_url?: string | null
+          onboarded?: boolean
+          practice_areas?: string[] | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { _conv: string; _user: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "member"
+      meeting_status: "scheduled" | "completed" | "cancelled"
+      mentorship_status: "pending" | "active" | "declined" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +396,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "member"],
+      meeting_status: ["scheduled", "completed", "cancelled"],
+      mentorship_status: ["pending", "active", "declined", "completed"],
+    },
   },
 } as const
