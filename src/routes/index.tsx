@@ -30,35 +30,35 @@ function Landing() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              Built for bar associations & legal organizations
+              An invitation-only network for the legal profession
             </span>
-            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Mentorship that fits<br />
-              <span className="text-primary">an attorney's calendar.</span>
+            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
+              The modern professional network<br />
+              <span className="text-primary">for attorneys.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Replace the email listserv. BridgeTRUST gives mentors and mentees a calm, professional space to connect — match by practice area, exchange voice notes, and schedule meetings without the noise.
+              LexGuild is where legal professionals connect, learn, and grow — pairing mentors with mentees, organizing bar association communities, and powering the next generation of attorney collaboration.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/onboarding"
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
               >
-                Get started
+                Request access
               </Link>
               <Link
                 to="/app/dashboard"
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
               >
-                View live demo
+                Tour the platform
               </Link>
             </div>
             <div className="mt-10 flex items-center gap-6 text-xs text-muted-foreground">
+              <span>Trusted by bar associations</span>
+              <span className="h-3 w-px bg-border" />
               <span>SOC-2 ready</span>
               <span className="h-3 w-px bg-border" />
-              <span>Mobile-first PWA</span>
-              <span className="h-3 w-px bg-border" />
-              <span>No email noise</span>
+              <span>Mobile-first</span>
             </div>
           </div>
 
