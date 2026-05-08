@@ -30,35 +30,35 @@ function Landing() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              Built for bar associations & legal organizations
+              An invitation-only network for the legal profession
             </span>
-            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Mentorship that fits<br />
-              <span className="text-primary">an attorney's calendar.</span>
+            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
+              The modern professional network<br />
+              <span className="text-primary">for attorneys.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Replace the email listserv. BridgeTRUST gives mentors and mentees a calm, professional space to connect — match by practice area, exchange voice notes, and schedule meetings without the noise.
+              LexGuild is where legal professionals connect, learn, and grow — pairing mentors with mentees, organizing bar association communities, and powering the next generation of attorney collaboration.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/onboarding"
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
               >
-                Get started
+                Request access
               </Link>
               <Link
                 to="/app/dashboard"
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
               >
-                View live demo
+                Tour the platform
               </Link>
             </div>
             <div className="mt-10 flex items-center gap-6 text-xs text-muted-foreground">
+              <span>Trusted by bar associations</span>
+              <span className="h-3 w-px bg-border" />
               <span>SOC-2 ready</span>
               <span className="h-3 w-px bg-border" />
-              <span>Mobile-first PWA</span>
-              <span className="h-3 w-px bg-border" />
-              <span>No email noise</span>
+              <span>Mobile-first</span>
             </div>
           </div>
 
@@ -102,12 +102,12 @@ function Landing() {
       <section id="features" className="border-t border-border bg-card/50">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { t: "Smart matching", d: "Match by practice area, location, experience, and mentorship interests — not random assignments." },
+            { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
             { t: "Voice notes built in", d: "Busy attorneys talk faster than they type. Send 30-second voice notes inside any conversation." },
             { t: "Lightweight scheduling", d: "Suggest times, attach Zoom or Meet links, and get gentle reminders the day before." },
-            { t: "Guided prompts", d: "Optional conversation starters keep mentorships meaningful — even during busy seasons." },
-            { t: "Admin insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
-            { t: "No inbox clutter", d: "Push notifications by default. Email digests are opt-in and never required." },
+            { t: "Guided conversations", d: "Optional prompts keep mentorships meaningful — even during the busiest filing weeks." },
+            { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
+            { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
           ].map((f) => (
             <div key={f.t} className="rounded-2xl border border-border bg-card p-6 shadow-card">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-navy text-gold">
@@ -122,7 +122,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">
-          <p>© BridgeTRUST Mentorship. A platform for the modern bar.</p>
+          <p>© LexGuild. The professional network for the legal community.</p>
           <p>Demo content — not legal advice.</p>
         </div>
       </footer>
