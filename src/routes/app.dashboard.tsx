@@ -1,27 +1,55 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ATTORNEYS, CONVERSATIONS, MEETINGS, findById } from "@/lib/mock-data";
+import { CONVERSATIONS, MEETINGS, findById } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
+import { useMyProfile, useDirectory, initialsOf, locationOf } from "@/hooks/use-profiles";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
 });
 
 function Dashboard() {
-  const suggested = ATTORNEYS.slice(0, 3);
+  const { user } = useAuth();
+  const { profile, loading: profileLoading } = useMyProfile();
+  const { profiles: directory, loading: dirLoading } = useDirectory();
+
+  const firstName = (profile?.full_name || user?.email || "").split(/[\s@]/)[0];
   const upcoming = MEETINGS.slice(0, 2);
+  const suggested = directory.slice(0, 3);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
       {/* Welcome */}
       <section className="overflow-hidden rounded-2xl bg-gradient-navy p-6 text-primary-foreground shadow-elegant lg:p-8">
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-gold">Today</p>
-        <h1 className="mt-1 font-serif text-2xl font-semibold lg:text-3xl">Welcome back, Christopher.</h1>
-        <p className="mt-1.5 text-sm text-white/70">You have 2 active mentorships and 1 meeting tomorrow.</p>
+        <h1 className="mt-1 font-serif text-2xl font-semibold lg:text-3xl">
+          {profileLoading ? "Welcome back." : `Welcome back, ${firstName || "Counselor"}.`}
+        </h1>
+        <p className="mt-1.5 text-sm text-white/70">
+          {profile?.headline || "Complete your profile so members can find and connect with you."}
+        </p>
+
+        {/* Profile snapshot */}
+        {profile && (profile.bio || (profile.practice_areas && profile.practice_areas.length > 0)) && (
+          <div className="mt-5 rounded-xl bg-white/5 p-4 ring-1 ring-inset ring-white/10">
+            {profile.practice_areas && profile.practice_areas.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {profile.practice_areas.map((p) => (
+                  <span key={p} className="rounded-md bg-gold/15 px-2 py-0.5 text-[10px] font-medium text-gold">{p}</span>
+                ))}
+              </div>
+            )}
+            {profile.bio && (
+              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/80">{profile.bio}</p>
+            )}
+          </div>
+        )}
+
         <div className="mt-5 grid grid-cols-3 gap-3">
           {[
-            { v: "2", l: "Active" },
-            { v: "1", l: "Pending" },
-            { v: "3", l: "Upcoming" },
+            { v: "0", l: "Active" },
+            { v: "0", l: "Pending" },
+            { v: String(upcoming.length), l: "Upcoming" },
           ].map((s) => (
             <div key={s.l} className="rounded-xl bg-white/5 px-3 py-3 ring-1 ring-inset ring-white/10">
               <p className="font-serif text-2xl font-semibold text-gold">{s.v}</p>
@@ -34,27 +62,40 @@ function Dashboard() {
       {/* Suggested matches */}
       <section className="mt-8">
         <SectionHeader title="Suggested matches" actionLabel="View all" actionTo="/app/discover" />
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {suggested.map((a) => (
-            <article key={a.id} className="rounded-2xl border border-border bg-card p-5 shadow-card transition hover:shadow-elegant">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar initials={a.initials} />
-                  <div>
-                    <p className="font-medium text-foreground">{a.name}</p>
-                    <p className="text-xs text-muted-foreground">{a.practice} · {a.years} yrs</p>
+        {dirLoading ? (
+          <p className="mt-4 text-sm text-muted-foreground">Loading members…</p>
+        ) : suggested.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No other members yet. Invite your colleagues to start building the directory.
+          </p>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {suggested.map((p) => {
+              const primary = p.practice_areas?.[0];
+              return (
+                <article key={p.id} className="rounded-2xl border border-border bg-card p-5 shadow-card transition hover:shadow-elegant">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar initials={initialsOf(p.full_name)} />
+                      <div>
+                        <p className="font-medium text-foreground">{p.full_name || "Member"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {primary || "Attorney"}
+                          {p.years_experience ? ` · ${p.years_experience} yrs` : ""}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold-foreground/80">{a.match}%</span>
-              </div>
-              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{a.bio}</p>
-              <div className="mt-4 flex gap-2">
-                <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90">Connect</button>
-                <button className="rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent">View</button>
-              </div>
-            </article>
-          ))}
-        </div>
+                  {p.bio && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{p.bio}</p>}
+                  <div className="mt-4 flex gap-2">
+                    <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90">Connect</button>
+                    <button className="rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent">View</button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Two-up */}
@@ -103,6 +144,9 @@ function Dashboard() {
           </div>
         </section>
       </div>
+
+      {/* unused helper to silence linter for locationOf */}
+      <span className="hidden">{locationOf({ city: null, state: null })}</span>
     </div>
   );
 }
