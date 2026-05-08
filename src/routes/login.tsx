@@ -16,7 +16,7 @@ function Login() {
       <header className="px-5 py-5"><Logo /></header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-12">
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">Welcome back</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">Sign in to continue your mentorship.</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">Sign in to your legal community.</p>
 
         <div className="mt-6 inline-flex w-full rounded-lg border border-border bg-card p-1 text-sm">
           <button
