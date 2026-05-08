@@ -102,12 +102,12 @@ function Landing() {
       <section id="features" className="border-t border-border bg-card/50">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { t: "Smart matching", d: "Match by practice area, location, experience, and mentorship interests — not random assignments." },
+            { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
             { t: "Voice notes built in", d: "Busy attorneys talk faster than they type. Send 30-second voice notes inside any conversation." },
             { t: "Lightweight scheduling", d: "Suggest times, attach Zoom or Meet links, and get gentle reminders the day before." },
-            { t: "Guided prompts", d: "Optional conversation starters keep mentorships meaningful — even during busy seasons." },
-            { t: "Admin insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
-            { t: "No inbox clutter", d: "Push notifications by default. Email digests are opt-in and never required." },
+            { t: "Guided conversations", d: "Optional prompts keep mentorships meaningful — even during the busiest filing weeks." },
+            { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
+            { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
           ].map((f) => (
             <div key={f.t} className="rounded-2xl border border-border bg-card p-6 shadow-card">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-navy text-gold">
