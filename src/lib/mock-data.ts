@@ -1,4 +1,4 @@
-// Shared mock data for the BridgeTRUST Mentorship demo.
+// Shared mock data for the LexGuild demo.
 export type Attorney = {
   id: string;
   name: string;
