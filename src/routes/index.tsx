@@ -122,7 +122,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">
-          <p>© BridgeTRUST Mentorship. A platform for the modern bar.</p>
+          <p>© LexGuild. The professional network for the legal community.</p>
           <p>Demo content — not legal advice.</p>
         </div>
       </footer>
