@@ -72,7 +72,7 @@ function Login() {
         </form>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          New to BridgeTRUST?{" "}
+          New to LexGuild?{" "}
           <Link to="/onboarding" className="font-medium text-primary hover:underline">Create your profile</Link>
         </p>
       </main>
