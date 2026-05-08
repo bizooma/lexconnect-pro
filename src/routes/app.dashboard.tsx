@@ -145,8 +145,6 @@ function Dashboard() {
         </section>
       </div>
 
-      {/* unused helper to silence linter for locationOf */}
-      <span className="hidden">{locationOf({ city: null, state: null })}</span>
     </div>
   );
 }
