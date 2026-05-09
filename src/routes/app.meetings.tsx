@@ -168,7 +168,7 @@ function Meetings() {
           <h1 className="font-serif text-2xl font-semibold text-foreground lg:text-3xl">Meetings</h1>
           <p className="mt-1 text-sm text-muted-foreground">Coffees, video calls, and check-ins with your matches.</p>
         </div>
-        <Button onClick={openScheduler} disabled={connections.length === 0}>
+        <Button onClick={openScheduler}>
           + New
         </Button>
       </div>
