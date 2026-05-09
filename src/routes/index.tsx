@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
-import heroBg from "@/assets/hero-bg.png";
+import heroBg from "@/assets/hero-bg.jpg";
+import phoneMockup from "@/assets/lex-phones.png";
 import bizoomaLogo from "@/assets/bizooma-logo.png";
 
 export const Route = createFileRoute("/")({
