@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 export type Profile = {
   id: string;
   user_id: string;
+  organization_id: string | null;
   full_name: string | null;
   headline: string | null;
   firm: string | null;
@@ -20,7 +21,7 @@ export type Profile = {
 };
 
 const SELECT =
-  "id,user_id,full_name,headline,firm,city,state,practice_areas,years_experience,bio,avatar_url,is_mentor,is_mentee,accepting_mentees";
+  "id,user_id,organization_id,full_name,headline,firm,city,state,practice_areas,years_experience,bio,avatar_url,is_mentor,is_mentee,accepting_mentees";
 
 export function initialsOf(name?: string | null, fallback?: string | null) {
   const src = (name || fallback || "?").trim();
@@ -70,13 +71,33 @@ export function useDirectory() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) {
+      setProfiles([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    let q = supabase.from("profiles").select(SELECT).order("created_at", { ascending: false });
-    if (user) q = q.neq("user_id", user.id);
-    q.then(({ data }) => {
+    (async () => {
+      const { data: me } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const orgId = (me as { organization_id: string | null } | null)?.organization_id;
+      if (!orgId) {
+        setProfiles([]);
+        setLoading(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("profiles")
+        .select(SELECT)
+        .eq("organization_id", orgId)
+        .neq("user_id", user.id)
+        .order("created_at", { ascending: false });
       setProfiles((data as Profile[] | null) ?? []);
       setLoading(false);
-    });
+    })();
   }, [user]);
 
   return { profiles, loading };
