@@ -10,6 +10,8 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [submitting, setSubmitting] = useState(false);
+  const [contactStatus, setContactStatus] = useState<null | "success" | "error">(null);
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
