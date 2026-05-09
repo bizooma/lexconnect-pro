@@ -296,8 +296,8 @@ function Landing() {
               },
               {
                 name: "Enterprise",
-                monthly: { price: "Custom", period: "", sub: "From $2,500/mo" },
-                annual: { price: "Custom", period: "", sub: "From $2,500/mo" },
+                monthly: { price: "Custom", period: "", sub: "From $1,500/mo" },
+                annual: { price: "Custom", period: "", sub: "From $1,500/mo" },
                 blurb: "For state bar associations, multi-location firms, and law school systems.",
                 features: [
                   "250+ members",
