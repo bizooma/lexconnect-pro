@@ -20,7 +20,7 @@ export type Profile = {
 };
 
 const SELECT =
-  "id,user_id,full_name,headline,firm,city,state,practice_areas,years_experience,bio,avatar_url,is_mentor,is_mentee,accepting_mentees";
+  "id,user_id,organization_id,full_name,headline,firm,city,state,practice_areas,years_experience,bio,avatar_url,is_mentor,is_mentee,accepting_mentees";
 
 export function initialsOf(name?: string | null, fallback?: string | null) {
   const src = (name || fallback || "?").trim();
