@@ -5,7 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
+type SignupSearch = { plan?: "starter" | "professional" | "enterprise"; billing?: "monthly" | "annual" };
+
 export const Route = createFileRoute("/signup")({
+  validateSearch: (search: Record<string, unknown>): SignupSearch => ({
+    plan: search.plan === "starter" || search.plan === "professional" || search.plan === "enterprise" ? search.plan : undefined,
+    billing: search.billing === "annual" ? "annual" : search.billing === "monthly" ? "monthly" : undefined,
+  }),
   component: SignupOrg,
 });
 
