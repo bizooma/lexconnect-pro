@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
@@ -35,6 +36,7 @@ import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
+import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -42,6 +44,11 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -172,6 +179,11 @@ const AppAdminOrgsRoute = AppAdminOrgsRouteImport.update({
   path: '/orgs',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
+  id: '/api/public/contact',
+  path: '/api/public/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -212,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
@@ -222,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -246,6 +260,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -255,6 +270,7 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join': typeof JoinIndexRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -280,6 +296,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
@@ -290,6 +307,7 @@ export interface FileRoutesById {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -316,6 +334,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/unsubscribe'
     | '/accept-invite/$token'
     | '/app/admin'
     | '/app/dashboard'
@@ -326,6 +345,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join/'
+    | '/api/public/contact'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -350,6 +370,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/unsubscribe'
     | '/accept-invite/$token'
     | '/app/dashboard'
     | '/app/discover'
@@ -359,6 +380,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join'
+    | '/api/public/contact'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -383,6 +405,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/unsubscribe'
     | '/accept-invite/$token'
     | '/app/admin'
     | '/app/dashboard'
@@ -393,6 +416,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join/'
+    | '/api/public/contact'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -418,10 +442,12 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   SignupRoute: typeof SignupRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   JoinCodeRoute: typeof JoinCodeRoute
   JoinIndexRoute: typeof JoinIndexRoute
+  ApiPublicContactRoute: typeof ApiPublicContactRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -433,6 +459,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -615,6 +648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminOrgsRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/api/public/contact': {
+      id: '/api/public/contact'
+      path: '/api/public/contact'
+      fullPath: '/api/public/contact'
+      preLoaderRoute: typeof ApiPublicContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -726,10 +766,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   SignupRoute: SignupRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   JoinCodeRoute: JoinCodeRoute,
   JoinIndexRoute: JoinIndexRoute,
+  ApiPublicContactRoute: ApiPublicContactRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
@@ -741,3 +783,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
