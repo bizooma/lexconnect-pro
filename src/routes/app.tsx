@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
@@ -14,18 +15,20 @@ export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-const NAV = [
+const BASE_NAV = [
   { to: "/app/dashboard", label: "Home", icon: HomeIcon },
   { to: "/app/discover", label: "Discover", icon: SearchIcon },
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
-  { to: "/app/admin", label: "Admin", icon: ShieldIcon },
 ] as const;
+const ADMIN_NAV = { to: "/app/admin", label: "Admin", icon: ShieldIcon } as const;
 
 function AppLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
+  const NAV = isAdmin ? [...BASE_NAV, ADMIN_NAV] : BASE_NAV;
   const [profileName, setProfileName] = useState<string>("");
 
   useEffect(() => {
@@ -108,7 +111,7 @@ function AppLayout() {
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background/95 backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-xl grid-cols-5">
+        <div className={`mx-auto grid max-w-xl ${NAV.length === 5 ? "grid-cols-5" : "grid-cols-4"}`}>
           {NAV.map((item) => {
             const active = pathname.startsWith(item.to);
             const Icon = item.icon;
