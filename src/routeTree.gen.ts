@@ -31,6 +31,7 @@ import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
+import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -146,6 +147,11 @@ const AppMessagesIdRoute = AppMessagesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppMessagesRoute,
 } as any)
+const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminOrgsRoute = AppAdminOrgsRouteImport.update({
   id: '/orgs',
   path: '/orgs',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
+  '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/join/$code': typeof JoinCodeRoute
   '/join': typeof JoinIndexRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
+  '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -240,6 +248,7 @@ export interface FileRoutesById {
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
+  '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join/'
     | '/app/admin/orgs'
+    | '/app/admin/users'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join'
     | '/app/admin/orgs'
+    | '/app/admin/users'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join/'
     | '/app/admin/orgs'
+    | '/app/admin/users'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMessagesIdRouteImport
       parentRoute: typeof AppMessagesRoute
     }
+    '/app/admin/users': {
+      id: '/app/admin/users'
+      path: '/users'
+      fullPath: '/app/admin/users'
+      preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/orgs': {
       id: '/app/admin/orgs'
       path: '/orgs'
@@ -541,11 +560,13 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminRouteChildren {
   AppAdminOrgsRoute: typeof AppAdminOrgsRoute
+  AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminOrgsRoute: AppAdminOrgsRoute,
+  AppAdminUsersRoute: AppAdminUsersRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
