@@ -276,8 +276,8 @@ function Footer({ onBack, onNext, backLabel = "Back", nextLabel = "Continue", di
 }) {
   return (
     <div className="mt-8 flex items-center justify-between">
-      <button onClick={onBack} className="rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground">{backLabel}</button>
-      <button onClick={onNext} disabled={disabled}
+      <button type="button" onClick={onBack} className="rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground">{backLabel}</button>
+      <button type="button" onClick={onNext} disabled={disabled}
         className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90 disabled:opacity-50">
         {nextLabel}
       </button>
