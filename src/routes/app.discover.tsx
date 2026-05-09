@@ -63,8 +63,26 @@ function Discover() {
     setRequested(null);
   };
 
+  const recommended: MatchResult[] = useMemo(() => {
+    if (!myProfile) return [];
+    return scoreMatches({
+      viewer: myProfile as any,
+      candidates: profiles as any,
+      existingPairs: allPairs,
+      activeLoad: buildActiveLoadMap(allPairs),
+    });
+  }, [myProfile, profiles, allPairs]);
+
+  const recommendedById = useMemo(() => {
+    const m = new Map<string, MatchResult>();
+    recommended.forEach((r) => m.set(r.profile.user_id, r));
+    return m;
+  }, [recommended]);
+
+  const baseList: Profile[] = tab === "recommended" ? recommended.map((r) => r.profile) : profiles;
+
   const filtered = useMemo(() => {
-    return profiles.filter((p) => {
+    return baseList.filter((p) => {
       if (practice && !(p.practice_areas ?? []).includes(practice)) return false;
       if (q) {
         const hay = `${p.full_name ?? ""} ${p.firm ?? ""} ${p.bio ?? ""} ${(p.practice_areas ?? []).join(" ")}`.toLowerCase();
@@ -72,7 +90,7 @@ function Discover() {
       }
       return true;
     });
-  }, [profiles, practice, q]);
+  }, [baseList, practice, q]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
