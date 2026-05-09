@@ -363,25 +363,25 @@ function Landing() {
               Contact us
             </span>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Talk to the LexGuild team
+              Talk to the team behind LexGuild
             </h2>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              Curious whether LexGuild is right for your bar association, firm, or legal organization? Tell us a little about your program and we'll be in touch within one business day.
+              LexGuild was designed and built by Bizooma Creative Agency. For questions about the platform, partnerships, or building something similar for your organization, get in touch with Joe directly.
             </p>
-            <dl className="mt-8 space-y-4 text-sm">
-              <div>
-                <dt className="font-medium text-foreground">Email</dt>
-                <dd className="mt-1 text-muted-foreground">
-                  <a href="mailto:hello@lexguild.com" className="hover:text-primary">hello@lexguild.com</a>
-                </dd>
+            <div className="mt-8 flex items-center gap-5 rounded-2xl border border-border bg-card p-5 shadow-card">
+              <img
+                src={bizoomaLogo}
+                alt="Bizooma Creative Agency"
+                className="h-16 w-auto shrink-0"
+                loading="lazy"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground">Bizooma Creative Agency</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  <a href="mailto:joe@bizooma.com" className="hover:text-primary">joe@bizooma.com</a>
+                </p>
               </div>
-              <div>
-                <dt className="font-medium text-foreground">Sales & partnerships</dt>
-                <dd className="mt-1 text-muted-foreground">
-                  <a href="mailto:sales@lexguild.com" className="hover:text-primary">sales@lexguild.com</a>
-                </dd>
-              </div>
-            </dl>
+            </div>
           </div>
 
           <form
