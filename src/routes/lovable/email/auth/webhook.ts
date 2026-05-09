@@ -31,7 +31,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "legal-guild-bridge"
+const SITE_NAME = "LexGuild"
 const SENDER_DOMAIN = "notify.lexguild.com"
 const ROOT_DOMAIN = "lexguild.com"
 const FROM_DOMAIN = "lexguild.com"
