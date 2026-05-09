@@ -132,24 +132,33 @@ export type Database = {
       }
       messages: {
         Row: {
+          audio_url: string | null
           body: string
           conversation_id: string
           created_at: string
+          duration_seconds: number | null
           id: string
+          kind: string
           sender_id: string
         }
         Insert: {
+          audio_url?: string | null
           body: string
           conversation_id: string
           created_at?: string
+          duration_seconds?: number | null
           id?: string
+          kind?: string
           sender_id: string
         }
         Update: {
+          audio_url?: string | null
           body?: string
           conversation_id?: string
           created_at?: string
+          duration_seconds?: number | null
           id?: string
+          kind?: string
           sender_id?: string
         }
         Relationships: [
@@ -161,6 +170,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read: boolean
+          related_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string | null
+          read?: boolean
+          related_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read?: boolean
+          related_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
