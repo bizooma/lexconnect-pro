@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
@@ -168,7 +168,7 @@ function Meetings() {
           <h1 className="font-serif text-2xl font-semibold text-foreground lg:text-3xl">Meetings</h1>
           <p className="mt-1 text-sm text-muted-foreground">Coffees, video calls, and check-ins with your matches.</p>
         </div>
-        <Button onClick={openScheduler} disabled={connections.length === 0}>
+        <Button onClick={openScheduler}>
           + New
         </Button>
       </div>
@@ -209,40 +209,52 @@ function Meetings() {
             <DialogTitle>Schedule a meeting</DialogTitle>
             <DialogDescription>Send an invite to one of your connections.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <Field label="With">
-              <Select value={attendeeId} onValueChange={setAttendeeId}>
-                <SelectTrigger><SelectValue placeholder="Select a connection…" /></SelectTrigger>
-                <SelectContent>
-                  {connections.map((c) => (
-                    <SelectItem key={c.user_id} value={c.user_id}>{c.full_name || "Member"}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Title"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
-              <Field label="Time"><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
+          {connections.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-card/50 p-5 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">No connections yet</p>
+              <p className="mt-1">You can schedule meetings once you have an active mentor or mentee. Send or accept a request first.</p>
+              <Link to="/app/discover" onClick={() => setScheduling(false)} className="mt-3 inline-block rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground">
+                Find a match
+              </Link>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Duration (min)">
-                <Select value={duration} onValueChange={setDuration}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+          ) : (
+            <div className="space-y-3">
+              <Field label="With">
+                <Select value={attendeeId} onValueChange={setAttendeeId}>
+                  <SelectTrigger><SelectValue placeholder="Select a connection…" /></SelectTrigger>
                   <SelectContent>
-                    {["15", "30", "45", "60", "90"].map((d) => (
-                      <SelectItem key={d} value={d}>{d} min</SelectItem>
+                    {connections.map((c) => (
+                      <SelectItem key={c.user_id} value={c.user_id}>{c.full_name || "Member"}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Video, café…" /></Field>
+              <Field label="Title"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
+                <Field label="Time"><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Duration (min)">
+                  <Select value={duration} onValueChange={setDuration}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["15", "30", "45", "60", "90"].map((d) => (
+                        <SelectItem key={d} value={d}>{d} min</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Video, café…" /></Field>
+              </div>
+              <Field label="Notes"><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} /></Field>
             </div>
-            <Field label="Notes"><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} /></Field>
-          </div>
+          )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setScheduling(false)}>Cancel</Button>
-            <Button onClick={submit} disabled={submitting}>{submitting ? "Scheduling…" : "Schedule"}</Button>
+            {connections.length > 0 && (
+              <Button onClick={submit} disabled={submitting}>{submitting ? "Scheduling…" : "Schedule"}</Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
