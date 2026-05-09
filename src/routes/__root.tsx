@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/hooks/use-auth";
 
 function NotFoundComponent() {
   return (
@@ -55,13 +54,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#0F172A" },
-      { title: "LexGuild — The Modern Professional Network for Attorneys" },
-      { name: "description", content: "LexGuild is the modern professional network for attorneys — mentorship, collaboration, and career growth for today's legal community." },
-      { property: "og:title", content: "LexGuild — Where Legal Professionals Connect, Learn, and Grow" },
-      { property: "og:description", content: "Mentorship, collaboration, and professional growth for today's legal community." },
+      { name: "theme-color", content: "#1c2540" },
+      { title: "LexGuild — Modern attorney mentorship" },
+      { name: "description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:title", content: "LexGuild — Modern attorney mentorship" },
+      { property: "og:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "LexGuild — Modern attorney mentorship" },
+      { name: "twitter:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2d5b259-1114-4c89-91af-937fede90ffd/id-preview-a343d005--da8d11c5-efc5-4d07-91af-03b25eda27bb.lovable.app-1778284001162.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2d5b259-1114-4c89-91af-937fede90ffd/id-preview-a343d005--da8d11c5-efc5-4d07-91af-03b25eda27bb.lovable.app-1778284001162.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -94,9 +97,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <Outlet />
     </QueryClientProvider>
   );
 }
