@@ -99,6 +99,7 @@ function AppLayout() {
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Account</span>
             <NotificationsBell />
           </div>
+          <div className="mb-3"><OrgSwitcher /></div>
           <Link to="/app/settings" className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent">
             <Avatar initials={initials} src={avatarUrl} size={36} />
             <div className="min-w-0 flex-1">
