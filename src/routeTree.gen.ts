@@ -31,6 +31,7 @@ import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
+import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -145,6 +146,11 @@ const AppMessagesIdRoute = AppMessagesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppMessagesRoute,
 } as any)
+const AppAdminOrgsRoute = AppAdminOrgsRouteImport.update({
+  id: '/orgs',
+  path: '/orgs',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AppSettingsRoute
   '/join/$code': typeof JoinCodeRoute
   '/join': typeof JoinIndexRoute
+  '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/join/$code'
     | '/join/'
+    | '/app/admin/orgs'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/join/$code'
     | '/join'
+    | '/app/admin/orgs'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/join/$code'
     | '/join/'
+    | '/app/admin/orgs'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -496,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMessagesIdRouteImport
       parentRoute: typeof AppMessagesRoute
     }
+    '/app/admin/orgs': {
+      id: '/app/admin/orgs'
+      path: '/orgs'
+      fullPath: '/app/admin/orgs'
+      preLoaderRoute: typeof AppAdminOrgsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -521,10 +540,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAdminRouteChildren {
+  AppAdminOrgsRoute: typeof AppAdminOrgsRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminOrgsRoute: AppAdminOrgsRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
