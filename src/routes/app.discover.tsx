@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
-import { useDirectory, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
+import { useDirectory, useMyProfile, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { scoreMatches, buildActiveLoadMap, type ExistingPair, type MatchResult } from "@/lib/matching";
 
 export const Route = createFileRoute("/app/discover")({
   component: Discover,
@@ -16,23 +17,28 @@ function Discover() {
   const { user } = useAuth();
   const { currentOrgId } = useCurrentOrg();
   const { profiles, loading } = useDirectory();
+  const { profile: myProfile } = useMyProfile();
   const [q, setQ] = useState("");
   const [practice, setPractice] = useState<string | null>(null);
+  const [tab, setTab] = useState<"recommended" | "browse">("recommended");
   const [requested, setRequested] = useState<Profile | null>(null);
   const [intro, setIntro] = useState(
     "Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?",
   );
   const [submitting, setSubmitting] = useState(false);
   const [existingMentorIds, setExistingMentorIds] = useState<Set<string>>(new Set());
+  const [allPairs, setAllPairs] = useState<ExistingPair[]>([]);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("mentorships")
-      .select("mentor_id,status")
-      .eq("mentee_id", user.id)
+      .select("mentor_id,mentee_id,status")
+      .or(`mentor_id.eq.${user.id},mentee_id.eq.${user.id}`)
       .then(({ data }) => {
-        setExistingMentorIds(new Set((data ?? []).map((r: any) => r.mentor_id)));
+        const rows = (data as ExistingPair[] | null) ?? [];
+        setAllPairs(rows);
+        setExistingMentorIds(new Set(rows.filter((r) => r.mentee_id === user.id).map((r) => r.mentor_id)));
       });
   }, [user]);
 
