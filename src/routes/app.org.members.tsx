@@ -38,15 +38,27 @@ type Invite = {
   accepted_at: string | null;
 };
 
+type InviteCode = {
+  id: string;
+  code: string;
+  role_assigned: "owner" | "admin" | "member";
+  expires_at: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  active: boolean;
+};
+
 function OrgMembersPage() {
   const { user } = useAuth();
   const { currentOrgId, currentOrg, isOrgAdmin, role, subscription } = useCurrentOrg();
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
   const [submitting, setSubmitting] = useState(false);
+  const [bulkEmails, setBulkEmails] = useState("");
 
   const refresh = useCallback(async () => {
     if (!currentOrgId) return;
