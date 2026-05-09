@@ -657,12 +657,15 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
+          environment: string
           id: string
           max_users: number | null
           organization_id: string
           plan: Database["public"]["Enums"]["subscription_plan"]
+          price_id: string | null
           seats_purchased: number
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
@@ -670,12 +673,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          environment?: string
           id?: string
           max_users?: number | null
           organization_id: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          price_id?: string | null
           seats_purchased?: number
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
@@ -683,12 +689,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
+          environment?: string
           id?: string
           max_users?: number | null
           organization_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          price_id?: string | null
           seats_purchased?: number
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
