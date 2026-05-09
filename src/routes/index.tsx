@@ -42,8 +42,8 @@ function Landing() {
               An invitation-only network for the legal profession
             </span>
             <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
-              The modern professional network<br />
-              <span className="text-primary">for attorneys.</span>
+              Modern Mentorship<br />
+              <span className="text-primary">for the Legal Profession</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               LexGuild is where legal professionals connect, learn, and grow — pairing mentors with mentees, organizing bar association communities, and powering the next generation of attorney collaboration.
