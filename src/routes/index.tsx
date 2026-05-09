@@ -19,22 +19,24 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <Logo />
-        <nav className="hidden items-center gap-7 text-sm text-muted-foreground sm:flex">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#install" className="hover:text-foreground">Install</a>
-          <a href="#pricing" className="hover:text-foreground">Pricing</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
-          <a href="#contact" className="hover:text-foreground">Contact</a>
-          <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
-        </nav>
-        <Link
-          to="/login"
-          className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant transition-colors hover:bg-primary/90 sm:hidden"
-        >
-          Sign in
-        </Link>
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
+          <Logo />
+          <nav className="hidden items-center gap-7 text-sm text-muted-foreground sm:flex">
+            <a href="#features" className="hover:text-foreground">Features</a>
+            <a href="#install" className="hover:text-foreground">Install</a>
+            <a href="#pricing" className="hover:text-foreground">Pricing</a>
+            <a href="#faq" className="hover:text-foreground">FAQ</a>
+            <a href="#contact" className="hover:text-foreground">Contact</a>
+            <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
+          </nav>
+          <Link
+            to="/login"
+            className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant transition-colors hover:bg-primary/90 sm:hidden"
+          >
+            Sign in
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}
