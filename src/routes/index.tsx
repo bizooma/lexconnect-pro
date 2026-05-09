@@ -272,7 +272,7 @@ function Landing() {
                   "Basic analytics",
                 ],
                 cta: "Start your organization",
-                href: "/signup",
+                href: `/signup?plan=starter&billing=${billing}`,
                 featured: false,
               },
               {
