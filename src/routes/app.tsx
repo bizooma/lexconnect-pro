@@ -30,6 +30,7 @@ function AppLayout() {
   const { isAdmin } = useIsAdmin();
   const NAV = isAdmin ? [...BASE_NAV, ADMIN_NAV] : BASE_NAV;
   const [profileName, setProfileName] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -41,10 +42,13 @@ function AppLayout() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name")
+      .select("full_name, avatar_url")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => setProfileName(data?.full_name ?? user.email ?? ""));
+      .then(({ data }) => {
+        setProfileName(data?.full_name ?? user.email ?? "");
+        setAvatarUrl(data?.avatar_url ?? null);
+      });
   }, [user]);
 
   if (loading || !user) {
