@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/logo";
+import heroBg from "@/assets/hero-mentorship.jpg";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -25,7 +26,15 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-5 pt-8 pb-16 sm:pt-16 sm:pb-24">
+      <section className="relative overflow-hidden">
+        <img
+          src={heroBg}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 -z-20 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/85 to-background/40 lg:from-background/95 lg:via-background/70 lg:to-background/20" />
+        <div className="mx-auto max-w-6xl px-5 pt-8 pb-16 sm:pt-16 sm:pb-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
@@ -95,6 +104,7 @@ function Landing() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
