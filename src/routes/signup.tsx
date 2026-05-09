@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
@@ -177,11 +178,15 @@ function SignupOrg() {
 function Field({ label, placeholder, value, onChange, type = "text" }: {
   label: string; placeholder: string; value: string; onChange: (v: string) => void; type?: string;
 }) {
+  const inputClass = "mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2";
   return (
     <label className="block">
       <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
+      {type === "password" ? (
+        <PasswordInput value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={inputClass} />
+      ) : (
+        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={inputClass} />
+      )}
     </label>
   );
 }

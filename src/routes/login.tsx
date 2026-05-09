@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordInput } from "@/components/password-input";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -60,7 +61,7 @@ function Login() {
           </div>
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</label>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
+            <PasswordInput required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
               className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           </div>
           {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">{error}</div>}
