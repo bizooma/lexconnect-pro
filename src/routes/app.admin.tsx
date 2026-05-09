@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Avatar } from "@/components/avatar";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import {
@@ -37,6 +38,7 @@ type Mentorship = {
 
 function Admin() {
   const { isAdmin, checking } = useIsAdmin();
+  const { currentOrgId } = useCurrentOrg();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,10 +115,12 @@ function Admin() {
       return;
     }
     setSubmitting(true);
+    if (!currentOrgId) { toast.error("No organization selected"); return; }
     const { error } = await supabase.from("mentorships").insert({
       mentor_id: selectedMentor,
       mentee_id: assignFor.user_id,
       status: "active",
+      organization_id: currentOrgId,
     });
     setSubmitting(false);
     if (error) {

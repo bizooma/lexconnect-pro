@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf } from "@/hooks/use-profiles";
 import {
@@ -44,6 +45,7 @@ type Connection = { user_id: string; full_name: string | null; avatar_url: strin
 
 function Meetings() {
   const { user } = useAuth();
+  const { currentOrgId } = useCurrentOrg();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, Connection>>({});
@@ -131,6 +133,7 @@ function Meetings() {
       toast.error("Please fill in all required fields");
       return;
     }
+    if (!currentOrgId) { toast.error("No organization selected"); return; }
     setSubmitting(true);
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
     const { error } = await supabase.from("meetings").insert({
@@ -142,6 +145,7 @@ function Meetings() {
       location: location || null,
       notes: notes || null,
       status: "scheduled",
+      organization_id: currentOrgId,
     });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }

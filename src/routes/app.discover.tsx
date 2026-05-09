@@ -4,6 +4,7 @@ import { PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
 import { useDirectory, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/app/discover")({
 
 function Discover() {
   const { user } = useAuth();
+  const { currentOrgId } = useCurrentOrg();
   const { profiles, loading } = useDirectory();
   const [q, setQ] = useState("");
   const [practice, setPractice] = useState<string | null>(null);
@@ -36,12 +38,14 @@ function Discover() {
 
   const sendRequest = async () => {
     if (!user || !requested) return;
+    if (!currentOrgId) { toast.error("No organization selected"); return; }
     setSubmitting(true);
     const { error } = await supabase.from("mentorships").insert({
       mentor_id: requested.user_id,
       mentee_id: user.id,
       status: "pending",
       intro_message: intro.trim() || null,
+      organization_id: currentOrgId,
     });
     setSubmitting(false);
     if (error) {
