@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { INTERESTS, PRACTICE_AREAS } from "@/lib/mock-data";
+import { Avatar } from "@/components/avatar";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/settings")({
@@ -31,6 +32,9 @@ function Settings() {
   const [cadence, setCadence] = useState<string>("Bi-weekly");
   const [bio, setBio] = useState("");
   const [acceptingMentees, setAcceptingMentees] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
