@@ -252,7 +252,9 @@ function Meetings() {
           )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setScheduling(false)}>Cancel</Button>
-            <Button onClick={submit} disabled={submitting}>{submitting ? "Scheduling…" : "Schedule"}</Button>
+            {connections.length > 0 && (
+              <Button onClick={submit} disabled={submitting}>{submitting ? "Scheduling…" : "Schedule"}</Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
