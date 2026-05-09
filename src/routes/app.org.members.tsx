@@ -239,6 +239,8 @@ function OrgMembersPage() {
             <p className="mt-3 text-xs text-destructive">Seat limit reached. Increase seats in Billing first.</p>
           )}
         </section>
+      )}
+
       {isOrgAdmin && (
         <section className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-card">
           <h2 className="font-serif text-lg font-semibold text-foreground">Shareable invite codes</h2>
