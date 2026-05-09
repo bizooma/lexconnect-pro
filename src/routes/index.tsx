@@ -119,7 +119,7 @@ function Landing() {
             { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
             { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
           ].map((f) => (
-            <div key={f.t} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-card backdrop-blur-sm">
+            <div key={f.t} className="rounded-2xl border border-white/15 bg-white/10 p-6 shadow-elegant backdrop-blur-xl backdrop-saturate-150 ring-1 ring-inset ring-white/10 transition hover:bg-white/15 hover:border-white/25">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/15 text-gold ring-1 ring-gold/30">
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
