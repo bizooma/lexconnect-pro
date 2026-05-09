@@ -45,6 +45,7 @@ type Connection = { user_id: string; full_name: string | null; avatar_url: strin
 
 function Meetings() {
   const { user } = useAuth();
+  const { currentOrgId } = useCurrentOrg();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, Connection>>({});
