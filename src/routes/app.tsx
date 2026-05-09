@@ -28,7 +28,7 @@ const BASE_NAV = [
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
 ] as const;
-const ADMIN_NAV = { to: "/app/admin", label: "Admin", icon: ShieldIcon } as const;
+const ADMIN_NAV = { to: "/app/admin", label: "Platform", icon: ShieldIcon } as const;
 
 function AppLayout() {
   const { pathname } = useLocation();
