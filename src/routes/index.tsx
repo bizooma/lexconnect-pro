@@ -109,7 +109,7 @@ function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="border-t border-border bg-card/50">
+      <section id="features" className="bg-gradient-navy">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
@@ -119,12 +119,12 @@ function Landing() {
             { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
             { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
           ].map((f) => (
-            <div key={f.t} className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-navy text-gold">
+            <div key={f.t} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-card backdrop-blur-sm">
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/15 text-gold ring-1 ring-gold/30">
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
-              <h3 className="font-serif text-lg font-semibold text-foreground">{f.t}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.d}</p>
+              <h3 className="font-serif text-lg font-semibold text-primary-foreground">{f.t}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-white/70">{f.d}</p>
             </div>
           ))}
         </div>
