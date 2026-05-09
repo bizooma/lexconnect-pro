@@ -18,12 +18,49 @@ const ORG_KINDS = [
   { value: "firm", label: "Other" },
 ] as const;
 
-const PLANS = [
-  { id: "starter", name: "Community", seats: 25, price: "$99/mo", blurb: "Up to 25 members" },
-  { id: "pro", name: "Growth", seats: 100, price: "$299/mo", blurb: "Up to 100 members" },
-  { id: "firm", name: "Scale", seats: 250, price: "$699/mo", blurb: "Up to 250 members" },
-  { id: "firm", name: "Enterprise", seats: 9999, price: "Let's talk", blurb: "Unlimited seats + onboarding" },
-] as const;
+type Plan = {
+  id: string;
+  name: string;
+  seats: number;
+  monthly: string;
+  annual: string;
+  monthlySub?: string;
+  annualSub?: string;
+  blurb: string;
+  contactOnly?: boolean;
+};
+
+const PLANS: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    seats: 25,
+    monthly: "$399/mo",
+    annual: "$3,990/yr",
+    annualSub: "$399/mo billed annually",
+    blurb: "Up to 25 members · Pilot programs & small firms",
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    seats: 100,
+    monthly: "$899/mo",
+    annual: "$8,990/yr",
+    annualSub: "$899/mo billed annually",
+    blurb: "Up to 100 members · Mid-sized bars, regional groups, larger firms",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    seats: 9999,
+    monthly: "Custom",
+    annual: "Custom",
+    monthlySub: "From $2,500/mo",
+    annualSub: "From $2,500/mo",
+    blurb: "250+ members · State bars, multi-location firms, law schools",
+    contactOnly: true,
+  },
+];
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "org";
