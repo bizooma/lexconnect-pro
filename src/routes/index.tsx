@@ -291,7 +291,7 @@ function Landing() {
                   "Priority support",
                 ],
                 cta: "Start your organization",
-                href: "/signup",
+                href: `/signup?plan=professional&billing=${billing}`,
                 featured: true,
               },
               {
