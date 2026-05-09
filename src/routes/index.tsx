@@ -210,17 +210,17 @@ function Landing() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="border-t border-border bg-card/50">
+      <section id="pricing" className="border-t border-border bg-gradient-slate">
         <div className="mx-auto max-w-6xl px-5 py-16">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/80 shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               Pricing
             </span>
-            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Plans that grow with your organization
             </h2>
-            <p className="mt-3 text-base text-muted-foreground">
+            <p className="mt-3 text-base text-white/75">
               Transparent pricing for bar associations, law firms, and legal organizations. Only the organization pays — members never enter payment information.
             </p>
 
