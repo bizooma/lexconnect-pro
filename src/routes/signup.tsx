@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({

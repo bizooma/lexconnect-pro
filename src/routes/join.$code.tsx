@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/join/$code")({
