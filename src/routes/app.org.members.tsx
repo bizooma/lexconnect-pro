@@ -38,15 +38,27 @@ type Invite = {
   accepted_at: string | null;
 };
 
+type InviteCode = {
+  id: string;
+  code: string;
+  role_assigned: "owner" | "admin" | "member";
+  expires_at: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  active: boolean;
+};
+
 function OrgMembersPage() {
   const { user } = useAuth();
   const { currentOrgId, currentOrg, isOrgAdmin, role, subscription } = useCurrentOrg();
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
   const [submitting, setSubmitting] = useState(false);
+  const [bulkEmails, setBulkEmails] = useState("");
 
   const refresh = useCallback(async () => {
     if (!currentOrgId) return;
@@ -68,6 +80,14 @@ function OrgMembersPage() {
       .eq("organization_id", currentOrgId)
       .is("accepted_at", null);
     setInvites((inv ?? []) as Invite[]);
+
+    const { data: ic } = await supabase
+      .from("invite_codes")
+      .select("id,code,role_assigned,expires_at,max_uses,current_uses,active")
+      .eq("organization_id", currentOrgId)
+      .order("created_at", { ascending: false });
+    setCodes((ic ?? []) as InviteCode[]);
+
     setLoading(false);
   }, [currentOrgId]);
 
@@ -112,6 +132,55 @@ function OrgMembersPage() {
     const link = `${window.location.origin}/accept-invite/${token}`;
     await navigator.clipboard.writeText(link).catch(() => {});
     toast.success("Invite link copied");
+  };
+
+  const generateCode = async () => {
+    if (!currentOrgId || !user) return;
+    const code = Array.from({ length: 8 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 30)]).join("");
+    const { error } = await supabase.from("invite_codes").insert({
+      organization_id: currentOrgId,
+      code,
+      role_assigned: inviteRole,
+      created_by: user.id,
+    });
+    if (error) return toast.error("Could not create code", { description: error.message });
+    const link = `${window.location.origin}/join/${code}`;
+    await navigator.clipboard.writeText(link).catch(() => {});
+    toast.success("Invite code created — link copied", { description: code });
+    void refresh();
+  };
+
+  const toggleCode = async (id: string, active: boolean) => {
+    const { error } = await supabase.from("invite_codes").update({ active }).eq("id", id);
+    if (error) return toast.error(error.message);
+    void refresh();
+  };
+
+  const copyCodeLink = async (code: string) => {
+    const link = `${window.location.origin}/join/${code}`;
+    await navigator.clipboard.writeText(link).catch(() => {});
+    toast.success("Link copied");
+  };
+
+  const bulkInvite = async () => {
+    if (!currentOrgId || !user) return;
+    const emails = bulkEmails
+      .split(/[\s,;\n]+/)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => /\S+@\S+\.\S+/.test(s));
+    if (!emails.length) return toast.error("No valid emails found");
+    const rows = emails.map((email) => ({
+      organization_id: currentOrgId,
+      email,
+      org_role: "member" as const,
+      token: crypto.randomUUID().replace(/-/g, ""),
+      invited_by: user.id,
+    }));
+    const { error } = await supabase.from("organization_invites").insert(rows);
+    if (error) return toast.error("Bulk invite failed", { description: error.message });
+    toast.success(`${emails.length} invites created`);
+    setBulkEmails("");
+    void refresh();
   };
 
   const changeRole = async (memberId: string, newRole: "owner" | "admin" | "member") => {
@@ -169,6 +238,57 @@ function OrgMembersPage() {
           {seatsCap > 0 && seatsUsed >= seatsCap && (
             <p className="mt-3 text-xs text-destructive">Seat limit reached. Increase seats in Billing first.</p>
           )}
+        </section>
+      )}
+
+      {isOrgAdmin && (
+        <section className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Shareable invite codes</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            One link or code that anyone can use. Great for QR codes, conferences, or email blasts.
+          </p>
+          <div className="mt-4">
+            <Button onClick={generateCode}>Generate invite code</Button>
+          </div>
+          {codes.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-border">
+              {codes.map((c) => (
+                <div key={c.id} className="flex items-center justify-between gap-3 border-b border-border bg-background/50 px-4 py-3 last:border-b-0">
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm font-medium tracking-wider text-foreground">{c.code}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.role_assigned} · {c.current_uses} use{c.current_uses === 1 ? "" : "s"} · {c.active ? "active" : "disabled"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => copyCodeLink(c.code)}>Copy link</Button>
+                    <Button variant="ghost" size="sm" onClick={() => toggleCode(c.id, !c.active)}>
+                      {c.active ? "Disable" : "Enable"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {isOrgAdmin && (
+        <section className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Bulk invite</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paste emails (commas, spaces, or new lines). Each gets their own one-time link.
+          </p>
+          <textarea
+            value={bulkEmails}
+            onChange={(e) => setBulkEmails(e.target.value)}
+            rows={4}
+            placeholder="alice@firm.com, bob@firm.com&#10;carol@firm.com"
+            className="mt-3 block w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm shadow-card outline-none ring-ring/30 focus:ring-2"
+          />
+          <div className="mt-3">
+            <Button onClick={bulkInvite} disabled={!bulkEmails.trim()}>Send invites</Button>
+          </div>
         </section>
       )}
 

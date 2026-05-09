@@ -9,10 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JoinIndexRouteImport } from './routes/join.index'
+import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
@@ -20,11 +23,17 @@ import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
+import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -43,6 +52,16 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinIndexRoute = JoinIndexRouteImport.update({
+  id: '/join/',
+  path: '/join/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinCodeRoute = JoinCodeRouteImport.update({
+  id: '/join/$code',
+  path: '/join/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -80,6 +99,11 @@ const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppOrgIndexRoute = AppOrgIndexRouteImport.update({
+  id: '/org/',
+  path: '/org/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   id: '/org/settings',
   path: '/org/settings',
@@ -106,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/signup': typeof SignupRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/admin': typeof AppAdminRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -113,16 +138,20 @@ export interface FileRoutesByFullPath {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
+  '/join/$code': typeof JoinCodeRoute
+  '/join/': typeof JoinIndexRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/': typeof AppOrgIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/signup': typeof SignupRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/admin': typeof AppAdminRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -130,10 +159,13 @@ export interface FileRoutesByTo {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
+  '/join/$code': typeof JoinCodeRoute
+  '/join': typeof JoinIndexRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org': typeof AppOrgIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,6 +173,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/signup': typeof SignupRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/admin': typeof AppAdminRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -148,10 +181,13 @@ export interface FileRoutesById {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
+  '/join/$code': typeof JoinCodeRoute
+  '/join/': typeof JoinIndexRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/': typeof AppOrgIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,6 +196,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/signup'
     | '/accept-invite/$token'
     | '/app/admin'
     | '/app/dashboard'
@@ -167,16 +204,20 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/settings'
+    | '/join/$code'
+    | '/join/'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/members'
     | '/app/org/settings'
+    | '/app/org/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/signup'
     | '/accept-invite/$token'
     | '/app/admin'
     | '/app/dashboard'
@@ -184,16 +225,20 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/settings'
+    | '/join/$code'
+    | '/join'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/members'
     | '/app/org/settings'
+    | '/app/org'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/login'
     | '/onboarding'
+    | '/signup'
     | '/accept-invite/$token'
     | '/app/admin'
     | '/app/dashboard'
@@ -201,10 +246,13 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/settings'
+    | '/join/$code'
+    | '/join/'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/members'
     | '/app/org/settings'
+    | '/app/org/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,11 +260,21 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  SignupRoute: typeof SignupRoute
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
+  JoinCodeRoute: typeof JoinCodeRoute
+  JoinIndexRoute: typeof JoinIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -243,6 +301,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join/': {
+      id: '/join/'
+      path: '/join'
+      fullPath: '/join/'
+      preLoaderRoute: typeof JoinIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join/$code': {
+      id: '/join/$code'
+      path: '/join/$code'
+      fullPath: '/join/$code'
+      preLoaderRoute: typeof JoinCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/settings': {
@@ -293,6 +365,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/accept-invite/$token'
       preLoaderRoute: typeof AcceptInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/org/': {
+      id: '/app/org/'
+      path: '/org'
+      fullPath: '/app/org/'
+      preLoaderRoute: typeof AppOrgIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/org/settings': {
       id: '/app/org/settings'
@@ -347,6 +426,7 @@ interface AppRouteChildren {
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
+  AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -359,6 +439,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
+  AppOrgIndexRoute: AppOrgIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -368,7 +449,10 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  SignupRoute: SignupRoute,
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
+  JoinCodeRoute: JoinCodeRoute,
+  JoinIndexRoute: JoinIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
