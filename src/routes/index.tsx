@@ -367,7 +367,7 @@ function Landing() {
       <FAQSection />
 
       {/* Contact */}
-      <section id="contact" className="border-t border-border">
+      <section id="contact" className="border-t border-border bg-gradient-navy">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
