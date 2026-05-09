@@ -239,6 +239,55 @@ function OrgMembersPage() {
             <p className="mt-3 text-xs text-destructive">Seat limit reached. Increase seats in Billing first.</p>
           )}
         </section>
+      {isOrgAdmin && (
+        <section className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Shareable invite codes</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            One link or code that anyone can use. Great for QR codes, conferences, or email blasts.
+          </p>
+          <div className="mt-4">
+            <Button onClick={generateCode}>Generate invite code</Button>
+          </div>
+          {codes.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-border">
+              {codes.map((c) => (
+                <div key={c.id} className="flex items-center justify-between gap-3 border-b border-border bg-background/50 px-4 py-3 last:border-b-0">
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm font-medium tracking-wider text-foreground">{c.code}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.role_assigned} · {c.current_uses} use{c.current_uses === 1 ? "" : "s"} · {c.active ? "active" : "disabled"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => copyCodeLink(c.code)}>Copy link</Button>
+                    <Button variant="ghost" size="sm" onClick={() => toggleCode(c.id, !c.active)}>
+                      {c.active ? "Disable" : "Enable"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {isOrgAdmin && (
+        <section className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Bulk invite</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paste emails (commas, spaces, or new lines). Each gets their own one-time link.
+          </p>
+          <textarea
+            value={bulkEmails}
+            onChange={(e) => setBulkEmails(e.target.value)}
+            rows={4}
+            placeholder="alice@firm.com, bob@firm.com&#10;carol@firm.com"
+            className="mt-3 block w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm shadow-card outline-none ring-ring/30 focus:ring-2"
+          />
+          <div className="mt-3">
+            <Button onClick={bulkInvite} disabled={!bulkEmails.trim()}>Send invites</Button>
+          </div>
+        </section>
       )}
 
       {invites.length > 0 && (
