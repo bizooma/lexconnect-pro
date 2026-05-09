@@ -14,7 +14,7 @@ export const listAuthUsers = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    if (!roleRow) throw new Response("Forbidden", { status: 403 });
+    if (!roleRow) throw new Error("Forbidden");
 
     const out: { id: string; email: string | null; created_at: string }[] = [];
     let page = 1;
@@ -23,7 +23,7 @@ export const listAuthUsers = createServerFn({ method: "GET" })
         page,
         perPage: 1000,
       });
-      if (error) throw new Response(error.message, { status: 500 });
+      if (error) throw new Error(error.message);
       for (const u of data.users) {
         out.push({ id: u.id, email: u.email ?? null, created_at: u.created_at });
       }
@@ -45,20 +45,20 @@ export const setPlatformAdmin = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    if (!roleRow) throw new Response("Forbidden", { status: 403 });
+    if (!roleRow) throw new Error("Forbidden");
 
     if (data.grant) {
       const { error } = await supabaseAdmin
         .from("user_roles")
         .upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
-      if (error) throw new Response(error.message, { status: 500 });
+      if (error) throw new Error(error.message);
     } else {
       const { error } = await supabaseAdmin
         .from("user_roles")
         .delete()
         .eq("user_id", data.userId)
         .eq("role", "admin");
-      if (error) throw new Response(error.message, { status: 500 });
+      if (error) throw new Error(error.message);
     }
     return { ok: true };
   });
