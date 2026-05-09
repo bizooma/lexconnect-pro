@@ -94,7 +94,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
         }
 
         const token = authHeader.slice('Bearer '.length).trim()
-        if (token !== supabaseServiceKey) {
+        if (!safeEqual(token, supabaseServiceKey)) {
           return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
 
