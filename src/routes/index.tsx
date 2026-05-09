@@ -14,7 +14,9 @@ function Landing() {
         <Logo />
         <nav className="hidden items-center gap-7 text-sm text-muted-foreground sm:flex">
           <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#program" className="hover:text-foreground">For bar associations</a>
+          <a href="#install" className="hover:text-foreground">Install</a>
+          <a href="#pricing" className="hover:text-foreground">Pricing</a>
+          <a href="#contact" className="hover:text-foreground">Contact</a>
           <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
         </nav>
         <Link
