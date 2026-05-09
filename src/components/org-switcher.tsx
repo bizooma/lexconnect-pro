@@ -2,7 +2,7 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { Link } from "@tanstack/react-router";
 
 export function OrgSwitcher() {
-  const { memberships, currentOrgId, switchOrg, currentOrg, role, subscription } = useCurrentOrg();
+  const { memberships, currentOrgId, switchOrg, currentOrg, role, subscription, isOrgAdmin } = useCurrentOrg();
 
   if (!currentOrg) {
     return (
@@ -49,6 +49,9 @@ export function OrgSwitcher() {
       <div className="flex flex-col gap-0.5 pt-1 text-xs">
         <Link to="/app/org" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Overview</Link>
         <Link to="/app/org/insights" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Insights</Link>
+        {isOrgAdmin && (
+          <Link to="/app/org/matching" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Matching</Link>
+        )}
         <Link to="/app/org/members" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Members</Link>
         <Link to="/app/org/billing" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Billing & seats</Link>
         <Link to="/app/org/settings" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Org settings</Link>

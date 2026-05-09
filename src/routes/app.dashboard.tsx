@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { useMyProfile, useDirectory, initialsOf } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { scoreMatches, buildActiveLoadMap, type ExistingPair } from "@/lib/matching";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
@@ -85,7 +86,21 @@ function Dashboard() {
   };
 
   const firstName = (profile?.full_name || user?.email || "").split(/[\s@]/)[0];
-  const suggested = directory.slice(0, 3);
+
+  const suggested = useMemo(() => {
+    if (!profile) return [];
+    const pairs: ExistingPair[] = mentorships.map((m) => ({
+      mentor_id: m.mentor_id,
+      mentee_id: m.mentee_id,
+      status: m.status,
+    }));
+    return scoreMatches({
+      viewer: profile as any,
+      candidates: directory as any,
+      existingPairs: pairs,
+      activeLoad: buildActiveLoadMap(pairs),
+    }).slice(0, 3);
+  }, [profile, directory, mentorships]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
@@ -200,24 +215,32 @@ function Dashboard() {
           </p>
         ) : (
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {suggested.map((p) => (
-              <article key={p.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-                <div className="flex items-center gap-3">
-                  <Avatar initials={initialsOf(p.full_name)} src={p.avatar_url} />
-                  <div>
-                    <p className="font-medium text-foreground">{p.full_name || "Member"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {p.practice_areas?.[0] || "Attorney"}
-                      {p.years_experience ? ` · ${p.years_experience} yrs` : ""}
-                    </p>
+            {suggested.map((mr) => {
+              const p = mr.profile;
+              return (
+                <article key={p.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
+                  <div className="flex items-center gap-3">
+                    <Avatar initials={initialsOf(p.full_name)} src={p.avatar_url} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-foreground">{p.full_name || "Member"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {p.practice_areas?.[0] || "Attorney"}
+                        {p.years_experience ? ` · ${p.years_experience} yrs` : ""}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                      {mr.score}%
+                    </span>
                   </div>
-                </div>
-                {p.bio && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{p.bio}</p>}
-                <div className="mt-4">
-                  <Link to="/app/discover" className="block w-full rounded-lg bg-primary px-3 py-2 text-center text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90">View directory</Link>
-                </div>
-              </article>
-            ))}
+                  {mr.reasons[0] && (
+                    <p className="mt-3 text-xs text-muted-foreground">{mr.reasons.slice(0, 2).join(" · ")}</p>
+                  )}
+                  <div className="mt-4">
+                    <Link to="/app/discover" className="block w-full rounded-lg bg-primary px-3 py-2 text-center text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90">View directory</Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

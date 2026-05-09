@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
-import { useDirectory, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
+import { useDirectory, useMyProfile, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { scoreMatches, buildActiveLoadMap, type ExistingPair, type MatchResult } from "@/lib/matching";
 
 export const Route = createFileRoute("/app/discover")({
   component: Discover,
@@ -16,23 +17,28 @@ function Discover() {
   const { user } = useAuth();
   const { currentOrgId } = useCurrentOrg();
   const { profiles, loading } = useDirectory();
+  const { profile: myProfile } = useMyProfile();
   const [q, setQ] = useState("");
   const [practice, setPractice] = useState<string | null>(null);
+  const [tab, setTab] = useState<"recommended" | "browse">("recommended");
   const [requested, setRequested] = useState<Profile | null>(null);
   const [intro, setIntro] = useState(
     "Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?",
   );
   const [submitting, setSubmitting] = useState(false);
   const [existingMentorIds, setExistingMentorIds] = useState<Set<string>>(new Set());
+  const [allPairs, setAllPairs] = useState<ExistingPair[]>([]);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("mentorships")
-      .select("mentor_id,status")
-      .eq("mentee_id", user.id)
+      .select("mentor_id,mentee_id,status")
+      .or(`mentor_id.eq.${user.id},mentee_id.eq.${user.id}`)
       .then(({ data }) => {
-        setExistingMentorIds(new Set((data ?? []).map((r: any) => r.mentor_id)));
+        const rows = (data as ExistingPair[] | null) ?? [];
+        setAllPairs(rows);
+        setExistingMentorIds(new Set(rows.filter((r) => r.mentee_id === user.id).map((r) => r.mentor_id)));
       });
   }, [user]);
 
@@ -57,8 +63,26 @@ function Discover() {
     setRequested(null);
   };
 
+  const recommended: MatchResult[] = useMemo(() => {
+    if (!myProfile) return [];
+    return scoreMatches({
+      viewer: myProfile as any,
+      candidates: profiles as any,
+      existingPairs: allPairs,
+      activeLoad: buildActiveLoadMap(allPairs),
+    });
+  }, [myProfile, profiles, allPairs]);
+
+  const recommendedById = useMemo(() => {
+    const m = new Map<string, MatchResult>();
+    recommended.forEach((r) => m.set(r.profile.user_id, r));
+    return m;
+  }, [recommended]);
+
+  const baseList: Profile[] = tab === "recommended" ? recommended.map((r) => r.profile) : profiles;
+
   const filtered = useMemo(() => {
-    return profiles.filter((p) => {
+    return baseList.filter((p) => {
       if (practice && !(p.practice_areas ?? []).includes(practice)) return false;
       if (q) {
         const hay = `${p.full_name ?? ""} ${p.firm ?? ""} ${p.bio ?? ""} ${(p.practice_areas ?? []).join(" ")}`.toLowerCase();
@@ -66,13 +90,24 @@ function Discover() {
       }
       return true;
     });
-  }, [profiles, practice, q]);
+  }, [baseList, practice, q]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
       <div>
         <h1 className="font-serif text-2xl font-semibold text-foreground lg:text-3xl">Discover</h1>
         <p className="mt-1 text-sm text-muted-foreground">Find mentors and mentees by practice, location, and interests.</p>
+      </div>
+
+      <div className="mt-4 inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
+        <button
+          onClick={() => setTab("recommended")}
+          className={`rounded-md px-3 py-1.5 font-medium transition ${tab === "recommended" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+        >Recommended for you</button>
+        <button
+          onClick={() => setTab("browse")}
+          className={`rounded-md px-3 py-1.5 font-medium transition ${tab === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+        >Browse all</button>
       </div>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -120,9 +155,16 @@ function Discover() {
                       <p className="text-xs text-muted-foreground">{p.firm || p.headline || "Attorney"}</p>
                     </div>
                   </div>
-                  {p.is_mentor && (
-                    <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {p.is_mentor && (
+                      <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
+                    )}
+                    {tab === "recommended" && recommendedById.has(p.user_id) && (
+                      <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                        {recommendedById.get(p.user_id)!.score}%
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
@@ -130,6 +172,12 @@ function Discover() {
                   {loc && <Tag>{loc}</Tag>}
                   {p.years_experience != null && <Tag>{p.years_experience} yrs</Tag>}
                 </div>
+
+                {tab === "recommended" && recommendedById.get(p.user_id)?.reasons[0] && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {recommendedById.get(p.user_id)!.reasons.slice(0, 2).join(" · ")}
+                  </p>
+                )}
 
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {p.bio || "No bio yet."}
