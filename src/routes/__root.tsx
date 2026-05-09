@@ -114,6 +114,67 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-startup-image", href: "/splash/splash-ipad-10.png", media: "(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" },
       { rel: "apple-touch-startup-image", href: "/splash/splash-ipad-mini.png", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://lexguild.com/#organization",
+              name: "LexGuild",
+              url: "https://lexguild.com/",
+              logo: "https://lexguild.com/icons/icon-512.png",
+              description: "Modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations.",
+              sameAs: ["https://lexguild.com/"],
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  contactType: "sales",
+                  email: "joe@bizooma.com",
+                  areaServed: "US",
+                  availableLanguage: ["English"],
+                },
+              ],
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://lexguild.com/#website",
+              url: "https://lexguild.com/",
+              name: "LexGuild",
+              publisher: { "@id": "https://lexguild.com/#organization" },
+              inLanguage: "en-US",
+            },
+            {
+              "@type": "SoftwareApplication",
+              name: "LexGuild",
+              operatingSystem: "Web, iOS, Android",
+              applicationCategory: "BusinessApplication",
+              description: "Mentorship and member engagement platform for bar associations, law firms, and legal organizations.",
+              offers: [
+                { "@type": "Offer", name: "Starter", price: "399", priceCurrency: "USD", category: "subscription" },
+                { "@type": "Offer", name: "Professional", price: "899", priceCurrency: "USD", category: "subscription" },
+                { "@type": "Offer", name: "Enterprise", price: "1500", priceCurrency: "USD", category: "subscription" },
+              ],
+              aggregateRating: undefined,
+            },
+            {
+              "@type": "WebPage",
+              "@id": "https://lexguild.com/#webpage",
+              url: "https://lexguild.com/",
+              name: "LexGuild — Modern attorney mentorship",
+              isPartOf: { "@id": "https://lexguild.com/#website" },
+              about: { "@id": "https://lexguild.com/#organization" },
+              speakable: {
+                "@type": "SpeakableSpecification",
+                cssSelector: ["h1", "h2", "[data-speakable]"],
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
