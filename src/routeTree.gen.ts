@@ -26,6 +26,7 @@ import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$t
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
+import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
@@ -115,6 +116,11 @@ const AppOrgMembersRoute = AppOrgMembersRouteImport.update({
   path: '/org/members',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrgMatchingRoute = AppOrgMatchingRouteImport.update({
+  id: '/org/matching',
+  path: '/org/matching',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgInsightsRoute = AppOrgInsightsRouteImport.update({
   id: '/org/insights',
   path: '/org/insights',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/org/': typeof AppOrgIndexRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/org': typeof AppOrgIndexRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/org/': typeof AppOrgIndexRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/settings'
     | '/app/org/'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/settings'
     | '/app/org'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/settings'
     | '/app/org/'
@@ -399,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgMembersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/org/matching': {
+      id: '/app/org/matching'
+      path: '/org/matching'
+      fullPath: '/app/org/matching'
+      preLoaderRoute: typeof AppOrgMatchingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/insights': {
       id: '/app/org/insights'
       path: '/org/insights'
@@ -444,6 +463,7 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
+  AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
@@ -458,6 +478,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
+  AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
@@ -478,3 +499,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
