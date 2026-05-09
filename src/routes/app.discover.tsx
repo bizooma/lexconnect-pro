@@ -155,25 +155,22 @@ function Discover() {
                       <p className="text-xs text-muted-foreground">{p.firm || p.headline || "Attorney"}</p>
                     </div>
                   </div>
-                  {p.is_mentor && (
-                    <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {p.is_mentor && (
+                      <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
+                    )}
+                    {tab === "recommended" && recommendedById.has(p.user_id) && (
+                      <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                        {recommendedById.get(p.user_id)!.score}%
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {primary && <Tag>{primary}</Tag>}
                   {loc && <Tag>{loc}</Tag>}
                   {p.years_experience != null && <Tag>{p.years_experience} yrs</Tag>}
-                </div>
-
-                  {p.is_mentor && (
-                    <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
-                  )}
-                  {tab === "recommended" && recommendedById.has(p.user_id) && (
-                    <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                      {recommendedById.get(p.user_id)!.score}%
-                    </span>
-                  )}
                 </div>
 
                 {tab === "recommended" && recommendedById.get(p.user_id)?.reasons[0] && (
@@ -181,12 +178,6 @@ function Discover() {
                     {recommendedById.get(p.user_id)!.reasons.slice(0, 2).join(" · ")}
                   </p>
                 )}
-
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {primary && <Tag>{primary}</Tag>}
-                  {loc && <Tag>{loc}</Tag>}
-                  {p.years_experience != null && <Tag>{p.years_experience} yrs</Tag>}
-                </div>
 
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {p.bio || "No bio yet."}
