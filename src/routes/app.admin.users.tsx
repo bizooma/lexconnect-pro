@@ -38,17 +38,21 @@ function AdminUsers() {
 
   const refresh = async () => {
     setLoading(true);
-    const [{ data: pData }, { data: oData }, { data: rData }, users] = await Promise.all([
+    let users: AuthUser[] = [];
+    try {
+      const result = await fetchUsers();
+      users = Array.isArray(result) ? result : [];
+    } catch (e: any) {
+      const msg = e?.message ?? (typeof e === "string" ? e : "Could not load auth users");
+      toast.error(msg);
+    }
+    const [{ data: pData }, { data: oData }, { data: rData }] = await Promise.all([
       supabase
         .from("profiles")
         .select("id,user_id,full_name,firm,is_mentor,is_mentee,organization_id")
         .order("created_at", { ascending: false }),
       supabase.from("organizations").select("id,name"),
       supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
-      fetchUsers().catch((e: any) => {
-        toast.error(`Could not load auth users: ${e?.message ?? e}`);
-        return [] as AuthUser[];
-      }),
     ]);
     setProfiles((pData as Profile[] | null) ?? []);
     setOrgs((oData as Org[] | null) ?? []);
