@@ -134,6 +134,55 @@ function OrgMembersPage() {
     toast.success("Invite link copied");
   };
 
+  const generateCode = async () => {
+    if (!currentOrgId || !user) return;
+    const code = Array.from({ length: 8 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 30)]).join("");
+    const { error } = await supabase.from("invite_codes").insert({
+      organization_id: currentOrgId,
+      code,
+      role_assigned: inviteRole,
+      created_by: user.id,
+    });
+    if (error) return toast.error("Could not create code", { description: error.message });
+    const link = `${window.location.origin}/join/${code}`;
+    await navigator.clipboard.writeText(link).catch(() => {});
+    toast.success("Invite code created — link copied", { description: code });
+    void refresh();
+  };
+
+  const toggleCode = async (id: string, active: boolean) => {
+    const { error } = await supabase.from("invite_codes").update({ active }).eq("id", id);
+    if (error) return toast.error(error.message);
+    void refresh();
+  };
+
+  const copyCodeLink = async (code: string) => {
+    const link = `${window.location.origin}/join/${code}`;
+    await navigator.clipboard.writeText(link).catch(() => {});
+    toast.success("Link copied");
+  };
+
+  const bulkInvite = async () => {
+    if (!currentOrgId || !user) return;
+    const emails = bulkEmails
+      .split(/[\s,;\n]+/)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => /\S+@\S+\.\S+/.test(s));
+    if (!emails.length) return toast.error("No valid emails found");
+    const rows = emails.map((email) => ({
+      organization_id: currentOrgId,
+      email,
+      org_role: "member" as const,
+      token: crypto.randomUUID().replace(/-/g, ""),
+      invited_by: user.id,
+    }));
+    const { error } = await supabase.from("organization_invites").insert(rows);
+    if (error) return toast.error("Bulk invite failed", { description: error.message });
+    toast.success(`${emails.length} invites created`);
+    setBulkEmails("");
+    void refresh();
+  };
+
   const changeRole = async (memberId: string, newRole: "owner" | "admin" | "member") => {
     const { error } = await supabase.from("organization_members").update({ org_role: newRole }).eq("id", memberId);
     if (error) return toast.error(error.message);
