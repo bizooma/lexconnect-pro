@@ -4,6 +4,9 @@ import { Logo } from "@/components/logo";
 import heroBg from "@/assets/hero-bg.jpg";
 import phoneMockup from "@/assets/lex-phones.png";
 import bizoomaLogo from "@/assets/bizooma-logo.png";
+import installIosSafari from "@/assets/install-ios-safari.png";
+import installIosChrome from "@/assets/install-ios-chrome.png";
+import installAndroid from "@/assets/install-android.png";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -124,58 +127,16 @@ function Landing() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            {/* iOS */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-navy text-gold">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M16.365 1.43c0 1.14-.464 2.23-1.218 3.012-.836.86-2.21 1.522-3.319 1.43-.13-1.122.42-2.27 1.171-3.04.84-.85 2.282-1.49 3.366-1.402zM20.5 17.36c-.55 1.27-.815 1.84-1.527 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.94-1-4.03-.99-2.09.01-2.53 1.01-4.07.99-1.74-.02-3.06-1.77-4.05-3.33C-.07 16.7-.36 12 1.94 9.6c1.55-1.61 3.97-2.55 6.04-2.59 1.57-.03 3.05.85 4.03.85.97 0 2.78-1.05 4.7-.9.8.04 3.06.32 4.51 2.45-3.97 2.18-3.32 7.86 1.28 7.95z"/></svg>
-                </div>
-                <h3 className="font-serif text-xl font-semibold text-foreground">iPhone & iPad</h3>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              { src: installIosSafari, alt: "Install LexGuild on iPhone using Safari — step-by-step screenshots" },
+              { src: installIosChrome, alt: "Install LexGuild on iPhone using Chrome — step-by-step screenshots" },
+              { src: installAndroid, alt: "Install LexGuild on Android using Chrome — step-by-step screenshots" },
+            ].map((img) => (
+              <div key={img.alt} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                <img src={img.src} alt={img.alt} loading="lazy" className="h-auto w-full" />
               </div>
-              <ol className="mt-6 space-y-4">
-                {[
-                  { t: "Open LexGuild in Safari", d: "Installation only works from Safari on iOS — not Chrome or Firefox." },
-                  { t: "Tap the Share button", d: "It's the square with an arrow pointing up at the bottom of the screen." },
-                  { t: 'Choose "Add to Home Screen"', d: "Scroll down in the share sheet if you don't see it right away." },
-                  { t: 'Tap "Add" to confirm', d: "LexGuild will appear on your home screen like any other app." },
-                ].map((s, i) => (
-                  <li key={s.t} className="flex gap-4">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-serif text-sm font-semibold text-primary-foreground">{i + 1}</span>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{s.t}</p>
-                      <p className="mt-0.5 text-sm text-muted-foreground">{s.d}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Android */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-navy text-gold">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M17.6 9.48l1.84-3.18a.4.4 0 10-.69-.4l-1.86 3.23a11.7 11.7 0 00-9.78 0L5.25 5.9a.4.4 0 10-.69.4l1.84 3.18A10.5 10.5 0 001 18h22a10.5 10.5 0 00-5.4-8.52zM7 15.25a.94.94 0 110-1.88.94.94 0 010 1.88zm10 0a.94.94 0 110-1.88.94.94 0 010 1.88z"/></svg>
-                </div>
-                <h3 className="font-serif text-xl font-semibold text-foreground">Android</h3>
-              </div>
-              <ol className="mt-6 space-y-4">
-                {[
-                  { t: "Open LexGuild in Chrome", d: "Chrome offers the smoothest install experience on Android." },
-                  { t: 'Look for the "Install app" prompt', d: "Chrome usually shows a banner at the bottom — tap Install." },
-                  { t: "Or use the menu", d: 'Tap the three-dot menu in the top right and choose "Install app" or "Add to Home screen".' },
-                  { t: "Confirm and launch", d: "LexGuild installs to your home screen and app drawer." },
-                ].map((s, i) => (
-                  <li key={s.t} className="flex gap-4">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-serif text-sm font-semibold text-primary-foreground">{i + 1}</span>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{s.t}</p>
-                      <p className="mt-0.5 text-sm text-muted-foreground">{s.d}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
+            ))}
           </div>
         </div>
       </section>
