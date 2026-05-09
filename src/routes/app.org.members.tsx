@@ -80,6 +80,14 @@ function OrgMembersPage() {
       .eq("organization_id", currentOrgId)
       .is("accepted_at", null);
     setInvites((inv ?? []) as Invite[]);
+
+    const { data: ic } = await supabase
+      .from("invite_codes")
+      .select("id,code,role_assigned,expires_at,max_uses,current_uses,active")
+      .eq("organization_id", currentOrgId)
+      .order("created_at", { ascending: false });
+    setCodes((ic ?? []) as InviteCode[]);
+
     setLoading(false);
   }, [currentOrgId]);
 
