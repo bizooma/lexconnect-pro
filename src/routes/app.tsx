@@ -5,6 +5,7 @@ import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -88,6 +89,10 @@ function AppLayout() {
           })}
         </nav>
         <div className="border-t border-border p-3">
+          <div className="mb-2 flex items-center justify-between gap-2 px-1">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Account</span>
+            <NotificationsBell />
+          </div>
           <Link to="/app/settings" className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent">
             <Avatar initials={initials} src={avatarUrl} size={36} />
             <div className="min-w-0 flex-1">
@@ -105,9 +110,12 @@ function AppLayout() {
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <Logo />
-        <Link to="/app/settings">
-          <Avatar initials={initials} src={avatarUrl} size={36} />
-        </Link>
+        <div className="flex items-center gap-1">
+          <NotificationsBell />
+          <Link to="/app/settings">
+            <Avatar initials={initials} src={avatarUrl} size={36} />
+          </Link>
+        </div>
       </header>
 
       <main className="flex-1 pb-24 lg:pb-0">
