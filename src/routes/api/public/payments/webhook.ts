@@ -57,8 +57,9 @@ const PRICE_TO_PLAN: Record<string, { plan: "starter" | "pro" | "firm"; seats: n
   professional_annual: { plan: "firm", seats: 100 },
 };
 
-function statusFromStripe(s: Stripe.Subscription.Status): string {
-  // Map Stripe statuses onto our subscription_status enum
+type SubStatus = "active" | "canceled" | "grandfathered" | "incomplete" | "past_due" | "trialing";
+
+function statusFromStripe(s: Stripe.Subscription.Status): SubStatus {
   switch (s) {
     case "trialing":
       return "trialing";
