@@ -1,51 +1,44 @@
 ## Goal
 
-Cleanly separate two admin experiences:
+Adopt the refined three-tier pricing across the site, with a monthly/annual toggle (annual saves ~2 months).
 
-- **Platform admin** (`user_roles.role = 'admin'`, e.g. joe@bizooma.com): system-wide view of every organization and every user.
-- **Org admin** (`organization_members.org_role` in `owner`/`admin`): the existing per-org tools under `/app/org/*` (Overview, Insights, Matching, Members, Billing, Settings).
+## Final pricing
 
-Today `/app/admin` is labeled "Bar Association Admin" and mixes the two — we just scoped it to the current org, which makes it a duplicate of `/app/org/members`. We'll repurpose `/app/admin` as the platform-admin-only area.
+| Tier | Monthly | Annual | Seats | Audience |
+|---|---|---|---|---|
+| Starter | $399/mo | $3,990/yr | Up to 25 | Pilot programs, small firms |
+| Professional (most popular) | $899/mo | $8,990/yr | Up to 100 | Mid-sized bars, regional groups, larger firms |
+| Enterprise | Custom (from $2,500/mo) | Custom | 250+ | State bars, multi-location, law schools |
+
+Annual = 10× monthly (≈2 months free). Enterprise shows "Contact sales" instead of a price.
+
+## Feature lists per tier
+
+**Starter** — Up to 25 members · 1 admin · Invite links & codes · Messaging · Mentorship matching · Meeting scheduling · Mobile PWA access · Basic analytics
+
+**Professional** (everything in Starter, plus) — Up to 100 members · Multiple admins · Admin matching controls · Voice notes · Organization branding · Mentorship reporting · Enhanced analytics · Priority support
+
+**Enterprise** (everything in Professional, plus) — 250+ members · Custom branding · Advanced reporting · Custom onboarding · Dedicated success manager · SSO (roadmap) · API access (roadmap) · White-label (roadmap)
 
 ## Changes
 
-### 1. Repurpose `/app/admin` as Platform Admin
+### 1. `src/routes/index.tsx` — pricing section
+- Replace the existing 3-card pricing block with new tiers and feature lists above.
+- Add a monthly/annual segmented toggle above the cards (client state, no persistence).
+- When annual is selected: show `$3,990/yr` (with `$399/mo billed annually` underneath) and a small "Save 2 months" badge near the toggle.
+- Enterprise card always shows "Custom" / "Contact sales" → links to `#contact`.
+- Keep "Most popular" ribbon on Professional.
 
-Replace the contents of `src/routes/app.admin.tsx` with a platform-admin landing page, gated on `useIsAdmin()`. Layout: header "Platform Admin" + tabbed sub-sections.
+### 2. `src/routes/signup.tsx` — plan picker
+- Replace the 4-item `PLANS` array with 3 tiers matching the landing page (Starter / Professional / Enterprise).
+- Add `monthlyPrice` and `annualPrice` fields; store selected billing cycle in component state.
+- Render the same monthly/annual toggle above the plan grid.
+- Default selection: Professional, monthly.
+- Enterprise card shows "Contact sales" — selecting it routes the user to the contact section / mailto rather than continuing the self-serve flow (or we keep it selectable and flag it for follow-up; recommend the former for clarity).
 
-Add three child routes:
+### 3. No backend changes
+- Pricing is presentational only right now; no DB columns or Stripe wiring touched. The signup flow already stores org metadata without a price field, so this is purely UI.
 
-- `src/routes/app.admin.orgs.tsx` — list of every organization
-  - Columns: name, slug, kind (firm / bar association), member count, plan, subscription status, created date.
-  - Row click → drawer or `/app/admin/orgs/$id` detail with members list and quick actions (impersonate-style "switch to this org" by writing `lexguild.currentOrgId` into localStorage and navigating to `/app/org`).
-- `src/routes/app.admin.users.tsx` — list of every user/profile
-  - Columns: name, email (from auth), org(s), platform role, mentor/mentee flags, joined date.
-  - Search by name/email/firm. Filter by org.
-  - Actions: grant/revoke platform `admin` role (writes to `user_roles`).
-- `src/routes/app.admin.index.tsx` — small dashboard with counts (orgs, users, active subs, mentorships) and links to the two lists.
+## Open question (will default if no answer)
 
-### 2. Sidebar / nav
-
-In `src/routes/app.tsx`, keep the existing `Admin` nav item but only show it for platform admins (already the case via `useIsAdmin`). Rename label to "Platform" so it isn't confused with org admin.
-
-The org-admin links already live in `OrgSwitcher` (Members, Billing, Settings, etc.) and are gated by `isOrgAdmin` — no change needed there. Joe will see those for any org where he's an owner/admin.
-
-### 3. Data access
-
-Platform-admin queries need to bypass per-org RLS. Existing RLS policies already allow `has_role(auth.uid(), 'admin')` to see all rows on `profiles`, `organizations`, `organization_members`, `mentorships`, `subscriptions`, so the client can query directly with the browser Supabase client — no server function needed.
-
-For listing user emails (which live in `auth.users`, not `profiles`), we'll add a `createServerFn` using the admin Supabase client (`client.server`) that returns `{ id, email, created_at }` for all users, gated by a server-side `has_role(..., 'admin')` check.
-
-### 4. Remove the per-org filtering hack we just added
-
-Since `/app/admin` is becoming platform-only, we revert the `currentOrgId` filter in the existing admin file — but most of that file is being rewritten anyway as part of step 1.
-
-## Out of scope
-
-- Editing other orgs' settings as a platform admin (read-only for now; future work).
-- Org-admin UX changes — those screens stay as-is.
-- Audit logging of platform-admin actions.
-
-## Open questions
-
-None blocking — see questions below if you want to refine scope.
+Enterprise behavior on the signup page — default plan is to **disable self-serve selection** and show a "Contact sales" button that scrolls to the landing contact section. Say the word if you'd rather keep it selectable as-is.

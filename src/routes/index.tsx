@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Logo } from "@/components/logo";
 import heroBg from "@/assets/hero-bg.jpg";
 
@@ -7,6 +8,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
@@ -209,103 +211,144 @@ function Landing() {
               Plans that grow with your organization
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
-              Transparent annual pricing for bar associations, law firms, and legal organizations. No per-seat surprises.
+              Transparent pricing for bar associations, law firms, and legal organizations. Only the organization pays — members never enter payment information.
             </p>
+
+            {/* Billing toggle */}
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <div className="inline-flex items-center rounded-full border border-border bg-card p-1 shadow-card">
+                <button
+                  type="button"
+                  onClick={() => setBilling("monthly")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "monthly"
+                      ? "bg-primary text-primary-foreground shadow-elegant"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBilling("annual")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "annual"
+                      ? "bg-primary text-primary-foreground shadow-elegant"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Annual
+                </button>
+              </div>
+              <span className="text-xs font-medium text-gold">Save 2 months with annual billing</span>
+            </div>
           </div>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {[
               {
-                name: "Chapter",
-                price: "$2,400",
-                period: "/year",
-                blurb: "For small bar sections and local chapters getting started with structured mentorship.",
+                name: "Starter",
+                monthly: { price: "$399", period: "/mo", sub: null as string | null },
+                annual: { price: "$3,990", period: "/yr", sub: "$399/mo billed annually" },
+                blurb: "For pilot mentorship programs, small bar sections, and small firms getting started.",
                 features: [
-                  "Up to 100 members",
-                  "Curated mentor matching",
-                  "Voice notes & messaging",
-                  "Basic engagement insights",
-                  "Email & web push notifications",
+                  "Up to 25 members",
+                  "1 organization admin",
+                  "Invite links & codes",
+                  "Messaging",
+                  "Mentorship matching",
+                  "Meeting scheduling",
+                  "Mobile PWA access",
+                  "Basic analytics",
                 ],
                 cta: "Start your organization",
+                href: "/signup",
                 featured: false,
               },
               {
-                name: "Association",
-                price: "$7,200",
-                period: "/year",
-                blurb: "For state and metro bar associations running active mentorship programs at scale.",
+                name: "Professional",
+                monthly: { price: "$899", period: "/mo", sub: null as string | null },
+                annual: { price: "$8,990", period: "/yr", sub: "$899/mo billed annually" },
+                blurb: "For mid-sized bar associations, regional legal groups, and larger firms.",
                 features: [
-                  "Up to 1,000 members",
-                  "Everything in Chapter",
-                  "Practice-area communities",
+                  "Up to 100 members",
+                  "Multiple admins",
                   "Admin matching controls",
-                  "Advanced engagement insights",
+                  "Voice notes",
+                  "Organization branding",
+                  "Mentorship reporting",
+                  "Enhanced analytics",
                   "Priority support",
                 ],
                 cta: "Start your organization",
+                href: "/signup",
                 featured: true,
               },
               {
                 name: "Enterprise",
-                price: "Custom",
-                period: "",
-                blurb: "For statewide bars, AmLaw firms, and multi-chapter organizations with custom needs.",
+                monthly: { price: "Custom", period: "", sub: "From $2,500/mo" },
+                annual: { price: "Custom", period: "", sub: "From $2,500/mo" },
+                blurb: "For state bar associations, multi-location firms, and law school systems.",
                 features: [
-                  "Unlimited members",
-                  "Everything in Association",
-                  "SSO & SAML",
+                  "250+ members",
                   "Custom branding",
+                  "Advanced reporting",
+                  "Custom onboarding",
                   "Dedicated success manager",
-                  "Onboarding & training",
+                  "SSO (roadmap)",
+                  "API access (roadmap)",
+                  "White-label (roadmap)",
                 ],
                 cta: "Contact sales",
+                href: "#contact",
                 featured: false,
               },
-            ].map((p) => (
-              <div
-                key={p.name}
-                className={`relative flex flex-col rounded-2xl border p-6 shadow-card sm:p-8 ${
-                  p.featured
-                    ? "border-primary bg-card ring-1 ring-primary"
-                    : "border-border bg-card"
-                }`}
-              >
-                {p.featured && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                    Most popular
-                  </span>
-                )}
-                <h3 className="font-serif text-xl font-semibold text-foreground">{p.name}</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="font-serif text-3xl font-semibold text-foreground">{p.price}</span>
-                  {p.period && <span className="text-sm text-muted-foreground">{p.period}</span>}
+            ].map((p) => {
+              const cycle = p[billing];
+              return (
+                <div
+                  key={p.name}
+                  className={`relative flex flex-col rounded-2xl border p-6 shadow-card sm:p-8 ${
+                    p.featured ? "border-primary bg-card ring-1 ring-primary" : "border-border bg-card"
+                  }`}
+                >
+                  {p.featured && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                      Most popular
+                    </span>
+                  )}
+                  <h3 className="font-serif text-xl font-semibold text-foreground">{p.name}</h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="font-serif text-3xl font-semibold text-foreground">{cycle.price}</span>
+                    {cycle.period && <span className="text-sm text-muted-foreground">{cycle.period}</span>}
+                  </div>
+                  <p className="mt-1 min-h-[1.25rem] text-xs text-muted-foreground">{cycle.sub ?? "\u00A0"}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.blurb}</p>
+                  <ul className="mt-6 space-y-2.5">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                        <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8 pt-2">
+                    <a
+                      href={p.href}
+                      className={`inline-flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition ${
+                        p.featured
+                          ? "bg-primary text-primary-foreground shadow-elegant hover:bg-primary/90"
+                          : "border border-border bg-background text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {p.cta}
+                    </a>
+                  </div>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.blurb}</p>
-                <ul className="mt-6 space-y-2.5">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                      <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8 pt-2">
-                  <a
-                    href={p.name === "Enterprise" ? "#contact" : "/signup"}
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition ${
-                      p.featured
-                        ? "bg-primary text-primary-foreground shadow-elegant hover:bg-primary/90"
-                        : "border border-border bg-background text-foreground hover:bg-accent"
-                    }`}
-                  >
-                    {p.cta}
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

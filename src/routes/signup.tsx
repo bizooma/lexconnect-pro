@@ -18,12 +18,49 @@ const ORG_KINDS = [
   { value: "firm", label: "Other" },
 ] as const;
 
-const PLANS = [
-  { id: "starter", name: "Community", seats: 25, price: "$99/mo", blurb: "Up to 25 members" },
-  { id: "pro", name: "Growth", seats: 100, price: "$299/mo", blurb: "Up to 100 members" },
-  { id: "firm", name: "Scale", seats: 250, price: "$699/mo", blurb: "Up to 250 members" },
-  { id: "firm", name: "Enterprise", seats: 9999, price: "Let's talk", blurb: "Unlimited seats + onboarding" },
-] as const;
+type Plan = {
+  id: string;
+  name: string;
+  seats: number;
+  monthly: string;
+  annual: string;
+  monthlySub?: string;
+  annualSub?: string;
+  blurb: string;
+  contactOnly?: boolean;
+};
+
+const PLANS: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    seats: 25,
+    monthly: "$399/mo",
+    annual: "$3,990/yr",
+    annualSub: "$399/mo billed annually",
+    blurb: "Up to 25 members · Pilot programs & small firms",
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    seats: 100,
+    monthly: "$899/mo",
+    annual: "$8,990/yr",
+    annualSub: "$899/mo billed annually",
+    blurb: "Up to 100 members · Mid-sized bars, regional groups, larger firms",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    seats: 9999,
+    monthly: "Custom",
+    annual: "Custom",
+    monthlySub: "From $2,500/mo",
+    annualSub: "From $2,500/mo",
+    blurb: "250+ members · State bars, multi-location firms, law schools",
+    contactOnly: true,
+  },
+];
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "org";
@@ -41,7 +78,8 @@ function SignupOrg() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [planIdx, setPlanIdx] = useState<number>(0);
+  const [planIdx, setPlanIdx] = useState<number>(1);
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -153,21 +191,63 @@ function SignupOrg() {
           <div>
             <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">Choose a plan</h1>
             <p className="mt-2 text-sm text-muted-foreground">Only the organization pays. Members never enter payment information.</p>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {PLANS.map((p, i) => (
-                <button key={p.name} onClick={() => setPlanIdx(i)}
-                  className={`rounded-2xl border bg-card p-5 text-left shadow-card transition ${planIdx === i ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"}`}>
-                  <p className="font-serif text-lg font-semibold text-foreground">{p.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{p.blurb}</p>
-                  <p className="mt-3 text-sm font-medium text-primary">{p.price}</p>
+
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <div className="inline-flex items-center rounded-full border border-border bg-card p-1 shadow-card">
+                <button
+                  type="button"
+                  onClick={() => setBilling("monthly")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "monthly" ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Monthly
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setBilling("annual")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "annual" ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Annual
+                </button>
+              </div>
+              <span className="text-xs font-medium text-gold">Save 2 months with annual billing</span>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {PLANS.map((p, i) => {
+                const price = billing === "monthly" ? p.monthly : p.annual;
+                const sub = billing === "monthly" ? p.monthlySub : p.annualSub;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => setPlanIdx(i)}
+                    className={`flex flex-col rounded-2xl border bg-card p-5 text-left shadow-card transition ${
+                      planIdx === i ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="font-serif text-lg font-semibold text-foreground">{p.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{p.blurb}</p>
+                    <p className="mt-3 text-sm font-semibold text-primary">{price}</p>
+                    {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+                  </button>
+                );
+              })}
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Billing isn't connected yet — you'll start in trial mode and can add payment details later.
+              {PLANS[planIdx]?.contactOnly
+                ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
+                : "Billing isn't connected yet — you'll start in trial mode and can add payment details later."}
             </p>
             {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
-            <Footer onBack={() => setStep(1)} onNext={finish} nextLabel={submitting ? "Creating…" : "Create organization"} disabled={submitting} />
+            <Footer
+              onBack={() => setStep(1)}
+              onNext={finish}
+              nextLabel={submitting ? "Creating…" : PLANS[planIdx]?.contactOnly ? "Request Enterprise" : "Create organization"}
+              disabled={submitting}
+            />
           </div>
         )}
       </main>
