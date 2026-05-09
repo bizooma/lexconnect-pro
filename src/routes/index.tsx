@@ -333,6 +333,9 @@ function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <FAQSection />
+
       {/* Contact */}
       <section id="contact" className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-2">
