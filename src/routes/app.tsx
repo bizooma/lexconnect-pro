@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
+import { OrgSwitcher } from "@/components/org-switcher";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -13,7 +15,11 @@ export const Route = createFileRoute("/app")({
       throw redirect({ to: "/app/dashboard" });
     }
   },
-  component: AppLayout,
+  component: () => (
+    <CurrentOrgProvider>
+      <AppLayout />
+    </CurrentOrgProvider>
+  ),
 });
 
 const BASE_NAV = [
