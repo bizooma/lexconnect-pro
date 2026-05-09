@@ -191,21 +191,63 @@ function SignupOrg() {
           <div>
             <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">Choose a plan</h1>
             <p className="mt-2 text-sm text-muted-foreground">Only the organization pays. Members never enter payment information.</p>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {PLANS.map((p, i) => (
-                <button key={p.name} onClick={() => setPlanIdx(i)}
-                  className={`rounded-2xl border bg-card p-5 text-left shadow-card transition ${planIdx === i ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"}`}>
-                  <p className="font-serif text-lg font-semibold text-foreground">{p.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{p.blurb}</p>
-                  <p className="mt-3 text-sm font-medium text-primary">{p.price}</p>
+
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <div className="inline-flex items-center rounded-full border border-border bg-card p-1 shadow-card">
+                <button
+                  type="button"
+                  onClick={() => setBilling("monthly")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "monthly" ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Monthly
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setBilling("annual")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    billing === "annual" ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Annual
+                </button>
+              </div>
+              <span className="text-xs font-medium text-gold">Save 2 months with annual billing</span>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {PLANS.map((p, i) => {
+                const price = billing === "monthly" ? p.monthly : p.annual;
+                const sub = billing === "monthly" ? p.monthlySub : p.annualSub;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => setPlanIdx(i)}
+                    className={`flex flex-col rounded-2xl border bg-card p-5 text-left shadow-card transition ${
+                      planIdx === i ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="font-serif text-lg font-semibold text-foreground">{p.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{p.blurb}</p>
+                    <p className="mt-3 text-sm font-semibold text-primary">{price}</p>
+                    {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+                  </button>
+                );
+              })}
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Billing isn't connected yet — you'll start in trial mode and can add payment details later.
+              {PLANS[planIdx]?.contactOnly
+                ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
+                : "Billing isn't connected yet — you'll start in trial mode and can add payment details later."}
             </p>
             {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
-            <Footer onBack={() => setStep(1)} onNext={finish} nextLabel={submitting ? "Creating…" : "Create organization"} disabled={submitting} />
+            <Footer
+              onBack={() => setStep(1)}
+              onNext={finish}
+              nextLabel={submitting ? "Creating…" : PLANS[planIdx]?.contactOnly ? "Request Enterprise" : "Create organization"}
+              disabled={submitting}
+            />
           </div>
         )}
       </main>
