@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { render } from '@react-email/components'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import type { Database } from '@/integrations/supabase/types'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
 const SITE_NAME = 'LexGuild'
@@ -22,7 +23,7 @@ function generateToken(): string {
 }
 
 async function enqueueOne(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient<Database>,
   templateName: string,
   recipientOverride: string | null,
   templateData: Record<string, any>,
@@ -120,7 +121,7 @@ export const Route = createFileRoute('/api/public/contact')({
           )
         }
 
-        const supabase = createClient(supabaseUrl, serviceKey)
+        const supabase = createClient<Database>(supabaseUrl, serviceKey)
 
         try {
           // Notify Joe (template has fixed recipient)
