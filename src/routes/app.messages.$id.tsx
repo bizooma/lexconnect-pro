@@ -1,26 +1,172 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { CONVERSATIONS, MESSAGES, PROMPTS, findById, type Message } from "@/lib/mock-data";
+import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/avatar";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { initialsOf } from "@/hooks/use-profiles";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/messages/$id")({
   component: Thread,
 });
 
+type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string;
+  kind: "text" | "voice";
+  audio_url: string | null;
+  duration_seconds: number | null;
+  created_at: string;
+};
+
+const PROMPTS = [
+  "What's a recent case that taught you something?",
+  "How do you balance practice and personal time?",
+  "Any advice on building a referral network?",
+  "What would you have done differently in your first year?",
+];
+
 function Thread() {
   const { id } = Route.useParams();
-  const conv = CONVERSATIONS.find((c) => c.id === id) ?? CONVERSATIONS[0];
-  const a = findById(conv.withId);
+  const { user } = useAuth();
+  const [msgs, setMsgs] = useState<Message[]>([]);
+  const [other, setOther] = useState<{ user_id: string; full_name: string | null; avatar_url: string | null } | null>(null);
   const [draft, setDraft] = useState("");
   const [showPrompts, setShowPrompts] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [msgs, setMsgs] = useState<Message[]>(MESSAGES[conv.id] ?? MESSAGES.c1);
+  const [signed, setSigned] = useState<Record<string, string>>({});
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const startedAtRef = useRef<number>(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const send = (body: string, kind: Message["kind"] = "text", duration?: string) => {
-    if (!body.trim() && kind === "text") return;
-    setMsgs([...msgs, { id: `n${msgs.length}`, from: "me", kind, body, at: "now", duration }]);
-    setDraft("");
+  // Load messages + other participant
+  const load = async () => {
+    const [{ data: messages }, { data: parts }] = await Promise.all([
+      supabase
+        .from("messages")
+        .select("id,conversation_id,sender_id,body,kind,audio_url,duration_seconds,created_at")
+        .eq("conversation_id", id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("conversation_participants")
+        .select("user_id")
+        .eq("conversation_id", id),
+    ]);
+    setMsgs((messages as Message[] | null) ?? []);
+    const otherId = (parts ?? []).map((p: any) => p.user_id).find((uid) => uid !== user?.id);
+    if (otherId) {
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("user_id,full_name,avatar_url")
+        .eq("user_id", otherId)
+        .maybeSingle();
+      setOther(p as any);
+    }
   };
+
+  useEffect(() => {
+    if (user) load();
+  }, [user, id]);
+
+  // Realtime new messages
+  useEffect(() => {
+    const channel = supabase
+      .channel(`thread:${id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
+        (payload) => {
+          setMsgs((prev) => {
+            if (prev.some((m) => m.id === (payload.new as Message).id)) return prev;
+            return [...prev, payload.new as Message];
+          });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id]);
+
+  // Auto-scroll
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [msgs.length]);
+
+  // Sign voice URLs as they appear
+  useEffect(() => {
+    const toSign = msgs.filter((m) => m.kind === "voice" && m.audio_url && !signed[m.id]);
+    if (toSign.length === 0) return;
+    (async () => {
+      const updates: Record<string, string> = {};
+      for (const m of toSign) {
+        const { data } = await supabase.storage
+          .from("voice-notes")
+          .createSignedUrl(m.audio_url!, 60 * 60);
+        if (data?.signedUrl) updates[m.id] = data.signedUrl;
+      }
+      if (Object.keys(updates).length) setSigned((s) => ({ ...s, ...updates }));
+    })();
+  }, [msgs]);
+
+  const sendText = async (body: string) => {
+    if (!user || !body.trim()) return;
+    setDraft("");
+    const { error } = await supabase.from("messages").insert({
+      conversation_id: id,
+      sender_id: user.id,
+      body: body.trim(),
+      kind: "text",
+    });
+    if (error) toast.error(error.message);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => chunksRef.current.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: rec.mimeType || "audio/webm" });
+        const duration = Math.max(1, Math.round((Date.now() - startedAtRef.current) / 1000));
+        const ext = (rec.mimeType || "audio/webm").includes("mp4") ? "mp4" : "webm";
+        const path = `${id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("voice-notes")
+          .upload(path, blob, { contentType: blob.type });
+        if (upErr) { toast.error(upErr.message); return; }
+        const { error: msgErr } = await supabase.from("messages").insert({
+          conversation_id: id,
+          sender_id: user!.id,
+          body: "",
+          kind: "voice",
+          audio_url: path,
+          duration_seconds: duration,
+        });
+        if (msgErr) toast.error(msgErr.message);
+      };
+      recorderRef.current = rec;
+      startedAtRef.current = Date.now();
+      rec.start();
+      setRecording(true);
+    } catch (err: any) {
+      toast.error("Microphone access denied");
+    }
+  };
+
+  const stopRecording = () => {
+    if (recorderRef.current && recording) {
+      recorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+  const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col bg-background lg:h-screen">
@@ -29,41 +175,41 @@ function Thread() {
         <Link to="/app/messages" className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden">
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </Link>
-        <Avatar initials={a.initials} size={38} />
+        <Avatar initials={initialsOf(other?.full_name)} src={other?.avatar_url} size={38} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-foreground">{a.name}</p>
-          <p className="truncate text-xs text-success">● Online · typing…</p>
+          <p className="truncate text-sm font-semibold text-foreground">{other?.full_name || "Member"}</p>
         </div>
-        <button className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4" strokeLinecap="round"/></svg>
-        </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-5">
-        <p className="text-center text-[11px] uppercase tracking-wider text-muted-foreground">Today</p>
-        {msgs.map((m) => (
-          <div key={m.id} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-card ${m.from === "me" ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
-              {m.kind === "voice" ? (
-                <div className="flex items-center gap-3 py-1">
-                  <button className={`flex h-9 w-9 items-center justify-center rounded-full ${m.from === "me" ? "bg-white/15" : "bg-primary text-primary-foreground"}`}>
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                  </button>
-                  <div className="flex h-6 items-end gap-0.5">
-                    {[6,12,18,10,14,8,16,12,9,14,7,12].map((h, i) => (
-                      <span key={i} className={`w-0.5 rounded-full ${m.from === "me" ? "bg-white/60" : "bg-primary/60"}`} style={{ height: h }} />
-                    ))}
+      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-5">
+        {msgs.length === 0 && (
+          <p className="text-center text-xs text-muted-foreground">No messages yet — say hello.</p>
+        )}
+        {msgs.map((m) => {
+          const mine = m.sender_id === user?.id;
+          return (
+            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-card ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
+                {m.kind === "voice" ? (
+                  <div className="flex items-center gap-3 py-1">
+                    {signed[m.id] ? (
+                      <audio controls src={signed[m.id]} className="h-8 max-w-[220px]" />
+                    ) : (
+                      <span className="text-xs opacity-70">Loading audio…</span>
+                    )}
+                    {m.duration_seconds && (
+                      <span className="text-xs opacity-80">{m.duration_seconds}s</span>
+                    )}
                   </div>
-                  <span className="text-xs opacity-80">{m.duration}</span>
-                </div>
-              ) : (
-                <p className="leading-relaxed">{m.body}</p>
-              )}
-              <p className={`mt-1 text-[10px] ${m.from === "me" ? "text-white/60" : "text-muted-foreground"}`}>{m.at}{m.from === "me" ? " · Read" : ""}</p>
+                ) : (
+                  <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
+                )}
+                <p className={`mt-1 text-[10px] ${mine ? "text-white/60" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Prompts */}
@@ -90,19 +236,21 @@ function Thread() {
             rows={1}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(draft); } }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendText(draft); } }}
             placeholder="Write a message…"
             className="block max-h-32 flex-1 resize-none rounded-2xl border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none ring-ring/30 focus:ring-2"
           />
           {draft.trim() ? (
-            <button onClick={() => send(draft)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-elegant hover:bg-primary/90">
+            <button onClick={() => sendText(draft)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-elegant hover:bg-primary/90">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           ) : (
             <button
-              onMouseDown={() => setRecording(true)}
-              onMouseUp={() => { setRecording(false); send("voice", "voice", "0:08"); }}
-              onMouseLeave={() => recording && (setRecording(false), send("voice", "voice", "0:08"))}
+              onMouseDown={startRecording}
+              onTouchStart={startRecording}
+              onMouseUp={stopRecording}
+              onTouchEnd={stopRecording}
+              onMouseLeave={() => recording && stopRecording()}
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition ${recording ? "bg-destructive text-destructive-foreground animate-pulse" : "bg-gradient-gold text-primary shadow-gold"}`}
               title="Hold to record voice note"
             >
