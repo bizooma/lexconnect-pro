@@ -78,7 +78,8 @@ function SignupOrg() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [planIdx, setPlanIdx] = useState<number>(0);
+  const [planIdx, setPlanIdx] = useState<number>(1);
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
