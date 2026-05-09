@@ -48,6 +48,12 @@ function Admin() {
   const [submitting, setSubmitting] = useState(false);
 
   const refresh = async () => {
+    if (!currentOrgId) {
+      setProfiles([]);
+      setMentorships([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const [{ data: pData }, { data: mData }] = await Promise.all([
       supabase
@@ -55,8 +61,12 @@ function Admin() {
         .select(
           "id,user_id,full_name,headline,firm,city,state,practice_areas,years_experience,bio,avatar_url,is_mentor,is_mentee,accepting_mentees",
         )
+        .eq("organization_id", currentOrgId)
         .order("created_at", { ascending: false }),
-      supabase.from("mentorships").select("id,mentor_id,mentee_id,status,created_at"),
+      supabase
+        .from("mentorships")
+        .select("id,mentor_id,mentee_id,status,created_at")
+        .eq("organization_id", currentOrgId),
     ]);
     setProfiles((pData as Profile[] | null) ?? []);
     setMentorships((mData as Mentorship[] | null) ?? []);
@@ -65,7 +75,7 @@ function Admin() {
 
   useEffect(() => {
     if (isAdmin) refresh();
-  }, [isAdmin]);
+  }, [isAdmin, currentOrgId]);
 
   const mentors = useMemo(() => profiles.filter((p) => p.is_mentor), [profiles]);
   const profileByUser = useMemo(() => {
