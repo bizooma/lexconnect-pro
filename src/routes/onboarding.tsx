@@ -7,6 +7,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding")({
+  head: () => ({
+    meta: [
+      { title: "Onboarding — LexGuild" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: Onboarding,
 });
 

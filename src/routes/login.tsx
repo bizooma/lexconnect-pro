@@ -5,6 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — LexGuild" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: Login,
 });
 
