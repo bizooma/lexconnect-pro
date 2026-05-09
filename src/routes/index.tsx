@@ -62,13 +62,6 @@ function Landing() {
                 Tour the platform
               </Link>
             </div>
-            <div className="mt-10 flex items-center gap-6 text-xs text-muted-foreground">
-              <span>Trusted by bar associations</span>
-              <span className="h-3 w-px bg-border" />
-              <span>SOC-2 ready</span>
-              <span className="h-3 w-px bg-border" />
-              <span>Mobile-first</span>
-            </div>
           </div>
 
           {/* Phone preview */}
