@@ -73,7 +73,7 @@ function Landing() {
           </div>
 
           {/* Phone preview */}
-          <div className="relative mx-auto w-full max-w-lg self-end">
+          <div className="relative mx-auto w-full max-w-lg self-end -mb-16 sm:-mb-24">
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-navy opacity-20 blur-2xl" />
             <img
               src={phoneMockup}
