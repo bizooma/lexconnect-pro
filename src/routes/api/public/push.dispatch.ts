@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { timingSafeEqual } from "crypto";
 import { sendNotification, type PushSubscription } from "web-push-neo";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { VAPID_PUBLIC_KEY, VAPID_SUBJECT } from "@/lib/push-config";
@@ -12,13 +13,21 @@ const PREF_BY_KIND: Record<string, "push_messages" | "push_mentorship" | "push_m
   meeting: "push_meetings",
 };
 
+function safeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
+
 export const Route = createFileRoute("/api/public/push/dispatch")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const sharedSecret = process.env.PUSH_DISPATCH_SECRET;
         const provided = request.headers.get("x-push-secret");
-        if (!sharedSecret || !provided || provided !== sharedSecret) {
+        if (!safeEqual(provided, sharedSecret)) {
           return new Response("Unauthorized", { status: 401 });
         }
 
