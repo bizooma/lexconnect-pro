@@ -446,7 +446,7 @@ export type Database = {
           linkedin_url: string | null
           meeting_cadence: string | null
           onboarded: boolean
-          organization_id: string
+          organization_id: string | null
           practice_areas: string[] | null
           state: string | null
           updated_at: string
@@ -470,7 +470,7 @@ export type Database = {
           linkedin_url?: string | null
           meeting_cadence?: string | null
           onboarded?: boolean
-          organization_id: string
+          organization_id?: string | null
           practice_areas?: string[] | null
           state?: string | null
           updated_at?: string
@@ -494,7 +494,7 @@ export type Database = {
           linkedin_url?: string | null
           meeting_cadence?: string | null
           onboarded?: boolean
-          organization_id?: string
+          organization_id?: string | null
           practice_areas?: string[] | null
           state?: string | null
           updated_at?: string
