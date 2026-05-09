@@ -22,6 +22,7 @@ function Landing() {
           <a href="#features" className="hover:text-foreground">Features</a>
           <a href="#install" className="hover:text-foreground">Install</a>
           <a href="#pricing" className="hover:text-foreground">Pricing</a>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
           <a href="#contact" className="hover:text-foreground">Contact</a>
           <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
         </nav>
@@ -333,6 +334,9 @@ function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <FAQSection />
+
       {/* Contact */}
       <section id="contact" className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-2">
@@ -472,5 +476,90 @@ function Landing() {
         </div>
       </footer>
     </div>
+  );
+}
+
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "What is LexGuild?",
+    a: "LexGuild is an invitation-only mentorship and member engagement platform built for the legal profession. Bar associations, law firms, and legal organizations use it to run structured attorney mentorship programs with curated matching, secure messaging, voice notes, and lightweight scheduling.",
+  },
+  {
+    q: "Who is LexGuild for?",
+    a: "LexGuild is designed for state and local bar associations, law firms, in-house legal departments, law schools, and affinity bar groups that want to formalize attorney-to-attorney mentorship and professional development at scale.",
+  },
+  {
+    q: "How does attorney mentorship work on LexGuild?",
+    a: "Administrators invite members, who complete a short profile covering practice area, jurisdiction, and career stage. LexGuild suggests curated mentor and mentee matches, then participants connect through in-app messaging, voice notes, and scheduled meetings — all in one secure environment.",
+  },
+  {
+    q: "How much does LexGuild cost?",
+    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $2,500 per month for 250+ members. Annual plans include roughly two months free.",
+  },
+  {
+    q: "Is LexGuild secure and confidential?",
+    a: "Yes. Member data and conversations are protected with role-based access controls, encrypted transport, and granular admin permissions, so confidential mentorship discussions stay private to the participants and your organization.",
+  },
+  {
+    q: "Can I use LexGuild on my phone?",
+    a: "Yes. LexGuild is a mobile-first progressive web app, so members can install it on iPhone or Android directly from the browser and get a native-feeling experience without an app store download.",
+  },
+  {
+    q: "How long does it take to launch a LexGuild organization?",
+    a: "Most organizations are up and running in under a week. You can create your organization, customize branding, import or invite members, and start matching mentors and mentees the same day you sign up.",
+  },
+  {
+    q: "Does LexGuild replace our existing bar association software?",
+    a: "LexGuild is purpose-built for mentorship and member engagement, not membership billing or CLE tracking. It complements existing AMS or LMS tools by giving your members a modern, easy-to-use space to build relationships and grow their careers.",
+  },
+];
+
+function FAQSection() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+  return (
+    <section id="faq" className="border-t border-border bg-background">
+      <div className="mx-auto max-w-4xl px-5 py-16 sm:py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+            <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+            Frequently asked questions
+          </span>
+          <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Answers about LexGuild
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            Everything bar associations, law firms, and legal organizations ask before launching a mentorship program with LexGuild.
+          </p>
+        </div>
+
+        <div className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card shadow-card">
+          {FAQS.map((f) => (
+            <details key={f.q} className="group px-6 py-5 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 text-left">
+                <h3 className="font-serif text-lg font-semibold text-foreground">{f.q}</h3>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition group-open:rotate-45 group-open:bg-primary group-open:text-primary-foreground">
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                </span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    </section>
   );
 }
