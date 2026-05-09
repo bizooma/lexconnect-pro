@@ -138,10 +138,17 @@ function Discover() {
                 )}
 
                 <div className="mt-auto pt-4">
-                  <button
-                    onClick={() => setRequested(p)}
-                    className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
-                  >Connect</button>
+                  {existingMentorIds.has(p.user_id) ? (
+                    <button
+                      disabled
+                      className="w-full rounded-lg bg-muted px-3 py-2 text-xs font-medium text-muted-foreground"
+                    >Request sent</button>
+                  ) : (
+                    <button
+                      onClick={() => { setIntro("Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?"); setRequested(p); }}
+                      className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+                    >Request mentorship</button>
+                  )}
                 </div>
               </article>
             );
@@ -160,13 +167,18 @@ function Discover() {
               <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Short introduction</label>
               <textarea
                 rows={5}
-                defaultValue="Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?"
+                value={intro}
+                onChange={(e) => setIntro(e.target.value)}
                 className="mt-1.5 block w-full rounded-lg border border-input bg-background p-3 text-sm leading-relaxed text-foreground outline-none ring-ring/30 focus:ring-2"
               />
             </div>
             <div className="flex justify-end gap-2 border-t border-border bg-background/50 px-5 py-3">
               <button onClick={() => setRequested(null)} className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">Cancel</button>
-              <button onClick={() => setRequested(null)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90">Send request</button>
+              <button
+                onClick={sendRequest}
+                disabled={submitting}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90 disabled:opacity-60"
+              >{submitting ? "Sending…" : "Send request"}</button>
             </div>
           </div>
         </div>
