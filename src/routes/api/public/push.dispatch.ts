@@ -98,19 +98,20 @@ export const Route = createFileRoute("/api/public/push/dispatch")({
               keys: { p256dh: s.p256dh, auth: s.auth },
             };
             try {
-              await sendNotification({
-                subscription,
-                payload,
+              const res = await sendNotification(subscription, payload, {
                 vapidDetails,
-                ttl: 60 * 60 * 24,
+                TTL: 60 * 60 * 24,
               });
-              return { id: s.id, ok: true };
+              if (res.statusCode === 404 || res.statusCode === 410) {
+                await supabaseAdmin.from("push_subscriptions").delete().eq("id", s.id);
+                return { id: s.id, ok: false, status: res.statusCode };
+              }
+              return { id: s.id, ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode };
             } catch (err: unknown) {
               const status =
                 err && typeof err === "object" && "statusCode" in err
                   ? (err as { statusCode?: number }).statusCode
                   : undefined;
-              // Subscription is gone — clean it up
               if (status === 404 || status === 410) {
                 await supabaseAdmin.from("push_subscriptions").delete().eq("id", s.id);
               }
