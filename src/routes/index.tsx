@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Logo } from "@/components/logo";
 import heroBg from "@/assets/hero-bg.jpg";
 
@@ -7,6 +8,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
