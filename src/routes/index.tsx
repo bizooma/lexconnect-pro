@@ -394,7 +394,7 @@ function Landing() {
               const body = encodeURIComponent(
                 `Name: ${data.get("name") || ""}\nOrganization: ${data.get("org") || ""}\nEmail: ${data.get("email") || ""}\n\n${data.get("message") || ""}`,
               );
-              window.location.href = `mailto:hello@lexguild.com?subject=${subject}&body=${body}`;
+              window.location.href = `mailto:joe@bizooma.com?subject=${subject}&body=${body}`;
             }}
           >
             <div className="grid gap-4 sm:grid-cols-2">
