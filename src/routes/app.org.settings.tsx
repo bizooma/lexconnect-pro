@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,57 @@ function OrgSettingsPage() {
   const [accentColor, setAccentColor] = useState("#1f3a5f");
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onUploadLogo = async (file: File) => {
+    if (!currentOrgId) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image too large", { description: "Please choose an image under 5MB." });
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${currentOrgId}/logo-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("org-logos")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploading(false);
+      toast.error("Upload failed", { description: upErr.message });
+      return;
+    }
+    const { data: pub } = supabase.storage.from("org-logos").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error: updErr } = await supabase
+      .from("organizations")
+      .update({ logo_url: url })
+      .eq("id", currentOrgId);
+    setUploading(false);
+    if (updErr) {
+      toast.error("Could not save logo", { description: updErr.message });
+      return;
+    }
+    setLogoUrl(url);
+    toast.success("Logo updated");
+    void refresh();
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const onRemoveLogo = async () => {
+    if (!currentOrgId) return;
+    const { error } = await supabase
+      .from("organizations")
+      .update({ logo_url: null })
+      .eq("id", currentOrgId);
+    if (error) {
+      toast.error("Could not remove logo", { description: error.message });
+      return;
+    }
+    setLogoUrl("");
+    toast.success("Logo removed");
+    void refresh();
+  };
 
   useEffect(() => {
     if (!currentOrgId) return;
@@ -98,10 +149,47 @@ function OrgSettingsPage() {
 
       <section className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card">
         <h2 className="font-serif text-lg font-semibold text-foreground">Branding</h2>
-        <Field label="Logo URL" value={logoUrl} onChange={setLogoUrl} placeholder="https://…" disabled={!isOrgAdmin} />
-        {logoUrl && (
-          <img src={logoUrl} alt="Logo preview" className="h-12 w-auto rounded border border-border bg-background p-1" />
-        )}
+        <div>
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Logo</p>
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border border-border bg-background">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo preview" className="h-full w-full object-contain p-1" />
+              ) : (
+                <span className="text-xs text-muted-foreground">No logo</span>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void onUploadLogo(f);
+              }}
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!isOrgAdmin || uploading}
+                onClick={() => fileInputRef.current?.click()}
+              >{uploading ? "Uploading…" : logoUrl ? "Replace logo" : "Upload logo"}</Button>
+              {logoUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={!isOrgAdmin || uploading}
+                  onClick={onRemoveLogo}
+                >Remove</Button>
+              )}
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">PNG, JPG or SVG up to 5MB. Square images work best.</p>
+        </div>
         <div>
           <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Accent color</p>
           <div className="flex items-center gap-3">

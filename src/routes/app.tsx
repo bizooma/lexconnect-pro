@@ -35,6 +35,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const { currentOrg } = useCurrentOrg();
   const NAV = isAdmin ? [...BASE_NAV, ADMIN_NAV] : BASE_NAV;
   const [profileName, setProfileName] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -77,7 +78,20 @@ function AppLayout() {
     <div className="min-h-screen bg-background lg:flex">
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="px-5 py-5"><Logo /></div>
+        <div className="px-5 py-5">
+          {currentOrg?.logo_url ? (
+            <Link to="/app/dashboard" className="flex items-center gap-3">
+              <img
+                src={currentOrg.logo_url}
+                alt={`${currentOrg.name} logo`}
+                className="h-10 w-10 shrink-0 rounded-lg border border-border bg-background object-contain p-0.5"
+              />
+              <span className="truncate font-serif text-sm font-semibold text-foreground">{currentOrg.name}</span>
+            </Link>
+          ) : (
+            <Logo />
+          )}
+        </div>
         <nav className="flex-1 space-y-1 px-3">
           {NAV.map((item) => {
             const active = pathname.startsWith(item.to);
