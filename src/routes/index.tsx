@@ -318,8 +318,10 @@ function Landing() {
               return (
                 <div
                   key={p.name}
-                  className={`relative flex flex-col rounded-2xl border p-6 shadow-card sm:p-8 ${
-                    p.featured ? "border-primary bg-card ring-1 ring-primary" : "border-border bg-card"
+                  className={`relative flex flex-col rounded-2xl border p-6 shadow-card backdrop-blur-xl sm:p-8 ${
+                    p.featured
+                      ? "border-white/30 bg-white/20 ring-1 ring-white/40"
+                      : "border-white/20 bg-white/10"
                   }`}
                 >
                   {p.featured && (
@@ -327,16 +329,16 @@ function Landing() {
                       Most popular
                     </span>
                   )}
-                  <h3 className="font-serif text-xl font-semibold text-foreground">{p.name}</h3>
+                  <h3 className="font-serif text-xl font-semibold text-white">{p.name}</h3>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="font-serif text-3xl font-semibold text-foreground">{cycle.price}</span>
-                    {cycle.period && <span className="text-sm text-muted-foreground">{cycle.period}</span>}
+                    <span className="font-serif text-3xl font-semibold text-white">{cycle.price}</span>
+                    {cycle.period && <span className="text-sm text-white/70">{cycle.period}</span>}
                   </div>
-                  <p className="mt-1 min-h-[1.25rem] text-xs text-muted-foreground">{cycle.sub ?? "\u00A0"}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.blurb}</p>
+                  <p className="mt-1 min-h-[1.25rem] text-xs text-white/70">{cycle.sub ?? "\u00A0"}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/80">{p.blurb}</p>
                   <ul className="mt-6 space-y-2.5">
                     {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                      <li key={f} className="flex items-start gap-2 text-sm text-white">
                         <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -349,8 +351,8 @@ function Landing() {
                       href={p.href}
                       className={`inline-flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-medium transition ${
                         p.featured
-                          ? "bg-primary text-primary-foreground shadow-elegant hover:bg-primary/90"
-                          : "border border-border bg-background text-foreground hover:bg-accent"
+                          ? "bg-white text-foreground shadow-elegant hover:bg-white/90"
+                          : "border border-white/30 bg-white/10 text-white hover:bg-white/20"
                       }`}
                     >
                       {p.cta}
