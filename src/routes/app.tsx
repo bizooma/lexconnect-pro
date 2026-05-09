@@ -84,25 +84,26 @@ function AppLayout() {
           })}
         </nav>
         <div className="border-t border-border p-3">
-          <div className="flex items-center gap-3 rounded-lg p-2">
+          <Link to="/app/settings" className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent">
             <Avatar initials={initials} size={36} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">{profileName || user.email}</p>
-              <button
-                onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
-                className="truncate text-xs text-muted-foreground hover:text-foreground"
-              >Sign out</button>
+              <p className="truncate text-xs text-muted-foreground">Profile settings</p>
             </div>
-          </div>
+          </Link>
+          <button
+            onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
+            className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+          >Sign out</button>
         </div>
       </aside>
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <Logo />
-        <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }}>
+        <Link to="/app/settings">
           <Avatar initials={initials} size={36} />
-        </button>
+        </Link>
       </header>
 
       <main className="flex-1 pb-24 lg:pb-0">
