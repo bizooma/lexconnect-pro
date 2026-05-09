@@ -140,7 +140,12 @@ function SignupOrg() {
         window.localStorage.setItem("lexguild.currentOrgId", orgId as unknown as string);
       }
       toast.success("Organization created");
-      navigate({ to: "/onboarding" });
+      if (plan.contactOnly) {
+        navigate({ to: "/onboarding" });
+      } else {
+        const priceId = `${plan.id}_${billing}`;
+        navigate({ to: "/checkout", search: { price: priceId } });
+      }
     } catch (err: any) {
       setError(err.message ?? "Could not create your organization.");
     } finally {
