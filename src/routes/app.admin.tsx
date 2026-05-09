@@ -1,12 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { ATTORNEYS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export const Route = createFileRoute("/app/admin")({
   component: Admin,
 });
 
 function Admin() {
+  const { isAdmin, checking } = useIsAdmin();
+  if (checking) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center text-sm text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+  if (!isAdmin) {
+    return <Navigate to="/app/dashboard" />;
+  }
+
   const stats = [
     { l: "Active mentorships", v: "184", d: "+12 this month" },
     { l: "Messages sent", v: "2,431", d: "Past 30 days" },
