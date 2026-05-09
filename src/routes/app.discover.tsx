@@ -99,6 +99,17 @@ function Discover() {
         <p className="mt-1 text-sm text-muted-foreground">Find mentors and mentees by practice, location, and interests.</p>
       </div>
 
+      <div className="mt-4 inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
+        <button
+          onClick={() => setTab("recommended")}
+          className={`rounded-md px-3 py-1.5 font-medium transition ${tab === "recommended" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+        >Recommended for you</button>
+        <button
+          onClick={() => setTab("browse")}
+          className={`rounded-md px-3 py-1.5 font-medium transition ${tab === "browse" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+        >Browse all</button>
+      </div>
+
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" strokeLinecap="round"/></svg>
@@ -148,6 +159,28 @@ function Discover() {
                     <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
                   )}
                 </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {primary && <Tag>{primary}</Tag>}
+                  {loc && <Tag>{loc}</Tag>}
+                  {p.years_experience != null && <Tag>{p.years_experience} yrs</Tag>}
+                </div>
+
+                  {p.is_mentor && (
+                    <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold">Mentor</span>
+                  )}
+                  {tab === "recommended" && recommendedById.has(p.user_id) && (
+                    <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                      {recommendedById.get(p.user_id)!.score}%
+                    </span>
+                  )}
+                </div>
+
+                {tab === "recommended" && recommendedById.get(p.user_id)?.reasons[0] && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {recommendedById.get(p.user_id)!.reasons.slice(0, 2).join(" · ")}
+                  </p>
+                )}
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {primary && <Tag>{primary}</Tag>}
