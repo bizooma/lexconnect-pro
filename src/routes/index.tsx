@@ -50,16 +50,16 @@ function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                to="/onboarding"
+                to="/signup"
                 className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
               >
-                Request access
+                Start your organization
               </Link>
               <Link
-                to="/app/dashboard"
+                to="/join"
                 className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
               >
-                Tour the platform
+                I have an invite code
               </Link>
             </div>
           </div>
