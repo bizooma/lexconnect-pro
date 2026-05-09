@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Avatar } from "@/components/avatar";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import {

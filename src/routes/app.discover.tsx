@@ -4,6 +4,7 @@ import { PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
 import { useDirectory, initialsOf, locationOf, type Profile } from "@/hooks/use-profiles";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
