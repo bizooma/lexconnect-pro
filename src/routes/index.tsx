@@ -81,7 +81,6 @@ function Landing() {
               className="w-full h-auto"
             />
           </div>
-          </div>
         </div>
         </div>
       </section>
