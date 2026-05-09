@@ -43,42 +43,44 @@ function Landing() {
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/85 to-background/40 lg:from-background/95 lg:via-background/70 lg:to-background/20" />
         <div className="mx-auto max-w-6xl px-5 pt-8 pb-16 sm:pt-16 sm:pb-24">
-        <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
-            <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-            An invitation-only network for the legal profession
-          </span>
-          <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
-            Modern Mentorship<br />
-            <span className="text-primary">for the Legal Profession</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            LexGuild helps bar associations, law firms, and legal organizations build stronger attorney mentorship programs through structured communication, professional development, and meaningful member engagement.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              to="/signup"
-              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
-            >
-              Start your organization
-            </Link>
-            <Link
-              to="/join"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
-            >
-              I have an invite code
-            </Link>
+        <div className="grid items-end gap-12 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              An invitation-only network for the legal profession
+            </span>
+            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
+              Modern Mentorship<br />
+              <span className="text-primary">for the Legal Profession</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              LexGuild helps bar associations, law firms, and legal organizations build stronger attorney mentorship programs through structured communication, professional development, and meaningful member engagement.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                to="/signup"
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+              >
+                Start your organization
+              </Link>
+              <Link
+                to="/join"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
+              >
+                I have an invite code
+              </Link>
+            </div>
           </div>
-        </div>
 
-        {/* Phone preview */}
-        <div className="relative mt-16 mx-auto w-full max-w-3xl">
-          <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-navy opacity-20 blur-2xl" />
-          <img
-            src={phoneMockup}
-            alt="LexGuild mobile app preview"
-            className="w-full h-auto"
-          />
+          {/* Phone preview */}
+          <div className="relative mx-auto w-full max-w-lg self-end">
+            <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-navy opacity-20 blur-2xl" />
+            <img
+              src={phoneMockup}
+              alt="LexGuild mobile app preview"
+              className="w-full h-auto"
+            />
+          </div>
         </div>
         </div>
       </section>
