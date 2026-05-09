@@ -10,6 +10,8 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [submitting, setSubmitting] = useState(false);
+  const [contactStatus, setContactStatus] = useState<null | "success" | "error">(null);
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
@@ -386,15 +388,32 @@ function Landing() {
 
           <form
             className="rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
+              if (submitting) return;
               const form = e.currentTarget;
               const data = new FormData(form);
-              const subject = encodeURIComponent(`LexGuild inquiry from ${data.get("name") || "website"}`);
-              const body = encodeURIComponent(
-                `Name: ${data.get("name") || ""}\nOrganization: ${data.get("org") || ""}\nEmail: ${data.get("email") || ""}\n\n${data.get("message") || ""}`,
-              );
-              window.location.href = `mailto:joe@bizooma.com?subject=${subject}&body=${body}`;
+              const payload = {
+                name: String(data.get("name") || "").trim(),
+                email: String(data.get("email") || "").trim(),
+                message: `${data.get("org") ? `Organization: ${data.get("org")}\n\n` : ""}${data.get("message") || ""}`.trim(),
+              };
+              setSubmitting(true);
+              setContactStatus(null);
+              try {
+                const res = await fetch("/api/public/contact", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+                if (!res.ok) throw new Error("Send failed");
+                setContactStatus("success");
+                form.reset();
+              } catch {
+                setContactStatus("error");
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
             <div className="grid gap-4 sm:grid-cols-2">
@@ -404,6 +423,7 @@ function Landing() {
                   id="name"
                   name="name"
                   required
+                  maxLength={100}
                   className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
               </div>
@@ -412,6 +432,7 @@ function Landing() {
                 <input
                   id="org"
                   name="org"
+                  maxLength={150}
                   className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
               </div>
@@ -423,6 +444,7 @@ function Landing() {
                 name="email"
                 type="email"
                 required
+                maxLength={255}
                 className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
@@ -433,15 +455,23 @@ function Landing() {
                 name="message"
                 rows={4}
                 required
+                maxLength={2000}
                 className="mt-1.5 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
             <button
               type="submit"
-              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+              disabled={submitting}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90 disabled:opacity-60"
             >
-              Send message
+              {submitting ? "Sending…" : "Send message"}
             </button>
+            {contactStatus === "success" && (
+              <p className="mt-4 text-sm text-foreground">Thanks — your message is on its way. We'll be in touch shortly.</p>
+            )}
+            {contactStatus === "error" && (
+              <p className="mt-4 text-sm text-destructive">Something went wrong. Please try again or email joe@bizooma.com directly.</p>
+            )}
           </form>
         </div>
       </section>
