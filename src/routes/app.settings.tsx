@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { INTERESTS, PRACTICE_AREAS } from "@/lib/mock-data";
+import { Avatar } from "@/components/avatar";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/settings")({
@@ -31,6 +32,9 @@ function Settings() {
   const [cadence, setCadence] = useState<string>("Bi-weekly");
   const [bio, setBio] = useState("");
   const [acceptingMentees, setAcceptingMentees] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -54,6 +58,7 @@ function Settings() {
         setCadence(data.meeting_cadence ?? "Bi-weekly");
         setBio(data.bio ?? "");
         setAcceptingMentees(data.accepting_mentees ?? false);
+        setAvatarUrl(data.avatar_url ?? null);
         if (data.is_mentor && data.is_mentee) setRole("Both");
         else if (data.is_mentor) setRole("Mentor");
         else if (data.is_mentee) setRole("Mentee");
@@ -120,6 +125,84 @@ function Settings() {
         </div>
         <Link to="/app/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Back</Link>
       </div>
+
+      <Section title="Profile photo">
+        <div className="flex items-center gap-5">
+          <Avatar
+            initials={(fullName || user?.email || "?").split(/[\s@]/).filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase()).join("")}
+            src={avatarUrl}
+            size={80}
+          />
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file || !user) return;
+                if (file.size > 5 * 1024 * 1024) {
+                  toast.error("Image too large", { description: "Please choose an image under 5MB." });
+                  return;
+                }
+                setUploading(true);
+                const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+                const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+                const { error: upErr } = await supabase.storage
+                  .from("avatars")
+                  .upload(path, file, { upsert: true, contentType: file.type });
+                if (upErr) {
+                  setUploading(false);
+                  toast.error("Upload failed", { description: upErr.message });
+                  return;
+                }
+                const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+                const url = pub.publicUrl;
+                const { error: updErr } = await supabase
+                  .from("profiles")
+                  .update({ avatar_url: url })
+                  .eq("user_id", user.id);
+                setUploading(false);
+                if (updErr) {
+                  toast.error("Could not save photo", { description: updErr.message });
+                  return;
+                }
+                setAvatarUrl(url);
+                toast.success("Profile photo updated");
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            />
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
+            >{uploading ? "Uploading…" : avatarUrl ? "Change photo" : "Upload photo"}</button>
+            {avatarUrl && (
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={async () => {
+                  if (!user) return;
+                  const { error } = await supabase
+                    .from("profiles")
+                    .update({ avatar_url: null })
+                    .eq("user_id", user.id);
+                  if (error) {
+                    toast.error("Could not remove photo", { description: error.message });
+                    return;
+                  }
+                  setAvatarUrl(null);
+                  toast.success("Photo removed");
+                }}
+                className="ml-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+              >Remove</button>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">PNG or JPG, up to 5MB.</p>
+          </div>
+        </div>
+      </Section>
 
       <Section title="Role">
         <div className="grid grid-cols-3 gap-2">
