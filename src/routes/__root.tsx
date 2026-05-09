@@ -157,7 +157,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 { "@type": "Offer", name: "Professional", price: "899", priceCurrency: "USD", category: "subscription" },
                 { "@type": "Offer", name: "Enterprise", price: "1500", priceCurrency: "USD", category: "subscription" },
               ],
-              aggregateRating: undefined,
             },
             {
               "@type": "WebPage",
