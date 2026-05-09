@@ -374,10 +374,10 @@ function Landing() {
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               Contact us
             </span>
-            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Talk to the team behind LexGuild
             </h2>
-            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-base leading-relaxed text-white/80">
               LexGuild was designed and built by Bizooma Creative Agency. For questions about the platform, partnerships, or building something similar for your organization, get in touch with Joe directly.
             </p>
             <div className="mt-8 flex items-center gap-5 rounded-2xl border border-border bg-card p-5 shadow-card">
