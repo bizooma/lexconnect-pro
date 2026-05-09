@@ -59,7 +59,7 @@ function Landing() {
               Modern Mentorship<br />
               <span className="text-primary">for the Legal Profession</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p data-speakable className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               LexGuild helps bar associations, law firms, and legal organizations build stronger attorney mentorship programs through structured communication, professional development, and meaningful member engagement.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -527,7 +527,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does LexGuild cost?",
-    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $2,500 per month for 250+ members. Annual plans include roughly two months free.",
+    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free.",
   },
   {
     q: "Is LexGuild secure and confidential?",
