@@ -5,7 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
+type SignupSearch = { plan?: "starter" | "professional" | "enterprise"; billing?: "monthly" | "annual" };
+
 export const Route = createFileRoute("/signup")({
+  validateSearch: (search: Record<string, unknown>): SignupSearch => ({
+    plan: search.plan === "starter" || search.plan === "professional" || search.plan === "enterprise" ? search.plan : undefined,
+    billing: search.billing === "annual" ? "annual" : search.billing === "monthly" ? "monthly" : undefined,
+  }),
   component: SignupOrg,
 });
 
@@ -68,6 +74,8 @@ function slugify(s: string) {
 
 function SignupOrg() {
   const navigate = useNavigate();
+  const { plan: planParam, billing: billingParam } = Route.useSearch();
+  const initialPlanIdx = planParam === "starter" ? 0 : planParam === "enterprise" ? 2 : planParam === "professional" ? 1 : 1;
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
   const [orgName, setOrgName] = useState("");
@@ -78,8 +86,8 @@ function SignupOrg() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [planIdx, setPlanIdx] = useState<number>(1);
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [planIdx, setPlanIdx] = useState<number>(initialPlanIdx);
+  const [billing, setBilling] = useState<"monthly" | "annual">(billingParam ?? "monthly");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
