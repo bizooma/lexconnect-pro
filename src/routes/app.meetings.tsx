@@ -133,6 +133,7 @@ function Meetings() {
       toast.error("Please fill in all required fields");
       return;
     }
+    if (!currentOrgId) { toast.error("No organization selected"); return; }
     setSubmitting(true);
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
     const { error } = await supabase.from("meetings").insert({
@@ -144,6 +145,7 @@ function Meetings() {
       location: location || null,
       notes: notes || null,
       status: "scheduled",
+      organization_id: currentOrgId,
     });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
