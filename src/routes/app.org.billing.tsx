@@ -1,16 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { Button } from "@/components/ui/button";
+import { createPortalSession } from "@/lib/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/org/billing")({
   component: OrgBillingPage,
 });
 
+const PLAN_OPTIONS = [
+  { id: "starter_monthly", label: "Starter — $399/mo", tier: "starter" },
+  { id: "starter_annual", label: "Starter — $3,990/yr (save 2 months)", tier: "starter" },
+  { id: "professional_monthly", label: "Professional — $899/mo", tier: "professional" },
+  { id: "professional_annual", label: "Professional — $8,990/yr (save 2 months)", tier: "professional" },
+] as const;
+
 function OrgBillingPage() {
   const { currentOrgId, currentOrg, subscription, isOrgAdmin } = useCurrentOrg();
   const [seatsUsed, setSeatsUsed] = useState(0);
+  const [openingPortal, setOpeningPortal] = useState(false);
+  const portal = useServerFn(createPortalSession);
 
   useEffect(() => {
     if (!currentOrgId) return;
@@ -30,11 +43,32 @@ function OrgBillingPage() {
   const seatsCap = subscription?.seats_purchased ?? 0;
   const usagePct = seatsCap > 0 ? Math.min(100, Math.round((seatsUsed / seatsCap) * 100)) : 0;
   const warning = seatsCap > 0 && seatsUsed / seatsCap >= 0.8;
+  const isGrandfathered = status === "grandfathered";
+  const hasPaidSubscription = !!subscription?.stripe_subscription_id;
 
   const statusTone =
     status === "active" || status === "grandfathered" || status === "trialing"
       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : "bg-destructive/10 text-destructive";
+
+  const openPortal = async () => {
+    if (!currentOrgId) return;
+    setOpeningPortal(true);
+    try {
+      const url = await portal({
+        data: {
+          organizationId: currentOrgId,
+          returnUrl: `${window.location.origin}/app/org/billing`,
+          environment: getStripeEnvironment(),
+        },
+      });
+      window.open(url, "_blank", "noopener");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not open billing portal");
+    } finally {
+      setOpeningPortal(false);
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-8">
@@ -72,7 +106,7 @@ function OrgBillingPage() {
           </div>
           {warning && (
             <p className="mt-2 text-xs text-destructive">
-              You're nearing your seat limit. Add more seats to keep inviting members.
+              You're nearing your seat limit. Upgrade your plan or remove a member to keep inviting.
             </p>
           )}
         </div>
@@ -84,16 +118,54 @@ function OrgBillingPage() {
         )}
       </section>
 
-      {isOrgAdmin && (
-        <section className="mt-6 rounded-2xl border border-dashed border-border bg-card p-6">
-          <h2 className="font-serif text-lg font-semibold text-foreground">Manage subscription</h2>
+      {isOrgAdmin && isGrandfathered && (
+        <section className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Complimentary access</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Stripe billing isn't connected yet. Once enabled, you'll be able to choose a plan, change seat counts, and
-            update your payment method here.
+            <strong>{currentOrg?.name}</strong> has permanent free access to LexGuild — no billing required.
           </p>
-          <div className="mt-4 flex gap-2">
-            <Button disabled>Choose plan</Button>
-            <Button variant="outline" disabled>Manage billing</Button>
+        </section>
+      )}
+
+      {isOrgAdmin && !isGrandfathered && (
+        <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">
+            {hasPaidSubscription ? "Manage your subscription" : "Choose a plan"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {hasPaidSubscription
+              ? "Update your payment method, change plan, or cancel anytime via the secure billing portal."
+              : "Pick a plan to activate full access for your organization."}
+          </p>
+
+          {!hasPaidSubscription && (
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {PLAN_OPTIONS.map((opt) => (
+                <Link
+                  key={opt.id}
+                  to="/checkout"
+                  search={{ price: opt.id }}
+                  className="rounded-xl border border-border bg-background p-4 text-left text-sm hover:border-primary hover:bg-accent"
+                >
+                  <p className="font-medium text-foreground">{opt.label}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {hasPaidSubscription && (
+              <Button onClick={openPortal} disabled={openingPortal}>
+                {openingPortal ? "Opening…" : "Manage billing"}
+              </Button>
+            )}
+            <Link
+              to="/"
+              hash="contact"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-accent"
+            >
+              Contact sales (Enterprise)
+            </Link>
           </div>
         </section>
       )}
