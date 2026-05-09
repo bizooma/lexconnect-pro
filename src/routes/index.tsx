@@ -73,37 +73,14 @@ function Landing() {
           </div>
 
           {/* Phone preview */}
-          <div className="relative mx-auto w-full max-w-sm">
+          <div className="relative mx-auto w-full max-w-lg">
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-navy opacity-20 blur-2xl" />
-            <div className="rounded-[2rem] border border-border bg-gradient-navy p-3 shadow-elegant">
-              <div className="overflow-hidden rounded-[1.6rem] bg-background">
-                <div className="bg-gradient-navy px-5 pt-6 pb-8 text-primary-foreground">
-                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-gold">Today</p>
-                  <h3 className="mt-1 font-serif text-2xl font-semibold">Welcome back, Christopher.</h3>
-                  <p className="mt-1 text-sm text-white/70">2 active mentorships · 1 meeting tomorrow</p>
-                </div>
-                <div className="space-y-3 p-4">
-                  {[
-                    { n: "Eleanor Whitfield", p: "Estate Planning · 22 yrs", m: 96 },
-                    { n: "Marcus Tan", p: "Business Litigation · 18 yrs", m: 91 },
-                    { n: "Priya Raman", p: "Solo Practice · 9 yrs", m: 88 },
-                  ].map((c) => (
-                    <div key={c.n} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-card">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-navy font-serif text-sm font-semibold text-gold">
-                        {c.n.split(" ").map(s=>s[0]).join("")}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">{c.n}</p>
-                        <p className="truncate text-xs text-muted-foreground">{c.p}</p>
-                      </div>
-                      <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-semibold text-gold-foreground/80">
-                        {c.m}% match
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <img
+              src={phoneMockup}
+              alt="LexGuild mobile app preview"
+              className="w-full h-auto"
+            />
+          </div>
           </div>
         </div>
         </div>
