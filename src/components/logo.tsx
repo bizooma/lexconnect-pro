@@ -7,7 +7,7 @@ export function Logo({ className = "", showName = true }: { className?: string; 
       <img
         src={logoSrc}
         alt="LexGuild — Mentorship Platform"
-        className={showName ? "h-9 w-auto" : "h-9 w-9 object-contain"}
+        className={showName ? "h-16 w-auto" : "h-16 w-16 object-contain"}
         style={showName ? undefined : { objectPosition: "left center" }}
       />
     </Link>
