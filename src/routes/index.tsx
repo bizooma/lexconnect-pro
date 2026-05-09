@@ -114,16 +114,19 @@ function Landing() {
       {/* Install the app */}
       <section id="install" className="border-t border-border">
         <div className="mx-auto max-w-6xl px-5 py-16">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               Install LexGuild on your phone
             </span>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Add LexGuild to your home screen
+              Why install LexGuild on your phone?
             </h2>
-            <p className="mt-3 text-base text-muted-foreground">
-              LexGuild installs as a lightweight app — no App Store, no Play Store, no updates to manage. Open it like any other app on your phone.
+            <p className="mt-3 text-lg font-medium text-foreground">
+              A faster, more connected mentorship experience.
+            </p>
+            <p className="mt-4 text-base text-muted-foreground">
+              LexGuild was designed to work like a modern mobile app — giving attorneys quick access to mentorship conversations, meeting schedules, and professional connections without the friction of traditional email-based communication. Installed on your phone as a Progressive Web App (PWA), LexGuild delivers a faster, cleaner, and more seamless experience for busy legal professionals.
             </p>
           </div>
 
@@ -137,6 +140,71 @@ function Landing() {
                 <img src={img.src} alt={img.alt} loading="lazy" className="h-auto w-full" />
               </div>
             ))}
+          </div>
+
+          <div className="mt-16 grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Instant access to your legal community</h3>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Once installed, LexGuild appears directly on your home screen like a native mobile app. No searching through browser tabs or email threads — simply tap the LexGuild icon to instantly access your mentorship network.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Real-time notifications without inbox overload</h3>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Traditional mentorship programs rely heavily on email, which gets buried beneath hundreds of daily messages. With LexGuild on your device, push notifications come straight to you:
+              </p>
+              <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                <li>• Mentorship requests</li>
+                <li>• New messages</li>
+                <li>• Meeting reminders</li>
+                <li>• Organization announcements</li>
+                <li>• Professional development updates</li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Designed for busy attorneys</h3>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Legal professionals are constantly moving between courtrooms, meetings, client calls, networking events, and conferences. LexGuild's mobile-first experience keeps mentors and mentees connected from anywhere with:
+              </p>
+              <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                <li>• Real-time messaging</li>
+                <li>• Voice notes</li>
+                <li>• Mentorship scheduling</li>
+                <li>• Quick profile access</li>
+                <li>• Meeting reminders</li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+              <h3 className="font-serif text-xl font-semibold text-foreground">App-like experience without the App Store</h3>
+              <p className="mt-3 text-sm text-muted-foreground">
+                LexGuild uses modern Progressive Web App technology, so members install the platform directly from their browser — no App Store or Google Play download required.
+              </p>
+              <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                <li>• Faster updates</li>
+                <li>• No manual app downloads</li>
+                <li>• Less storage usage</li>
+                <li>• Improved performance</li>
+                <li>• Secure access across devices</li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:col-span-2">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Stay connected to mentorship opportunities</h3>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Whether you're mentoring younger attorneys, growing your professional network, participating in a bar association program, or managing organizational mentorship initiatives — LexGuild keeps mentorship active, accessible, and engaging throughout your day.
+              </p>
+            </div>
+          </div>
+
+          <div className="mx-auto mt-12 max-w-3xl text-center">
+            <h3 className="font-serif text-2xl font-semibold tracking-tight text-foreground">Built for the modern legal profession</h3>
+            <p className="mt-3 text-base text-muted-foreground">
+              LexGuild modernizes attorney mentorship by replacing fragmented communication and outdated listservs with a clean, professional, mobile-first experience designed specifically for legal organizations and their members.
+            </p>
           </div>
         </div>
       </section>
