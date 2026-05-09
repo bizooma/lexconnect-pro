@@ -96,7 +96,8 @@ function OrgOverviewPage() {
             </div>
           </section>
 
-          <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <QuickLink to="/app/org/insights" title="Engagement insights" desc="Seat efficiency & activity trends" />
             <QuickLink to="/app/org/members" title="Manage members" desc="Invite, change roles, remove" />
             <QuickLink to="/app/org/billing" title="Billing & seats" desc="Plan and seat usage" />
             <QuickLink to="/app/org/settings" title="Org settings" desc="Branding and details" />
