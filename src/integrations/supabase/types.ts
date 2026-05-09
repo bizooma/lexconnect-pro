@@ -69,6 +69,53 @@ export type Database = {
           },
         ]
       }
+      invite_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          organization_id: string
+          role_assigned: Database["public"]["Enums"]["org_role"]
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          organization_id: string
+          role_assigned?: Database["public"]["Enums"]["org_role"]
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          organization_id?: string
+          role_assigned?: Database["public"]["Enums"]["org_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_codes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meetings: {
         Row: {
           attendee_id: string
@@ -341,6 +388,7 @@ export type Database = {
       }
       organizations: {
         Row: {
+          accent_color: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -350,8 +398,10 @@ export type Database = {
           slug: string
           updated_at: string
           website: string | null
+          welcome_message: string | null
         }
         Insert: {
+          accent_color?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -361,8 +411,10 @@ export type Database = {
           slug: string
           updated_at?: string
           website?: string | null
+          welcome_message?: string | null
         }
         Update: {
+          accent_color?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -372,6 +424,7 @@ export type Database = {
           slug?: string
           updated_at?: string
           website?: string | null
+          welcome_message?: string | null
         }
         Relationships: []
       }
@@ -463,6 +516,7 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           id: string
+          max_users: number | null
           organization_id: string
           plan: Database["public"]["Enums"]["subscription_plan"]
           seats_purchased: number
@@ -475,6 +529,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          max_users?: number | null
           organization_id: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           seats_purchased?: number
@@ -487,6 +542,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          max_users?: number | null
           organization_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           seats_purchased?: number
@@ -531,6 +587,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_organization_with_owner: {
+        Args: {
+          _kind: Database["public"]["Enums"]["org_kind"]
+          _max_users: number
+          _name: string
+          _plan: Database["public"]["Enums"]["subscription_plan"]
+          _slug: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -544,7 +610,18 @@ export type Database = {
       }
       is_org_admin: { Args: { _org: string; _user: string }; Returns: boolean }
       is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
+      lookup_invite_code: {
+        Args: { _code: string }
+        Returns: {
+          organization_id: string
+          organization_logo: string
+          organization_name: string
+          role_assigned: Database["public"]["Enums"]["org_role"]
+          valid: boolean
+        }[]
+      }
       org_can_write: { Args: { _org: string }; Returns: boolean }
+      redeem_invite_code: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "member"
