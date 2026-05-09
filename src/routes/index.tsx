@@ -26,7 +26,7 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative isolate overflow-hidden">
         <img
           src={heroBg}
           alt=""
