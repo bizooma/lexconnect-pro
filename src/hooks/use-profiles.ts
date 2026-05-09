@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 export type Profile = {
   id: string;
   user_id: string;
+  organization_id: string | null;
   full_name: string | null;
   headline: string | null;
   firm: string | null;
