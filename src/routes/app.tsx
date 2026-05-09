@@ -89,7 +89,7 @@ function AppLayout() {
         </nav>
         <div className="border-t border-border p-3">
           <Link to="/app/settings" className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent">
-            <Avatar initials={initials} size={36} />
+            <Avatar initials={initials} src={avatarUrl} size={36} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">{profileName || user.email}</p>
               <p className="truncate text-xs text-muted-foreground">Profile settings</p>
@@ -106,7 +106,7 @@ function AppLayout() {
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <Logo />
         <Link to="/app/settings">
-          <Avatar initials={initials} size={36} />
+          <Avatar initials={initials} src={avatarUrl} size={36} />
         </Link>
       </header>
 
