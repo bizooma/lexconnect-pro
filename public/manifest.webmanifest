@@ -2,7 +2,7 @@
   "name": "LexGuild",
   "short_name": "LexGuild",
   "description": "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations.",
-  "start_url": "/app/dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
