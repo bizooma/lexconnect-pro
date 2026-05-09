@@ -84,9 +84,9 @@ function AppLayout() {
               <img
                 src={currentOrg.logo_url}
                 alt={`${currentOrg.name} logo`}
-                className="h-10 w-10 shrink-0 rounded-lg border border-border bg-background object-contain p-0.5"
+                className="h-14 w-14 shrink-0 rounded-lg border border-border bg-background object-contain p-1"
               />
-              <span className="truncate font-serif text-sm font-semibold text-foreground">{currentOrg.name}</span>
+              <span className="truncate font-serif text-base font-semibold text-foreground">{currentOrg.name}</span>
             </Link>
           ) : (
             <Logo />
