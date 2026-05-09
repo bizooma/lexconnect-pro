@@ -1,101 +1,80 @@
-# Multi-Tenant SaaS Architecture — Phase 3
+## Mentorship Matching System
 
-Builds on the org/member/invite/subscription foundation already in place. Stripe is deferred per your earlier call; the seat-cap and "upgrade plan" CTAs will be wired to a placeholder until billing is enabled.
-
-## 1. Auth flow split
-
-Today `/login` is a tabbed sign-in/sign-up that drops everyone into the default `LexGuild` org. Replace with three distinct routes:
-
-- **`/login`** — sign-in only. Existing users land on `/app/dashboard` (or `/onboarding` if not yet onboarded).
-- **`/signup`** — **organization signup only**. Creates the org, makes the user `owner`, then routes to a plan-selection step (placeholder pricing for now).
-- **`/join`** and **`/join/$code`** — **member-only** signup/sign-in. Always attached to the org behind the invite code. No way to create an org from this flow.
-
-Marketing CTAs on `/` are updated: "Start your organization" → `/signup`, "I have an invite" → `/join`.
-
-## 2. New `/signup` flow (org creation)
-
-Single-page wizard:
-
-1. **Organization** — name, type (Bar Association / Law Firm / Legal Nonprofit / Law School / Attorney Group / Other), estimated seat count.
-2. **Admin account** — full name, email, password (or "continue with Google").
-3. **Plan** — 4 tiers (25 / 100 / 250 / Enterprise). For now the buttons set `subscription.plan` + `seats_purchased` and mark `status = 'trialing'`. A "Set up billing later" notice replaces real Stripe checkout.
-
-Server function `createOrganizationWithOwner({ name, kind, slug, estSeats, plan })`:
-- Inserts `organizations` (slug auto-generated from name, uniqueness-checked with numeric suffix on collision).
-- Inserts `organization_members` row as `owner` / `active`.
-- Inserts `subscriptions` row (`status='trialing'`, `seats_purchased` from plan).
-- Returns the new org id; client switches `useCurrentOrg` to it.
-
-## 3. New `/join` flow (member-only)
-
-- `/join` — input box for invite code.
-- `/join/$code` — auto-validates the code, shows "You're joining **{Org Name}**" with org logo, then prompts sign-in or sign-up.
-
-Sign-up form is the member form (full name, email, password, practice area, years, interests, bio). On submit:
-- Creates auth user.
-- Inserts profile with locked `organization_id` (from code).
-- Inserts `organization_members` row using the code's `role_assigned` (subject to seat cap trigger already in place).
-- Increments `current_uses`.
-- Routes into `/onboarding` (skipping the org-choice step).
-
-The existing `accept-invite/$token` (email-targeted invites) stays for one-off email invites; codes are the new shareable mechanism.
-
-## 4. Database changes
-
-New table **`invite_codes`**:
-- `organization_id`, `code` (8-char, unique), `role_assigned` (`org_role`), `expires_at` (nullable), `max_uses` (nullable = unlimited), `current_uses`, `active`, `created_by`, `created_at`.
-- RLS: org admins manage; **public can SELECT a single row by code** (needed so an unauthenticated visitor on `/join/$code` can see the org name) — exposed via a SECURITY DEFINER `lookup_invite_code(code)` function returning only `{ org name, logo, role, valid }`, never the full row.
-
-Extend **`organizations`**:
-- `accent_color text` (hex, default brand color)
-- `welcome_message text`
-
-Extend **`subscriptions`**:
-- `max_users int` (mirrors plan tier; `enforce_seat_limit` trigger updated to use this when set, falling back to `seats_purchased`).
-
-Backfill: existing `LexGuild` org gets `max_users = 9999`, default accent color.
-
-## 5. Dashboard widgets (org admin)
-
-New `/app/org` overview page (linked from sidebar) with:
-- Total members / active mentorships / pending invites / engagement (messages-this-week).
-- **Seat utilization bar** "18 / 25 seats used" with "Upgrade plan" CTA (routes to `/app/org/billing`).
-- Recent joins list.
-
-Existing `/app/org/members` gets:
-- "Generate invite code" button (creates row in `invite_codes`, shows shareable URL + copy button).
-- "Bulk invite (CSV)" — paste/upload CSV of emails, creates one `organization_invites` row per email.
-- Invite codes list with usage count, revoke toggle.
-
-`/app/org/settings` gets logo upload (reuses `avatars` bucket with org-scoped path), accent color picker, welcome message textarea.
-
-## 6. Branding application
-
-`useCurrentOrg` exposes `org.accent_color`. App layout sets a CSS custom property `--org-accent` so org-scoped surfaces (sidebar active state, primary buttons inside `/app`) tint per org. Marketing routes keep the LexGuild brand.
-
-`welcome_message` shows on `/app/dashboard` for new members on first login.
-
-## 7. Tenancy hardening
-
-Audit existing queries to ensure every `.from('profiles' | 'mentorships' | 'conversations' | 'meetings' | 'notifications')` has an `.eq('organization_id', currentOrgId)`. RLS already enforces this server-side, but explicit filters keep result sets clean across multi-org users.
-
-`/app/discover` already filters by org — verify and add a guard so users without a current org are sent to `/onboarding`.
-
-## 8. Stripe (still deferred)
-
-`/app/org/billing` "Upgrade" + `/signup` plan step both call a stub `requestPlanChange()` that just updates `subscriptions.plan` + `seats_purchased`. When you say "enable Stripe", we swap in real checkout + webhook against the same shape — no UI rework needed.
+Build a real, scoreable matching engine plus tools for org admins to manually pair members. Two surfaces: **member-facing recommendations** and an **admin matching console**.
 
 ---
 
-## Out of scope for this phase
+### 1. Scoring algorithm (shared util)
 
-- Real Stripe checkout / customer portal / past_due enforcement.
-- Custom domain per org / vanity URLs.
-- Per-org email branding (auth emails stay LexGuild-branded until email infra is set up).
-- SSO / SAML.
+New file: `src/lib/matching.ts` — pure function, no DB calls, runs client-side over already-fetched org profiles.
 
-## What I need from you to start
+For a given viewer (mentee or mentor), score every other org member 0–100:
 
-1. Confirm the **plan tiers + seat caps** (25 / 100 / 250 / Enterprise) and whether to display placeholder prices (e.g. "$X/mo") or just "Contact us".
-2. OK to keep email/password + Google on both `/signup` and `/join`? (Currently `/login` has both.)
-3. Should the existing default `LexGuild` org be visible in the org switcher for everyone, or hidden once users belong to a real org?
+- **Practice-area overlap** (0–40): Jaccard overlap on `practice_areas[]`, scaled.
+- **Seniority complementarity** (0–25): mentor should have ≥5 more `years_experience` than mentee; reward mid-range gap (5–20 yrs), penalize inverted gaps.
+- **Jurisdiction match** (0–15): same `state` = 15, neighboring/none = 0; bonus for shared `bar_admissions[]`.
+- **Location proximity** (0–10): same `city` = 10, same `state` only = 5.
+- **Availability** (0–10): mentor has `accepting_mentees = true` and a `meeting_cadence` set.
+- **Hard filters** (exclude entirely): role mismatch (mentee viewing must see mentors only and vice versa), self, already in an active/pending mentorship together, mentor with `accepting_mentees = false`.
+
+Returns `{ profile, score, reasons[] }` so the UI can show *why* (e.g. "3 shared practice areas · same state · 12 yrs senior").
+
+### 2. Member-facing changes
+
+**Dashboard (`app.dashboard.tsx`)** — replace the "Suggested matches" `directory.slice(0,3)` with top-3 scored matches. Show the score chip and top reason under each card.
+
+**Discover (`app.discover.tsx`)**:
+- Add a tab toggle: **Recommended for you** (sorted by score, role-filtered) / **Browse all**.
+- Show match score + top 2 reasons on each card in Recommended view.
+- Filters: practice area, state, mentor/mentee role, accepting mentees only.
+- Mentees never see other mentees in Recommended; mentors never see other mentors.
+
+### 3. Admin matching console
+
+New route: `src/routes/app.org.matching.tsx` (admin only, gated by `isOrgAdmin`).
+
+Layout:
+- **Left pane**: list of mentees in the org with status — *Unmatched*, *Pending request*, *Active*. Search + filter by practice area / state.
+- **Right pane**: when a mentee is selected, show a ranked list of candidate mentors using the same scoring engine, with score, reasons, current mentee load (count of active mentorships), and an **Assign** button.
+- Clicking Assign inserts `mentorships` row with `status = 'active'`, `organization_id = currentOrgId`, mentor_id/mentee_id set — existing trigger `handle_mentorship_active` auto-creates the conversation and notifies both parties. Existing `app.admin.tsx` already does this; we reuse the pattern but scoped to current org and powered by the scoring engine instead of a flat dropdown.
+- **Bulk mode**: checkbox-select multiple unmatched mentees → "Auto-assign top match for selected" (admin reviews preview list before confirming).
+
+Add **Matching** to the org sidebar in `src/components/org-switcher.tsx`, admin-only. Add a QuickLink card on `app.org.index.tsx` ("3 unmatched mentees · review suggestions").
+
+### 4. Insights tie-in
+
+On `app.org.insights.tsx`, add a small **Matching health** card:
+- Unmatched mentees count
+- Mentors at/over capacity (active mentorships ≥ a soft cap of 3)
+- Avg match score of active pairings (engine re-scored against current pairs)
+
+This is the data point that justifies seat-based pricing — "your org has X unmatched mentees, every seat is being used productively."
+
+### 5. Schema (no migration needed yet)
+
+All inputs already exist on `profiles`. **Optional follow-up** (not in this plan, flag only): add `mentor_capacity int default 3` to `profiles` so each mentor can set their own cap instead of a hard-coded soft cap. Ask before adding.
+
+### 6. No changes to
+
+- RLS policies (existing org-scoped policies cover everything).
+- Auth, billing, Stripe.
+- The legacy `app.admin.tsx` super-admin page — leave as-is; the new console is org-scoped at `/app/org/matching`.
+
+---
+
+### Files
+
+**Created**
+- `src/lib/matching.ts` — scoring engine + types
+- `src/routes/app.org.matching.tsx` — admin matching console
+
+**Edited**
+- `src/routes/app.dashboard.tsx` — use scored top-3
+- `src/routes/app.discover.tsx` — Recommended/Browse tabs, filters, score chips
+- `src/components/org-switcher.tsx` — add Matching nav (admin only)
+- `src/routes/app.org.index.tsx` — unmatched-mentees QuickLink
+- `src/routes/app.org.insights.tsx` — Matching health card
+
+### Open question
+
+Should mentors have a **capacity cap** (max active mentees) that they set themselves, or should we keep a soft org-wide default (e.g. 3) for v1 and revisit later?
