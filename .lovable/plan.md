@@ -1,80 +1,51 @@
-## Mentorship Matching System
+## Goal
 
-Build a real, scoreable matching engine plus tools for org admins to manually pair members. Two surfaces: **member-facing recommendations** and an **admin matching console**.
+Cleanly separate two admin experiences:
 
----
+- **Platform admin** (`user_roles.role = 'admin'`, e.g. joe@bizooma.com): system-wide view of every organization and every user.
+- **Org admin** (`organization_members.org_role` in `owner`/`admin`): the existing per-org tools under `/app/org/*` (Overview, Insights, Matching, Members, Billing, Settings).
 
-### 1. Scoring algorithm (shared util)
+Today `/app/admin` is labeled "Bar Association Admin" and mixes the two — we just scoped it to the current org, which makes it a duplicate of `/app/org/members`. We'll repurpose `/app/admin` as the platform-admin-only area.
 
-New file: `src/lib/matching.ts` — pure function, no DB calls, runs client-side over already-fetched org profiles.
+## Changes
 
-For a given viewer (mentee or mentor), score every other org member 0–100:
+### 1. Repurpose `/app/admin` as Platform Admin
 
-- **Practice-area overlap** (0–40): Jaccard overlap on `practice_areas[]`, scaled.
-- **Seniority complementarity** (0–25): mentor should have ≥5 more `years_experience` than mentee; reward mid-range gap (5–20 yrs), penalize inverted gaps.
-- **Jurisdiction match** (0–15): same `state` = 15, neighboring/none = 0; bonus for shared `bar_admissions[]`.
-- **Location proximity** (0–10): same `city` = 10, same `state` only = 5.
-- **Availability** (0–10): mentor has `accepting_mentees = true` and a `meeting_cadence` set.
-- **Hard filters** (exclude entirely): role mismatch (mentee viewing must see mentors only and vice versa), self, already in an active/pending mentorship together, mentor with `accepting_mentees = false`.
+Replace the contents of `src/routes/app.admin.tsx` with a platform-admin landing page, gated on `useIsAdmin()`. Layout: header "Platform Admin" + tabbed sub-sections.
 
-Returns `{ profile, score, reasons[] }` so the UI can show *why* (e.g. "3 shared practice areas · same state · 12 yrs senior").
+Add three child routes:
 
-### 2. Member-facing changes
+- `src/routes/app.admin.orgs.tsx` — list of every organization
+  - Columns: name, slug, kind (firm / bar association), member count, plan, subscription status, created date.
+  - Row click → drawer or `/app/admin/orgs/$id` detail with members list and quick actions (impersonate-style "switch to this org" by writing `lexguild.currentOrgId` into localStorage and navigating to `/app/org`).
+- `src/routes/app.admin.users.tsx` — list of every user/profile
+  - Columns: name, email (from auth), org(s), platform role, mentor/mentee flags, joined date.
+  - Search by name/email/firm. Filter by org.
+  - Actions: grant/revoke platform `admin` role (writes to `user_roles`).
+- `src/routes/app.admin.index.tsx` — small dashboard with counts (orgs, users, active subs, mentorships) and links to the two lists.
 
-**Dashboard (`app.dashboard.tsx`)** — replace the "Suggested matches" `directory.slice(0,3)` with top-3 scored matches. Show the score chip and top reason under each card.
+### 2. Sidebar / nav
 
-**Discover (`app.discover.tsx`)**:
-- Add a tab toggle: **Recommended for you** (sorted by score, role-filtered) / **Browse all**.
-- Show match score + top 2 reasons on each card in Recommended view.
-- Filters: practice area, state, mentor/mentee role, accepting mentees only.
-- Mentees never see other mentees in Recommended; mentors never see other mentors.
+In `src/routes/app.tsx`, keep the existing `Admin` nav item but only show it for platform admins (already the case via `useIsAdmin`). Rename label to "Platform" so it isn't confused with org admin.
 
-### 3. Admin matching console
+The org-admin links already live in `OrgSwitcher` (Members, Billing, Settings, etc.) and are gated by `isOrgAdmin` — no change needed there. Joe will see those for any org where he's an owner/admin.
 
-New route: `src/routes/app.org.matching.tsx` (admin only, gated by `isOrgAdmin`).
+### 3. Data access
 
-Layout:
-- **Left pane**: list of mentees in the org with status — *Unmatched*, *Pending request*, *Active*. Search + filter by practice area / state.
-- **Right pane**: when a mentee is selected, show a ranked list of candidate mentors using the same scoring engine, with score, reasons, current mentee load (count of active mentorships), and an **Assign** button.
-- Clicking Assign inserts `mentorships` row with `status = 'active'`, `organization_id = currentOrgId`, mentor_id/mentee_id set — existing trigger `handle_mentorship_active` auto-creates the conversation and notifies both parties. Existing `app.admin.tsx` already does this; we reuse the pattern but scoped to current org and powered by the scoring engine instead of a flat dropdown.
-- **Bulk mode**: checkbox-select multiple unmatched mentees → "Auto-assign top match for selected" (admin reviews preview list before confirming).
+Platform-admin queries need to bypass per-org RLS. Existing RLS policies already allow `has_role(auth.uid(), 'admin')` to see all rows on `profiles`, `organizations`, `organization_members`, `mentorships`, `subscriptions`, so the client can query directly with the browser Supabase client — no server function needed.
 
-Add **Matching** to the org sidebar in `src/components/org-switcher.tsx`, admin-only. Add a QuickLink card on `app.org.index.tsx` ("3 unmatched mentees · review suggestions").
+For listing user emails (which live in `auth.users`, not `profiles`), we'll add a `createServerFn` using the admin Supabase client (`client.server`) that returns `{ id, email, created_at }` for all users, gated by a server-side `has_role(..., 'admin')` check.
 
-### 4. Insights tie-in
+### 4. Remove the per-org filtering hack we just added
 
-On `app.org.insights.tsx`, add a small **Matching health** card:
-- Unmatched mentees count
-- Mentors at/over capacity (active mentorships ≥ a soft cap of 3)
-- Avg match score of active pairings (engine re-scored against current pairs)
+Since `/app/admin` is becoming platform-only, we revert the `currentOrgId` filter in the existing admin file — but most of that file is being rewritten anyway as part of step 1.
 
-This is the data point that justifies seat-based pricing — "your org has X unmatched mentees, every seat is being used productively."
+## Out of scope
 
-### 5. Schema (no migration needed yet)
+- Editing other orgs' settings as a platform admin (read-only for now; future work).
+- Org-admin UX changes — those screens stay as-is.
+- Audit logging of platform-admin actions.
 
-All inputs already exist on `profiles`. **Optional follow-up** (not in this plan, flag only): add `mentor_capacity int default 3` to `profiles` so each mentor can set their own cap instead of a hard-coded soft cap. Ask before adding.
+## Open questions
 
-### 6. No changes to
-
-- RLS policies (existing org-scoped policies cover everything).
-- Auth, billing, Stripe.
-- The legacy `app.admin.tsx` super-admin page — leave as-is; the new console is org-scoped at `/app/org/matching`.
-
----
-
-### Files
-
-**Created**
-- `src/lib/matching.ts` — scoring engine + types
-- `src/routes/app.org.matching.tsx` — admin matching console
-
-**Edited**
-- `src/routes/app.dashboard.tsx` — use scored top-3
-- `src/routes/app.discover.tsx` — Recommended/Browse tabs, filters, score chips
-- `src/components/org-switcher.tsx` — add Matching nav (admin only)
-- `src/routes/app.org.index.tsx` — unmatched-mentees QuickLink
-- `src/routes/app.org.insights.tsx` — Matching health card
-
-### Open question
-
-Should mentors have a **capacity cap** (max active mentees) that they set themselves, or should we keep a soft org-wide default (e.g. 3) for v1 and revisit later?
+None blocking — see questions below if you want to refine scope.
