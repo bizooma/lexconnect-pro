@@ -36,6 +36,7 @@ import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -173,6 +174,11 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
+  id: '/api/public/push/dispatch',
+  path: '/api/public/push/dispatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
+  '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -227,6 +234,7 @@ export interface FileRoutesByTo {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/org': typeof AppOrgIndexRoute
+  '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
+  '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/app/admin/'
     | '/app/org/'
+    | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/app/admin'
     | '/app/org'
+    | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/app/admin/'
     | '/app/org/'
+    | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   JoinCodeRoute: typeof JoinCodeRoute
   JoinIndexRoute: typeof JoinIndexRoute
+  ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/dispatch': {
+      id: '/api/public/push/dispatch'
+      path: '/api/public/push/dispatch'
+      fullPath: '/api/public/push/dispatch'
+      preLoaderRoute: typeof ApiPublicPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -627,6 +647,7 @@ const rootRouteChildren: RootRouteChildren = {
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   JoinCodeRoute: JoinCodeRoute,
   JoinIndexRoute: JoinIndexRoute,
+  ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
@@ -634,13 +655,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
