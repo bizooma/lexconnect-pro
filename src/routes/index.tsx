@@ -46,7 +46,7 @@ function Landing() {
               <span className="text-primary">for the Legal Profession</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              LexGuild is where legal professionals connect, learn, and grow — pairing mentors with mentees, organizing bar association communities, and powering the next generation of attorney collaboration.
+              LexGuild helps bar associations, law firms, and legal organizations build stronger attorney mentorship programs through structured communication, professional development, and meaningful member engagement.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
