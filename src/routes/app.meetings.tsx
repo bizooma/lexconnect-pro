@@ -315,12 +315,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function MeetingCard({
-  m, otherProfile, onCancel, canCancel,
+  m, otherProfile, onCancel, canCancel, resources, onAttach,
 }: {
   m: Meeting;
   otherProfile?: Connection;
   onCancel: (id: string) => void;
   canCancel?: boolean;
+  resources: ResourceRow[];
+  onAttach: () => void;
 }) {
   const dt = new Date(m.scheduled_at);
   return (
@@ -341,6 +343,16 @@ function MeetingCard({
             Cancel
           </button>
         )}
+      </div>
+      {resources.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {resources.map((r) => (
+            <ResourceCard key={r.id} resource={r} source="meeting" compact />
+          ))}
+        </div>
+      )}
+      <div className="mt-3 flex justify-end">
+        <button onClick={onAttach} className="text-xs font-medium text-primary hover:underline">+ Attach resource</button>
       </div>
     </article>
   );
