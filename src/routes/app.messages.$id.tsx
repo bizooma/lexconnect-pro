@@ -61,8 +61,14 @@ function Thread() {
         .from("conversation_participants")
         .select("user_id")
         .eq("conversation_id", id),
+      supabase
+        .from("conversations")
+        .select("organization_id")
+        .eq("id", id)
+        .maybeSingle(),
     ]);
     setMsgs((messages as Message[] | null) ?? []);
+    setOrgId((conv as { organization_id: string } | null)?.organization_id ?? null);
     const otherId = (parts ?? []).map((p: any) => p.user_id).find((uid) => uid !== user?.id);
     if (otherId) {
       const { data: p } = await supabase
