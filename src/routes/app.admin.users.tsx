@@ -137,7 +137,10 @@ function AdminUsers() {
   const onToggleAdmin = async (userId: string, grant: boolean) => {
     setBusyId(userId);
     try {
-      await togglePlatformAdmin({ data: { userId, grant } });
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token ?? "";
+      const res = await togglePlatformAdmin({ data: { accessToken, userId, grant } });
+      if (res?.error) throw new Error(res.error);
       const next = new Set(adminIds);
       if (grant) next.add(userId);
       else next.delete(userId);
