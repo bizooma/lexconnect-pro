@@ -111,6 +111,35 @@ function Meetings() {
 
   useEffect(() => { load(); }, [user]);
 
+  // Load resources for visible meetings
+  useEffect(() => {
+    const ids = meetings.map((m) => m.id);
+    if (ids.length === 0) { setMeetingResources({}); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("meeting_resources")
+        .select("meeting_id, resources(*)")
+        .in("meeting_id", ids);
+      const map: Record<string, ResourceRow[]> = {};
+      for (const row of (data ?? []) as any[]) {
+        if (!row.resources) continue;
+        (map[row.meeting_id] ||= []).push(row.resources as ResourceRow);
+      }
+      setMeetingResources(map);
+    })();
+  }, [meetings]);
+
+  const handleMeetingResourceUploaded = async (meetingId: string, resource: ResourceRow) => {
+    const { error } = await supabase
+      .from("meeting_resources")
+      .insert({ meeting_id: meetingId, resource_id: resource.id });
+    if (error) { toast.error(error.message); return; }
+    setMeetingResources((m) => ({ ...m, [meetingId]: [...(m[meetingId] ?? []), resource] }));
+    (window as any).gtag?.("event", "meeting_resource_attached", { meeting_id: meetingId });
+    setAttachOpen(null);
+  };
+
+
   const upcoming = useMemo(
     () => meetings.filter((m) => new Date(m.scheduled_at) >= new Date()),
     [meetings],
