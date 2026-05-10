@@ -221,7 +221,7 @@ function Meetings() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((m) => (
-              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} canCancel />
+              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} canCancel resources={meetingResources[m.id] ?? []} onAttach={() => setAttachOpen(m.id)} />
             ))}
           </div>
         )}
