@@ -24,6 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { ResourceUploader } from "@/components/resources/resource-uploader";
+import { ResourceCard } from "@/components/resources/resource-card";
+import type { ResourceRow } from "@/lib/resources";
 
 export const Route = createFileRoute("/app/meetings")({
   component: Meetings,
