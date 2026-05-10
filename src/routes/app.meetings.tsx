@@ -231,7 +231,7 @@ function Meetings() {
         <Section title="Past">
           <div className="space-y-3">
             {past.slice(0, 10).map((m) => (
-              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} />
+              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} resources={meetingResources[m.id] ?? []} onAttach={() => setAttachOpen(m.id)} />
             ))}
           </div>
         </Section>
