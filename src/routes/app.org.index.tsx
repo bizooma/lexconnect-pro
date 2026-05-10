@@ -96,7 +96,8 @@ function OrgOverviewPage() {
             </div>
           </section>
 
-          <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <QuickLink to="/app/org/resources" title="Resource Library" desc="Mentorship guides, CLE, templates" />
             <QuickLink to="/app/org/matching" title="Mentor matching" desc="Pair unmatched mentees with ranked suggestions" />
             <QuickLink to="/app/org/insights" title="Engagement insights" desc="Seat efficiency & activity trends" />
             <QuickLink to="/app/org/members" title="Manage members" desc="Invite, change roles, remove" />
