@@ -16,7 +16,7 @@ async function requirePlatformAdmin(accessToken: string): Promise<string> {
   return userId;
 }
 
-export const listAuthUsers = createServerFn({ method: "POST" })
+export const listAuthUsersSafe = createServerFn({ method: "POST" })
   .inputValidator((data: { accessToken: string }) => data)
   .handler(async ({ data }) => {
     const out: { id: string; email: string | null; created_at: string }[] = [];
@@ -46,7 +46,7 @@ export const listAuthUsers = createServerFn({ method: "POST" })
     }
   });
 
-export const setPlatformAdmin = createServerFn({ method: "POST" })
+export const setPlatformAdminSafe = createServerFn({ method: "POST" })
   .inputValidator((data: { accessToken: string; userId: string; grant: boolean }) => data)
   .handler(async ({ data }) => {
     try {
