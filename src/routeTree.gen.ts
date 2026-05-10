@@ -33,6 +33,7 @@ import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
+import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
 import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
@@ -169,6 +170,11 @@ const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   path: '/org/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrgResourcesRoute = AppOrgResourcesRouteImport.update({
+  id: '/org/resources',
+  path: '/org/resources',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgMembersRoute = AppOrgMembersRouteImport.update({
   id: '/org/members',
   path: '/org/members',
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/app/org/insights': typeof AppOrgInsightsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/app/org/insights': typeof AppOrgInsightsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -360,6 +368,7 @@ export interface FileRoutesById {
   '/app/org/insights': typeof AppOrgInsightsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -403,6 +412,7 @@ export interface FileRouteTypes {
     | '/app/org/insights'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/resources'
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/app/org/insights'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/resources'
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/app/org/insights'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/resources'
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -692,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/org/resources': {
+      id: '/app/org/resources'
+      path: '/org/resources'
+      fullPath: '/app/org/resources'
+      preLoaderRoute: typeof AppOrgResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/members': {
       id: '/app/org/members'
       path: '/org/members'
@@ -839,6 +858,7 @@ interface AppRouteChildren {
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
+  AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
@@ -854,6 +874,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgInsightsRoute: AppOrgInsightsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
+  AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
 }
