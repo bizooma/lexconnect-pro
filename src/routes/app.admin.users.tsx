@@ -40,7 +40,9 @@ function AdminUsers() {
     setLoading(true);
     let users: AuthUser[] = [];
     try {
-      const result = await fetchUsers();
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token ?? "";
+      const result = await fetchUsers({ data: { accessToken } });
       users = result?.users ?? [];
       if (result?.error) toast.error(result.error);
     } catch (e: any) {
@@ -135,7 +137,10 @@ function AdminUsers() {
   const onToggleAdmin = async (userId: string, grant: boolean) => {
     setBusyId(userId);
     try {
-      await togglePlatformAdmin({ data: { userId, grant } });
+      const { data: sess } = await supabase.auth.getSession();
+      const accessToken = sess.session?.access_token ?? "";
+      const res = await togglePlatformAdmin({ data: { accessToken, userId, grant } });
+      if (res?.error) throw new Error(res.error);
       const next = new Set(adminIds);
       if (grant) next.add(userId);
       else next.delete(userId);
