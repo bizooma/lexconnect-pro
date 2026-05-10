@@ -41,6 +41,9 @@ function Thread() {
   const [showPrompts, setShowPrompts] = useState(false);
   const [recording, setRecording] = useState(false);
   const [signed, setSigned] = useState<Record<string, string>>({});
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Record<string, ResourceRow[]>>({});
+  const [uploadOpen, setUploadOpen] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startedAtRef = useRef<number>(0);
@@ -48,7 +51,7 @@ function Thread() {
 
   // Load messages + other participant
   const load = async () => {
-    const [{ data: messages }, { data: parts }] = await Promise.all([
+    const [{ data: messages }, { data: parts }, { data: conv }] = await Promise.all([
       supabase
         .from("messages")
         .select("id,conversation_id,sender_id,body,kind,audio_url,duration_seconds,created_at")
