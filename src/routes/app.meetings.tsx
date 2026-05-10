@@ -24,6 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { ResourceUploader } from "@/components/resources/resource-uploader";
+import { ResourceCard } from "@/components/resources/resource-card";
+import type { ResourceRow } from "@/lib/resources";
 
 export const Route = createFileRoute("/app/meetings")({
   component: Meetings,
@@ -60,6 +63,8 @@ function Meetings() {
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [meetingResources, setMeetingResources] = useState<Record<string, ResourceRow[]>>({});
+  const [attachOpen, setAttachOpen] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -105,6 +110,35 @@ function Meetings() {
   };
 
   useEffect(() => { load(); }, [user]);
+
+  // Load resources for visible meetings
+  useEffect(() => {
+    const ids = meetings.map((m) => m.id);
+    if (ids.length === 0) { setMeetingResources({}); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("meeting_resources")
+        .select("meeting_id, resources(*)")
+        .in("meeting_id", ids);
+      const map: Record<string, ResourceRow[]> = {};
+      for (const row of (data ?? []) as any[]) {
+        if (!row.resources) continue;
+        (map[row.meeting_id] ||= []).push(row.resources as ResourceRow);
+      }
+      setMeetingResources(map);
+    })();
+  }, [meetings]);
+
+  const handleMeetingResourceUploaded = async (meetingId: string, resource: ResourceRow) => {
+    const { error } = await supabase
+      .from("meeting_resources")
+      .insert({ meeting_id: meetingId, resource_id: resource.id });
+    if (error) { toast.error(error.message); return; }
+    setMeetingResources((m) => ({ ...m, [meetingId]: [...(m[meetingId] ?? []), resource] }));
+    (window as any).gtag?.("event", "meeting_resource_attached", { meeting_id: meetingId });
+    setAttachOpen(null);
+  };
+
 
   const upcoming = useMemo(
     () => meetings.filter((m) => new Date(m.scheduled_at) >= new Date()),
@@ -187,7 +221,7 @@ function Meetings() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((m) => (
-              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} canCancel />
+              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} canCancel resources={meetingResources[m.id] ?? []} onAttach={() => setAttachOpen(m.id)} />
             ))}
           </div>
         )}
@@ -197,7 +231,7 @@ function Meetings() {
         <Section title="Past">
           <div className="space-y-3">
             {past.slice(0, 10).map((m) => (
-              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} />
+              <MeetingCard key={m.id} m={m} otherProfile={profileMap[m.host_id === user?.id ? m.attendee_id : m.host_id]} onCancel={cancel} resources={meetingResources[m.id] ?? []} onAttach={() => setAttachOpen(m.id)} />
             ))}
           </div>
         </Section>
@@ -258,6 +292,28 @@ function Meetings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!attachOpen} onOpenChange={(o) => !o && setAttachOpen(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Attach resource to meeting</DialogTitle>
+            <DialogDescription>Discussion guides, agendas, worksheets…</DialogDescription>
+          </DialogHeader>
+          {attachOpen && currentOrgId && user && (
+            <ResourceUploader
+              organizationId={currentOrgId}
+              uploaderUserId={user.id}
+              visibility="meeting"
+              defaultCategory="meeting"
+              showCategory={false}
+              showTitle={true}
+              buttonLabel="Attach"
+              compact
+              onUploaded={(r) => handleMeetingResourceUploaded(attachOpen, r)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -281,12 +337,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function MeetingCard({
-  m, otherProfile, onCancel, canCancel,
+  m, otherProfile, onCancel, canCancel, resources, onAttach,
 }: {
   m: Meeting;
   otherProfile?: Connection;
   onCancel: (id: string) => void;
   canCancel?: boolean;
+  resources: ResourceRow[];
+  onAttach: () => void;
 }) {
   const dt = new Date(m.scheduled_at);
   return (
@@ -307,6 +365,16 @@ function MeetingCard({
             Cancel
           </button>
         )}
+      </div>
+      {resources.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {resources.map((r) => (
+            <ResourceCard key={r.id} resource={r} source="meeting" compact />
+          ))}
+        </div>
+      )}
+      <div className="mt-3 flex justify-end">
+        <button onClick={onAttach} className="text-xs font-medium text-primary hover:underline">+ Attach resource</button>
       </div>
     </article>
   );

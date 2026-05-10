@@ -5,6 +5,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf } from "@/hooks/use-profiles";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResourceUploader } from "@/components/resources/resource-uploader";
+import { ResourceCard } from "@/components/resources/resource-card";
+import type { ResourceRow } from "@/lib/resources";
 
 export const Route = createFileRoute("/app/messages/$id")({
   component: Thread,
@@ -37,6 +41,9 @@ function Thread() {
   const [showPrompts, setShowPrompts] = useState(false);
   const [recording, setRecording] = useState(false);
   const [signed, setSigned] = useState<Record<string, string>>({});
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Record<string, ResourceRow[]>>({});
+  const [uploadOpen, setUploadOpen] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startedAtRef = useRef<number>(0);
@@ -44,7 +51,7 @@ function Thread() {
 
   // Load messages + other participant
   const load = async () => {
-    const [{ data: messages }, { data: parts }] = await Promise.all([
+    const [{ data: messages }, { data: parts }, { data: conv }] = await Promise.all([
       supabase
         .from("messages")
         .select("id,conversation_id,sender_id,body,kind,audio_url,duration_seconds,created_at")
@@ -54,8 +61,14 @@ function Thread() {
         .from("conversation_participants")
         .select("user_id")
         .eq("conversation_id", id),
+      supabase
+        .from("conversations")
+        .select("organization_id")
+        .eq("id", id)
+        .maybeSingle(),
     ]);
     setMsgs((messages as Message[] | null) ?? []);
+    setOrgId((conv as { organization_id: string } | null)?.organization_id ?? null);
     const otherId = (parts ?? []).map((p: any) => p.user_id).find((uid) => uid !== user?.id);
     if (otherId) {
       const { data: p } = await supabase
@@ -112,6 +125,24 @@ function Thread() {
     })();
   }, [msgs]);
 
+  // Load resource attachments for current messages
+  useEffect(() => {
+    const ids = msgs.map((m) => m.id);
+    if (ids.length === 0) { setAttachments({}); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("message_resources")
+        .select("message_id, resources(*)")
+        .in("message_id", ids);
+      const map: Record<string, ResourceRow[]> = {};
+      for (const row of (data ?? []) as any[]) {
+        if (!row.resources) continue;
+        (map[row.message_id] ||= []).push(row.resources as ResourceRow);
+      }
+      setAttachments(map);
+    })();
+  }, [msgs]);
+
   const sendText = async (body: string) => {
     if (!user || !body.trim()) return;
     setDraft("");
@@ -122,6 +153,28 @@ function Thread() {
       kind: "text",
     });
     if (error) toast.error(error.message);
+  };
+
+  const handleResourceUploaded = async (resource: ResourceRow) => {
+    if (!user) return;
+    // Insert a placeholder message and link the resource
+    const { data: msg, error } = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: id,
+        sender_id: user.id,
+        body: "",
+        kind: "text",
+      })
+      .select("id")
+      .single();
+    if (error || !msg) { toast.error(error?.message ?? "Could not attach"); return; }
+    const { error: linkErr } = await supabase
+      .from("message_resources")
+      .insert({ message_id: msg.id, resource_id: resource.id });
+    if (linkErr) { toast.error(linkErr.message); return; }
+    setAttachments((a) => ({ ...a, [msg.id]: [resource] }));
+    setUploadOpen(false);
   };
 
   const startRecording = async () => {
@@ -188,24 +241,36 @@ function Thread() {
         )}
         {msgs.map((m) => {
           const mine = m.sender_id === user?.id;
+          const atts = attachments[m.id] ?? [];
+          const isAttachOnly = atts.length > 0 && !m.body && m.kind === "text";
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-card ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
-                {m.kind === "voice" ? (
-                  <div className="flex items-center gap-3 py-1">
-                    {signed[m.id] ? (
-                      <audio controls src={signed[m.id]} className="h-8 max-w-[220px]" />
+              <div className={`max-w-[78%] space-y-2`}>
+                {!isAttachOnly && (
+                  <div className={`rounded-2xl px-4 py-2.5 text-sm shadow-card ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
+                    {m.kind === "voice" ? (
+                      <div className="flex items-center gap-3 py-1">
+                        {signed[m.id] ? (
+                          <audio controls src={signed[m.id]} className="h-8 max-w-[220px]" />
+                        ) : (
+                          <span className="text-xs opacity-70">Loading audio…</span>
+                        )}
+                        {m.duration_seconds && (
+                          <span className="text-xs opacity-80">{m.duration_seconds}s</span>
+                        )}
+                      </div>
                     ) : (
-                      <span className="text-xs opacity-70">Loading audio…</span>
+                      <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                     )}
-                    {m.duration_seconds && (
-                      <span className="text-xs opacity-80">{m.duration_seconds}s</span>
-                    )}
+                    <p className={`mt-1 text-[10px] ${mine ? "text-white/60" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
                   </div>
-                ) : (
-                  <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                 )}
-                <p className={`mt-1 text-[10px] ${mine ? "text-white/60" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
+                {atts.map((r) => (
+                  <ResourceCard key={r.id} resource={r} source="message" compact />
+                ))}
+                {isAttachOnly && (
+                  <p className={`text-[10px] ${mine ? "text-right text-muted-foreground" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
+                )}
               </div>
             </div>
           );
@@ -231,6 +296,9 @@ function Thread() {
         <div className="flex items-end gap-2">
           <button onClick={() => setShowPrompts(!showPrompts)} className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition ${showPrompts ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`} title="Prompts">
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" strokeLinecap="round"/></svg>
+          </button>
+          <button onClick={() => setUploadOpen(true)} disabled={!orgId} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:text-foreground disabled:opacity-50" title="Attach resource">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
           </button>
           <textarea
             rows={1}
@@ -260,6 +328,27 @@ function Thread() {
         </div>
         {recording && <p className="mt-2 text-center text-xs text-muted-foreground">Recording… release to send</p>}
       </div>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share a resource</DialogTitle>
+          </DialogHeader>
+          {orgId && user && (
+            <ResourceUploader
+              organizationId={orgId}
+              uploaderUserId={user.id}
+              visibility="conversation"
+              defaultCategory="other"
+              showCategory={false}
+              showTitle={false}
+              buttonLabel="Send resource"
+              compact
+              onUploaded={handleResourceUploaded}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

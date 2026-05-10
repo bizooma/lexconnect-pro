@@ -1,44 +1,84 @@
-## Goal
+# LexGuild Resources — Phase 1 Plan
 
-Adopt the refined three-tier pricing across the site, with a monthly/annual toggle (annual saves ~2 months).
+Lightweight, mentorship-focused resource sharing. Three surfaces: chat attachments, meeting attachments, and an org Resource Library. Branded as "Resources" throughout — never "files" or "documents."
 
-## Final pricing
+## Database
 
-| Tier | Monthly | Annual | Seats | Audience |
-|---|---|---|---|---|
-| Starter | $399/mo | $3,990/yr | Up to 25 | Pilot programs, small firms |
-| Professional (most popular) | $899/mo | $8,990/yr | Up to 100 | Mid-sized bars, regional groups, larger firms |
-| Enterprise | Custom (from $2,500/mo) | Custom | 250+ | State bars, multi-location, law schools |
+New private storage bucket: `resources` (RLS-gated, signed URLs only).
 
-Annual = 10× monthly (≈2 months free). Enterprise shows "Contact sales" instead of a price.
+New tables (all RLS-enforced, scoped to `organization_id`):
 
-## Feature lists per tier
+- `resources` — id, organization_id, uploaded_by_user_id, title, description, storage_path, file_name, file_type, file_size, category (enum), visibility (`organization` | `conversation` | `meeting`), is_featured (bool), created_at
+- `message_resources` — message_id, resource_id (links chat attachment to a resource row)
+- `meeting_resources` — meeting_id, resource_id
 
-**Starter** — Up to 25 members · 1 admin · Invite links & codes · Messaging · Mentorship matching · Meeting scheduling · Mobile PWA access · Basic analytics
+Category enum: `mentorship_guide`, `cle`, `template`, `checklist`, `professional_development`, `meeting`, `other`.
 
-**Professional** (everything in Starter, plus) — Up to 100 members · Multiple admins · Admin matching controls · Voice notes · Organization branding · Mentorship reporting · Enhanced analytics · Priority support
+RLS rules:
+- SELECT: `is_org_member(organization_id, auth.uid())` AND (visibility=`organization` OR uploader OR participant in linked conversation/meeting)
+- INSERT org-library (`visibility=organization`): only `is_org_admin`
+- INSERT conversation/meeting attachments: any org member who is a participant of the linked conversation/meeting
+- DELETE/UPDATE (feature toggle): org admins, or uploader for their own message/meeting attachments
+- Storage policies on bucket mirror the above; objects keyed `{organization_id}/{resource_id}.{ext}`
 
-**Enterprise** (everything in Professional, plus) — 250+ members · Custom branding · Advanced reporting · Custom onboarding · Dedicated success manager · SSO (roadmap) · API access (roadmap) · White-label (roadmap)
+Server-side validation trigger enforces:
+- file_size ≤ 25MB
+- file_type ∈ allowed MIME list (PDF, DOCX, XLSX, PPTX, JPG, PNG)
 
-## Changes
+## Server functions (`src/lib/resources.functions.ts`)
 
-### 1. `src/routes/index.tsx` — pricing section
-- Replace the existing 3-card pricing block with new tiers and feature lists above.
-- Add a monthly/annual segmented toggle above the cards (client state, no persistence).
-- When annual is selected: show `$3,990/yr` (with `$399/mo billed annually` underneath) and a small "Save 2 months" badge near the toggle.
-- Enterprise card always shows "Custom" / "Contact sales" → links to `#contact`.
-- Keep "Most popular" ribbon on Professional.
+- `createResource({ orgId, title, description, category, visibility, fileName, fileType, fileSize })` → returns `{ resourceId, uploadUrl }` (signed upload URL)
+- `attachResourceToMessage({ messageId, resourceId })`
+- `attachResourceToMeeting({ meetingId, resourceId })`
+- `getResourceDownloadUrl(resourceId)` → short-lived signed URL
+- `listOrgResources({ orgId, category?, search?, sort? })`
+- `toggleFeatured(resourceId)` (admin only)
+- `deleteResource(resourceId)` (admin or uploader)
 
-### 2. `src/routes/signup.tsx` — plan picker
-- Replace the 4-item `PLANS` array with 3 tiers matching the landing page (Starter / Professional / Enterprise).
-- Add `monthlyPrice` and `annualPrice` fields; store selected billing cycle in component state.
-- Render the same monthly/annual toggle above the plan grid.
-- Default selection: Professional, monthly.
-- Enterprise card shows "Contact sales" — selecting it routes the user to the contact section / mailto rather than continuing the self-serve flow (or we keep it selectable and flag it for follow-up; recommend the former for clarity).
+All use `requireSupabaseAuth`; RLS does the gating.
 
-### 3. No backend changes
-- Pricing is presentational only right now; no DB columns or Stripe wiring touched. The signup flow already stores org metadata without a price field, so this is purely UI.
+## UI
 
-## Open question (will default if no answer)
+### Shared components (`src/components/resources/`)
+- `ResourceCard` — file-type icon, title, size, type badge, uploader+date, download button. Navy/gold/ivory styling, soft shadow.
+- `ResourceUploader` — drag/drop (desktop), file/camera input (mobile), progress bar, 25MB+type validation, subtle "Do not upload confidential or privileged client information" notice.
+- `ResourcePicker` — pick from existing org-library OR upload new (used inside meeting/message composers).
+- `FileTypeIcon` — branded icons per type.
 
-Enterprise behavior on the signup page — default plan is to **disable self-serve selection** and show a "Contact sales" button that scrolls to the landing contact section. Say the word if you'd rather keep it selectable as-is.
+### Messages (`src/routes/app.messages.$id.tsx`)
+- Add paperclip button in composer → opens uploader.
+- Inline `ResourceCard` rendered for messages with linked `message_resources`.
+- PDF inline preview (object/iframe) when type is PDF and on desktop.
+- Drag-and-drop on the thread container.
+
+### Meetings (`src/routes/app.meetings.tsx`)
+- Add "Attach resources" section to the schedule dialog (uses `ResourcePicker`).
+- Meeting cards display attached resource chips with download.
+
+### Org Resource Library (new route `src/routes/app.org.resources.tsx`)
+- Sections: Featured, Recently Added, Mentorship Guides, CLE Materials, Templates & Checklists.
+- Search input + category filter chips + sort (recent / name).
+- Admins see "Upload resource" CTA + per-card menu (Feature, Delete).
+- Members see read-only library with download buttons.
+- Subtle confidentiality notice at top.
+- Add nav link in `src/routes/app.org.index.tsx` and the org sub-nav.
+
+### Mobile UX
+- Bottom-sheet uploader on mobile, full-width cards, large tap targets, sticky search.
+
+## Analytics
+
+Wrap a `trackEvent(name, params)` helper around `window.gtag` and fire:
+- `resource_uploaded` (category, file_type, size, visibility)
+- `resource_downloaded` (resource_id, source: library|message|meeting)
+- `library_resource_viewed`
+- `meeting_resource_attached`
+
+## Out of scope (explicitly NOT building)
+Folders, version history, collaborative editing, tagging, advanced search, previews beyond PDF, comments on resources, admin bulk tools, notifications for new resources.
+
+## Technical notes
+- Uploads go directly browser → Supabase Storage via signed upload URL returned from server fn (keeps Worker memory low, no 25MB body through edge).
+- All downloads via 1-hour signed URLs minted on demand — bucket stays private.
+- Reuse existing `useCurrentOrg` for org scoping and admin gating (`isOrgAdmin`).
+- Branding: navy headers, gold accent on Featured badges, ivory card surfaces, existing `shadow-card` / `shadow-elegant` tokens.
