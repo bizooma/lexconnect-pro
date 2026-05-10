@@ -241,24 +241,36 @@ function Thread() {
         )}
         {msgs.map((m) => {
           const mine = m.sender_id === user?.id;
+          const atts = attachments[m.id] ?? [];
+          const isAttachOnly = atts.length > 0 && !m.body && m.kind === "text";
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-card ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
-                {m.kind === "voice" ? (
-                  <div className="flex items-center gap-3 py-1">
-                    {signed[m.id] ? (
-                      <audio controls src={signed[m.id]} className="h-8 max-w-[220px]" />
+              <div className={`max-w-[78%] space-y-2`}>
+                {!isAttachOnly && (
+                  <div className={`rounded-2xl px-4 py-2.5 text-sm shadow-card ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card text-foreground"}`}>
+                    {m.kind === "voice" ? (
+                      <div className="flex items-center gap-3 py-1">
+                        {signed[m.id] ? (
+                          <audio controls src={signed[m.id]} className="h-8 max-w-[220px]" />
+                        ) : (
+                          <span className="text-xs opacity-70">Loading audio…</span>
+                        )}
+                        {m.duration_seconds && (
+                          <span className="text-xs opacity-80">{m.duration_seconds}s</span>
+                        )}
+                      </div>
                     ) : (
-                      <span className="text-xs opacity-70">Loading audio…</span>
+                      <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                     )}
-                    {m.duration_seconds && (
-                      <span className="text-xs opacity-80">{m.duration_seconds}s</span>
-                    )}
+                    <p className={`mt-1 text-[10px] ${mine ? "text-white/60" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
                   </div>
-                ) : (
-                  <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                 )}
-                <p className={`mt-1 text-[10px] ${mine ? "text-white/60" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
+                {atts.map((r) => (
+                  <ResourceCard key={r.id} resource={r} source="message" compact />
+                ))}
+                {isAttachOnly && (
+                  <p className={`text-[10px] ${mine ? "text-right text-muted-foreground" : "text-muted-foreground"}`}>{fmtTime(m.created_at)}</p>
+                )}
               </div>
             </div>
           );
