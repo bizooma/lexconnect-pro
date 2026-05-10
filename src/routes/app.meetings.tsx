@@ -292,6 +292,28 @@ function Meetings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!attachOpen} onOpenChange={(o) => !o && setAttachOpen(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Attach resource to meeting</DialogTitle>
+            <DialogDescription>Discussion guides, agendas, worksheets…</DialogDescription>
+          </DialogHeader>
+          {attachOpen && currentOrgId && user && (
+            <ResourceUploader
+              organizationId={currentOrgId}
+              uploaderUserId={user.id}
+              visibility="meeting"
+              defaultCategory="meeting"
+              showCategory={false}
+              showTitle={true}
+              buttonLabel="Attach"
+              compact
+              onUploaded={(r) => handleMeetingResourceUploaded(attachOpen, r)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
