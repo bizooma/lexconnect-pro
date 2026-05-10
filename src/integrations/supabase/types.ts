@@ -203,6 +203,35 @@ export type Database = {
           },
         ]
       }
+      meeting_resources: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_id: string
+          resource_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_id: string
+          resource_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_resources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meetings: {
         Row: {
           attendee_id: string
@@ -293,6 +322,35 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_resources: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          resource_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          resource_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_resources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
             referencedColumns: ["id"]
           },
         ]
@@ -655,6 +713,54 @@ export type Database = {
         }
         Relationships: []
       }
+      resources: {
+        Row: {
+          category: Database["public"]["Enums"]["resource_category"]
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          is_featured: boolean
+          organization_id: string
+          storage_path: string
+          title: string
+          uploaded_by_user_id: string
+          visibility: Database["public"]["Enums"]["resource_visibility"]
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["resource_category"]
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          is_featured?: boolean
+          organization_id: string
+          storage_path: string
+          title: string
+          uploaded_by_user_id: string
+          visibility?: Database["public"]["Enums"]["resource_visibility"]
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["resource_category"]
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          is_featured?: boolean
+          organization_id?: string
+          storage_path?: string
+          title?: string
+          uploaded_by_user_id?: string
+          visibility?: Database["public"]["Enums"]["resource_visibility"]
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -832,6 +938,15 @@ export type Database = {
       org_kind: "firm" | "bar_association"
       org_member_status: "active" | "invited" | "removed"
       org_role: "owner" | "admin" | "member"
+      resource_category:
+        | "mentorship_guide"
+        | "cle"
+        | "template"
+        | "checklist"
+        | "professional_development"
+        | "meeting"
+        | "other"
+      resource_visibility: "organization" | "conversation" | "meeting"
       subscription_plan: "starter" | "pro" | "firm"
       subscription_status:
         | "trialing"
@@ -973,6 +1088,16 @@ export const Constants = {
       org_kind: ["firm", "bar_association"],
       org_member_status: ["active", "invited", "removed"],
       org_role: ["owner", "admin", "member"],
+      resource_category: [
+        "mentorship_guide",
+        "cle",
+        "template",
+        "checklist",
+        "professional_development",
+        "meeting",
+        "other",
+      ],
+      resource_visibility: ["organization", "conversation", "meeting"],
       subscription_plan: ["starter", "pro", "firm"],
       subscription_status: [
         "trialing",
