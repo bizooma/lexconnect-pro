@@ -328,6 +328,27 @@ function Thread() {
         </div>
         {recording && <p className="mt-2 text-center text-xs text-muted-foreground">Recording… release to send</p>}
       </div>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share a resource</DialogTitle>
+          </DialogHeader>
+          {orgId && user && (
+            <ResourceUploader
+              organizationId={orgId}
+              uploaderUserId={user.id}
+              visibility="conversation"
+              defaultCategory="other"
+              showCategory={false}
+              showTitle={false}
+              buttonLabel="Send resource"
+              compact
+              onUploaded={handleResourceUploaded}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
