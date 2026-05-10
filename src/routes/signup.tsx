@@ -260,7 +260,7 @@ function SignupOrg() {
             <p className="mt-4 text-xs text-muted-foreground">
               {PLANS[planIdx]?.contactOnly
                 ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
-                : "Billing isn't connected yet — you'll start in trial mode and can add payment details later."}
+                : "After creating your organization, you'll continue to secure checkout to activate billing."}
             </p>
             {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
             <Footer
