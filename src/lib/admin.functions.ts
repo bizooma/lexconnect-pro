@@ -14,24 +14,32 @@ export const listAuthUsers = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    if (!roleRow) throw new Error("Forbidden");
+    if (!roleRow) return { users: [], error: "Forbidden" as const };
 
     const out: { id: string; email: string | null; created_at: string }[] = [];
-    let page = 1;
-    while (true) {
-      const { data, error } = await supabaseAdmin.auth.admin.listUsers({
-        page,
-        perPage: 1000,
-      });
-      if (error) throw new Error(error.message);
-      for (const u of data.users) {
-        out.push({ id: u.id, email: u.email ?? null, created_at: u.created_at });
+    try {
+      let page = 1;
+      while (true) {
+        const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+          page,
+          perPage: 1000,
+        });
+        if (error) {
+          console.error("[listAuthUsers] listUsers error:", error);
+          return { users: out, error: error.message };
+        }
+        for (const u of data.users) {
+          out.push({ id: u.id, email: u.email ?? null, created_at: u.created_at });
+        }
+        if (data.users.length < 1000) break;
+        page++;
+        if (page > 20) break; // safety
       }
-      if (data.users.length < 1000) break;
-      page++;
-      if (page > 20) break; // safety
+      return { users: out, error: null };
+    } catch (e: any) {
+      console.error("[listAuthUsers] unexpected error:", e);
+      return { users: out, error: e?.message ?? "Failed to load auth users" };
     }
-    return out;
   });
 
 export const setPlatformAdmin = createServerFn({ method: "POST" })
