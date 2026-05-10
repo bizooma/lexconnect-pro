@@ -41,7 +41,8 @@ function AdminUsers() {
     let users: AuthUser[] = [];
     try {
       const result = await fetchUsers();
-      users = Array.isArray(result) ? result : [];
+      users = result?.users ?? [];
+      if (result?.error) toast.error(result.error);
     } catch (e: any) {
       const msg = e?.message ?? (typeof e === "string" ? e : "Could not load auth users");
       toast.error(msg);
