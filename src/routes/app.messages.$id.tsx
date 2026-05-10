@@ -5,6 +5,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf } from "@/hooks/use-profiles";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResourceUploader } from "@/components/resources/resource-uploader";
+import { ResourceCard } from "@/components/resources/resource-card";
+import type { ResourceRow } from "@/lib/resources";
 
 export const Route = createFileRoute("/app/messages/$id")({
   component: Thread,
