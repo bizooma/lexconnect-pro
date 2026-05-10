@@ -128,9 +128,13 @@ function Landing() {
               A faster, more connected mentorship experience.
             </p>
             <p className="mt-4 text-base text-muted-foreground">
-              LexGuild was designed to work like a modern mobile app — giving attorneys quick access to mentorship conversations, meeting schedules, and professional connections without the friction of traditional email-based communication. Installed on your phone as a Progressive Web App (PWA), LexGuild delivers a faster, cleaner, and more seamless experience for busy legal professionals.
+              LexGuild was designed to work like a modern mobile app — giving attorneys quick access to mentorship conversations, meeting schedules, and professional connections without the friction of traditional email-based communication.
             </p>
           </div>
+
+          <h3 className="mx-auto mt-12 max-w-4xl text-center font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+            Installed on your phone as a Progressive Web App (PWA), LexGuild delivers a faster, cleaner, and more seamless experience for busy legal professionals.
+          </h3>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
