@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
-import { useCurrentOrg } from "@/hooks/use-current-org";
+import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { createCheckoutSession } from "@/lib/payments.functions";
 import { Logo } from "@/components/logo";
@@ -28,7 +28,11 @@ export const Route = createFileRoute("/checkout")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     price: typeof search.price === "string" ? search.price : undefined,
   }),
-  component: CheckoutPage,
+  component: () => (
+    <CurrentOrgProvider>
+      <CheckoutPage />
+    </CurrentOrgProvider>
+  ),
 });
 
 function CheckoutPage() {
