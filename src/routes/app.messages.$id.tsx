@@ -297,6 +297,9 @@ function Thread() {
           <button onClick={() => setShowPrompts(!showPrompts)} className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition ${showPrompts ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`} title="Prompts">
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" strokeLinecap="round"/></svg>
           </button>
+          <button onClick={() => setUploadOpen(true)} disabled={!orgId} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:text-foreground disabled:opacity-50" title="Attach resource">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
           <textarea
             rows={1}
             value={draft}
