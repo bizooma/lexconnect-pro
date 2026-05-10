@@ -63,6 +63,8 @@ function Meetings() {
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [meetingResources, setMeetingResources] = useState<Record<string, ResourceRow[]>>({});
+  const [attachOpen, setAttachOpen] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
