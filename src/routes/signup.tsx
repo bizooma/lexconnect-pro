@@ -86,7 +86,9 @@ function SignupOrg() {
 
   const [orgName, setOrgName] = useState("");
   const [orgKindLabel, setOrgKindLabel] = useState<string>("Bar Association");
-  const [estSeats, setEstSeats] = useState("25");
+  const [estSeats, setEstSeats] = useState(
+    planParam === "professional" ? "100" : planParam === "enterprise" ? "250" : "25"
+  );
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
