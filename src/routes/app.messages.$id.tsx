@@ -125,6 +125,24 @@ function Thread() {
     })();
   }, [msgs]);
 
+  // Load resource attachments for current messages
+  useEffect(() => {
+    const ids = msgs.map((m) => m.id);
+    if (ids.length === 0) { setAttachments({}); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("message_resources")
+        .select("message_id, resources(*)")
+        .in("message_id", ids);
+      const map: Record<string, ResourceRow[]> = {};
+      for (const row of (data ?? []) as any[]) {
+        if (!row.resources) continue;
+        (map[row.message_id] ||= []).push(row.resources as ResourceRow);
+      }
+      setAttachments(map);
+    })();
+  }, [msgs]);
+
   const sendText = async (body: string) => {
     if (!user || !body.trim()) return;
     setDraft("");
@@ -135,6 +153,28 @@ function Thread() {
       kind: "text",
     });
     if (error) toast.error(error.message);
+  };
+
+  const handleResourceUploaded = async (resource: ResourceRow) => {
+    if (!user) return;
+    // Insert a placeholder message and link the resource
+    const { data: msg, error } = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: id,
+        sender_id: user.id,
+        body: "",
+        kind: "text",
+      })
+      .select("id")
+      .single();
+    if (error || !msg) { toast.error(error?.message ?? "Could not attach"); return; }
+    const { error: linkErr } = await supabase
+      .from("message_resources")
+      .insert({ message_id: msg.id, resource_id: resource.id });
+    if (linkErr) { toast.error(linkErr.message); return; }
+    setAttachments((a) => ({ ...a, [msg.id]: [resource] }));
+    setUploadOpen(false);
   };
 
   const startRecording = async () => {
