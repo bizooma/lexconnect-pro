@@ -1,14 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { listAuthUsers, setPlatformAdmin } from "@/lib/admin.functions";
+import { listAuthUsersSafe, setPlatformAdminSafe } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+function AdminUsersError({ reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 text-sm shadow-card">
+      <p className="font-medium text-foreground">Users could not be loaded.</p>
+      <p className="mt-1 text-muted-foreground">Refresh the users list to try again.</p>
+      <Button
+        className="mt-4"
+        variant="outline"
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+      >
+        Retry
+      </Button>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/app/admin/users")({
   component: AdminUsers,
+  errorComponent: AdminUsersError,
 });
 
 type Profile = {
@@ -25,8 +46,8 @@ type Org = { id: string; name: string };
 type AuthUser = { id: string; email: string | null; created_at: string };
 
 function AdminUsers() {
-  const fetchUsers = useServerFn(listAuthUsers);
-  const togglePlatformAdmin = useServerFn(setPlatformAdmin);
+  const fetchUsers = useServerFn(listAuthUsersSafe);
+  const togglePlatformAdmin = useServerFn(setPlatformAdminSafe);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [orgs, setOrgs] = useState<Org[]>([]);
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
