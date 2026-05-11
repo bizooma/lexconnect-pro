@@ -23,6 +23,7 @@ import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
@@ -121,6 +122,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMeetingsRoute = AppMeetingsRouteImport.update({
   id: '/meetings',
   path: '/meetings',
@@ -157,9 +163,9 @@ const AppOrgIndexRoute = AppOrgIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppMessagesRoute,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
@@ -202,9 +208,9 @@ const AppOrgBillingRoute = AppOrgBillingRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppMessagesIdRoute = AppMessagesIdRouteImport.update({
-  id: '/messages/$id',
-  path: '/messages/$id',
-  getParentRoute: () => AppRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppMessagesRoute,
 } as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
+  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -363,6 +370,7 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
+  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -408,6 +416,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
+    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -493,6 +502,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
+    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -646,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/messages': {
+      id: '/app/messages'
+      path: '/messages'
+      fullPath: '/app/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/meetings': {
       id: '/app/meetings'
       path: '/meetings'
@@ -697,10 +714,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/messages/': {
       id: '/app/messages/'
-      path: '/messages'
+      path: '/'
       fullPath: '/app/messages/'
       preLoaderRoute: typeof AppMessagesIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppMessagesRoute
     }
     '/app/admin/': {
       id: '/app/admin/'
@@ -760,10 +777,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/messages/$id': {
       id: '/app/messages/$id'
-      path: '/messages/$id'
+      path: '/$id'
       fullPath: '/app/messages/$id'
       preLoaderRoute: typeof AppMessagesIdRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppMessagesRoute
     }
     '/app/admin/users': {
       id: '/app/admin/users'
@@ -854,21 +871,34 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
+interface AppMessagesRouteChildren {
+  AppMessagesIdRoute: typeof AppMessagesIdRoute
+  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
+}
+
+const AppMessagesRouteChildren: AppMessagesRouteChildren = {
+  AppMessagesIdRoute: AppMessagesIdRoute,
+  AppMessagesIndexRoute: AppMessagesIndexRoute,
+}
+
+const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
+  AppMessagesRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppDiscoverRoute: typeof AppDiscoverRoute
   AppMeetingsRoute: typeof AppMeetingsRoute
+  AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
-  AppMessagesIdRoute: typeof AppMessagesIdRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
-  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
 
@@ -878,15 +908,14 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppDiscoverRoute: AppDiscoverRoute,
   AppMeetingsRoute: AppMeetingsRoute,
+  AppMessagesRoute: AppMessagesRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
-  AppMessagesIdRoute: AppMessagesIdRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
-  AppMessagesIndexRoute: AppMessagesIndexRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
 }
 
