@@ -38,7 +38,11 @@ function Discover() {
       .then(({ data }) => {
         const rows = (data as ExistingPair[] | null) ?? [];
         setAllPairs(rows);
-        setExistingMentorIds(new Set(rows.filter((r) => r.mentee_id === user.id).map((r) => r.mentor_id)));
+        setExistingMentorIds(new Set(
+          rows
+            .filter((r) => r.mentee_id === user.id && (r.status === "pending" || r.status === "active"))
+            .map((r) => r.mentor_id)
+        ));
       });
   }, [user]);
 
