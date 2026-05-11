@@ -86,6 +86,17 @@ function Dashboard() {
     refresh();
   };
 
+  const conclude = async (id: string) => {
+    if (!window.confirm("End this mentorship? You can always start a new one later.")) return;
+    const { error } = await supabase
+      .from("mentorships")
+      .update({ status: "completed" })
+      .eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Mentorship concluded");
+    refresh();
+  };
+
   const firstName = (profile?.full_name || user?.email || "").split(/[\s@]/)[0];
 
   const suggested = useMemo(() => {
