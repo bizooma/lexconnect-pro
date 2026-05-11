@@ -86,6 +86,17 @@ function Dashboard() {
     refresh();
   };
 
+  const conclude = async (id: string) => {
+    if (!window.confirm("End this mentorship? You can always start a new one later.")) return;
+    const { error } = await supabase
+      .from("mentorships")
+      .update({ status: "completed" })
+      .eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Mentorship concluded");
+    refresh();
+  };
+
   const firstName = (profile?.full_name || user?.email || "").split(/[\s@]/)[0];
 
   const suggested = useMemo(() => {
@@ -175,13 +186,22 @@ function Dashboard() {
               const role = m.mentor_id === user?.id ? "Your mentee" : "Your mentor";
               const p = profileMap[otherId];
               return (
-                <Link key={m.id} to="/app/messages" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition hover:shadow-elegant">
-                  <Avatar initials={initialsOf(p?.full_name)} src={p?.avatar_url} size={44} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">{p?.full_name || "Member"}</p>
-                    <p className="text-xs text-muted-foreground">{role}</p>
+                <article key={m.id} className="rounded-2xl border border-border bg-card p-4 shadow-card transition hover:shadow-elegant">
+                  <div className="flex items-center gap-3">
+                    <Avatar initials={initialsOf(p?.full_name)} src={p?.avatar_url} size={44} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">{p?.full_name || "Member"}</p>
+                      <p className="text-xs text-muted-foreground">{role}</p>
+                    </div>
                   </div>
-                </Link>
+                  <div className="mt-3 flex justify-end gap-2">
+                    <Link to="/app/messages" className="rounded-lg px-3 py-1.5 text-xs font-medium text-primary hover:underline">Message</Link>
+                    <button
+                      onClick={() => conclude(m.id)}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-destructive"
+                    >End mentorship</button>
+                  </div>
+                </article>
               );
             })}
           </div>

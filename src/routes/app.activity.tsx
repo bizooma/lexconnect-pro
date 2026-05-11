@@ -26,7 +26,7 @@ type MentorshipRow = {
 type ActivityEvent = {
   id: string;
   at: string;
-  kind: "request" | "accepted" | "declined";
+  kind: "request" | "accepted" | "declined" | "concluded";
   actorId: string;
   recipientId: string;
   message?: string | null;
@@ -97,6 +97,21 @@ function ActivityPage() {
           actorId: recipient,
           recipientId: requester,
         });
+      } else if (m.status === "completed") {
+        out.push({
+          id: `${m.id}:acc`,
+          at: m.created_at,
+          kind: "accepted",
+          actorId: recipient,
+          recipientId: requester,
+        });
+        out.push({
+          id: `${m.id}:end`,
+          at: m.updated_at,
+          kind: "concluded",
+          actorId: recipient,
+          recipientId: requester,
+        });
       }
     }
     out.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
@@ -116,11 +131,12 @@ function ActivityPage() {
     const target = profileMap[e.recipientId]?.full_name || "a member";
     if (e.kind === "request") return <><span className="font-medium text-foreground">{actor}</span> requested mentorship from <span className="font-medium text-foreground">{target}</span>.</>;
     if (e.kind === "accepted") return <><span className="font-medium text-foreground">{actor}</span> accepted <span className="font-medium text-foreground">{target}</span>'s mentorship request.</>;
+    if (e.kind === "concluded") return <>Mentorship between <span className="font-medium text-foreground">{actor}</span> and <span className="font-medium text-foreground">{target}</span> was concluded.</>;
     return <><span className="font-medium text-foreground">{actor}</span> declined <span className="font-medium text-foreground">{target}</span>'s mentorship request.</>;
   };
 
   const dot = (kind: ActivityEvent["kind"]) => {
-    const cls = kind === "accepted" ? "bg-emerald-500" : kind === "declined" ? "bg-rose-500" : "bg-primary";
+    const cls = kind === "accepted" ? "bg-emerald-500" : kind === "declined" ? "bg-rose-500" : kind === "concluded" ? "bg-muted-foreground" : "bg-primary";
     return <span className={`mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full ${cls}`} />;
   };
 
