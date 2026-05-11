@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { setOrgPausedSafe } from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/admin/orgs")({
@@ -15,6 +18,7 @@ type Org = {
   slug: string;
   kind: "firm" | "bar_association";
   created_at: string;
+  paused: boolean;
 };
 
 type Sub = {
