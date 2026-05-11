@@ -68,60 +68,60 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         throw new Error("Only org admins can manage billing");
       }
 
-    // Look up the existing subscription row to reuse stripe_customer_id if any
-    const { data: existing } = await supabaseAdmin
-      .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("organization_id", data.organizationId)
-      .maybeSingle();
+      // Look up the existing subscription row to reuse stripe_customer_id if any
+      const { data: existing } = await supabaseAdmin
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("organization_id", data.organizationId)
+        .maybeSingle();
 
-    const stripe = createStripeClient(data.environment);
+      const stripe = createStripeClient(data.environment);
 
-    // Resolve human-readable priceId via lookup_keys
-    const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
-    if (!prices.data.length) throw new Error("Price not found");
-    const stripePrice = prices.data[0];
+      // Resolve human-readable priceId via lookup_keys
+      const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+      if (!prices.data.length) throw new Error("Price not found");
+      const stripePrice = prices.data[0];
 
-    // Resolve / create customer keyed on organization_id
-    let customerId = existing?.stripe_customer_id ?? undefined;
-    if (!customerId) {
-      const found = await stripe.customers.search({
-        query: `metadata['organization_id']:'${data.organizationId}'`,
-        limit: 1,
-      });
-      if (found.data.length) {
-        customerId = found.data[0].id;
-      } else {
-        const userEmail = user.email ?? undefined;
-        const created = await stripe.customers.create({
-          ...(userEmail && { email: userEmail }),
-          metadata: {
-            organization_id: data.organizationId,
-            owner_user_id: userId,
-          },
-          name: (membership.organizations as { name?: string } | null)?.name,
+      // Resolve / create customer keyed on organization_id
+      let customerId = existing?.stripe_customer_id ?? undefined;
+      if (!customerId) {
+        const found = await stripe.customers.search({
+          query: `metadata['organization_id']:'${data.organizationId}'`,
+          limit: 1,
         });
-        customerId = created.id;
+        if (found.data.length) {
+          customerId = found.data[0].id;
+        } else {
+          const userEmail = user.email ?? undefined;
+          const created = await stripe.customers.create({
+            ...(userEmail && { email: userEmail }),
+            metadata: {
+              organization_id: data.organizationId,
+              owner_user_id: userId,
+            },
+            name: (membership.organizations as { name?: string } | null)?.name,
+          });
+          customerId = created.id;
+        }
       }
-    }
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: [{ price: stripePrice.id, quantity: 1 }],
-      mode: "subscription",
-      ui_mode: "embedded_page",
-      return_url: data.returnUrl,
-      customer: customerId,
-      metadata: {
-        organization_id: data.organizationId,
-        price_lookup_key: data.priceId,
-      },
-      subscription_data: {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [{ price: stripePrice.id, quantity: 1 }],
+        mode: "subscription",
+        ui_mode: "embedded_page",
+        return_url: data.returnUrl,
+        customer: customerId,
         metadata: {
           organization_id: data.organizationId,
           price_lookup_key: data.priceId,
         },
-      },
-    });
+        subscription_data: {
+          metadata: {
+            organization_id: data.organizationId,
+            price_lookup_key: data.priceId,
+          },
+        },
+      });
 
       if (!session.client_secret) {
         console.error("[checkout] Stripe session missing client_secret", {
