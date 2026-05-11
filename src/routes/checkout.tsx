@@ -54,17 +54,28 @@ function CheckoutPage() {
   const fetchClientSecret = useMemo(() => {
     if (!validPrice || !currentOrgId) return null;
     return async (): Promise<string> => {
-      const result = await create({
-        data: {
-          priceId: validPrice,
-          organizationId: currentOrgId,
-          returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
-          environment: getStripeEnvironment(),
-        },
-      });
-      const clientSecret = extractClientSecret(result);
-      if (!clientSecret) throw new Error("No client secret returned");
-      return clientSecret;
+      try {
+        const result = await create({
+          data: {
+            priceId: validPrice,
+            organizationId: currentOrgId,
+            returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+            environment: getStripeEnvironment(),
+          },
+        });
+        const clientSecret = extractClientSecret(result);
+        if (!clientSecret) throw new Error("No client secret returned");
+        return clientSecret;
+      } catch (err) {
+        let message = "Could not start checkout. Please try again.";
+        if (err instanceof Response) {
+          try { message = (await err.text()) || message; } catch { /* ignore */ }
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+        setCheckoutError(message);
+        throw new Error(message);
+      }
     };
   }, [validPrice, currentOrgId, create]);
 
