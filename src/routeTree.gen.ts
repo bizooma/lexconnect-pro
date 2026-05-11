@@ -31,6 +31,7 @@ import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
+import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
@@ -160,6 +161,11 @@ const AppOrgIndexRoute = AppOrgIndexRouteImport.update({
   id: '/org/',
   path: '/org/',
   getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppMessagesRoute,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -319,7 +326,6 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
-  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -337,6 +343,7 @@ export interface FileRoutesByTo {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
+  '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -381,6 +388,7 @@ export interface FileRoutesById {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -426,6 +434,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
+    | '/app/messages/'
     | '/app/org/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -450,7 +459,6 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
-    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -468,6 +476,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin'
+    | '/app/messages'
     | '/app/org'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -511,6 +520,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
+    | '/app/messages/'
     | '/app/org/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -702,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/messages/': {
+      id: '/app/messages/'
+      path: '/'
+      fullPath: '/app/messages/'
+      preLoaderRoute: typeof AppMessagesIndexRouteImport
+      parentRoute: typeof AppMessagesRoute
+    }
     '/app/admin/': {
       id: '/app/admin/'
       path: '/'
@@ -856,10 +873,12 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 
 interface AppMessagesRouteChildren {
   AppMessagesIdRoute: typeof AppMessagesIdRoute
+  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
 }
 
 const AppMessagesRouteChildren: AppMessagesRouteChildren = {
   AppMessagesIdRoute: AppMessagesIdRoute,
+  AppMessagesIndexRoute: AppMessagesIndexRoute,
 }
 
 const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
