@@ -61,8 +61,8 @@ function CheckoutPage() {
           environment: getStripeEnvironment(),
         },
       });
-      if (!result) throw new Error("No client secret returned");
-      return result;
+      if (!result?.clientSecret) throw new Error("No client secret returned");
+      return result.clientSecret;
     };
   }, [validPrice, currentOrgId, create]);
 
