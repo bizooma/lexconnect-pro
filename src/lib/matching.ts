@@ -58,8 +58,9 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     softCapacity = 3,
   } = ctx;
 
+  // Treat "both roles" as permissive (neither strictly mentee nor mentor).
   const viewerIsMentee = ctx.viewerIsMentee ?? (viewer.is_mentee && !viewer.is_mentor);
-  const viewerIsMentor = !viewerIsMentee && viewer.is_mentor;
+  const viewerIsMentor = !viewerIsMentee && viewer.is_mentor && !viewer.is_mentee;
 
   // Build pair-exclusion set
   const blocked = new Set<string>();
@@ -78,11 +79,15 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     // Decide candidate role relative to viewer
     let candidateIsMentor: boolean;
     if (viewerIsMentee) {
-      if (!c.is_mentor) continue;
-      if (!c.accepting_mentees) continue;
+      // Skip only if candidate is clearly mentee-only.
+      if (c.is_mentee && !c.is_mentor) continue;
+      if (c.is_mentor && c.accepting_mentees === false) {
+        // explicit "not accepting" → skip; unset is fine
+      }
       candidateIsMentor = true;
     } else if (viewerIsMentor) {
-      if (!c.is_mentee) continue;
+      // Skip only if candidate is clearly mentor-only.
+      if (c.is_mentor && !c.is_mentee) continue;
       candidateIsMentor = false;
     } else {
       // Viewer is both or neither — be permissive but prefer mentors
