@@ -74,6 +74,7 @@ function Dashboard() {
   const pendingForMe = mentorships.filter((m) => m.mentor_id === user?.id && m.status === "pending");
   const myPendingOut = mentorships.filter((m) => m.mentee_id === user?.id && m.status === "pending");
   const active = mentorships.filter((m) => m.status === "active");
+  const actionablePendingCount = pendingForMe.length;
 
   const respond = async (id: string, accept: boolean) => {
     const { error } = await supabase
@@ -116,7 +117,7 @@ function Dashboard() {
 
         <div className="mt-5 grid grid-cols-3 gap-3">
           <Stat v={String(active.length)} l="Active" />
-          <Stat v={String(pendingForMe.length + myPendingOut.length)} l="Pending" />
+          <Stat v={String(actionablePendingCount)} l="Pending" />
           <Stat v={String(meetings.length)} l="Upcoming" />
         </div>
       </section>
