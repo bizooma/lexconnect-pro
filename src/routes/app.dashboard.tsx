@@ -125,10 +125,11 @@ function Dashboard() {
       {/* Mentor inbox */}
       {pendingForMe.length > 0 && (
         <section className="mt-8">
-          <SectionHeader title="Mentorship requests" subtitle="People who want you as their mentor" />
+          <SectionHeader title="Mentorship requests" subtitle="People who want to connect with you" />
           <div className="mt-3 space-y-2">
             {pendingForMe.map((req) => {
-              const p = profileMap[req.mentee_id];
+              const otherId = (req as any).requested_by as string;
+              const p = profileMap[otherId];
               return (
                 <article key={req.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
                   <div className="flex items-start gap-3">
