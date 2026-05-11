@@ -1,12 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
 const PRICE_ID_RE = /^[a-zA-Z0-9_-]+$/;
 
+async function requireUser(accessToken: string) {
+  if (!accessToken) throw new Error("Not authenticated");
+  const { data, error } = await supabaseAdmin.auth.getUser(accessToken);
+  if (error || !data.user) throw new Error("Invalid session");
+  return data.user;
+}
+
 export const createCheckoutSession = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data: {
+    accessToken: string;
     priceId: string;
     organizationId: string;
     returnUrl: string;
@@ -16,11 +23,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     if (!data.organizationId) throw new Error("organizationId required");
     return data;
   })
-  .handler(async ({ data, context }) => {
-    const { supabase, userId, claims } = context;
+  .handler(async ({ data }) => {
+    const user = await requireUser(data.accessToken);
+    const userId = user.id;
 
     // Verify caller is an admin/owner of the org
-    const { data: membership, error: mErr } = await supabase
+    const { data: membership, error: mErr } = await supabaseAdmin
       .from("organization_members")
       .select("org_role, organizations(name)")
       .eq("organization_id", data.organizationId)
@@ -33,7 +41,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     }
 
     // Look up the existing subscription row to reuse stripe_customer_id if any
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("organization_id", data.organizationId)
@@ -56,7 +64,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (found.data.length) {
         customerId = found.data[0].id;
       } else {
-        const userEmail = (claims.email as string | undefined) ?? undefined;
+        const userEmail = user.email ?? undefined;
         const created = await stripe.customers.create({
           ...(userEmail && { email: userEmail }),
           metadata: {
