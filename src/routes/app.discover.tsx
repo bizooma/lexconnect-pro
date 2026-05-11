@@ -149,7 +149,7 @@ function Discover() {
               <article key={p.id} className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition hover:shadow-elegant">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <Avatar initials={initialsOf(p.full_name)} size={44} />
+                    <Avatar initials={initialsOf(p.full_name)} size={44} src={p.avatar_url} />
                     <div>
                       <p className="font-medium text-foreground">{p.full_name || "Member"}</p>
                       <p className="text-xs text-muted-foreground">{p.firm || p.headline || "Attorney"}</p>
