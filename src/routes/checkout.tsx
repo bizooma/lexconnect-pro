@@ -67,6 +67,7 @@ function CheckoutPage() {
             environment: getStripeEnvironment(),
           },
         });
+        if (isCheckoutError(result)) throw new Error(result.error);
         const clientSecret = extractClientSecret(result);
         if (!clientSecret) throw new Error("No client secret returned");
         return clientSecret;
@@ -188,6 +189,15 @@ function CheckoutPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+function isCheckoutError(value: unknown): value is { error: string } {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    typeof (value as Record<string, unknown>).error === "string" &&
+    !(value as Record<string, unknown>).clientSecret
   );
 }
 
