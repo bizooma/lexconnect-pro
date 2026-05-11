@@ -87,8 +87,20 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       },
     });
 
-    if (!session.client_secret) throw new Error("Checkout session did not return a client secret");
-    return { clientSecret: session.client_secret };
+    if (!session.client_secret) {
+      console.error("[checkout] Stripe session missing client_secret", {
+        sessionId: session.id,
+        uiMode: session.ui_mode,
+        mode: session.mode,
+        status: session.status,
+        paymentStatus: session.payment_status,
+        priceLookupKey: data.priceId,
+        organizationId: data.organizationId,
+        environment: data.environment,
+      });
+      throw new Error("Checkout session did not return a client secret");
+    }
+    return session.client_secret;
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })
