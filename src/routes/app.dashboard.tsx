@@ -41,7 +41,7 @@ function Dashboard() {
     const [{ data: m }, { data: mt }] = await Promise.all([
       supabase
         .from("mentorships")
-        .select("id,mentor_id,mentee_id,status,intro_message,created_at")
+        .select("id,mentor_id,mentee_id,status,intro_message,created_at,requested_by")
         .or(`mentor_id.eq.${user.id},mentee_id.eq.${user.id}`)
         .order("created_at", { ascending: false }),
       supabase
