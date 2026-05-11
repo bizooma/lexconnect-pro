@@ -112,26 +112,26 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; returnUrl: string; environment: StripeEnv }) => {
+  .inputValidator((data: { accessToken: string; organizationId: string; returnUrl: string; environment: StripeEnv }) => {
+    if (!data.accessToken) throw new Error("Not authenticated");
     if (!data.organizationId) throw new Error("organizationId required");
     return data;
   })
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+  .handler(async ({ data }) => {
+    const user = await requireUser(data.accessToken);
 
-    const { data: membership } = await supabase
+    const { data: membership } = await supabaseAdmin
       .from("organization_members")
       .select("org_role")
       .eq("organization_id", data.organizationId)
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .eq("status", "active")
       .maybeSingle();
     if (!membership || (membership.org_role !== "owner" && membership.org_role !== "admin")) {
       throw new Error("Only org admins can manage billing");
     }
 
-    const { data: sub } = await supabase
+    const { data: sub } = await supabaseAdmin
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("organization_id", data.organizationId)
