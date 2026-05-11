@@ -192,6 +192,12 @@ function Discover() {
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {p.bio || "No bio yet."}
                 </p>
+                {p.bio && p.bio.length > 140 && (
+                  <button
+                    onClick={() => setViewing(p)}
+                    className="mt-1 self-start text-xs font-medium text-primary hover:underline"
+                  >Read more</button>
+                )}
 
                 {p.practice_areas && p.practice_areas.length > 1 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
