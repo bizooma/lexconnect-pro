@@ -71,8 +71,8 @@ function Dashboard() {
 
   useEffect(() => { refresh(); }, [user]);
 
-  const pendingForMe = mentorships.filter((m) => m.mentor_id === user?.id && m.status === "pending");
-  const myPendingOut = mentorships.filter((m) => m.mentee_id === user?.id && m.status === "pending");
+  const pendingForMe = mentorships.filter((m) => m.status === "pending" && (m as any).requested_by && (m as any).requested_by !== user?.id && (m.mentor_id === user?.id || m.mentee_id === user?.id));
+  const myPendingOut = mentorships.filter((m) => m.status === "pending" && (m as any).requested_by === user?.id);
   const active = mentorships.filter((m) => m.status === "active");
   const actionablePendingCount = pendingForMe.length;
 
