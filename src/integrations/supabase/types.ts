@@ -293,6 +293,7 @@ export type Database = {
           mentee_id: string
           mentor_id: string
           organization_id: string
+          requested_by: string | null
           status: Database["public"]["Enums"]["mentorship_status"]
           updated_at: string
         }
@@ -303,6 +304,7 @@ export type Database = {
           mentee_id: string
           mentor_id: string
           organization_id: string
+          requested_by?: string | null
           status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
         }
@@ -313,6 +315,7 @@ export type Database = {
           mentee_id?: string
           mentor_id?: string
           organization_id?: string
+          requested_by?: string | null
           status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
         }
