@@ -116,7 +116,8 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
   const switchOrg = useCallback((orgId: string) => {
     if (typeof window !== "undefined") window.localStorage.setItem(LS_KEY, orgId);
     setCurrentOrgId(orgId);
-  }, []);
+    void refresh();
+  }, [refresh]);
 
   const value = useMemo<Ctx>(() => {
     const membership = memberships.find((m) => m.organization_id === currentOrgId) ?? null;
