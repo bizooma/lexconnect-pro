@@ -90,6 +90,25 @@ function AdminOrgs() {
     setTimeout(() => window.location.reload(), 100);
   };
 
+  const togglePause = async (org: Org) => {
+    if (!session?.access_token) {
+      toast.error("Session expired");
+      return;
+    }
+    setBusyId(org.id);
+    const next = !org.paused;
+    const res = await setOrgPaused({
+      data: { accessToken: session.access_token, organizationId: org.id, paused: next },
+    });
+    setBusyId(null);
+    if (res.ok) {
+      setOrgs((prev) => prev.map((o) => (o.id === org.id ? { ...o, paused: next } : o)));
+      toast.success(next ? "Organization paused" : "Organization restored");
+    } else {
+      toast.error(res.error ?? "Failed");
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
