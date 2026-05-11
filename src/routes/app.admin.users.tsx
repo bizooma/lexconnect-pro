@@ -485,6 +485,97 @@ function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add user</DialogTitle>
+            <DialogDescription>
+              Create an account and assign it to an organization. Choose invite to email a
+              setup link, or set a temporary password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-email">Email</Label>
+              <Input
+                id="add-email"
+                type="email"
+                value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-name">Full name</Label>
+              <Input
+                id="add-name"
+                value={addForm.fullName}
+                onChange={(e) => setAddForm((f) => ({ ...f, fullName: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-org">Organization</Label>
+              <select
+                id="add-org"
+                value={addForm.organizationId}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, organizationId: e.target.value }))
+                }
+                className="rounded-md border border-border bg-card px-2 py-2 text-sm"
+              >
+                <option value="">Select organization…</option>
+                {orgs.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-role">Org role</Label>
+              <select
+                id="add-role"
+                value={addForm.orgRole}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, orgRole: e.target.value as "member" | "admin" }))
+                }
+                className="rounded-md border border-border bg-card px-2 py-2 text-sm"
+              >
+                <option value="member">Member</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={addForm.sendInvite}
+                onChange={(e) => setAddForm((f) => ({ ...f, sendInvite: e.target.checked }))}
+              />
+              Send email invite (recommended)
+            </label>
+            {!addForm.sendInvite && (
+              <div className="grid gap-1.5">
+                <Label htmlFor="add-pw">Temporary password</Label>
+                <Input
+                  id="add-pw"
+                  type="text"
+                  value={addForm.password}
+                  onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))}
+                  placeholder="At least 6 characters"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={addBusy}>
+              Cancel
+            </Button>
+            <Button onClick={onCreateUser} disabled={addBusy}>
+              {addBusy ? "Saving…" : "Create user"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
