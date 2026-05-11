@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyProfile } from "@/hooks/use-profiles";
 import { useCurrentOrg } from "@/hooks/use-current-org";
-import { Avatar, initialsOf } from "@/components/ui/avatar";
+import { Avatar } from "@/components/avatar";
+import { initialsOf } from "@/hooks/use-profiles";
 
 export const Route = createFileRoute("/app/activity")({
   component: ActivityPage,
