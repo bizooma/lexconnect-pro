@@ -26,7 +26,7 @@ type MentorshipRow = {
 type ActivityEvent = {
   id: string;
   at: string;
-  kind: "request" | "accepted" | "declined";
+  kind: "request" | "accepted" | "declined" | "concluded";
   actorId: string;
   recipientId: string;
   message?: string | null;
