@@ -37,7 +37,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const { price } = Route.useSearch();
-  const { user, loading: authLoading } = useAuth();
+  const { session, user, loading: authLoading } = useAuth();
   const { currentOrgId, currentOrg, loading: orgLoading, isOrgAdmin, subscription } = useCurrentOrg();
   const navigate = useNavigate();
   const create = useServerFn(createCheckoutSession);
@@ -57,6 +57,7 @@ function CheckoutPage() {
       try {
         const result = await create({
           data: {
+            accessToken: session?.access_token ?? "",
             priceId: validPrice,
             organizationId: currentOrgId,
             returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -77,7 +78,7 @@ function CheckoutPage() {
         throw new Error(message);
       }
     };
-  }, [validPrice, currentOrgId, create]);
+  }, [validPrice, currentOrgId, session?.access_token, create]);
 
   if (authLoading || orgLoading) {
     return (
