@@ -156,8 +156,13 @@ function CheckoutPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Billing for <strong>{currentOrg?.name}</strong>
         </p>
+        {checkoutError && (
+          <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            {checkoutError}
+          </div>
+        )}
         <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-          {fetchClientSecret && (
+          {fetchClientSecret && !checkoutError && (
             <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
               <EmbeddedCheckout />
             </EmbeddedCheckoutProvider>
