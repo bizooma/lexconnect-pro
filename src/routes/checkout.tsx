@@ -41,6 +41,7 @@ function CheckoutPage() {
   const { currentOrgId, currentOrg, loading: orgLoading, isOrgAdmin, subscription } = useCurrentOrg();
   const navigate = useNavigate();
   const create = useServerFn(createCheckoutSession);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const validPrice = price && VALID_PRICES.has(price) ? price : null;
 
@@ -53,17 +54,28 @@ function CheckoutPage() {
   const fetchClientSecret = useMemo(() => {
     if (!validPrice || !currentOrgId) return null;
     return async (): Promise<string> => {
-      const result = await create({
-        data: {
-          priceId: validPrice,
-          organizationId: currentOrgId,
-          returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
-          environment: getStripeEnvironment(),
-        },
-      });
-      const clientSecret = extractClientSecret(result);
-      if (!clientSecret) throw new Error("No client secret returned");
-      return clientSecret;
+      try {
+        const result = await create({
+          data: {
+            priceId: validPrice,
+            organizationId: currentOrgId,
+            returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+            environment: getStripeEnvironment(),
+          },
+        });
+        const clientSecret = extractClientSecret(result);
+        if (!clientSecret) throw new Error("No client secret returned");
+        return clientSecret;
+      } catch (err) {
+        let message = "Could not start checkout. Please try again.";
+        if (err instanceof Response) {
+          try { message = (await err.text()) || message; } catch { /* ignore */ }
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+        setCheckoutError(message);
+        throw new Error(message);
+      }
     };
   }, [validPrice, currentOrgId, create]);
 
@@ -144,8 +156,13 @@ function CheckoutPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Billing for <strong>{currentOrg?.name}</strong>
         </p>
+        {checkoutError && (
+          <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            {checkoutError}
+          </div>
+        )}
         <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-          {fetchClientSecret && (
+          {fetchClientSecret && !checkoutError && (
             <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
               <EmbeddedCheckout />
             </EmbeddedCheckoutProvider>
