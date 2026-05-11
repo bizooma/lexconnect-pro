@@ -33,11 +33,14 @@ const LS_KEY = "lexguild.currentOrgId";
 
 function AdminOrgs() {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const setOrgPaused = useServerFn(setOrgPausedSafe);
   const [orgs, setOrgs] = useState<Org[]>([]);
   const [subs, setSubs] = useState<Sub[]>([]);
   const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -45,7 +48,7 @@ function AdminOrgs() {
       const [{ data: orgData }, { data: subData }, { data: memberData }] = await Promise.all([
         supabase
           .from("organizations")
-          .select("id,name,slug,kind,created_at")
+          .select("id,name,slug,kind,created_at,paused")
           .order("created_at", { ascending: false }),
         supabase
           .from("subscriptions")
