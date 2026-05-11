@@ -7,9 +7,19 @@ import {
   deleteAuthUserSafe,
   setUserBannedSafe,
   setOrgAdminSafe,
+  createUserAndAssignOrgSafe,
 } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 function AdminUsersError({ reset }: { error: Error; reset: () => void }) {
