@@ -62,7 +62,8 @@ function OrgBillingPage() {
           environment: getStripeEnvironment(),
         },
       });
-      window.open(url, "_blank", "noopener");
+      if (!url?.url) throw new Error("Could not open billing portal");
+      window.open(url.url, "_blank", "noopener");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not open billing portal");
     } finally {
