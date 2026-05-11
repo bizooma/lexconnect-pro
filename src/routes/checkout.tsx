@@ -67,6 +67,8 @@ function CheckoutPage() {
             environment: getStripeEnvironment(),
           },
         });
+        const checkoutFailure = extractCheckoutError(result);
+        if (checkoutFailure) throw new Error(checkoutFailure);
         const clientSecret = extractClientSecret(result);
         if (!clientSecret) throw new Error("No client secret returned");
         return clientSecret;
@@ -189,6 +191,15 @@ function CheckoutPage() {
       </main>
     </div>
   );
+}
+
+function extractCheckoutError(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  if (typeof record.error === "string" && !record.clientSecret && !record.client_secret) {
+    return record.error;
+  }
+  return extractCheckoutError(record.result) ?? extractCheckoutError(record.data);
 }
 
 function extractClientSecret(value: unknown): string | null {
