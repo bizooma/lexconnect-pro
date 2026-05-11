@@ -4,6 +4,41 @@ import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
 const PRICE_ID_RE = /^[a-zA-Z0-9_-]+$/;
 
+type CheckoutSessionInput = {
+  accessToken: string;
+  priceId: string;
+  organizationId: string;
+  returnUrl: string;
+  environment: StripeEnv;
+};
+
+type CheckoutSessionResult =
+  | { clientSecret: string; error: null }
+  | { clientSecret: null; error: string };
+
+function toCheckoutInput(data: unknown): CheckoutSessionInput {
+  const input = (data ?? {}) as Partial<CheckoutSessionInput>;
+  return {
+    accessToken: String(input.accessToken ?? ""),
+    priceId: String(input.priceId ?? ""),
+    organizationId: String(input.organizationId ?? ""),
+    returnUrl: String(input.returnUrl ?? ""),
+    environment: input.environment === "sandbox" ? "sandbox" : "live",
+  };
+}
+
+async function getErrorMessage(error: unknown): Promise<string> {
+  if (error instanceof Response) {
+    const body = await error
+      .clone()
+      .text()
+      .catch(() => "");
+    return body || `Request failed with status ${error.status}`;
+  }
+  if (error instanceof Error) return error.message;
+  return String(error || "Checkout could not be started");
+}
+
 async function requireUser(accessToken: string) {
   if (!accessToken) throw new Error("Not authenticated");
   const { data, error } = await supabaseAdmin.auth.getUser(accessToken);
@@ -12,35 +47,26 @@ async function requireUser(accessToken: string) {
 }
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: {
-      accessToken: string;
-      priceId: string;
-      organizationId: string;
-      returnUrl: string;
-      environment: StripeEnv;
-    }) => {
+  .inputValidator(toCheckoutInput)
+  .handler(async ({ data }): Promise<CheckoutSessionResult> => {
+    try {
       if (!PRICE_ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
       if (!data.organizationId) throw new Error("organizationId required");
-      return data;
-    },
-  )
-  .handler(async ({ data }) => {
-    const user = await requireUser(data.accessToken);
-    const userId = user.id;
+      const user = await requireUser(data.accessToken);
+      const userId = user.id;
 
-    // Verify caller is an admin/owner of the org
-    const { data: membership, error: mErr } = await supabaseAdmin
-      .from("organization_members")
-      .select("org_role, organizations(name)")
-      .eq("organization_id", data.organizationId)
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .maybeSingle();
-    if (mErr || !membership) throw new Error("Not a member of this organization");
-    if (membership.org_role !== "owner" && membership.org_role !== "admin") {
-      throw new Error("Only org admins can manage billing");
-    }
+      // Verify caller is an admin/owner of the org
+      const { data: membership, error: mErr } = await supabaseAdmin
+        .from("organization_members")
+        .select("org_role, organizations(name)")
+        .eq("organization_id", data.organizationId)
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+      if (mErr || !membership) throw new Error("Not a member of this organization");
+      if (membership.org_role !== "owner" && membership.org_role !== "admin") {
+        throw new Error("Only org admins can manage billing");
+      }
 
     // Look up the existing subscription row to reuse stripe_customer_id if any
     const { data: existing } = await supabaseAdmin
@@ -97,20 +123,30 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       },
     });
 
-    if (!session.client_secret) {
-      console.error("[checkout] Stripe session missing client_secret", {
-        sessionId: session.id,
-        uiMode: session.ui_mode,
-        mode: session.mode,
-        status: session.status,
-        paymentStatus: session.payment_status,
+      if (!session.client_secret) {
+        console.error("[checkout] Stripe session missing client_secret", {
+          sessionId: session.id,
+          uiMode: session.ui_mode,
+          mode: session.mode,
+          status: session.status,
+          paymentStatus: session.payment_status,
+          priceLookupKey: data.priceId,
+          organizationId: data.organizationId,
+          environment: data.environment,
+        });
+        throw new Error("Checkout session did not return a client secret");
+      }
+      return { clientSecret: session.client_secret, error: null };
+    } catch (error) {
+      const message = await getErrorMessage(error);
+      console.error("[checkout] Failed to create Stripe checkout session", {
+        message,
         priceLookupKey: data.priceId,
         organizationId: data.organizationId,
         environment: data.environment,
       });
-      throw new Error("Checkout session did not return a client secret");
+      return { clientSecret: null, error: message };
     }
-    return session.client_secret;
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })
