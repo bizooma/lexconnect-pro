@@ -62,10 +62,40 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
       .eq("user_id", user.id)
       .eq("status", "active");
     const list = (data as OrgMembership[] | null) ?? [];
-    setMemberships(list);
 
     const stored = typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : null;
-    const initial = list.find((m) => m.organization_id === stored)?.organization_id ?? list[0]?.organization_id ?? null;
+
+    // Platform admins can view any org context — synthesize a membership
+    // for an org they aren't a member of, so the org screens render.
+    if (stored && !list.some((m) => m.organization_id === stored)) {
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (roleRow) {
+        const { data: orgRow } = await supabase
+          .from("organizations")
+          .select("id,name,slug,kind,logo_url")
+          .eq("id", stored)
+          .maybeSingle();
+        if (orgRow) {
+          list.push({
+            organization_id: orgRow.id,
+            org_role: "admin",
+            status: "active",
+            organizations: orgRow as OrgMembership["organizations"],
+          });
+        }
+      }
+    }
+
+    setMemberships(list);
+    const initial =
+      list.find((m) => m.organization_id === stored)?.organization_id ??
+      list[0]?.organization_id ??
+      null;
     setCurrentOrgId(initial);
     setLoading(false);
   }, [user]);
