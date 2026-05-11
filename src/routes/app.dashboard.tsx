@@ -95,12 +95,19 @@ function Dashboard() {
       mentee_id: m.mentee_id,
       status: m.status,
     }));
-    return scoreMatches({
+    const scored = scoreMatches({
       viewer: profile as any,
       candidates: directory as any,
       existingPairs: pairs,
       activeLoad: buildActiveLoadMap(pairs),
-    }).slice(0, 3);
+    });
+    const scoredById = new Map(scored.map((r) => [r.profile.user_id, r]));
+    // Show every other org member, regardless of role match. Use score data when available.
+    const others = (directory ?? []).filter((p: any) => p.user_id !== profile.user_id);
+    return others
+      .map((p: any) => scoredById.get(p.user_id) ?? { profile: p, score: 0, reasons: [], candidateIsMentor: !!p.is_mentor })
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 3);
   }, [profile, directory, mentorships]);
 
   return (
