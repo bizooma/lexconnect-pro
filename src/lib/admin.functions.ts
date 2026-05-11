@@ -19,7 +19,7 @@ async function requirePlatformAdmin(accessToken: string): Promise<string> {
 export const listAuthUsersSafe = createServerFn({ method: "POST" })
   .inputValidator((data: { accessToken: string }) => data)
   .handler(async ({ data }) => {
-    const out: { id: string; email: string | null; created_at: string }[] = [];
+    const out: { id: string; email: string | null; created_at: string; banned: boolean }[] = [];
     try {
       await requirePlatformAdmin(data.accessToken);
       let page = 1;
@@ -33,7 +33,9 @@ export const listAuthUsersSafe = createServerFn({ method: "POST" })
           return { users: out, error: error.message };
         }
         for (const u of pageData.users) {
-          out.push({ id: u.id, email: u.email ?? null, created_at: u.created_at });
+          const bannedUntil = (u as unknown as { banned_until?: string | null }).banned_until;
+          const banned = !!bannedUntil && new Date(bannedUntil).getTime() > Date.now();
+          out.push({ id: u.id, email: u.email ?? null, created_at: u.created_at, banned });
         }
         if (pageData.users.length < 1000) break;
         page++;
@@ -67,6 +69,59 @@ export const setPlatformAdminSafe = createServerFn({ method: "POST" })
       return { ok: true, error: null as string | null };
     } catch (e: any) {
       console.error("[setPlatformAdmin] error:", e);
+      return { ok: false, error: e?.message ?? "Failed" };
+    }
+  });
+
+export const deleteAuthUserSafe = createServerFn({ method: "POST" })
+  .inputValidator((data: { accessToken: string; userId: string }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const callerId = await requirePlatformAdmin(data.accessToken);
+      if (callerId === data.userId) throw new Error("You cannot delete your own account");
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+      if (error) throw new Error(error.message);
+      return { ok: true, error: null as string | null };
+    } catch (e: any) {
+      console.error("[deleteAuthUser] error:", e);
+      return { ok: false, error: e?.message ?? "Failed" };
+    }
+  });
+
+export const setUserBannedSafe = createServerFn({ method: "POST" })
+  .inputValidator((data: { accessToken: string; userId: string; banned: boolean }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const callerId = await requirePlatformAdmin(data.accessToken);
+      if (callerId === data.userId) throw new Error("You cannot pause your own account");
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+        ban_duration: data.banned ? "876000h" : "none",
+      } as unknown as Record<string, unknown>);
+      if (error) throw new Error(error.message);
+      return { ok: true, error: null as string | null };
+    } catch (e: any) {
+      console.error("[setUserBanned] error:", e);
+      return { ok: false, error: e?.message ?? "Failed" };
+    }
+  });
+
+export const setOrgAdminSafe = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { accessToken: string; userId: string; organizationId: string; makeAdmin: boolean }) =>
+      data,
+  )
+  .handler(async ({ data }) => {
+    try {
+      await requirePlatformAdmin(data.accessToken);
+      const { error } = await supabaseAdmin
+        .from("organization_members")
+        .update({ org_role: data.makeAdmin ? "admin" : "member" })
+        .eq("organization_id", data.organizationId)
+        .eq("user_id", data.userId);
+      if (error) throw new Error(error.message);
+      return { ok: true, error: null as string | null };
+    } catch (e: any) {
+      console.error("[setOrgAdmin] error:", e);
       return { ok: false, error: e?.message ?? "Failed" };
     }
   });
