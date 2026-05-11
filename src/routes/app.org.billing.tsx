@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { createPortalSession } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -16,11 +17,16 @@ const PLAN_OPTIONS = [
   { id: "starter_monthly", label: "Starter — $399/mo", tier: "starter" },
   { id: "starter_annual", label: "Starter — $3,990/yr (save 2 months)", tier: "starter" },
   { id: "professional_monthly", label: "Professional — $899/mo", tier: "professional" },
-  { id: "professional_annual", label: "Professional — $8,990/yr (save 2 months)", tier: "professional" },
+  {
+    id: "professional_annual",
+    label: "Professional — $8,990/yr (save 2 months)",
+    tier: "professional",
+  },
 ] as const;
 
 function OrgBillingPage() {
   const { currentOrgId, currentOrg, subscription, isOrgAdmin } = useCurrentOrg();
+  const { session } = useAuth();
   const [seatsUsed, setSeatsUsed] = useState(0);
   const [openingPortal, setOpeningPortal] = useState(false);
   const portal = useServerFn(createPortalSession);
@@ -57,6 +63,7 @@ function OrgBillingPage() {
     try {
       const url = await portal({
         data: {
+          accessToken: session?.access_token ?? "",
           organizationId: currentOrgId,
           returnUrl: `${window.location.origin}/app/org/billing`,
           environment: getStripeEnvironment(),
@@ -74,7 +81,9 @@ function OrgBillingPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-8">
       <header className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Organization</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Organization
+        </p>
         <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground">Billing & seats</h1>
         <p className="mt-1 text-sm text-muted-foreground">{currentOrg?.name}</p>
       </header>
@@ -82,7 +91,9 @@ function OrgBillingPage() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Current plan</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Current plan
+            </p>
             <p className="mt-1 font-serif text-2xl font-semibold capitalize text-foreground">
               {subscription?.plan ?? "—"}
             </p>
@@ -123,7 +134,8 @@ function OrgBillingPage() {
         <section className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900/50 dark:bg-emerald-950/30">
           <h2 className="font-serif text-lg font-semibold text-foreground">Complimentary access</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            <strong>{currentOrg?.name}</strong> has permanent free access to LexGuild — no billing required.
+            <strong>{currentOrg?.name}</strong> has permanent free access to LexGuild — no billing
+            required.
           </p>
         </section>
       )}

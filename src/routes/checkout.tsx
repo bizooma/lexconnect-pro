@@ -20,10 +20,7 @@ const VALID_PRICES = new Set([
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
-    meta: [
-      { title: "Checkout — LexGuild" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Checkout — LexGuild" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   validateSearch: (search: Record<string, unknown>): Search => ({
     price: typeof search.price === "string" ? search.price : undefined,
@@ -37,8 +34,14 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const { price } = Route.useSearch();
-  const { user, loading: authLoading } = useAuth();
-  const { currentOrgId, currentOrg, loading: orgLoading, isOrgAdmin, subscription } = useCurrentOrg();
+  const { session, user, loading: authLoading } = useAuth();
+  const {
+    currentOrgId,
+    currentOrg,
+    loading: orgLoading,
+    isOrgAdmin,
+    subscription,
+  } = useCurrentOrg();
   const navigate = useNavigate();
   const create = useServerFn(createCheckoutSession);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -57,6 +60,7 @@ function CheckoutPage() {
       try {
         const result = await create({
           data: {
+            accessToken: session?.access_token ?? "",
             priceId: validPrice,
             organizationId: currentOrgId,
             returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -69,7 +73,11 @@ function CheckoutPage() {
       } catch (err) {
         let message = "Could not start checkout. Please try again.";
         if (err instanceof Response) {
-          try { message = (await err.text()) || message; } catch { /* ignore */ }
+          try {
+            message = (await err.text()) || message;
+          } catch {
+            /* ignore */
+          }
         } else if (err instanceof Error) {
           message = err.message;
         }
@@ -77,7 +85,7 @@ function CheckoutPage() {
         throw new Error(message);
       }
     };
-  }, [validPrice, currentOrgId, create]);
+  }, [validPrice, currentOrgId, session?.access_token, create]);
 
   if (authLoading || orgLoading) {
     return (
@@ -92,7 +100,11 @@ function CheckoutPage() {
       <Shell>
         <h1 className="font-serif text-2xl font-semibold text-foreground">Pick a plan</h1>
         <p className="mt-2 text-sm text-muted-foreground">No valid plan was selected.</p>
-        <Link to="/" hash="pricing" className="mt-4 inline-block text-sm text-primary hover:underline">
+        <Link
+          to="/"
+          hash="pricing"
+          className="mt-4 inline-block text-sm text-primary hover:underline"
+        >
           See pricing →
         </Link>
       </Shell>
@@ -131,7 +143,10 @@ function CheckoutPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           <strong>{currentOrg?.name}</strong> has complimentary access — no payment needed.
         </p>
-        <Link to="/app/dashboard" className="mt-4 inline-block text-sm text-primary hover:underline">
+        <Link
+          to="/app/dashboard"
+          className="mt-4 inline-block text-sm text-primary hover:underline"
+        >
           Go to dashboard →
         </Link>
       </Shell>
@@ -144,7 +159,10 @@ function CheckoutPage() {
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4">
           <Logo />
-          <Link to="/app/org/billing" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/app/org/billing"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             Cancel
           </Link>
         </div>
