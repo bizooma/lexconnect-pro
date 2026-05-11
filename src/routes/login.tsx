@@ -21,12 +21,20 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    // Read directly from the form to handle browser autofill that bypasses onChange
+    const fd = new FormData(e.currentTarget);
+    const emailValue = ((fd.get("email") as string) || email).trim();
+    const passwordValue = (fd.get("password") as string) || password;
+    if (!emailValue || !passwordValue) {
+      setError("Please enter your email and password.");
+      return;
+    }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: emailValue, password: passwordValue });
       if (error) throw error;
       navigate({ to: "/app/dashboard" });
     } catch (err: any) {
@@ -62,12 +70,12 @@ function Login() {
         <form onSubmit={submit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@firm.com"
+            <input type="email" name="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@firm.com"
               className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           </div>
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</label>
-            <PasswordInput required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
+            <PasswordInput name="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
               className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           </div>
           {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">{error}</div>}
