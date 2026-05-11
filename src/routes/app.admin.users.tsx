@@ -84,6 +84,7 @@ function AdminUsers() {
   const deleteUser = useServerFn(deleteAuthUserSafe);
   const setBanned = useServerFn(setUserBannedSafe);
   const setOrgAdmin = useServerFn(setOrgAdminSafe);
+  const createUser = useServerFn(createUserAndAssignOrgSafe);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [orgs, setOrgs] = useState<Org[]>([]);
@@ -94,6 +95,16 @@ function AdminUsers() {
   const [orgFilter, setOrgFilter] = useState<string>("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; label: string } | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [addForm, setAddForm] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+    organizationId: "",
+    orgRole: "member" as "member" | "admin",
+    sendInvite: true,
+  });
 
   const refresh = async () => {
     setLoading(true);
