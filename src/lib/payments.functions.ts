@@ -87,7 +87,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       },
     });
 
-    return session.client_secret;
+    if (!session.client_secret) throw new Error("Checkout session did not return a client secret");
+    return { clientSecret: session.client_secret };
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })
@@ -122,5 +123,5 @@ export const createPortalSession = createServerFn({ method: "POST" })
       customer: sub.stripe_customer_id,
       return_url: data.returnUrl,
     });
-    return portal.url;
+    return { url: portal.url };
   });
