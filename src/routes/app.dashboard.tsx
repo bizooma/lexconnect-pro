@@ -41,7 +41,7 @@ function Dashboard() {
     const [{ data: m }, { data: mt }] = await Promise.all([
       supabase
         .from("mentorships")
-        .select("id,mentor_id,mentee_id,status,intro_message,created_at")
+        .select("id,mentor_id,mentee_id,status,intro_message,created_at,requested_by")
         .or(`mentor_id.eq.${user.id},mentee_id.eq.${user.id}`)
         .order("created_at", { ascending: false }),
       supabase
@@ -71,8 +71,8 @@ function Dashboard() {
 
   useEffect(() => { refresh(); }, [user]);
 
-  const pendingForMe = mentorships.filter((m) => m.mentor_id === user?.id && m.status === "pending");
-  const myPendingOut = mentorships.filter((m) => m.mentee_id === user?.id && m.status === "pending");
+  const pendingForMe = mentorships.filter((m) => m.status === "pending" && (m as any).requested_by && (m as any).requested_by !== user?.id && (m.mentor_id === user?.id || m.mentee_id === user?.id));
+  const myPendingOut = mentorships.filter((m) => m.status === "pending" && (m as any).requested_by === user?.id);
   const active = mentorships.filter((m) => m.status === "active");
   const actionablePendingCount = pendingForMe.length;
 
@@ -125,10 +125,11 @@ function Dashboard() {
       {/* Mentor inbox */}
       {pendingForMe.length > 0 && (
         <section className="mt-8">
-          <SectionHeader title="Mentorship requests" subtitle="People who want you as their mentor" />
+          <SectionHeader title="Mentorship requests" subtitle="People who want to connect with you" />
           <div className="mt-3 space-y-2">
             {pendingForMe.map((req) => {
-              const p = profileMap[req.mentee_id];
+              const otherId = (req as any).requested_by as string;
+              const p = profileMap[otherId];
               return (
                 <article key={req.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
                   <div className="flex items-start gap-3">

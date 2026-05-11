@@ -1,0 +1,1 @@
+UPDATE public.mentorships SET requested_by = '1191e664-9a8b-4b55-8502-fb2ea2ee079d' WHERE id = 'aec0aa47-4abf-4485-b7ac-4e8549b0b74f';
