@@ -285,6 +285,49 @@ function AdminUsers() {
     }
   };
 
+  const onCreateUser = async () => {
+    if (!addForm.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!addForm.organizationId) {
+      toast.error("Pick an organization");
+      return;
+    }
+    setAddBusy(true);
+    try {
+      const res = await withToken((accessToken) =>
+        createUser({
+          data: {
+            accessToken,
+            email: addForm.email.trim(),
+            fullName: addForm.fullName.trim() || undefined,
+            password: addForm.sendInvite ? undefined : addForm.password || undefined,
+            organizationId: addForm.organizationId,
+            orgRole: addForm.orgRole,
+            sendInvite: addForm.sendInvite,
+          },
+        }),
+      );
+      if (res?.error) throw new Error(res.error);
+      toast.success(addForm.sendInvite ? "Invite sent" : "User created");
+      setAddOpen(false);
+      setAddForm({
+        email: "",
+        fullName: "",
+        password: "",
+        organizationId: "",
+        orgRole: "member",
+        sendInvite: true,
+      });
+      await refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to create user");
+    } finally {
+      setAddBusy(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
@@ -306,7 +349,11 @@ function AdminUsers() {
             </option>
           ))}
         </select>
-        <p className="ml-auto text-xs text-muted-foreground">{filtered.length} shown</p>
+        <Button size="sm" onClick={() => setAddOpen(true)} className="ml-auto">
+          <UserPlus className="mr-1 h-4 w-4" />
+          Add user
+        </Button>
+        <p className="text-xs text-muted-foreground">{filtered.length} shown</p>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
