@@ -41,6 +41,7 @@ function CheckoutPage() {
   const { currentOrgId, currentOrg, loading: orgLoading, isOrgAdmin, subscription } = useCurrentOrg();
   const navigate = useNavigate();
   const create = useServerFn(createCheckoutSession);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const validPrice = price && VALID_PRICES.has(price) ? price : null;
 
