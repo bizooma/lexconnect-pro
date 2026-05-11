@@ -58,8 +58,9 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     softCapacity = 3,
   } = ctx;
 
+  // Treat "both roles" as permissive (neither strictly mentee nor mentor).
   const viewerIsMentee = ctx.viewerIsMentee ?? (viewer.is_mentee && !viewer.is_mentor);
-  const viewerIsMentor = !viewerIsMentee && viewer.is_mentor;
+  const viewerIsMentor = !viewerIsMentee && viewer.is_mentor && !viewer.is_mentee;
 
   // Build pair-exclusion set
   const blocked = new Set<string>();
