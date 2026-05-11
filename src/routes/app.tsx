@@ -28,6 +28,7 @@ const BASE_NAV = [
   { to: "/app/discover", label: "Discover", icon: SearchIcon },
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
+  { to: "/app/activity", label: "Activity", icon: ActivityIcon },
 ] as const;
 const ADMIN_NAV = { to: "/app/admin", label: "Platform", icon: ShieldIcon } as const;
 
