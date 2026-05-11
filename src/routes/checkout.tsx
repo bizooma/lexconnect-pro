@@ -61,8 +61,9 @@ function CheckoutPage() {
           environment: getStripeEnvironment(),
         },
       });
-      if (!result?.clientSecret) throw new Error("No client secret returned");
-      return result.clientSecret;
+      const clientSecret = extractClientSecret(result);
+      if (!clientSecret) throw new Error("No client secret returned");
+      return clientSecret;
     };
   }, [validPrice, currentOrgId, create]);
 
@@ -152,6 +153,19 @@ function CheckoutPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+function extractClientSecret(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  return (
+    extractClientSecret(record.clientSecret) ??
+    extractClientSecret(record.client_secret) ??
+    extractClientSecret(record.result) ??
+    extractClientSecret(record.data)
   );
 }
 
