@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsOf } from "@/hooks/use-profiles";
 
-export const Route = createFileRoute("/app/messages")({
+export const Route = createFileRoute("/app/messages/")({
   component: Messages,
 });
 
