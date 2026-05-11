@@ -65,7 +65,7 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
   // Build pair-exclusion set
   const blocked = new Set<string>();
   for (const p of existingPairs) {
-    if (p.status !== "active" && p.status !== "pending") continue;
+    if (p.status !== "active") continue;
     if (p.mentor_id === viewer.user_id) blocked.add(p.mentee_id);
     if (p.mentee_id === viewer.user_id) blocked.add(p.mentor_id);
   }
