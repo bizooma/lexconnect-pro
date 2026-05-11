@@ -22,6 +22,7 @@ function Discover() {
   const [practice, setPractice] = useState<string | null>(null);
   const [tab, setTab] = useState<"recommended" | "browse">("recommended");
   const [requested, setRequested] = useState<Profile | null>(null);
+  const [viewing, setViewing] = useState<Profile | null>(null);
   const [intro, setIntro] = useState(
     "Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?",
   );
