@@ -44,18 +44,26 @@ function Discover() {
 
   const sendRequest = async () => {
     if (!user || !requested) return;
-    if (!currentOrgId) { toast.error("No organization selected"); return; }
+    const orgId = currentOrgId ?? myProfile?.organization_id ?? requested.organization_id;
+    if (!orgId) { toast.error("No organization selected"); return; }
     setSubmitting(true);
+    // Decide roles: if viewer is clearly a mentor and target is clearly a mentee, flip.
+    const viewerIsMentor = !!myProfile?.is_mentor && !myProfile?.is_mentee;
+    const targetIsMentee = !!requested.is_mentee && !requested.is_mentor;
+    const flip = viewerIsMentor && targetIsMentee;
+    const mentor_id = flip ? user.id : requested.user_id;
+    const mentee_id = flip ? requested.user_id : user.id;
     const { error } = await supabase.from("mentorships").insert({
-      mentor_id: requested.user_id,
-      mentee_id: user.id,
+      mentor_id,
+      mentee_id,
       status: "pending",
       intro_message: intro.trim() || null,
-      organization_id: currentOrgId,
+      organization_id: orgId,
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      console.error("mentorship insert failed", error);
+      toast.error(error.message || "Could not send request");
       return;
     }
     toast.success("Mentorship request sent");
