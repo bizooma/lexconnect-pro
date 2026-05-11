@@ -21,12 +21,20 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    // Read directly from the form to handle browser autofill that bypasses onChange
+    const fd = new FormData(e.currentTarget);
+    const emailValue = ((fd.get("email") as string) || email).trim();
+    const passwordValue = (fd.get("password") as string) || password;
+    if (!emailValue || !passwordValue) {
+      setError("Please enter your email and password.");
+      return;
+    }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: emailValue, password: passwordValue });
       if (error) throw error;
       navigate({ to: "/app/dashboard" });
     } catch (err: any) {
