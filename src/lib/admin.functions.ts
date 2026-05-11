@@ -122,6 +122,116 @@ export const setOrgPausedSafe = createServerFn({ method: "POST" })
     }
   });
 
+export const createUserAndAssignOrgSafe = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: {
+      accessToken: string;
+      email: string;
+      fullName?: string;
+      password?: string;
+      organizationId: string;
+      orgRole: "member" | "admin" | "owner";
+      sendInvite?: boolean;
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    try {
+      await requirePlatformAdmin(data.accessToken);
+      const email = data.email.trim().toLowerCase();
+      if (!email) throw new Error("Email is required");
+
+      let userId: string | null = null;
+
+      if (data.sendInvite) {
+        const { data: inv, error: invErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+          email,
+          { data: { full_name: data.fullName ?? "" } },
+        );
+        if (invErr) {
+          // If user already exists, fetch by listing
+          if (!/already/i.test(invErr.message)) throw new Error(invErr.message);
+        } else {
+          userId = inv.user?.id ?? null;
+        }
+      } else {
+        const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          password: data.password || undefined,
+          email_confirm: true,
+          user_metadata: { full_name: data.fullName ?? "" },
+        });
+        if (createErr) {
+          if (!/already/i.test(createErr.message)) throw new Error(createErr.message);
+        } else {
+          userId = created.user?.id ?? null;
+        }
+      }
+
+      // Resolve user id if we hit "already exists"
+      if (!userId) {
+        let page = 1;
+        outer: while (page <= 20) {
+          const { data: pageData, error } = await supabaseAdmin.auth.admin.listUsers({
+            page,
+            perPage: 1000,
+          });
+          if (error) throw new Error(error.message);
+          for (const u of pageData.users) {
+            if ((u.email ?? "").toLowerCase() === email) {
+              userId = u.id;
+              break outer;
+            }
+          }
+          if (pageData.users.length < 1000) break;
+          page++;
+        }
+      }
+      if (!userId) throw new Error("Could not resolve user id after creation");
+
+      // Ensure profile exists and is on the target org
+      const { data: existingProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (existingProfile) {
+        await supabaseAdmin
+          .from("profiles")
+          .update({
+            organization_id: data.organizationId,
+            ...(data.fullName ? { full_name: data.fullName } : {}),
+          })
+          .eq("user_id", userId);
+      } else {
+        await supabaseAdmin.from("profiles").insert({
+          user_id: userId,
+          full_name: data.fullName ?? email,
+          organization_id: data.organizationId,
+        });
+      }
+
+      // Upsert membership
+      const { error: memErr } = await supabaseAdmin
+        .from("organization_members")
+        .upsert(
+          {
+            organization_id: data.organizationId,
+            user_id: userId,
+            org_role: data.orgRole,
+            status: "active",
+            joined_at: new Date().toISOString(),
+          },
+          { onConflict: "organization_id,user_id" },
+        );
+      if (memErr) throw new Error(memErr.message);
+
+      return { ok: true, userId, error: null as string | null };
+    } catch (e: any) {
+      console.error("[createUserAndAssignOrg] error:", e);
+      return { ok: false, userId: null as string | null, error: e?.message ?? "Failed" };
+    }
+  });
+
 export const setOrgAdminSafe = createServerFn({ method: "POST" })
   .inputValidator(
     (data: { accessToken: string; userId: string; organizationId: string; makeAdmin: boolean }) =>

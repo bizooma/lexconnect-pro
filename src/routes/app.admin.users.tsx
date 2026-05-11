@@ -7,9 +7,19 @@ import {
   deleteAuthUserSafe,
   setUserBannedSafe,
   setOrgAdminSafe,
+  createUserAndAssignOrgSafe,
 } from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 function AdminUsersError({ reset }: { error: Error; reset: () => void }) {
@@ -74,6 +84,7 @@ function AdminUsers() {
   const deleteUser = useServerFn(deleteAuthUserSafe);
   const setBanned = useServerFn(setUserBannedSafe);
   const setOrgAdmin = useServerFn(setOrgAdminSafe);
+  const createUser = useServerFn(createUserAndAssignOrgSafe);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [orgs, setOrgs] = useState<Org[]>([]);
@@ -84,6 +95,16 @@ function AdminUsers() {
   const [orgFilter, setOrgFilter] = useState<string>("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; label: string } | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [addForm, setAddForm] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+    organizationId: "",
+    orgRole: "member" as "member" | "admin",
+    sendInvite: true,
+  });
 
   const refresh = async () => {
     setLoading(true);
@@ -264,6 +285,49 @@ function AdminUsers() {
     }
   };
 
+  const onCreateUser = async () => {
+    if (!addForm.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!addForm.organizationId) {
+      toast.error("Pick an organization");
+      return;
+    }
+    setAddBusy(true);
+    try {
+      const res = await withToken((accessToken) =>
+        createUser({
+          data: {
+            accessToken,
+            email: addForm.email.trim(),
+            fullName: addForm.fullName.trim() || undefined,
+            password: addForm.sendInvite ? undefined : addForm.password || undefined,
+            organizationId: addForm.organizationId,
+            orgRole: addForm.orgRole,
+            sendInvite: addForm.sendInvite,
+          },
+        }),
+      );
+      if (res?.error) throw new Error(res.error);
+      toast.success(addForm.sendInvite ? "Invite sent" : "User created");
+      setAddOpen(false);
+      setAddForm({
+        email: "",
+        fullName: "",
+        password: "",
+        organizationId: "",
+        orgRole: "member",
+        sendInvite: true,
+      });
+      await refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to create user");
+    } finally {
+      setAddBusy(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
@@ -285,7 +349,11 @@ function AdminUsers() {
             </option>
           ))}
         </select>
-        <p className="ml-auto text-xs text-muted-foreground">{filtered.length} shown</p>
+        <Button size="sm" onClick={() => setAddOpen(true)} className="ml-auto">
+          <UserPlus className="mr-1 h-4 w-4" />
+          Add user
+        </Button>
+        <p className="text-xs text-muted-foreground">{filtered.length} shown</p>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
@@ -417,6 +485,97 @@ function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add user</DialogTitle>
+            <DialogDescription>
+              Create an account and assign it to an organization. Choose invite to email a
+              setup link, or set a temporary password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-email">Email</Label>
+              <Input
+                id="add-email"
+                type="email"
+                value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-name">Full name</Label>
+              <Input
+                id="add-name"
+                value={addForm.fullName}
+                onChange={(e) => setAddForm((f) => ({ ...f, fullName: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-org">Organization</Label>
+              <select
+                id="add-org"
+                value={addForm.organizationId}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, organizationId: e.target.value }))
+                }
+                className="rounded-md border border-border bg-card px-2 py-2 text-sm"
+              >
+                <option value="">Select organization…</option>
+                {orgs.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="add-role">Org role</Label>
+              <select
+                id="add-role"
+                value={addForm.orgRole}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, orgRole: e.target.value as "member" | "admin" }))
+                }
+                className="rounded-md border border-border bg-card px-2 py-2 text-sm"
+              >
+                <option value="member">Member</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={addForm.sendInvite}
+                onChange={(e) => setAddForm((f) => ({ ...f, sendInvite: e.target.checked }))}
+              />
+              Send email invite (recommended)
+            </label>
+            {!addForm.sendInvite && (
+              <div className="grid gap-1.5">
+                <Label htmlFor="add-pw">Temporary password</Label>
+                <Input
+                  id="add-pw"
+                  type="text"
+                  value={addForm.password}
+                  onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))}
+                  placeholder="At least 6 characters"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={addBusy}>
+              Cancel
+            </Button>
+            <Button onClick={onCreateUser} disabled={addBusy}>
+              {addBusy ? "Saving…" : "Create user"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
