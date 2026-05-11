@@ -12,17 +12,19 @@ async function requireUser(accessToken: string) {
 }
 
 export const createCheckoutSession = createServerFn({ method: "POST" })
-  .inputValidator((data: {
-    accessToken: string;
-    priceId: string;
-    organizationId: string;
-    returnUrl: string;
-    environment: StripeEnv;
-  }) => {
-    if (!PRICE_ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
-    if (!data.organizationId) throw new Error("organizationId required");
-    return data;
-  })
+  .inputValidator(
+    (data: {
+      accessToken: string;
+      priceId: string;
+      organizationId: string;
+      returnUrl: string;
+      environment: StripeEnv;
+    }) => {
+      if (!PRICE_ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
+      if (!data.organizationId) throw new Error("organizationId required");
+      return data;
+    },
+  )
   .handler(async ({ data }) => {
     const user = await requireUser(data.accessToken);
     const userId = user.id;
@@ -112,11 +114,18 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })
-  .inputValidator((data: { accessToken: string; organizationId: string; returnUrl: string; environment: StripeEnv }) => {
-    if (!data.accessToken) throw new Error("Not authenticated");
-    if (!data.organizationId) throw new Error("organizationId required");
-    return data;
-  })
+  .inputValidator(
+    (data: {
+      accessToken: string;
+      organizationId: string;
+      returnUrl: string;
+      environment: StripeEnv;
+    }) => {
+      if (!data.accessToken) throw new Error("Not authenticated");
+      if (!data.organizationId) throw new Error("organizationId required");
+      return data;
+    },
+  )
   .handler(async ({ data }) => {
     const user = await requireUser(data.accessToken);
 
@@ -136,7 +145,8 @@ export const createPortalSession = createServerFn({ method: "POST" })
       .select("stripe_customer_id")
       .eq("organization_id", data.organizationId)
       .maybeSingle();
-    if (!sub?.stripe_customer_id) throw new Error("No billing account yet — start a subscription first");
+    if (!sub?.stripe_customer_id)
+      throw new Error("No billing account yet — start a subscription first");
 
     const stripe = createStripeClient(data.environment);
     const portal = await stripe.billingPortal.sessions.create({
