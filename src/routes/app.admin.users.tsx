@@ -2,9 +2,32 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { listAuthUsersSafe, setPlatformAdminSafe } from "@/lib/admin.functions";
+import {
+  listAuthUsersSafe,
+  deleteAuthUserSafe,
+  setUserBannedSafe,
+  setOrgAdminSafe,
+} from "@/lib/admin.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 function AdminUsersError({ reset }: { error: Error; reset: () => void }) {
@@ -43,19 +66,24 @@ type Profile = {
 };
 
 type Org = { id: string; name: string };
-type AuthUser = { id: string; email: string | null; created_at: string };
+type AuthUser = { id: string; email: string | null; created_at: string; banned: boolean };
+type OrgMember = { user_id: string; organization_id: string; org_role: string; status: string };
 
 function AdminUsers() {
   const fetchUsers = useServerFn(listAuthUsersSafe);
-  const togglePlatformAdmin = useServerFn(setPlatformAdminSafe);
+  const deleteUser = useServerFn(deleteAuthUserSafe);
+  const setBanned = useServerFn(setUserBannedSafe);
+  const setOrgAdmin = useServerFn(setOrgAdminSafe);
+
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [orgs, setOrgs] = useState<Org[]>([]);
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
-  const [adminIds, setAdminIds] = useState<Set<string>>(new Set());
+  const [members, setMembers] = useState<OrgMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [orgFilter, setOrgFilter] = useState<string>("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; label: string } | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -67,20 +95,22 @@ function AdminUsers() {
       users = result?.users ?? [];
       if (result?.error) toast.error(result.error);
     } catch (e: any) {
-      const msg = e?.message ?? (typeof e === "string" ? e : "Could not load auth users");
-      toast.error(msg);
+      toast.error(e?.message ?? "Could not load auth users");
     }
-    const [{ data: pData }, { data: oData }, { data: rData }] = await Promise.all([
+    const [{ data: pData }, { data: oData }, { data: mData }] = await Promise.all([
       supabase
         .from("profiles")
         .select("id,user_id,full_name,firm,is_mentor,is_mentee,organization_id")
         .order("created_at", { ascending: false }),
       supabase.from("organizations").select("id,name"),
-      supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
+      supabase
+        .from("organization_members")
+        .select("user_id,organization_id,org_role,status")
+        .eq("status", "active"),
     ]);
     setProfiles((pData as Profile[] | null) ?? []);
     setOrgs((oData as Org[] | null) ?? []);
-    setAdminIds(new Set((rData ?? []).map((r: any) => r.user_id as string)));
+    setMembers((mData as OrgMember[] | null) ?? []);
     setAuthUsers(users);
     setLoading(false);
   };
@@ -90,19 +120,21 @@ function AdminUsers() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const orgById = useMemo(() => {
-    const m = new Map<string, Org>();
-    orgs.forEach((o) => m.set(o.id, o));
-    return m;
-  }, [orgs]);
-
-  const emailById = useMemo(() => {
+  const orgById = useMemo(() => new Map(orgs.map((o) => [o.id, o])), [orgs]);
+  const emailById = useMemo(
+    () => new Map(authUsers.map((u) => [u.id, u.email ?? ""])),
+    [authUsers],
+  );
+  const bannedById = useMemo(
+    () => new Map(authUsers.map((u) => [u.id, u.banned])),
+    [authUsers],
+  );
+  const orgRoleByUid = useMemo(() => {
     const m = new Map<string, string>();
-    authUsers.forEach((u) => m.set(u.id, u.email ?? ""));
+    members.forEach((mem) => m.set(`${mem.user_id}:${mem.organization_id}`, mem.org_role));
     return m;
-  }, [authUsers]);
+  }, [members]);
 
-  // Combine profiles + auth users (some auth users may have no profile yet)
   type Row = {
     user_id: string;
     full_name: string | null;
@@ -112,10 +144,15 @@ function AdminUsers() {
     organization_id: string | null;
     is_mentor: boolean;
     is_mentee: boolean;
+    banned: boolean;
+    org_role: string | null;
   };
   const rows: Row[] = useMemo(() => {
     const byUid = new Map<string, Row>();
     profiles.forEach((p) => {
+      const role = p.organization_id
+        ? orgRoleByUid.get(`${p.user_id}:${p.organization_id}`) ?? null
+        : null;
       byUid.set(p.user_id, {
         user_id: p.user_id,
         full_name: p.full_name,
@@ -125,6 +162,8 @@ function AdminUsers() {
         organization_id: p.organization_id,
         is_mentor: p.is_mentor,
         is_mentee: p.is_mentee,
+        banned: bannedById.get(p.user_id) ?? false,
+        org_role: role,
       });
     });
     authUsers.forEach((u) => {
@@ -138,11 +177,13 @@ function AdminUsers() {
           organization_id: null,
           is_mentor: false,
           is_mentee: false,
+          banned: u.banned,
+          org_role: null,
         });
       }
     });
     return Array.from(byUid.values());
-  }, [profiles, authUsers, emailById, orgById]);
+  }, [profiles, authUsers, emailById, orgById, bannedById, orgRoleByUid]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -155,18 +196,67 @@ function AdminUsers() {
     });
   }, [rows, query, orgFilter]);
 
-  const onToggleAdmin = async (userId: string, grant: boolean) => {
-    setBusyId(userId);
+  const withToken = async <T,>(fn: (token: string) => Promise<T>) => {
+    const { data: sess } = await supabase.auth.getSession();
+    return fn(sess.session?.access_token ?? "");
+  };
+
+  const onTogglePause = async (r: Row) => {
+    setBusyId(r.user_id);
     try {
-      const { data: sess } = await supabase.auth.getSession();
-      const accessToken = sess.session?.access_token ?? "";
-      const res = await togglePlatformAdmin({ data: { accessToken, userId, grant } });
+      const res = await withToken((accessToken) =>
+        setBanned({ data: { accessToken, userId: r.user_id, banned: !r.banned } }),
+      );
       if (res?.error) throw new Error(res.error);
-      const next = new Set(adminIds);
-      if (grant) next.add(userId);
-      else next.delete(userId);
-      setAdminIds(next);
-      toast.success(grant ? "Granted platform admin" : "Revoked platform admin");
+      toast.success(r.banned ? "Access restored" : "User paused");
+      await refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const onToggleOrgAdmin = async (r: Row) => {
+    if (!r.organization_id) {
+      toast.error("User is not in an organization");
+      return;
+    }
+    const makeAdmin = r.org_role !== "admin" && r.org_role !== "owner";
+    setBusyId(r.user_id);
+    try {
+      const res = await withToken((accessToken) =>
+        setOrgAdmin({
+          data: {
+            accessToken,
+            userId: r.user_id,
+            organizationId: r.organization_id!,
+            makeAdmin,
+          },
+        }),
+      );
+      if (res?.error) throw new Error(res.error);
+      toast.success(makeAdmin ? "Promoted to org admin" : "Org admin revoked");
+      await refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const onConfirmDelete = async () => {
+    if (!confirmDelete) return;
+    const id = confirmDelete.id;
+    setBusyId(id);
+    try {
+      const res = await withToken((accessToken) =>
+        deleteUser({ data: { accessToken, userId: id } }),
+      );
+      if (res?.error) throw new Error(res.error);
+      toast.success("User deleted");
+      setConfirmDelete(null);
+      await refresh();
     } catch (e: any) {
       toast.error(e?.message ?? "Failed");
     } finally {
@@ -205,8 +295,8 @@ function AdminUsers() {
               <th className="px-4 py-3 font-medium">User</th>
               <th className="hidden px-4 py-3 font-medium md:table-cell">Email</th>
               <th className="hidden px-4 py-3 font-medium lg:table-cell">Organization</th>
-              <th className="hidden px-4 py-3 font-medium sm:table-cell">Roles</th>
-              <th className="px-4 py-3 text-right font-medium">Platform admin</th>
+              <th className="hidden px-4 py-3 font-medium sm:table-cell">Status</th>
+              <th className="px-4 py-3 text-right font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -225,7 +315,8 @@ function AdminUsers() {
               </tr>
             )}
             {filtered.map((r) => {
-              const isAdminUser = adminIds.has(r.user_id);
+              const isOrgAdmin = r.org_role === "admin" || r.org_role === "owner";
+              const isOwner = r.org_role === "owner";
               return (
                 <tr key={r.user_id} className="transition hover:bg-accent/40">
                   <td className="px-4 py-3">
@@ -240,36 +331,64 @@ function AdminUsers() {
                   </td>
                   <td className="hidden px-4 py-3 sm:table-cell">
                     <div className="flex flex-wrap gap-1">
+                      {r.banned && (
+                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+                          Paused
+                        </span>
+                      )}
+                      {isOrgAdmin && (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          {isOwner ? "Org owner" : "Org admin"}
+                        </span>
+                      )}
                       {r.is_mentor && (
                         <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-medium text-gold">
                           Mentor
                         </span>
                       )}
                       {r.is_mentee && (
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                           Mentee
-                        </span>
-                      )}
-                      {isAdminUser && (
-                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-                          Platform admin
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button
-                      size="sm"
-                      variant={isAdminUser ? "outline" : "default"}
-                      disabled={busyId === r.user_id}
-                      onClick={() => onToggleAdmin(r.user_id, !isAdminUser)}
-                    >
-                      {busyId === r.user_id
-                        ? "…"
-                        : isAdminUser
-                        ? "Revoke"
-                        : "Grant"}
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          disabled={busyId === r.user_id}
+                          aria-label="User actions"
+                        >
+                          <MoreHorizontal />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem
+                          disabled={!r.organization_id || isOwner}
+                          onClick={() => onToggleOrgAdmin(r)}
+                        >
+                          {isOrgAdmin ? "Revoke org admin" : "Make org admin"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onTogglePause(r)}>
+                          {r.banned ? "Restore access" : "Pause access"}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() =>
+                            setConfirmDelete({
+                              id: r.user_id,
+                              label: r.full_name || r.email || r.user_id,
+                            })
+                          }
+                        >
+                          Delete user
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               );
@@ -277,6 +396,27 @@ function AdminUsers() {
           </tbody>
         </table>
       </div>
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDelete?.label} will be permanently removed from authentication. This
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
