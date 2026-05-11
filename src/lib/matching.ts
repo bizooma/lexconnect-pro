@@ -79,11 +79,15 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     // Decide candidate role relative to viewer
     let candidateIsMentor: boolean;
     if (viewerIsMentee) {
-      if (!c.is_mentor) continue;
-      if (!c.accepting_mentees) continue;
+      // Skip only if candidate is clearly mentee-only.
+      if (c.is_mentee && !c.is_mentor) continue;
+      if (c.is_mentor && c.accepting_mentees === false) {
+        // explicit "not accepting" → skip; unset is fine
+      }
       candidateIsMentor = true;
     } else if (viewerIsMentor) {
-      if (!c.is_mentee) continue;
+      // Skip only if candidate is clearly mentor-only.
+      if (c.is_mentor && !c.is_mentee) continue;
       candidateIsMentor = false;
     } else {
       // Viewer is both or neither — be permissive but prefer mentors
