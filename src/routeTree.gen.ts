@@ -23,7 +23,6 @@ import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
@@ -31,6 +30,7 @@ import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
+import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
@@ -121,11 +121,6 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMessagesRoute = AppMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppMeetingsRoute = AppMeetingsRouteImport.update({
   id: '/meetings',
   path: '/meetings',
@@ -159,6 +154,11 @@ const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
 const AppOrgIndexRoute = AppOrgIndexRouteImport.update({
   id: '/org/',
   path: '/org/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
@@ -202,9 +202,9 @@ const AppOrgBillingRoute = AppOrgBillingRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppMessagesIdRoute = AppMessagesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppMessagesRoute,
+  id: '/messages/$id',
+  path: '/messages/$id',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
@@ -277,7 +277,6 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
-  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -295,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -319,7 +319,6 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
-  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -337,6 +336,7 @@ export interface FileRoutesByTo {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
+  '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -363,7 +363,6 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
-  '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -381,6 +380,7 @@ export interface FileRoutesById {
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
@@ -408,7 +408,6 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
-    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -426,6 +425,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
+    | '/app/messages/'
     | '/app/org/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -450,7 +450,6 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
-    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -468,6 +467,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin'
+    | '/app/messages'
     | '/app/org'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -493,7 +493,6 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/discover'
     | '/app/meetings'
-    | '/app/messages'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -511,6 +510,7 @@ export interface FileRouteTypes {
     | '/app/org/settings'
     | '/lovable/email/suppression'
     | '/app/admin/'
+    | '/app/messages/'
     | '/app/org/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
@@ -646,13 +646,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/messages': {
-      id: '/app/messages'
-      path: '/messages'
-      fullPath: '/app/messages'
-      preLoaderRoute: typeof AppMessagesRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/meetings': {
       id: '/app/meetings'
       path: '/meetings'
@@ -700,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/org'
       fullPath: '/app/org/'
       preLoaderRoute: typeof AppOrgIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/messages/': {
+      id: '/app/messages/'
+      path: '/messages'
+      fullPath: '/app/messages/'
+      preLoaderRoute: typeof AppMessagesIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/admin/': {
@@ -760,10 +760,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/messages/$id': {
       id: '/app/messages/$id'
-      path: '/$id'
+      path: '/messages/$id'
       fullPath: '/app/messages/$id'
       preLoaderRoute: typeof AppMessagesIdRouteImport
-      parentRoute: typeof AppMessagesRoute
+      parentRoute: typeof AppRoute
     }
     '/app/admin/users': {
       id: '/app/admin/users'
@@ -854,32 +854,21 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
-interface AppMessagesRouteChildren {
-  AppMessagesIdRoute: typeof AppMessagesIdRoute
-}
-
-const AppMessagesRouteChildren: AppMessagesRouteChildren = {
-  AppMessagesIdRoute: AppMessagesIdRoute,
-}
-
-const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
-  AppMessagesRouteChildren,
-)
-
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppDiscoverRoute: typeof AppDiscoverRoute
   AppMeetingsRoute: typeof AppMeetingsRoute
-  AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
+  AppMessagesIdRoute: typeof AppMessagesIdRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
+  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
 
@@ -889,14 +878,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppDiscoverRoute: AppDiscoverRoute,
   AppMeetingsRoute: AppMeetingsRoute,
-  AppMessagesRoute: AppMessagesRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
+  AppMessagesIdRoute: AppMessagesIdRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
+  AppMessagesIndexRoute: AppMessagesIndexRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
 }
 
@@ -941,3 +931,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
