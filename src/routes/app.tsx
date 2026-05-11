@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,6 +46,30 @@ function AppLayout() {
       navigate({ to: "/login" });
     }
   }, [user, loading, navigate]);
+
+  // Enforce org pause: if the signed-in user has no non-paused active org
+  // memberships and is not a platform admin, sign out.
+  useEffect(() => {
+    if (!user || isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("organization_members")
+        .select("organizations(paused)")
+        .eq("user_id", user.id)
+        .eq("status", "active");
+      if (cancelled) return;
+      const rows = (data ?? []) as { organizations: { paused: boolean } | null }[];
+      if (rows.length === 0) return; // onboarding flow handles no-org case
+      const hasUnpaused = rows.some((r) => r.organizations && !r.organizations.paused);
+      if (!hasUnpaused) {
+        toast.error("Your organization is paused. Please contact your administrator.");
+        await signOut();
+        navigate({ to: "/login" });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, isAdmin, signOut, navigate]);
 
   useEffect(() => {
     if (!user) return;

@@ -564,6 +564,8 @@ export type Database = {
           kind: Database["public"]["Enums"]["org_kind"]
           logo_url: string | null
           name: string
+          paused: boolean
+          paused_at: string | null
           slug: string
           updated_at: string
           website: string | null
@@ -577,6 +579,8 @@ export type Database = {
           kind?: Database["public"]["Enums"]["org_kind"]
           logo_url?: string | null
           name: string
+          paused?: boolean
+          paused_at?: string | null
           slug: string
           updated_at?: string
           website?: string | null
@@ -590,6 +594,8 @@ export type Database = {
           kind?: Database["public"]["Enums"]["org_kind"]
           logo_url?: string | null
           name?: string
+          paused?: boolean
+          paused_at?: string | null
           slug?: string
           updated_at?: string
           website?: string | null
