@@ -22,6 +22,7 @@ function Discover() {
   const [practice, setPractice] = useState<string | null>(null);
   const [tab, setTab] = useState<"recommended" | "browse">("recommended");
   const [requested, setRequested] = useState<Profile | null>(null);
+  const [viewing, setViewing] = useState<Profile | null>(null);
   const [intro, setIntro] = useState(
     "Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?",
   );
@@ -191,6 +192,12 @@ function Discover() {
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {p.bio || "No bio yet."}
                 </p>
+                {p.bio && p.bio.length > 140 && (
+                  <button
+                    onClick={() => setViewing(p)}
+                    className="mt-1 self-start text-xs font-medium text-primary hover:underline"
+                  >Read more</button>
+                )}
 
                 {p.practice_areas && p.practice_areas.length > 1 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
@@ -240,6 +247,39 @@ function Discover() {
                 disabled={submitting}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90 disabled:opacity-60"
               >{submitting ? "Sending…" : "Send request"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {viewing && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-primary/40 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setViewing(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg overflow-hidden rounded-t-2xl bg-card shadow-elegant sm:rounded-2xl">
+            <div className="flex items-start gap-4 border-b border-border px-5 py-4">
+              <Avatar initials={initialsOf(viewing.full_name)} size={56} src={viewing.avatar_url} />
+              <div className="min-w-0 flex-1">
+                <h3 className="font-serif text-lg font-semibold text-foreground">{viewing.full_name || "Member"}</h3>
+                <p className="text-sm text-muted-foreground">{viewing.firm || viewing.headline || "Attorney"}</p>
+                {locationOf(viewing) && <p className="text-xs text-muted-foreground">{locationOf(viewing)}</p>}
+              </div>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto p-5">
+              {viewing.practice_areas && viewing.practice_areas.length > 0 && (
+                <div className="mb-3 flex flex-wrap gap-1.5">
+                  {viewing.practice_areas.map((i) => <Tag key={i}>{i}</Tag>)}
+                </div>
+              )}
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                {viewing.bio || "No bio yet."}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-border bg-background/50 px-5 py-3">
+              <button onClick={() => setViewing(null)} className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">Close</button>
+              {!existingMentorIds.has(viewing.user_id) && (
+                <button
+                  onClick={() => { const p = viewing; setViewing(null); setIntro("Hi — I'd love to connect and learn from your practice. Would you be open to a brief intro call this month?"); setRequested(p); }}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+                >Request mentorship</button>
+              )}
             </div>
           </div>
         </div>
