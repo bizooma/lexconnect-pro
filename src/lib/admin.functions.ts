@@ -105,6 +105,23 @@ export const setUserBannedSafe = createServerFn({ method: "POST" })
     }
   });
 
+export const setOrgPausedSafe = createServerFn({ method: "POST" })
+  .inputValidator((data: { accessToken: string; organizationId: string; paused: boolean }) => data)
+  .handler(async ({ data }) => {
+    try {
+      await requirePlatformAdmin(data.accessToken);
+      const { error } = await supabaseAdmin
+        .from("organizations")
+        .update({ paused: data.paused, paused_at: data.paused ? new Date().toISOString() : null })
+        .eq("id", data.organizationId);
+      if (error) throw new Error(error.message);
+      return { ok: true, error: null as string | null };
+    } catch (e: any) {
+      console.error("[setOrgPaused] error:", e);
+      return { ok: false, error: e?.message ?? "Failed" };
+    }
+  });
+
 export const setOrgAdminSafe = createServerFn({ method: "POST" })
   .inputValidator(
     (data: { accessToken: string; userId: string; organizationId: string; makeAdmin: boolean }) =>
