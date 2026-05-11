@@ -97,6 +97,21 @@ function ActivityPage() {
           actorId: recipient,
           recipientId: requester,
         });
+      } else if (m.status === "completed") {
+        out.push({
+          id: `${m.id}:acc`,
+          at: m.created_at,
+          kind: "accepted",
+          actorId: recipient,
+          recipientId: requester,
+        });
+        out.push({
+          id: `${m.id}:end`,
+          at: m.updated_at,
+          kind: "concluded",
+          actorId: recipient,
+          recipientId: requester,
+        });
       }
     }
     out.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
