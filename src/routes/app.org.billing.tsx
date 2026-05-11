@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { createPortalSession } from "@/lib/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -21,6 +22,7 @@ const PLAN_OPTIONS = [
 
 function OrgBillingPage() {
   const { currentOrgId, currentOrg, subscription, isOrgAdmin } = useCurrentOrg();
+  const { session } = useAuth();
   const [seatsUsed, setSeatsUsed] = useState(0);
   const [openingPortal, setOpeningPortal] = useState(false);
   const portal = useServerFn(createPortalSession);
@@ -57,6 +59,7 @@ function OrgBillingPage() {
     try {
       const url = await portal({
         data: {
+          accessToken: session?.access_token ?? "",
           organizationId: currentOrgId,
           returnUrl: `${window.location.origin}/app/org/billing`,
           environment: getStripeEnvironment(),
