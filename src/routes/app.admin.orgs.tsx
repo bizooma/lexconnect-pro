@@ -153,7 +153,14 @@ function AdminOrgs() {
               return (
                 <tr key={o.id} className="transition hover:bg-accent/40">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-foreground">{o.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{o.name}</p>
+                      {o.paused && (
+                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                          Paused
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">/{o.slug}</p>
                   </td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
@@ -175,9 +182,19 @@ function AdminOrgs() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="outline" onClick={() => switchTo(o.id)}>
-                      Open
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant={o.paused ? "default" : "outline"}
+                        disabled={busyId === o.id}
+                        onClick={() => togglePause(o)}
+                      >
+                        {o.paused ? "Restore" : "Pause"}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => switchTo(o.id)}>
+                        Open
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );
