@@ -67,7 +67,8 @@ function CheckoutPage() {
             environment: getStripeEnvironment(),
           },
         });
-        if (isCheckoutError(result)) throw new Error(result.error);
+        const checkoutFailure = extractCheckoutError(result);
+        if (checkoutFailure) throw new Error(checkoutFailure);
         const clientSecret = extractClientSecret(result);
         if (!clientSecret) throw new Error("No client secret returned");
         return clientSecret;
@@ -192,13 +193,13 @@ function CheckoutPage() {
   );
 }
 
-function isCheckoutError(value: unknown): value is { error: string } {
-  return (
-    !!value &&
-    typeof value === "object" &&
-    typeof (value as Record<string, unknown>).error === "string" &&
-    !(value as Record<string, unknown>).clientSecret
-  );
+function extractCheckoutError(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  if (typeof record.error === "string" && !record.clientSecret && !record.client_secret) {
+    return record.error;
+  }
+  return extractCheckoutError(record.result) ?? extractCheckoutError(record.data);
 }
 
 function extractClientSecret(value: unknown): string | null {
