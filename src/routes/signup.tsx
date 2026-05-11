@@ -128,7 +128,8 @@ function SignupOrg() {
       }
 
       const plan = PLANS[planIdx];
-      const planValue = plan.id as "starter" | "pro" | "firm";
+      const planValue: "starter" | "pro" | "firm" =
+        plan.id === "professional" ? "pro" : plan.id === "enterprise" ? "firm" : "starter";
       const { data: orgId, error: rpcErr } = await supabase.rpc("create_organization_with_owner", {
         _name: orgName,
         _slug: slug,
