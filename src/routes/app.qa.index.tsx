@@ -127,12 +127,18 @@ function QaFeed() {
             Ask your colleagues, share templates, and search past discussions.
           </p>
         </div>
-        <button
-          onClick={() => navigate({ to: "/app/qa/ask" })}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
-        >
-          <PlusIcon className="h-4 w-4" /> Ask the community
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/app/qa/notifications" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Notifications</Link>
+          {isOrgAdmin && (
+            <Link to="/app/qa/admin" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Moderate</Link>
+          )}
+          <button
+            onClick={() => navigate({ to: "/app/qa/ask" })}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+          >
+            <PlusIcon className="h-4 w-4" /> Ask the community
+          </button>
+        </div>
       </header>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
