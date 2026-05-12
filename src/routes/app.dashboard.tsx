@@ -249,6 +249,37 @@ function Dashboard() {
         </section>
       )}
 
+      {/* Community */}
+      <section className="mt-8">
+        <SectionHeader title="From the community" actionLabel="Open Q&A" actionTo="/app/qa" />
+        {communityPosts.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No discussions yet. Be the first to ask the community a question.</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {communityPosts.map((p) => (
+              <Link
+                key={p.id}
+                to="/app/qa/$postId"
+                params={{ postId: p.id }}
+                className="block rounded-2xl border border-border bg-card p-4 shadow-card transition hover:shadow-elegant"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-foreground">{p.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {p.reply_count} repl{p.reply_count === 1 ? "y" : "ies"} · {timeAgo(p.last_activity_at)}
+                      {p.is_urgent && " · Urgent"}
+                      {p.status === "resolved" && " · Resolved"}
+                    </p>
+                  </div>
+                  {p.is_pinned && <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">Pinned</span>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Suggested matches */}
       <section className="mt-8">
         <SectionHeader title="Suggested matches" actionLabel="View all" actionTo="/app/discover" />
