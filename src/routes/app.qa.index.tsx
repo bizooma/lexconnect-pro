@@ -46,7 +46,7 @@ function QaFeed() {
       .then(({ data }) => setCategories((data as QaCategory[]) ?? []));
   }, [currentOrgId]);
 
-  // Followed posts
+  // Followed + saved posts
   useEffect(() => {
     if (!user || !currentOrgId) return;
     supabase
@@ -55,6 +55,12 @@ function QaFeed() {
       .eq("user_id", user.id)
       .eq("organization_id", currentOrgId)
       .then(({ data }) => setFollowedIds(new Set((data ?? []).map((r: any) => r.post_id))));
+    supabase
+      .from("qa_bookmarks")
+      .select("post_id")
+      .eq("user_id", user.id)
+      .eq("organization_id", currentOrgId)
+      .then(({ data }) => setSavedIds(new Set((data ?? []).map((r: any) => r.post_id))));
   }, [user, currentOrgId]);
 
   const myPracticeAreas = useMemo(
