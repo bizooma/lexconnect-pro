@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,7 +106,7 @@ function AdminUsers() {
     sendInvite: true,
   });
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     let users: AuthUser[] = [];
     try {
@@ -134,12 +134,11 @@ function AdminUsers() {
     setMembers((mData as OrgMember[] | null) ?? []);
     setAuthUsers(users);
     setLoading(false);
-  };
+  }, [fetchUsers]);
 
   useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    void refresh();
+  }, [refresh]);
 
   const orgById = useMemo(() => new Map(orgs.map((o) => [o.id, o])), [orgs]);
   const emailById = useMemo(

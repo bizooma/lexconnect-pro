@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
@@ -69,7 +69,7 @@ function QaFeed() {
     [profile],
   );
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!currentOrgId) return;
     setLoading(true);
     let q = supabase
@@ -118,12 +118,11 @@ function QaFeed() {
     const visibleAuthorIds = rows.filter((p) => !p.is_anonymous).map((p) => p.author_id);
     setAuthors(await fetchProfilesByIds(visibleAuthorIds));
     setLoading(false);
-  };
+  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories, myPracticeAreas]);
 
   useEffect(() => {
     void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories]);
+  }, [refresh]);
 
   const categoryName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "Uncategorized";
 
