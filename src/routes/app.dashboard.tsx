@@ -34,9 +34,23 @@ function Dashboard() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useMyProfile();
   const { profiles: directory, loading: dirLoading } = useDirectory();
+  const { currentOrgId } = useCurrentOrg();
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [meetings, setMeetings] = useState<MeetingRow[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
+  const [communityPosts, setCommunityPosts] = useState<QaPost[]>([]);
+
+  useEffect(() => {
+    if (!currentOrgId) return;
+    supabase
+      .from("qa_posts")
+      .select("*")
+      .eq("organization_id", currentOrgId)
+      .order("is_pinned", { ascending: false })
+      .order("last_activity_at", { ascending: false })
+      .limit(4)
+      .then(({ data }) => setCommunityPosts((data as QaPost[]) ?? []));
+  }, [currentOrgId]);
 
   const refresh = async () => {
     if (!user) return;
