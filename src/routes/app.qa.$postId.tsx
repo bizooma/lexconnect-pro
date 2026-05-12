@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -37,7 +37,7 @@ function ThreadPage() {
   const [replyToId, setReplyToId] = useState<string | null>(null);
   const [pendingReplyAttachments, setPendingReplyAttachments] = useState<ResourceRow[]>([]);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     const { data: p } = await supabase.from("qa_posts").select("*").eq("id", postId).maybeSingle();
     if (!p) {
       toast.error("Discussion not found");
@@ -105,7 +105,7 @@ function ThreadPage() {
         setHelpfulMine(new Set());
       }
     }
-  };
+  }, [postId, user, navigate]);
 
   useEffect(() => {
     void refresh();
@@ -118,8 +118,7 @@ function ThreadPage() {
       )
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId, user]);
+  }, [postId, refresh]);
 
   const tree = useMemo(() => buildReplyTree(replies), [replies]);
 
