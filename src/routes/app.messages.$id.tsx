@@ -48,6 +48,7 @@ function Thread() {
   const chunksRef = useRef<Blob[]>([]);
   const startedAtRef = useRef<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const signingRef = useRef<Set<string>>(new Set());
 
   // Load messages + other participant
   const load = async () => {
@@ -109,21 +110,30 @@ function Thread() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs.length]);
 
-  // Sign voice URLs as they appear
+  // Sign voice URLs as they appear. Track in-flight ids in a ref so realtime
+  // updates that re-fire this effect can't kick off duplicate signing requests
+  // for the same message before setSigned commits.
   useEffect(() => {
-    const toSign = msgs.filter((m) => m.kind === "voice" && m.audio_url && !signed[m.id]);
+    const toSign = msgs.filter(
+      (m) => m.kind === "voice" && m.audio_url && !signed[m.id] && !signingRef.current.has(m.id),
+    );
     if (toSign.length === 0) return;
+    toSign.forEach((m) => signingRef.current.add(m.id));
     (async () => {
       const updates: Record<string, string> = {};
-      for (const m of toSign) {
-        const { data } = await supabase.storage
-          .from("voice-notes")
-          .createSignedUrl(m.audio_url!, 60 * 60);
-        if (data?.signedUrl) updates[m.id] = data.signedUrl;
+      try {
+        for (const m of toSign) {
+          const { data } = await supabase.storage
+            .from("voice-notes")
+            .createSignedUrl(m.audio_url!, 60 * 60);
+          if (data?.signedUrl) updates[m.id] = data.signedUrl;
+        }
+        if (Object.keys(updates).length) setSigned((s) => ({ ...s, ...updates }));
+      } finally {
+        toSign.forEach((m) => signingRef.current.delete(m.id));
       }
-      if (Object.keys(updates).length) setSigned((s) => ({ ...s, ...updates }));
     })();
-  }, [msgs]);
+  }, [msgs, signed]);
 
   // Load resource attachments for current messages
   useEffect(() => {
