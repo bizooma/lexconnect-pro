@@ -135,6 +135,8 @@ function QaFeed() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Link to="/app/qa/categories" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Categories</Link>
+          <Link to="/app/qa/search" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Search</Link>
           <Link to="/app/qa/notifications" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Notifications</Link>
           {isOrgAdmin && (
             <Link to="/app/qa/admin" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Moderate</Link>
