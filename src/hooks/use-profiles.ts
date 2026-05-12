@@ -19,6 +19,10 @@ export type Profile = {
   is_mentor: boolean;
   is_mentee: boolean;
   accepting_mentees: boolean;
+  /** Optional — only populated when the query selects this column (e.g. matching page). */
+  bar_admissions?: string[] | null;
+  /** Optional — only populated when the query selects this column (e.g. matching page). */
+  meeting_cadence?: string | null;
 };
 
 const SELECT =
