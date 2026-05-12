@@ -65,7 +65,15 @@ function Discover() {
     setSubmitting(false);
     if (error) {
       console.error("mentorship insert failed", error);
-      toast.error(error.message || "Could not send request");
+      // Postgres unique_violation = 23505 — a mentorship row for this (mentor, mentee) pair already exists
+      // (could be pending, active, declined, or ended). Surface a friendly message instead of the raw DB error.
+      if ((error as { code?: string }).code === "23505") {
+        toast.error("You've already requested this mentor", {
+          description: "Check your existing mentorships for the current status.",
+        });
+      } else {
+        toast.error(error.message || "Could not send request");
+      }
       return;
     }
     toast.success("Mentorship request sent");
