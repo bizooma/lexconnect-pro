@@ -37,6 +37,7 @@ import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.inde
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
+import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
@@ -195,6 +196,11 @@ const AppQaAskRoute = AppQaAskRouteImport.update({
   path: '/ask',
   getParentRoute: () => AppQaRoute,
 } as any)
+const AppQaPostIdRoute = AppQaPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => AppQaRoute,
+} as any)
 const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   id: '/org/settings',
   path: '/org/settings',
@@ -318,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -459,6 +468,7 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/$postId'
     | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -503,6 +513,7 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/$postId'
     | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/$postId'
     | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -788,6 +800,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQaAskRouteImport
       parentRoute: typeof AppQaRoute
     }
+    '/app/qa/$postId': {
+      id: '/app/qa/$postId'
+      path: '/$postId'
+      fullPath: '/app/qa/$postId'
+      preLoaderRoute: typeof AppQaPostIdRouteImport
+      parentRoute: typeof AppQaRoute
+    }
     '/app/org/settings': {
       id: '/app/org/settings'
       path: '/org/settings'
@@ -941,11 +960,13 @@ const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
 )
 
 interface AppQaRouteChildren {
+  AppQaPostIdRoute: typeof AppQaPostIdRoute
   AppQaAskRoute: typeof AppQaAskRoute
   AppQaIndexRoute: typeof AppQaIndexRoute
 }
 
 const AppQaRouteChildren: AppQaRouteChildren = {
+  AppQaPostIdRoute: AppQaPostIdRoute,
   AppQaAskRoute: AppQaAskRoute,
   AppQaIndexRoute: AppQaIndexRoute,
 }
