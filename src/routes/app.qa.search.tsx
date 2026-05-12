@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
-import { fetchProfilesByIds, timeAgo, type QaPost, type QaReply } from "@/lib/qa";
+import { fetchProfilesByIds, sanitizeQaSearch, timeAgo, type QaPost, type QaReply } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/qa/search")({
   component: QaSearch,
