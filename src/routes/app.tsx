@@ -195,7 +195,7 @@ function AppLayout() {
             const active = pathname.startsWith(item.to);
             const Icon = item.icon;
             return (
-              <Link key={item.to} to={item.to} className="flex flex-col items-center gap-1 px-2 py-2.5">
+              <Link key={item.to} to={item.to} className="flex min-w-[64px] flex-1 flex-col items-center gap-1 px-2 py-2.5">
                 <Icon className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
                 <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>{item.label}</span>
               </Link>
