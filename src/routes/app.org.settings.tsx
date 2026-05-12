@@ -103,6 +103,10 @@ function OrgSettingsPage() {
   }
 
   const save = async () => {
+    if (!isOrgAdmin) {
+      toast.error("Only organization admins can update settings");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from("organizations")
