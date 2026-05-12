@@ -93,7 +93,10 @@ function OrgMembersPage() {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
-  const seatsUsed = members.filter((m) => m.status === "active" || m.status === "invited").length + invites.length;
+  // Mirror the DB-side enforce_seat_limit trigger: only organization_members rows
+  // in ('active','invited') consume a seat. Pending organization_invites rows do not
+  // reserve seats until the invitee accepts and a member row is created.
+  const seatsUsed = members.filter((m) => m.status === "active" || m.status === "invited").length;
   const seatsCap = subscription?.seats_purchased ?? 0;
 
   const sendInvite = async () => {
