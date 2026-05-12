@@ -73,13 +73,16 @@ function ActivityPage() {
     for (const m of rows) {
       const requester = m.requested_by ?? m.mentee_id;
       const recipient = requester === m.mentor_id ? m.mentee_id : m.mentor_id;
+      // Intro message can contain private context — only show it to the
+      // mentorship participants, not to org admins viewing the global feed.
+      const isParticipant = !!user && (user.id === m.mentor_id || user.id === m.mentee_id);
       out.push({
         id: `${m.id}:req`,
         at: m.created_at,
         kind: "request",
         actorId: requester,
         recipientId: recipient,
-        message: m.intro_message,
+        message: isParticipant ? m.intro_message : null,
       });
       if (m.status === "active") {
         out.push({
@@ -116,7 +119,7 @@ function ActivityPage() {
     }
     out.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
     return out;
-  }, [rows]);
+  }, [rows, user]);
 
   const fmt = (iso: string) => {
     const d = new Date(iso);
