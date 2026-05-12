@@ -722,6 +722,364 @@ export type Database = {
         }
         Relationships: []
       }
+      qa_bookmarks: {
+        Row: {
+          created_at: string
+          organization_id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          organization_id: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          organization_id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_bookmarks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "qa_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_categories: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      qa_follows: {
+        Row: {
+          created_at: string
+          organization_id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          organization_id: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          organization_id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_follows_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "qa_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_notification_prefs: {
+        Row: {
+          category_ids: string[]
+          mode: Database["public"]["Enums"]["qa_notif_mode"]
+          organization_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_ids?: string[]
+          mode?: Database["public"]["Enums"]["qa_notif_mode"]
+          organization_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_ids?: string[]
+          mode?: Database["public"]["Enums"]["qa_notif_mode"]
+          organization_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      qa_post_attachments: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          post_id: string
+          resource_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          post_id: string
+          resource_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          post_id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_post_attachments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "qa_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_post_attachments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_posts: {
+        Row: {
+          allow_private_replies: boolean
+          author_id: string
+          best_answer_id: string | null
+          body: string
+          category_id: string | null
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          is_pinned: boolean
+          is_urgent: boolean
+          last_activity_at: string
+          organization_id: string
+          reply_count: number
+          search_tsv: unknown
+          status: Database["public"]["Enums"]["qa_post_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          allow_private_replies?: boolean
+          author_id: string
+          best_answer_id?: string | null
+          body: string
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_pinned?: boolean
+          is_urgent?: boolean
+          last_activity_at?: string
+          organization_id: string
+          reply_count?: number
+          search_tsv?: unknown
+          status?: Database["public"]["Enums"]["qa_post_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          allow_private_replies?: boolean
+          author_id?: string
+          best_answer_id?: string | null
+          body?: string
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_pinned?: boolean
+          is_urgent?: boolean
+          last_activity_at?: string
+          organization_id?: string
+          reply_count?: number
+          search_tsv?: unknown
+          status?: Database["public"]["Enums"]["qa_post_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_posts_best_answer_fk"
+            columns: ["best_answer_id"]
+            isOneToOne: false
+            referencedRelation: "qa_replies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "qa_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          organization_id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["qa_target_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          organization_id: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["qa_target_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          organization_id?: string
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["qa_target_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      qa_replies: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          helpful_count: number
+          id: string
+          is_private: boolean
+          organization_id: string
+          parent_reply_id: string | null
+          post_id: string
+          search_tsv: unknown
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          helpful_count?: number
+          id?: string
+          is_private?: boolean
+          organization_id: string
+          parent_reply_id?: string | null
+          post_id: string
+          search_tsv?: unknown
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          helpful_count?: number
+          id?: string
+          is_private?: boolean
+          organization_id?: string
+          parent_reply_id?: string | null
+          post_id?: string
+          search_tsv?: unknown
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_replies_parent_reply_id_fkey"
+            columns: ["parent_reply_id"]
+            isOneToOne: false
+            referencedRelation: "qa_replies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "qa_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_reply_attachments: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          reply_id: string
+          resource_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          reply_id: string
+          resource_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          reply_id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_reply_attachments_reply_id_fkey"
+            columns: ["reply_id"]
+            isOneToOne: false
+            referencedRelation: "qa_replies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_reply_attachments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           category: Database["public"]["Enums"]["resource_category"]
@@ -947,6 +1305,9 @@ export type Database = {
       org_kind: "firm" | "bar_association"
       org_member_status: "active" | "invited" | "removed"
       org_role: "owner" | "admin" | "member"
+      qa_notif_mode: "all" | "my_posts" | "followed" | "digest" | "muted"
+      qa_post_status: "open" | "resolved" | "closed"
+      qa_target_type: "post" | "reply"
       resource_category:
         | "mentorship_guide"
         | "cle"
@@ -955,7 +1316,7 @@ export type Database = {
         | "professional_development"
         | "meeting"
         | "other"
-      resource_visibility: "organization" | "conversation" | "meeting"
+      resource_visibility: "organization" | "conversation" | "meeting" | "qa"
       subscription_plan: "starter" | "pro" | "firm"
       subscription_status:
         | "trialing"
@@ -1097,6 +1458,9 @@ export const Constants = {
       org_kind: ["firm", "bar_association"],
       org_member_status: ["active", "invited", "removed"],
       org_role: ["owner", "admin", "member"],
+      qa_notif_mode: ["all", "my_posts", "followed", "digest", "muted"],
+      qa_post_status: ["open", "resolved", "closed"],
+      qa_target_type: ["post", "reply"],
       resource_category: [
         "mentorship_guide",
         "cle",
@@ -1106,7 +1470,7 @@ export const Constants = {
         "meeting",
         "other",
       ],
-      resource_visibility: ["organization", "conversation", "meeting"],
+      resource_visibility: ["organization", "conversation", "meeting", "qa"],
       subscription_plan: ["starter", "pro", "firm"],
       subscription_status: [
         "trialing",
