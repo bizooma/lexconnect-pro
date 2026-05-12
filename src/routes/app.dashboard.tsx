@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { scoreMatches, buildActiveLoadMap, type ExistingPair } from "@/lib/matching";
+import { useCurrentOrg } from "@/hooks/use-current-org";
+import { timeAgo, type QaPost } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
@@ -32,9 +34,23 @@ function Dashboard() {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useMyProfile();
   const { profiles: directory, loading: dirLoading } = useDirectory();
+  const { currentOrgId } = useCurrentOrg();
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [meetings, setMeetings] = useState<MeetingRow[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
+  const [communityPosts, setCommunityPosts] = useState<QaPost[]>([]);
+
+  useEffect(() => {
+    if (!currentOrgId) return;
+    supabase
+      .from("qa_posts")
+      .select("*")
+      .eq("organization_id", currentOrgId)
+      .order("is_pinned", { ascending: false })
+      .order("last_activity_at", { ascending: false })
+      .limit(4)
+      .then(({ data }) => setCommunityPosts((data as QaPost[]) ?? []));
+  }, [currentOrgId]);
 
   const refresh = async () => {
     if (!user) return;
@@ -232,6 +248,37 @@ function Dashboard() {
           </div>
         </section>
       )}
+
+      {/* Community */}
+      <section className="mt-8">
+        <SectionHeader title="From the community" actionLabel="Open Q&A" actionTo="/app/qa" />
+        {communityPosts.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No discussions yet. Be the first to ask the community a question.</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {communityPosts.map((p) => (
+              <Link
+                key={p.id}
+                to="/app/qa/$postId"
+                params={{ postId: p.id }}
+                className="block rounded-2xl border border-border bg-card p-4 shadow-card transition hover:shadow-elegant"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-foreground">{p.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {p.reply_count} repl{p.reply_count === 1 ? "y" : "ies"} · {timeAgo(p.last_activity_at)}
+                      {p.is_urgent && " · Urgent"}
+                      {p.status === "resolved" && " · Resolved"}
+                    </p>
+                  </div>
+                  {p.is_pinned && <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold">Pinned</span>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Suggested matches */}
       <section className="mt-8">
