@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrg } from "@/hooks/use-current-org";
 
 export type Profile = {
   id: string;
@@ -64,27 +65,31 @@ export function useMyProfile() {
   return { profile, loading };
 }
 
-/** All profiles in the directory (excludes current user). */
+/** All profiles in the directory for the currently selected org (excludes current user). */
 export function useDirectory() {
   const { user } = useAuth();
+  const { currentOrgId } = useCurrentOrg();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !currentOrgId) {
       setProfiles([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     (async () => {
-      const { data: me } = await supabase
-        .from("profiles")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      const orgId = (me as { organization_id: string | null } | null)?.organization_id;
-      if (!orgId) {
+      // Scope to members of the currently selected org, not the user's home profile org.
+      const { data: memberRows } = await supabase
+        .from("organization_members")
+        .select("user_id")
+        .eq("organization_id", currentOrgId)
+        .eq("status", "active");
+      const userIds = (memberRows ?? [])
+        .map((r: { user_id: string | null }) => r.user_id)
+        .filter((id): id is string => !!id && id !== user.id);
+      if (userIds.length === 0) {
         setProfiles([]);
         setLoading(false);
         return;
@@ -92,13 +97,12 @@ export function useDirectory() {
       const { data } = await supabase
         .from("profiles")
         .select(SELECT)
-        .eq("organization_id", orgId)
-        .neq("user_id", user.id)
+        .in("user_id", userIds)
         .order("created_at", { ascending: false });
       setProfiles((data as Profile[] | null) ?? []);
       setLoading(false);
     })();
-  }, [user]);
+  }, [user, currentOrgId]);
 
   return { profiles, loading };
 }
