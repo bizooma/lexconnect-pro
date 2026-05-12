@@ -150,10 +150,12 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     // 5. Availability signal
     if (candidateIsMentor && c.accepting_mentees) {
       score += AVAILABILITY_WEIGHT * 0.6;
-      const cadence = (c as any).meeting_cadence as string | null;
+      const cadence = c.meeting_cadence ?? null;
       if (cadence) {
         score += AVAILABILITY_WEIGHT * 0.4;
         reasons.push(`Available ${cadence}`);
+      }
+    }
       }
     }
 
