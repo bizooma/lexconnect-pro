@@ -279,6 +279,14 @@ function Settings() {
         />
       </Section>
 
+      <section className="mt-8 rounded-2xl border border-border bg-card p-5">
+        <h2 className="font-serif text-base font-semibold text-foreground">Community Q&amp;A notifications</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Choose how often the discussion board pings you.</p>
+        <Link to="/app/qa/notifications" className="mt-3 inline-flex rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">
+          Manage preferences
+        </Link>
+      </section>
+
       <div className="sticky bottom-0 -mx-4 mt-8 border-t border-border bg-background/95 px-4 py-4 backdrop-blur lg:-mx-8 lg:px-8">
         <div className="flex justify-end gap-3">
           <button

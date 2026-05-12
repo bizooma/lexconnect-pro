@@ -31,6 +31,7 @@ function QaFeed() {
   const [posts, setPosts] = useState<QaPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   // Categories
@@ -45,7 +46,7 @@ function QaFeed() {
       .then(({ data }) => setCategories((data as QaCategory[]) ?? []));
   }, [currentOrgId]);
 
-  // Followed posts
+  // Followed + saved posts
   useEffect(() => {
     if (!user || !currentOrgId) return;
     supabase
@@ -54,6 +55,12 @@ function QaFeed() {
       .eq("user_id", user.id)
       .eq("organization_id", currentOrgId)
       .then(({ data }) => setFollowedIds(new Set((data ?? []).map((r: any) => r.post_id))));
+    supabase
+      .from("qa_bookmarks")
+      .select("post_id")
+      .eq("user_id", user.id)
+      .eq("organization_id", currentOrgId)
+      .then(({ data }) => setSavedIds(new Set((data ?? []).map((r: any) => r.post_id))));
   }, [user, currentOrgId]);
 
   const myPracticeAreas = useMemo(
@@ -84,8 +91,8 @@ function QaFeed() {
         .order("last_activity_at", { ascending: false });
     else q = q.order("is_pinned", { ascending: false }).order("last_activity_at", { ascending: false });
 
-    if (tab === "following") {
-      const ids = Array.from(followedIds);
+    if (tab === "following" || tab === "saved") {
+      const ids = Array.from(tab === "following" ? followedIds : savedIds);
       if (ids.length === 0) {
         setPosts([]);
         setLoading(false);
@@ -113,7 +120,7 @@ function QaFeed() {
   useEffect(() => {
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, categories]);
+  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories]);
 
   const categoryName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "Uncategorized";
 
@@ -128,6 +135,8 @@ function QaFeed() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Link to="/app/qa/categories" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Categories</Link>
+          <Link to="/app/qa/search" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Search</Link>
           <Link to="/app/qa/notifications" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Notifications</Link>
           {isOrgAdmin && (
             <Link to="/app/qa/admin" className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Moderate</Link>
@@ -241,6 +250,7 @@ function QaFeed() {
                       <ChatIcon className="h-3.5 w-3.5" /> {p.reply_count}
                     </span>
                     {followedIds.has(p.id) && <span className="text-primary">Following</span>}
+                    {savedIds.has(p.id) && <span className="text-gold">★ Saved</span>}
                   </span>
                 </div>
               </Link>

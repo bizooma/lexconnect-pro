@@ -48,7 +48,7 @@ export type QaAttachment = {
   organization_id: string;
 };
 
-export type FeedTab = "recent" | "trending" | "unanswered" | "mine" | "following";
+export type FeedTab = "recent" | "trending" | "unanswered" | "mine" | "following" | "saved";
 
 export const FEED_LABELS: Record<FeedTab, string> = {
   recent: "Recent",
@@ -56,6 +56,7 @@ export const FEED_LABELS: Record<FeedTab, string> = {
   unanswered: "Unanswered",
   mine: "My practice areas",
   following: "Following",
+  saved: "Saved",
 };
 
 export function timeAgo(iso: string): string {

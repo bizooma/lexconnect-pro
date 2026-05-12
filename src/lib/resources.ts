@@ -23,7 +23,7 @@ export type ResourceCategory =
   | "meeting"
   | "other";
 
-export type ResourceVisibility = "organization" | "conversation" | "meeting";
+export type ResourceVisibility = "organization" | "conversation" | "meeting" | "qa";
 
 export const CATEGORY_LABELS: Record<ResourceCategory, string> = {
   mentorship_guide: "Mentorship Guides",
