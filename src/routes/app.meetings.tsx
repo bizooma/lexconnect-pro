@@ -168,11 +168,20 @@ function Meetings() {
       return;
     }
     if (!currentOrgId) { toast.error("No organization selected"); return; }
+    const scheduledAt = new Date(`${date}T${time}`);
+    if (isNaN(scheduledAt.getTime())) {
+      toast.error("Invalid date or time");
+      return;
+    }
+    if (scheduledAt.getTime() <= Date.now()) {
+      toast.error("Meeting must be scheduled in the future");
+      return;
+    }
     setSubmitting(true);
-    const scheduledAt = new Date(`${date}T${time}`).toISOString();
+    const scheduledAtISO = scheduledAt.toISOString();
     const { error } = await supabase.from("meetings").insert({
       title,
-      scheduled_at: scheduledAt,
+      scheduled_at: scheduledAtISO,
       duration_minutes: parseInt(duration, 10),
       host_id: user.id,
       attendee_id: attendeeId,
@@ -265,7 +274,7 @@ function Meetings() {
               </Field>
               <Field label="Title"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
+                <Field label="Date"><Input type="date" min={new Date().toISOString().slice(0, 10)} value={date} onChange={(e) => setDate(e.target.value)} /></Field>
                 <Field label="Time"><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
               </div>
               <div className="grid grid-cols-2 gap-3">
