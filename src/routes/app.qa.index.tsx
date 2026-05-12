@@ -250,6 +250,7 @@ function QaFeed() {
                       <ChatIcon className="h-3.5 w-3.5" /> {p.reply_count}
                     </span>
                     {followedIds.has(p.id) && <span className="text-primary">Following</span>}
+                    {savedIds.has(p.id) && <span className="text-gold">★ Saved</span>}
                   </span>
                 </div>
               </Link>
