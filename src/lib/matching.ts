@@ -132,7 +132,7 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
       jurPts += JURISDICTION_WEIGHT * 0.7;
       reasons.push(`Same state (${c.state})`);
     }
-    const barShared = jaccard((viewer as any).bar_admissions ?? [], (c as any).bar_admissions ?? []);
+    const barShared = jaccard(viewer.bar_admissions ?? [], c.bar_admissions ?? []);
     if (barShared.shared.length > 0) {
       jurPts += JURISDICTION_WEIGHT * 0.3;
       reasons.push(`Shared bar admission`);
@@ -150,7 +150,7 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
     // 5. Availability signal
     if (candidateIsMentor && c.accepting_mentees) {
       score += AVAILABILITY_WEIGHT * 0.6;
-      const cadence = (c as any).meeting_cadence as string | null;
+      const cadence = c.meeting_cadence ?? null;
       if (cadence) {
         score += AVAILABILITY_WEIGHT * 0.4;
         reasons.push(`Available ${cadence}`);
