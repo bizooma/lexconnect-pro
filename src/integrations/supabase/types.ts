@@ -1316,7 +1316,7 @@ export type Database = {
         | "professional_development"
         | "meeting"
         | "other"
-      resource_visibility: "organization" | "conversation" | "meeting"
+      resource_visibility: "organization" | "conversation" | "meeting" | "qa"
       subscription_plan: "starter" | "pro" | "firm"
       subscription_status:
         | "trialing"
@@ -1470,7 +1470,7 @@ export const Constants = {
         "meeting",
         "other",
       ],
-      resource_visibility: ["organization", "conversation", "meeting"],
+      resource_visibility: ["organization", "conversation", "meeting", "qa"],
       subscription_plan: ["starter", "pro", "firm"],
       subscription_status: [
         "trialing",
