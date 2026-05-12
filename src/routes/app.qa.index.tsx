@@ -31,6 +31,7 @@ function QaFeed() {
   const [posts, setPosts] = useState<QaPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   // Categories
