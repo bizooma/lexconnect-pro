@@ -156,8 +156,6 @@ export function scoreMatches(ctx: ScoreContext): MatchResult[] {
         reasons.push(`Available ${cadence}`);
       }
     }
-      }
-    }
 
     // Capacity penalty on mentor side
     if (candidateIsMentor && activeLoad) {
