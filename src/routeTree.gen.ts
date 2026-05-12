@@ -38,6 +38,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppQaSearchRouteImport } from './routes/app.qa.search'
 import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
+import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
 import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
 import { Route as AppQaAdminRouteImport } from './routes/app.qa.admin'
 import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
@@ -204,6 +205,11 @@ const AppQaNotificationsRoute = AppQaNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AppQaRoute,
 } as any)
+const AppQaCategoriesRoute = AppQaCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AppQaRoute,
+} as any)
 const AppQaAskRoute = AppQaAskRouteImport.update({
   id: '/ask',
   path: '/ask',
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -393,6 +400,7 @@ export interface FileRoutesByTo {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -445,6 +453,7 @@ export interface FileRoutesById {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -498,6 +507,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
     | '/lovable/email/suppression'
@@ -546,6 +556,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
     | '/lovable/email/suppression'
@@ -597,6 +608,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
     | '/lovable/email/suppression'
@@ -843,6 +855,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQaNotificationsRouteImport
       parentRoute: typeof AppQaRoute
     }
+    '/app/qa/categories': {
+      id: '/app/qa/categories'
+      path: '/categories'
+      fullPath: '/app/qa/categories'
+      preLoaderRoute: typeof AppQaCategoriesRouteImport
+      parentRoute: typeof AppQaRoute
+    }
     '/app/qa/ask': {
       id: '/app/qa/ask'
       path: '/ask'
@@ -1020,6 +1039,7 @@ interface AppQaRouteChildren {
   AppQaPostIdRoute: typeof AppQaPostIdRoute
   AppQaAdminRoute: typeof AppQaAdminRoute
   AppQaAskRoute: typeof AppQaAskRoute
+  AppQaCategoriesRoute: typeof AppQaCategoriesRoute
   AppQaNotificationsRoute: typeof AppQaNotificationsRoute
   AppQaSearchRoute: typeof AppQaSearchRoute
   AppQaIndexRoute: typeof AppQaIndexRoute
@@ -1029,6 +1049,7 @@ const AppQaRouteChildren: AppQaRouteChildren = {
   AppQaPostIdRoute: AppQaPostIdRoute,
   AppQaAdminRoute: AppQaAdminRoute,
   AppQaAskRoute: AppQaAskRoute,
+  AppQaCategoriesRoute: AppQaCategoriesRoute,
   AppQaNotificationsRoute: AppQaNotificationsRoute,
   AppQaSearchRoute: AppQaSearchRoute,
   AppQaIndexRoute: AppQaIndexRoute,
