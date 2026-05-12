@@ -26,6 +26,7 @@ export const Route = createFileRoute("/app")({
 const BASE_NAV = [
   { to: "/app/dashboard", label: "Home", icon: HomeIcon },
   { to: "/app/discover", label: "Discover", icon: SearchIcon },
+  { to: "/app/qa", label: "Community", icon: QaIcon },
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
@@ -211,3 +212,4 @@ function ChatIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="
 function CalIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>; }
 function ShieldIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/></svg>; }
 function ActivityIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>; }
+function QaIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M7 8h10M7 12h6"/><path d="M21 12a8 8 0 0 1-12.3 6.7L3 20l1.3-5.7A8 8 0 1 1 21 12z"/></svg>; }

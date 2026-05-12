@@ -23,6 +23,7 @@ import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppQaRouteImport } from './routes/app.qa'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
@@ -30,10 +31,12 @@ import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
+import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
@@ -122,6 +125,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppQaRoute = AppQaRouteImport.update({
+  id: '/qa',
+  path: '/qa',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMessagesRoute = AppMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -157,6 +165,11 @@ const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppQaIndexRoute = AppQaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppQaRoute,
+} as any)
 const AppOrgIndexRoute = AppOrgIndexRouteImport.update({
   id: '/org/',
   path: '/org/',
@@ -176,6 +189,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppQaAskRoute = AppQaAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => AppQaRoute,
 } as any)
 const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   id: '/org/settings',
@@ -284,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
+  '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -299,10 +318,12 @@ export interface FileRoutesByFullPath {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
+  '/app/qa/': typeof AppQaIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -341,10 +362,12 @@ export interface FileRoutesByTo {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
+  '/app/qa': typeof AppQaIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -371,6 +394,7 @@ export interface FileRoutesById {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
+  '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -386,10 +410,12 @@ export interface FileRoutesById {
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/qa/ask': typeof AppQaAskRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
+  '/app/qa/': typeof AppQaIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -417,6 +443,7 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/messages'
+    | '/app/qa'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -432,10 +459,12 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
+    | '/app/qa/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -474,10 +503,12 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin'
     | '/app/messages'
     | '/app/org'
+    | '/app/qa'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -503,6 +534,7 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/messages'
+    | '/app/qa'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -518,10 +550,12 @@ export interface FileRouteTypes {
     | '/app/org/members'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/qa/ask'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
+    | '/app/qa/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -656,6 +690,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/qa': {
+      id: '/app/qa'
+      path: '/qa'
+      fullPath: '/app/qa'
+      preLoaderRoute: typeof AppQaRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/messages': {
       id: '/app/messages'
       path: '/messages'
@@ -705,6 +746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcceptInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/qa/': {
+      id: '/app/qa/'
+      path: '/'
+      fullPath: '/app/qa/'
+      preLoaderRoute: typeof AppQaIndexRouteImport
+      parentRoute: typeof AppQaRoute
+    }
     '/app/org/': {
       id: '/app/org/'
       path: '/org'
@@ -732,6 +780,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/qa/ask': {
+      id: '/app/qa/ask'
+      path: '/ask'
+      fullPath: '/app/qa/ask'
+      preLoaderRoute: typeof AppQaAskRouteImport
+      parentRoute: typeof AppQaRoute
     }
     '/app/org/settings': {
       id: '/app/org/settings'
@@ -885,6 +940,18 @@ const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
   AppMessagesRouteChildren,
 )
 
+interface AppQaRouteChildren {
+  AppQaAskRoute: typeof AppQaAskRoute
+  AppQaIndexRoute: typeof AppQaIndexRoute
+}
+
+const AppQaRouteChildren: AppQaRouteChildren = {
+  AppQaAskRoute: AppQaAskRoute,
+  AppQaIndexRoute: AppQaIndexRoute,
+}
+
+const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -892,6 +959,7 @@ interface AppRouteChildren {
   AppDiscoverRoute: typeof AppDiscoverRoute
   AppMeetingsRoute: typeof AppMeetingsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
+  AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
@@ -909,6 +977,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDiscoverRoute: AppDiscoverRoute,
   AppMeetingsRoute: AppMeetingsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
+  AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
