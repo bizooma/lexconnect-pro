@@ -83,3 +83,16 @@ export async function fetchProfilesByIds(ids: string[]) {
   });
   return map;
 }
+
+/**
+ * Sanitize a user-supplied search term for safe inclusion in a PostgREST
+ * `.or()` filter (e.g. `title.ilike.%term%,body.ilike.%term%`).
+ *
+ * PostgREST treats `,` `(` `)` as filter delimiters, so an unescaped value
+ * can inject additional conditions against any column the caller can read.
+ * We strip those characters along with the LIKE wildcards `%` `_` and the
+ * escape `\` so the input is treated as a literal substring.
+ */
+export function sanitizeQaSearch(input: string): string {
+  return input.replace(/[,()%_\\*"']/g, " ").trim().slice(0, 120);
+}
