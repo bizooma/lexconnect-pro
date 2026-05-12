@@ -36,6 +36,7 @@ import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
 import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
 import { Route as AppQaAdminRouteImport } from './routes/app.qa.admin'
 import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
@@ -192,6 +193,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppQaNotificationsRoute = AppQaNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppQaRoute,
+} as any)
 const AppQaAskRoute = AppQaAskRouteImport.update({
   id: '/ask',
   path: '/ask',
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
+  '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/notifications'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/notifications'
     | '/lovable/email/suppression'
     | '/app/admin'
     | '/app/messages'
@@ -575,6 +586,7 @@ export interface FileRouteTypes {
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
+    | '/app/qa/notifications'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
@@ -805,6 +817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/qa/notifications': {
+      id: '/app/qa/notifications'
+      path: '/notifications'
+      fullPath: '/app/qa/notifications'
+      preLoaderRoute: typeof AppQaNotificationsRouteImport
+      parentRoute: typeof AppQaRoute
+    }
     '/app/qa/ask': {
       id: '/app/qa/ask'
       path: '/ask'
@@ -982,6 +1001,7 @@ interface AppQaRouteChildren {
   AppQaPostIdRoute: typeof AppQaPostIdRoute
   AppQaAdminRoute: typeof AppQaAdminRoute
   AppQaAskRoute: typeof AppQaAskRoute
+  AppQaNotificationsRoute: typeof AppQaNotificationsRoute
   AppQaIndexRoute: typeof AppQaIndexRoute
 }
 
@@ -989,6 +1009,7 @@ const AppQaRouteChildren: AppQaRouteChildren = {
   AppQaPostIdRoute: AppQaPostIdRoute,
   AppQaAdminRoute: AppQaAdminRoute,
   AppQaAskRoute: AppQaAskRoute,
+  AppQaNotificationsRoute: AppQaNotificationsRoute,
   AppQaIndexRoute: AppQaIndexRoute,
 }
 
