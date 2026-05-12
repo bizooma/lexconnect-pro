@@ -120,7 +120,7 @@ function QaFeed() {
   useEffect(() => {
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, categories]);
+  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories]);
 
   const categoryName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "Uncategorized";
 
