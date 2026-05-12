@@ -7,6 +7,7 @@ import { useMyProfile } from "@/hooks/use-profiles";
 import {
   FEED_LABELS,
   fetchProfilesByIds,
+  sanitizeQaSearch,
   timeAgo,
   type FeedTab,
   type QaCategory,
