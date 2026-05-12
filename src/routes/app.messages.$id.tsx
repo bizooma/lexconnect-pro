@@ -48,6 +48,7 @@ function Thread() {
   const chunksRef = useRef<Blob[]>([]);
   const startedAtRef = useRef<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const signingRef = useRef<Set<string>>(new Set());
 
   // Load messages + other participant
   const load = async () => {
