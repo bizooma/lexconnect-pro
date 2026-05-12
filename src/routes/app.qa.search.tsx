@@ -38,14 +38,17 @@ function QaSearch() {
       const { data: postRows } = await fts;
       let postList = (postRows as QaPost[]) ?? [];
       if (postList.length === 0) {
-        const { data: ilikeRows } = await supabase
-          .from("qa_posts")
-          .select("*")
-          .eq("organization_id", currentOrgId)
-          .or(`title.ilike.%${term}%,body.ilike.%${term}%`)
-          .order("last_activity_at", { ascending: false })
-          .limit(40);
-        postList = (ilikeRows as QaPost[]) ?? [];
+        const safe = sanitizeQaSearch(term);
+        if (safe.length > 0) {
+          const { data: ilikeRows } = await supabase
+            .from("qa_posts")
+            .select("*")
+            .eq("organization_id", currentOrgId)
+            .or(`title.ilike.%${safe}%,body.ilike.%${safe}%`)
+            .order("last_activity_at", { ascending: false })
+            .limit(40);
+          postList = (ilikeRows as QaPost[]) ?? [];
+        }
       }
 
       const { data: replyRows } = await supabase
