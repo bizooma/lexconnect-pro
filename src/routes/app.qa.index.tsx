@@ -19,7 +19,7 @@ export const Route = createFileRoute("/app/qa/")({
 
 function QaFeed() {
   const { user } = useAuth();
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const { profile } = useMyProfile();
   const navigate = useNavigate();
   const [tab, setTab] = useState<FeedTab>("recent");
