@@ -91,8 +91,8 @@ function QaFeed() {
         .order("last_activity_at", { ascending: false });
     else q = q.order("is_pinned", { ascending: false }).order("last_activity_at", { ascending: false });
 
-    if (tab === "following") {
-      const ids = Array.from(followedIds);
+    if (tab === "following" || tab === "saved") {
+      const ids = Array.from(tab === "following" ? followedIds : savedIds);
       if (ids.length === 0) {
         setPosts([]);
         setLoading(false);
