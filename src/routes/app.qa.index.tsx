@@ -80,8 +80,10 @@ function QaFeed() {
     if (categoryId) q = q.eq("category_id", categoryId);
     if (statusFilter !== "all") q = q.eq("status", statusFilter);
     if (search.trim()) {
-      // Simple ilike on title/body for v1; FTS index supports websearch_to_tsquery for advanced.
-      q = q.or(`title.ilike.%${search}%,body.ilike.%${search}%`);
+      const safe = sanitizeQaSearch(search);
+      if (safe.length > 0) {
+        q = q.or(`title.ilike.%${safe}%,body.ilike.%${safe}%`);
+      }
     }
 
     if (tab === "unanswered") q = q.eq("reply_count", 0);
