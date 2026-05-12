@@ -53,8 +53,8 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
 const PRICE_TO_PLAN: Record<string, { plan: "starter" | "pro" | "firm"; seats: number }> = {
   starter_monthly: { plan: "starter", seats: 25 },
   starter_annual: { plan: "starter", seats: 25 },
-  professional_monthly: { plan: "firm", seats: 100 },
-  professional_annual: { plan: "firm", seats: 100 },
+  professional_monthly: { plan: "pro", seats: 100 },
+  professional_annual: { plan: "pro", seats: 100 },
 };
 
 type SubStatus = "active" | "canceled" | "grandfathered" | "incomplete" | "past_due" | "trialing";
