@@ -64,7 +64,46 @@ export function validateResourceFile(file: File): string | null {
   if (file.size > MAX_RESOURCE_BYTES) {
     return "File exceeds 25MB limit.";
   }
+  // Extension must match the declared MIME type's expected extension.
+  const expectedExt = ALLOWED_RESOURCE_TYPES[file.type].ext;
+  const actualExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+  // Allow "jpeg" for image/jpeg.
+  const extOk = actualExt === expectedExt || (expectedExt === "jpg" && actualExt === "jpeg");
+  if (!extOk) {
+    return `File extension ".${actualExt}" does not match declared type.`;
+  }
   return null;
+}
+
+/**
+ * Inspect the first bytes of the file ("magic number") to confirm the content
+ * matches the declared MIME type. Browsers populate `file.type` from the OS,
+ * which can be spoofed by renaming a file — this is the real verification.
+ */
+export async function verifyResourceContent(file: File): Promise<string | null> {
+  const head = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+  const startsWith = (sig: number[]) => sig.every((b, i) => head[i] === b);
+
+  switch (file.type) {
+    case "application/pdf":
+      // %PDF
+      return startsWith([0x25, 0x50, 0x44, 0x46]) ? null : "File content is not a valid PDF.";
+    case "image/png":
+      return startsWith([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+        ? null
+        : "File content is not a valid PNG.";
+    case "image/jpeg":
+      return startsWith([0xff, 0xd8, 0xff]) ? null : "File content is not a valid JPEG.";
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      // Office Open XML files are ZIP archives — must start with "PK\x03\x04".
+      return startsWith([0x50, 0x4b, 0x03, 0x04])
+        ? null
+        : "File content is not a valid Office document.";
+    default:
+      return "Unsupported file type.";
+  }
 }
 
 export type UploadParams = {
@@ -81,6 +120,8 @@ export type UploadParams = {
 export async function uploadResource(params: UploadParams): Promise<ResourceRow> {
   const err = validateResourceFile(params.file);
   if (err) throw new Error(err);
+  const contentErr = await verifyResourceContent(params.file);
+  if (contentErr) throw new Error(contentErr);
 
   const ext = ALLOWED_RESOURCE_TYPES[params.file.type].ext;
   const id = crypto.randomUUID();
