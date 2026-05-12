@@ -134,6 +134,12 @@ function OrgSettingsPage() {
         <p className="mt-1 text-sm text-muted-foreground">{currentOrg?.name}</p>
       </header>
 
+      {!isOrgAdmin && (
+        <div className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          You're viewing organization settings in read-only mode. Only organization admins can make changes.
+        </div>
+      )}
+
       <section className="space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card">
         <h2 className="font-serif text-lg font-semibold text-foreground">General</h2>
         <Field label="Name" value={name} onChange={setName} disabled={!isOrgAdmin} />
