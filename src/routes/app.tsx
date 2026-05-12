@@ -189,7 +189,8 @@ function AppLayout() {
         className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background/95 backdrop-blur lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className={`mx-auto grid max-w-xl ${NAV.length === 5 ? "grid-cols-5" : "grid-cols-4"}`}>
+        <div className="mx-auto flex max-w-2xl items-stretch overflow-x-auto"
+             style={{ scrollbarWidth: "none" }}>
           {NAV.map((item) => {
             const active = pathname.startsWith(item.to);
             const Icon = item.icon;
