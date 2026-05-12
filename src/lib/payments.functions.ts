@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
 const PRICE_ID_RE = /^[a-zA-Z0-9_-]+$/;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type CheckoutSessionInput = {
   accessToken: string;
@@ -51,7 +52,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<CheckoutSessionResult> => {
     try {
       if (!PRICE_ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
-      if (!data.organizationId) throw new Error("organizationId required");
+      if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organizationId");
       const user = await requireUser(data.accessToken);
       const userId = user.id;
 
