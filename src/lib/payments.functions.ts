@@ -52,7 +52,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<CheckoutSessionResult> => {
     try {
       if (!PRICE_ID_RE.test(data.priceId)) throw new Error("Invalid priceId");
-      if (!data.organizationId) throw new Error("organizationId required");
+      if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organizationId");
       const user = await requireUser(data.accessToken);
       const userId = user.id;
 
