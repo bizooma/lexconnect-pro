@@ -184,8 +184,8 @@ function SignupOrg() {
                 <p className="text-xs text-muted-foreground">URL: <span className="font-mono text-foreground">lexguild.com/org/{slug}</span></p>
               )}
               <div>
-                <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Organization type</label>
-                <select value={orgKindLabel} onChange={(e) => setOrgKindLabel(e.target.value)}
+                <label htmlFor="org-kind" className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Organization type</label>
+                <select id="org-kind" value={orgKindLabel} onChange={(e) => setOrgKindLabel(e.target.value)}
                   className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2">
                   {ORG_KINDS.map((k) => <option key={k.label} value={k.label}>{k.label}</option>)}
                 </select>

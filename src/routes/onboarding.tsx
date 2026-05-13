@@ -250,6 +250,7 @@ function Onboarding() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Eight years in mid-market business litigation…"
+              aria-label="Professional bio"
               className="mt-4 block w-full rounded-xl border border-input bg-card p-4 text-sm leading-relaxed text-foreground shadow-card outline-none ring-ring/30 focus:ring-2"
             />
           </div>

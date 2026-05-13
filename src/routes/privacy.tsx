@@ -8,6 +8,10 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "How LexGuild collects, uses, and protects information for attorneys, bar associations, and legal organizations." },
       { property: "og:title", content: "Privacy Policy — LexGuild" },
       { property: "og:description", content: "How LexGuild collects, uses, and protects information." },
+      { property: "og:url", content: "https://lexguild.com/privacy" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lexguild.com/privacy" },
     ],
   }),
   component: PrivacyPage,
@@ -18,7 +22,7 @@ function PrivacyPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/40 bg-background/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
-          <Link to="/"><Logo /></Link>
+          <Logo />
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Home</Link>
         </div>
       </header>

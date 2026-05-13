@@ -28,6 +28,7 @@ function JoinIndex() {
         <p className="mt-2 text-sm text-muted-foreground">Enter the invite code your organization shared with you.</p>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ABCD1234"
+            aria-label="Invite code"
             className="block w-full rounded-lg border border-input bg-card px-3.5 py-3 text-center font-mono text-lg tracking-widest text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           <button type="submit" disabled={!code.trim()}
             className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90 disabled:opacity-50">

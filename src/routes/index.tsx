@@ -9,6 +9,19 @@ import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "LexGuild — Modern attorney mentorship" },
+      { name: "description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:title", content: "LexGuild — Modern attorney mentorship" },
+      { property: "og:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:url", content: "https://lexguild.com/" },
+      { property: "og:image", content: "https://lexguild.com/og-image.png" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lexguild.com/" },
+    ],
+  }),
   component: Landing,
 });
 
@@ -39,12 +52,16 @@ function Landing() {
         </div>
       </header>
 
+      <main>
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <img
           src={heroBg}
           alt=""
           aria-hidden="true"
+          width={1920}
+          height={1080}
+          fetchPriority="high"
           className="absolute inset-0 -z-20 h-full w-full object-cover"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/85 to-background/40 lg:from-background/95 lg:via-background/70 lg:to-background/20" />
@@ -84,6 +101,9 @@ function Landing() {
             <img
               src={phoneMockup}
               alt="LexGuild mobile app preview"
+              width={900}
+              height={900}
+              fetchPriority="high"
               className="w-full h-auto"
             />
           </div>
@@ -92,7 +112,8 @@ function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="bg-gradient-navy">
+      <section id="features" aria-labelledby="features-heading" className="bg-gradient-navy">
+        <h2 id="features-heading" className="sr-only">Features</h2>
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
@@ -505,6 +526,7 @@ function Landing() {
           className="block h-[400px] w-full border-0 sm:h-[450px]"
         />
       </section>
+      </main>
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">

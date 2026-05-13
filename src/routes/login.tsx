@@ -69,13 +69,13 @@ function Login() {
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
-            <input type="email" name="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@firm.com"
+            <label htmlFor="login-email" className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
+            <input id="login-email" type="email" name="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@firm.com"
               className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           </div>
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</label>
-            <PasswordInput name="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
+            <label htmlFor="login-password" className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</label>
+            <PasswordInput id="login-password" name="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password"
               className="mt-1.5 block w-full rounded-lg border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-card outline-none ring-ring/30 focus:ring-2" />
           </div>
           {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">{error}</div>}
