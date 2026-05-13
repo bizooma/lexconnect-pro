@@ -101,6 +101,9 @@ function Landing() {
             <img
               src={phoneMockup}
               alt="LexGuild mobile app preview"
+              width={900}
+              height={900}
+              fetchPriority="high"
               className="w-full h-auto"
             />
           </div>
@@ -109,7 +112,8 @@ function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="bg-gradient-navy">
+      <section id="features" aria-labelledby="features-heading" className="bg-gradient-navy">
+        <h2 id="features-heading" className="sr-only">Features</h2>
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
