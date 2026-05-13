@@ -22,7 +22,7 @@ function PrivacyPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/40 bg-background/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
-          <Link to="/"><Logo /></Link>
+          <Logo />
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Home</Link>
         </div>
       </header>
