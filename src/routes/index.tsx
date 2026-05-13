@@ -9,6 +9,20 @@ import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "LexGuild — Modern attorney mentorship" },
+      { name: "description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:title", content: "LexGuild — Modern attorney mentorship" },
+      { property: "og:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { property: "og:url", content: "https://lexguild.com/" },
+      { property: "og:image", content: "https://lexguild.com/og-image.png" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lexguild.com/" },
+      { rel: "preload", as: "image", href: "/og-image.png", fetchpriority: "high" } as any,
+    ],
+  }),
   component: Landing,
 });
 
