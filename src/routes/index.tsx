@@ -526,6 +526,7 @@ function Landing() {
           className="block h-[400px] w-full border-0 sm:h-[450px]"
         />
       </section>
+      </main>
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">
