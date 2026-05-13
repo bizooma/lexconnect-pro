@@ -8,6 +8,10 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "How LexGuild collects, uses, and protects information for attorneys, bar associations, and legal organizations." },
       { property: "og:title", content: "Privacy Policy — LexGuild" },
       { property: "og:description", content: "How LexGuild collects, uses, and protects information." },
+      { property: "og:url", content: "https://lexguild.com/privacy" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lexguild.com/privacy" },
     ],
   }),
   component: PrivacyPage,
