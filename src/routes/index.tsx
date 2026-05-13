@@ -20,7 +20,6 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://lexguild.com/" },
-      { rel: "preload", as: "image", href: "/og-image.png", fetchpriority: "high" } as any,
     ],
   }),
   component: Landing,
