@@ -8,6 +8,10 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "The terms that govern use of LexGuild's mentorship platform for legal organizations." },
       { property: "og:title", content: "Terms of Service — LexGuild" },
       { property: "og:description", content: "The terms that govern use of LexGuild's mentorship platform." },
+      { property: "og:url", content: "https://lexguild.com/terms" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lexguild.com/terms" },
     ],
   }),
   component: TermsPage,
