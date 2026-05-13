@@ -1,0 +1,17 @@
+# LexGuild
+
+> A modern, mobile-first mentorship and member engagement platform for attorneys, bar associations, law firms, and legal organizations.
+
+LexGuild helps legal organizations run structured attorney mentorship programs with curated mentor matching, secure messaging, voice notes, and lightweight scheduling. It is delivered as a Progressive Web App so members can install it on iPhone or Android directly from the browser.
+
+## Pages
+
+- [Home](/): Product overview, features, install guide, pricing, FAQ, and contact.
+- [Privacy Policy](/privacy): How LexGuild collects, uses, and protects information.
+- [Terms of Service](/terms): The terms that govern use of LexGuild.
+
+## Optional
+
+- [Sign in](/login): Existing member sign-in.
+- [Start your organization](/signup): Create a new organization.
+- [Join with invite code](/join): Member onboarding via invite.
