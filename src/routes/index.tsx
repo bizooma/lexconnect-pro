@@ -52,12 +52,16 @@ function Landing() {
         </div>
       </header>
 
+      <main>
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <img
           src={heroBg}
           alt=""
           aria-hidden="true"
+          width={1920}
+          height={1080}
+          fetchPriority="high"
           className="absolute inset-0 -z-20 h-full w-full object-cover"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/85 to-background/40 lg:from-background/95 lg:via-background/70 lg:to-background/20" />
