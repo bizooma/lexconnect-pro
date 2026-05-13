@@ -123,11 +123,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
       },
       {
-        src: "https://widget-v2.webability.io/widget.min.js",
+        src: "https://bizooma.com/accessibility-widget.js",
         defer: true,
-        "data-asw-position": "bottom-left-x-20-y-20",
-        "data-asw-lang": "auto",
-        "data-asw-icon-type": "m-full",
+        "data-org": "lex-guild",
       } as any,
       {
         type: "application/ld+json",
