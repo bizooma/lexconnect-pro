@@ -213,6 +213,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
+        <VideoAskWidget />
       </AuthProvider>
     </QueryClientProvider>
   );
