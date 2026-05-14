@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
+import { VideoAskWidget } from "@/components/videoask-widget";
 
 function NotFoundComponent() {
   return (
