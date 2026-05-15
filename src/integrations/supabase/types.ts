@@ -1346,6 +1346,36 @@ export type Database = {
         }
         Relationships: []
       }
+      website_page_views: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          page_id: string
+          referrer: string | null
+          user_agent: string | null
+          visitor_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          page_id: string
+          referrer?: string | null
+          user_agent?: string | null
+          visitor_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          page_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visitor_hash?: string | null
+        }
+        Relationships: []
+      }
       website_pages: {
         Row: {
           archived_at: string | null
