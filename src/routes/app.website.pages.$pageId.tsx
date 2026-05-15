@@ -20,6 +20,24 @@ import {
   type WebsiteSection,
   type WebsiteSectionType,
 } from "@/lib/website";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
 
 export const Route = createFileRoute("/app/website/pages/$pageId")({
   component: PageEditorPage,
@@ -56,7 +74,10 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
-  const [dragId, setDragId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   // Undo/redo stacks (capacity 30). A snapshot is { sections, page }.
   type Snapshot = { sections: WebsiteSection[]; page: WebsitePage };
@@ -148,17 +169,15 @@ function PageEditorPage() {
     refresh();
   };
 
-  const handleDrop = async (targetId: string) => {
-    if (!dragId || dragId === targetId) { setDragId(null); return; }
-    const from = sections.findIndex((s) => s.id === dragId);
-    const to = sections.findIndex((s) => s.id === targetId);
-    if (from < 0 || to < 0) { setDragId(null); return; }
+  const handleDragEnd = async (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = sections.findIndex((s) => s.id === active.id);
+    const to = sections.findIndex((s) => s.id === over.id);
+    if (from < 0 || to < 0) return;
     pushSnapshot();
-    const reordered = [...sections];
-    const [moved] = reordered.splice(from, 1);
-    reordered.splice(to, 0, moved);
+    const reordered = arrayMove(sections, from, to);
     setSections(reordered);
-    setDragId(null);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
   };
 
@@ -309,35 +328,28 @@ function PageEditorPage() {
             {sections.length === 0 ? (
               <p className="text-xs text-muted-foreground">No sections yet. Add one below.</p>
             ) : (
-              <ul className="space-y-1">
-                {sections.map((s, i) => (
-                  <li
-                    key={s.id}
-                    draggable
-                    onDragStart={() => setDragId(s.id)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleDrop(s.id)}
-                    onDragEnd={() => setDragId(null)}
-                    className={dragId === s.id ? "opacity-50" : ""}
-                  >
-                    <button
-                      onClick={() => setSelectedId(s.id)}
-                      className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-xs ${
-                        selectedId === s.id ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-                      }`}
-                    >
-                      <span className="flex min-w-0 items-center gap-1.5">
-                        <span className="cursor-grab text-muted-foreground/60">⋮⋮</span>
-                        <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
-                      </span>
-                      <span
-                        onClick={(e) => { e.stopPropagation(); removeSection(s.id); }}
-                        className="rounded p-0.5 text-destructive opacity-0 hover:bg-background group-hover:opacity-100"
-                      >×</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="space-y-1">
+                    {sections.map((s, i) => (
+                      <SortableSectionItem
+                        key={s.id}
+                        id={s.id}
+                        index={i}
+                        label={SECTION_LABELS[s.section_type]}
+                        selected={selectedId === s.id}
+                        onSelect={() => setSelectedId(s.id)}
+                        onRemove={() => removeSection(s.id)}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
           <div className="border-t border-border p-3">
@@ -708,5 +720,67 @@ function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<vo
         </button>
       </div>
     </div>
+  );
+}
+
+function SortableSectionItem({
+  id,
+  index,
+  label,
+  selected,
+  onSelect,
+  onRemove,
+}: {
+  id: string;
+  index: number;
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`relative ${isDragging ? "z-10 opacity-60" : ""} ${
+        isOver && !isDragging ? "before:absolute before:-top-0.5 before:left-0 before:right-0 before:h-0.5 before:rounded-full before:bg-primary" : ""
+      }`}
+    >
+      <div
+        className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-xs ${
+          selected ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
+        }`}
+      >
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={`Reorder ${label}`}
+          className="cursor-grab touch-none rounded px-1 text-muted-foreground/60 hover:bg-background hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+        >
+          ⋮⋮
+        </button>
+        <button
+          type="button"
+          onClick={onSelect}
+          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        >
+          <span className="truncate">{index + 1}. {label}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${label}`}
+          className="rounded p-0.5 text-destructive opacity-0 hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
+        >
+          ×
+        </button>
+      </div>
+    </li>
   );
 }
