@@ -328,35 +328,28 @@ function PageEditorPage() {
             {sections.length === 0 ? (
               <p className="text-xs text-muted-foreground">No sections yet. Add one below.</p>
             ) : (
-              <ul className="space-y-1">
-                {sections.map((s, i) => (
-                  <li
-                    key={s.id}
-                    draggable
-                    onDragStart={() => setDragId(s.id)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleDrop(s.id)}
-                    onDragEnd={() => setDragId(null)}
-                    className={dragId === s.id ? "opacity-50" : ""}
-                  >
-                    <button
-                      onClick={() => setSelectedId(s.id)}
-                      className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-xs ${
-                        selectedId === s.id ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-                      }`}
-                    >
-                      <span className="flex min-w-0 items-center gap-1.5">
-                        <span className="cursor-grab text-muted-foreground/60">⋮⋮</span>
-                        <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
-                      </span>
-                      <span
-                        onClick={(e) => { e.stopPropagation(); removeSection(s.id); }}
-                        className="rounded p-0.5 text-destructive opacity-0 hover:bg-background group-hover:opacity-100"
-                      >×</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="space-y-1">
+                    {sections.map((s, i) => (
+                      <SortableSectionItem
+                        key={s.id}
+                        id={s.id}
+                        index={i}
+                        label={SECTION_LABELS[s.section_type]}
+                        selected={selectedId === s.id}
+                        onSelect={() => setSelectedId(s.id)}
+                        onRemove={() => removeSection(s.id)}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
           <div className="border-t border-border p-3">
