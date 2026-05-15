@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export type OrgMembership = {
   organization_id: string;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   status: "active" | "invited" | "removed";
   organizations: {
     id: string;
