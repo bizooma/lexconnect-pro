@@ -279,6 +279,20 @@ function PageEditorPage() {
     }
   };
 
+  const schedule = async () => {
+    if (!scheduleAt) { toast.error("Pick a date and time"); return; }
+    const iso = new Date(scheduleAt).toISOString();
+    if (Number.isNaN(Date.parse(iso))) { toast.error("Invalid date"); return; }
+    try {
+      await setStatus({ data: { pageId, status: "scheduled", scheduledAt: iso } });
+      toast.success(`Scheduled for ${new Date(iso).toLocaleString()}`);
+      setScheduleOpen(false);
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <div className="-m-6 flex h-[calc(100vh-9.5rem)] flex-col">
       {/* Toolbar */}
