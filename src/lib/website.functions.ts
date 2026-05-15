@@ -243,7 +243,7 @@ export const upsertSection = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { sectionId: data.sectionId };
     }
-    const { data: row, error } = await supabase.from("website_sections").insert({
+    const { data: row, error } = await (supabase.from("website_sections") as any).insert({
       page_id: data.pageId,
       organization_id: data.organizationId,
       section_type: data.section_type,
@@ -337,7 +337,7 @@ export const useTemplate = createServerFn({ method: "POST" })
       settings_json: s.settings_json ?? {},
       content_json: s.content_json ?? {},
     }));
-    if (sections.length > 0) await supabase.from("website_sections").insert(sections);
+    if (sections.length > 0) await (supabase.from("website_sections") as any).insert(sections);
     return { pageId: page.id };
   });
 
@@ -416,7 +416,7 @@ export const saveSectionAsReusable = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from("website_saved_sections").insert({
+    const { error } = await (supabase.from("website_saved_sections") as any).insert({
       organization_id: data.organizationId,
       name: data.name,
       section_type: data.section_type,
@@ -446,7 +446,7 @@ export const getWebsiteStats = createServerFn({ method: "POST" })
     const { supabase } = context;
     const counts = async (status?: string) => {
       let q = supabase.from("website_pages").select("id", { count: "exact", head: true }).eq("organization_id", data.organizationId);
-      if (status) q = q.eq("status", status);
+      if (status) q = q.eq("status", status as any);
       const { count, error } = await q;
       if (error) throw new Error(error.message);
       return count ?? 0;
