@@ -138,6 +138,7 @@ function PageEditorPage() {
       setSavingMeta(true);
       try {
         await upd({ data: { pageId, patch: patch as any } });
+        broadcastSaved();
       } catch (e) {
         toast.error((e as Error).message);
       } finally {
