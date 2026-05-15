@@ -22,7 +22,7 @@ export const Route = createFileRoute("/app/org/members")({
 type Member = {
   id: string;
   user_id: string | null;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   status: "active" | "invited" | "removed";
   invited_email: string | null;
   joined_at: string | null;
@@ -32,7 +32,7 @@ type Member = {
 type Invite = {
   id: string;
   email: string;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   token: string;
   expires_at: string;
   accepted_at: string | null;
@@ -41,7 +41,7 @@ type Invite = {
 type InviteCode = {
   id: string;
   code: string;
-  role_assigned: "owner" | "admin" | "member";
+  role_assigned: "owner" | "admin" | "content_editor" | "member";
   expires_at: string | null;
   max_uses: number | null;
   current_uses: number;
@@ -186,7 +186,7 @@ function OrgMembersPage() {
     void refresh();
   };
 
-  const changeRole = async (memberId: string, newRole: "owner" | "admin" | "member") => {
+  const changeRole = async (memberId: string, newRole: "owner" | "admin" | "content_editor" | "member") => {
     const { error } = await supabase.from("organization_members").update({ org_role: newRole }).eq("id", memberId);
     if (error) return toast.error(error.message);
     toast.success("Role updated");
