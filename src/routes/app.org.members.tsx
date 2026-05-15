@@ -343,7 +343,7 @@ function OrgMembersPage() {
                   <div className="flex items-center gap-2">
                     {isOrgAdmin && m.user_id !== user?.id ? (
                       <Select value={m.org_role} onValueChange={(v) => changeRole(m.id, v as any)}>
-                        <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="member">Member</SelectItem>
                           <SelectItem value="content_editor">Content Editor</SelectItem>
@@ -353,7 +353,7 @@ function OrgMembersPage() {
                       </Select>
                     ) : (
                       <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                        {m.org_role}
+                        {m.org_role.replace("_", " ")}
                       </span>
                     )}
                     {isOrgAdmin && m.user_id !== user?.id && (
