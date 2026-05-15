@@ -1,132 +1,149 @@
-## Community Q&A — Implementation Plan
 
-A new top-level module that replaces email listservs with a clean, mobile-first legal discussion board. Strictly scoped per organization (multi-tenant), matching the existing LexGuild design language (navy/white/gold, rounded cards, serif headings).
+## Website Builder — Admin Module Plan
+
+A new admin-only module inside the existing LexGuild dashboard. Strictly multi-tenant via the existing `organizations` + `organization_members` model. The current public site at `/` and the mentorship UX stay untouched. Published pages are stored but **not** rendered on the public frontend in this phase — preview is admin-only.
 
 ---
 
-### 1. Database (Supabase migration)
+### 1. Scope guardrails
+
+- No changes to `src/routes/index.tsx`, `__root.tsx` marketing chrome, or any non-`/app/*` route.
+- No new public routes. No custom-domain wiring. No public page rendering.
+- Sidebar entry added only inside `src/routes/app.tsx` and only visible when `useCurrentOrg().isOrgAdmin` is true (or platform admin via `useIsAdmin`).
+- All access gated by RLS using existing `is_org_member` / `is_org_admin` helpers.
+
+---
+
+### 2. Database (single migration)
 
 New enums:
-- `qa_post_status`: `open`, `resolved`, `closed`
-- `qa_reaction_kind`: `helpful` (extensible)
-- `qa_visibility`: reuse existing `resource_visibility` for attachments via existing `resources` table (new value `qa` added) OR a dedicated join.
+- `website_page_status`: `draft`, `ready_for_review`, `scheduled`, `published`, `archived`
+- `website_page_type`: `home`, `landing`, `event`, `sponsor`, `committee`, `mentorship`, `cle`, `resource`, `blog`, `legal_aid`, `custom`
+- `website_section_type`: hero, text, image_text, cta, event_details, sponsor_grid, speaker_cards, member_directory, committee_cards, resource_cards, faq, testimonials, contact_form, newsletter, video, pricing_tiers, feature_grid, stats, timeline, custom_html
+- `website_ai_generation_kind`: `page_draft`, `section_rewrite`, `copy_rewrite`, `seo`, `accessibility`, `faq`, `cta`
 
-New tables (every row carries `organization_id` + RLS via `is_org_member`):
+New tables (every row carries `organization_id`, RLS scoped via `is_org_member` / `is_org_admin`):
 
 | Table | Key columns |
 |---|---|
-| `qa_categories` | id, organization_id, name, slug, sort_order, archived |
-| `qa_posts` | id, organization_id, author_id, category_id, title, body, tags text[], status, is_urgent, is_anonymous, allow_private_replies, is_pinned, reply_count, last_activity_at, best_answer_id (nullable) |
-| `qa_replies` | id, post_id, organization_id, author_id, parent_reply_id (threaded), body, is_private, helpful_count, edited_at, deleted_at |
-| `qa_post_attachments` | id, post_id, organization_id, resource_id (FK to existing `resources`) |
-| `qa_reply_attachments` | id, reply_id, organization_id, resource_id |
-| `qa_reactions` | id, target_type ('post'|'reply'), target_id, user_id, organization_id, kind, unique(target,user,kind) |
-| `qa_follows` | user_id, post_id, organization_id, created_at, PK(user_id,post_id) |
-| `qa_bookmarks` | user_id, post_id, organization_id, created_at, PK(user_id,post_id) |
-| `qa_notification_prefs` | user_id, organization_id, mode ('all'|'my_posts'|'followed'|'digest'|'muted'), category_ids uuid[], updated_at |
+| `website_pages` | org_id, title, slug (unique per org), page_type, status, meta_title, meta_description, og_title, og_description, og_image, content_json (jsonb section tree), content_html (cached render, nullable), created_by, updated_by, published_at, scheduled_at, archived_at |
+| `website_sections` | page_id, org_id, section_type, display_order, settings_json, content_json, visible bool, responsive_json (desktop/tablet/mobile overrides) |
+| `website_templates` | org_id (nullable for global seeded templates), name, page_type, preview_image, default_sections_json, suggested_copy_json, is_global bool |
+| `website_brand_settings` | org_id (unique), logo_url, favicon_url, primary/secondary/accent colors, heading_font, body_font, button_style, page_width, border_radius, seo_title_suffix, social_links jsonb, contact_info jsonb, footer_text |
+| `website_saved_sections` | org_id, name, section_type, settings_json, content_json, created_by |
+| `website_ai_generations` | org_id, user_id, prompt, kind, generated_content_json, model, tokens_used, created_at |
+| `website_publish_history` | page_id, org_id, published_by, version_snapshot_json, published_at, action (publish/unpublish/schedule) |
 
-Indexes: `(organization_id, last_activity_at desc)`, `(organization_id, category_id)`, GIN on `tags`, full-text GIN on `to_tsvector('english', title || ' ' || body)` for posts and replies.
+Indexes: `(org_id, status, updated_at desc)`, `(org_id, page_type)`, unique `(org_id, slug)`.
 
 Triggers:
-- `qa_posts.reply_count` + `last_activity_at` maintained on reply insert/delete.
-- On reply insert → enqueue `notifications` rows for: post author, all followers (respecting `qa_notification_prefs`), reusing existing `notifications` table + `dispatch_push_notification` trigger.
-- On post insert → notify users whose practice areas overlap category (best-effort) or category subscribers, scoped to org.
-- On `best_answer_id` set → notify reply author ("Marked as Best Answer").
+- `updated_at` maintenance on all mutable tables.
+- `website_pages` insert/update → auto-snapshot into `website_publish_history` on transition to `published`.
+- Auto-seed `website_brand_settings` row on org creation; auto-seed global templates flag on first read (templates seeded by migration loop with `is_global = true`).
 
-RLS (every table):
-- SELECT: `is_org_member(organization_id, auth.uid())` (private replies additionally require author or post author).
-- INSERT: same + `org_can_write` + author = auth.uid().
-- UPDATE/DELETE: author OR `is_org_admin`.
-- Categories: read = members; write = `is_org_admin`.
+RLS:
+- SELECT: `is_org_member(org_id, auth.uid())` OR (`is_global = true` for templates).
+- INSERT/UPDATE/DELETE: `is_org_admin(org_id, auth.uid())` plus `org_can_write(org_id)` for writes. Content editors covered by `is_org_admin` for v1 — finer-grained roles deferred (see §7).
 
-Seed categories per existing org via migration loop: Estate Planning, Probate, Business Litigation, Family Law, Real Estate, Ethics, Technology, General Practice, Referrals, Court Procedures, Forms & Templates.
-
-Storage: reuse existing `resources` bucket + `resources` table (adds `qa` to `resource_visibility` enum). Validation trigger already enforces 25MB + allowed mime types.
+Seed migration loops over existing orgs to insert one `website_brand_settings` row each, plus inserts ~13 global templates listed in §5.
 
 ---
 
-### 2. Routes (TanStack Start file-based)
+### 3. Routes (TanStack Start, all under `/app/website/`)
 
 ```
-src/routes/app.qa.tsx              layout with Outlet + tabs
-src/routes/app.qa.index.tsx        feed (Recent / Trending / Unanswered / My Areas / Following)
-src/routes/app.qa.ask.tsx          new question form
-src/routes/app.qa.$postId.tsx      thread view (question + threaded replies)
-src/routes/app.qa.search.tsx       search results
-src/routes/app.qa.categories.tsx   browse by category
-src/routes/app.qa.admin.tsx        admin moderation (org admins only)
+src/routes/app.website.tsx                layout + tab nav, gated by isOrgAdmin
+src/routes/app.website.index.tsx          dashboard overview (cards + recent activity)
+src/routes/app.website.pages.tsx          page list (filter by status/type)
+src/routes/app.website.pages.$pageId.tsx  visual editor (sections + right-side settings)
+src/routes/app.website.pages.new.tsx      create flow (blank / template / AI)
+src/routes/app.website.templates.tsx      template library + preview
+src/routes/app.website.sections.tsx       saved/reusable sections manager
+src/routes/app.website.brand.tsx          brand settings form
+src/routes/app.website.ai.tsx             AI builder full-page panel
+src/routes/app.website.drafts.tsx         drafts queue
+src/routes/app.website.published.tsx      published + scheduled list
+src/routes/app.website.settings.tsx       module settings (seo defaults, etc.)
 ```
 
-Sidebar nav (`src/routes/app.tsx`): insert "Community Q&A" between Discover and Messages with a chat-bubble-stack icon. Update mobile bottom nav to handle 6 items (icon-only or condense).
+Sidebar in `src/routes/app.tsx`: insert "Website Builder" (Globe icon) under the admin-visible group, between "Organization" and "Admin". Hidden entirely when not org admin.
 
 ---
 
-### 3. UI components
+### 4. Server functions (`src/lib/website.functions.ts` + `website-ai.functions.ts`)
 
-`src/components/qa/`:
-- `post-card.tsx` — title, author (or "Anonymous member"), category badge, tags, reply count, attachment paperclip, urgent/resolved/pinned badges, relative time.
-- `ask-question-modal.tsx` — title, rich textarea, category select, tag chips input, file uploader (reuses `resource-uploader.tsx`), urgent/anon/private toggles.
-- `reply-thread.tsx` — recursive threaded replies, "Helpful" reaction, reply box, author edit/delete, OP "Best Answer" button.
-- `feed-tabs.tsx` — Recent | Trending | Unanswered | My Practice Areas | Following.
-- `search-bar.tsx` + `filters-drawer.tsx` — category, status, has attachments, date range, sort.
-- `notification-prefs-card.tsx` — added to `app.settings.tsx`.
-- Confidentiality disclaimer banner on uploader.
+All use `requireSupabaseAuth` so RLS applies as the user. Org id pulled from authenticated context — never trusted from client. Zod-validated input on every call.
 
-Design tokens: navy (`--primary`), gold accent for "Best Answer" / pinned, muted gray badges, rounded-2xl cards, serif headings, matching existing dashboard.
-
----
-
-### 4. Dashboard integration
-
-In `app.dashboard.tsx` add a new section "From the Community" with three compact lists:
-- Questions in my practice areas (matches `profiles.practice_areas` ↔ `qa_categories.name`)
-- Unanswered questions (reply_count = 0, last 14 days)
-- My followed discussions with new replies
+- `listPages`, `getPage`, `createPage`, `updatePage`, `duplicatePage`, `archivePage`, `deletePage`
+- `publishPage`, `unpublishPage`, `schedulePage` (writes to `website_publish_history`)
+- `listSections`, `upsertSection`, `reorderSections`, `deleteSection`, `duplicateSection`
+- `listTemplates` (global + org), `useTemplate(templateId, targetTitle)` → creates draft page
+- `listSavedSections`, `saveSectionAsReusable`, `insertSavedSection`
+- `getBrandSettings`, `updateBrandSettings`
+- AI: `generatePageDraft(prompt)`, `regenerateSection(sectionId, instruction)`, `rewriteCopy`, `improveSeo`, `improveAccessibility`, `addFaq`, `addCta` — all call Lovable AI Gateway (`google/gemini-2.5-flash` default; `gpt-5-mini` for SEO/accessibility analysis), persist to `website_ai_generations`, return draft JSON. Never auto-publish.
 
 ---
 
-### 5. Notifications & push
+### 5. Visual builder components (`src/components/website/`)
 
-Reuse existing `notifications` table + `dispatch_push_notification` Postgres trigger + `/api/public/push.dispatch` route. New `kind` values: `qa_new_post`, `qa_reply`, `qa_best_answer`, `qa_followed_reply`, `qa_mention` (future).
+- `page-editor.tsx` — three-pane layout: section list (left), canvas preview (center), inspector (right).
+- `section-renderer.tsx` — switch on `section_type` → renders preview using brand tokens.
+- `section-inspector.tsx` — type-specific form (settings_json + content_json) using existing shadcn Form primitives.
+- `section-palette.tsx` — drag-to-add new section.
+- `viewport-toggle.tsx` — desktop / tablet / mobile preview frame (CSS width clamp, no iframe).
+- `ai-prompt-panel.tsx` — prompt box + quick-action buttons (Generate / Rewrite / Shorten / Make Professional / Improve SEO / Improve A11y / Add FAQ / Add CTA).
+- `seo-panel.tsx` — title/desc/og/slug + live quality score (heading hierarchy, alt text, contrast against brand colors, missing CTA, mobile warnings).
+- `template-card.tsx`, `page-status-badge.tsx`, `publish-dialog.tsx` (publish now / schedule), `brand-settings-form.tsx`.
+- Drag-and-drop via `@dnd-kit/core` + `@dnd-kit/sortable` (already common; add as new dep). Autosave via debounced `updatePage` (1.5s). Undo/redo via in-memory stack on the editor (last 30 states) — not persisted.
 
-Per-user `qa_notification_prefs` filters which inserts happen. Daily digest deferred to a follow-up (placeholder UI option only).
-
----
-
-### 6. Search
-
-Postgres full-text search via generated `tsvector` columns + GIN indexes. Server function `searchQa({ q, filters })` using `requireSupabaseAuth` middleware — RLS keeps results org-scoped automatically. Returns ranked posts + matching replies.
-
----
-
-### 7. Admin moderation (`app.qa.admin.tsx`)
-
-Visible only when `useCurrentOrg().isOrgAdmin`. Allows: pin/unpin, close, delete post, delete reply, manage categories (CRUD + reorder + archive), basic analytics (counts via aggregate queries).
+Templates seeded (§2):
+Bar Association Homepage, Annual Convention Landing, CLE Event, Sponsorship Opportunities, Mentorship Program, Committee, Member Benefits, Join/Renew Membership, Legal Aid Resource, Judicial Reception, Newsletter Article, Sponsor Spotlight, Volunteer Signup.
 
 ---
 
-### 8. Multi-tenant guarantees
+### 6. AI builder behavior
 
-- Every insert path sets `organization_id = useCurrentOrg().currentOrgId`.
-- All RLS predicates use `is_org_member` / `is_org_admin` — never `auth.uid()` alone.
-- Server functions read org from authenticated context, never trust client-provided org id for cross-org reads.
-- Author display name omitted when `is_anonymous = true` (only shown to org admins on admin route).
-
----
-
-### Out of scope (this iteration)
-
-- Email digest scheduler (UI toggle only; pg_cron job to be added later).
-- @mentions and DM-from-thread (existing Messages module covers DMs).
-- Rich-text editor — use plain textarea + markdown rendering for v1.
+- Single `generatePageDraft` call returns `{ title, slug, page_type, meta_title, meta_description, sections: [...] }` — inserted as **draft** page. User reviews in editor before any publish.
+- Per-section "Regenerate" / "Rewrite" actions operate on a single section's `content_json` and return a replacement object the user must accept.
+- All AI outputs logged to `website_ai_generations` for audit + future analytics.
+- Uses Lovable AI Gateway — no extra API keys required.
 
 ---
 
-### Technical notes (for devs)
+### 7. Permissions (v1)
 
-- Threaded replies: single `qa_replies` table with self-referential `parent_reply_id`; render as 2-level nested in UI to keep mobile readable.
-- Attachments use the existing `resources` + `message_resources`-style join pattern; no new bucket required.
-- All mutations go through `createServerFn` with `requireSupabaseAuth` so RLS applies as the user.
-- File path naming: `qa/{org_id}/{post_id}/{filename}` for storage objects (consistent with current resource patterns).
+- Platform admin (`useIsAdmin`) and org owner/admin (`isOrgAdmin`): full access.
+- Members / mentors / mentees: module hidden, server functions reject via RLS.
+- "Content Editor" / "Reviewer" sub-roles: deferred — noted in module settings as "coming soon" so the schema doesn't need a new role enum yet. When added later, gate writes on a new `org_member_role` value without touching this module's RLS predicates (just swap `is_org_admin` for a `can_edit_website` helper).
 
-After approval I will land this in three commits: (1) migration + seed, (2) routes & components, (3) dashboard widgets + notification prefs + admin.
+---
+
+### 8. Dashboard overview (`app.website.index.tsx`)
+
+Cards: Total Pages, Drafts, Published, Scheduled, Recently Updated.
+Recent activity feed: last 20 entries from `website_publish_history` + AI generations + page edits (joined client-side).
+Primary CTAs: Create New Page · Use Template · Generate with AI.
+
+---
+
+### 9. Out of scope (this phase)
+
+- Public rendering of published pages (no `/p/:slug` route, no custom domains).
+- Public sitemap/robots changes.
+- Granular Editor/Reviewer roles (schema-ready, UI deferred).
+- Real-time multi-user editing.
+- Image upload for OG/hero (uses existing `resources` bucket via `resource-uploader` — reuse only, no new bucket).
+- Content version diffing UI (snapshots stored, viewer deferred).
+
+---
+
+### 10. Delivery order
+
+1. **Migration**: enums, tables, RLS, triggers, brand-settings seed loop, global templates seed.
+2. **Server functions + types**: `website.functions.ts`, `website-ai.functions.ts`, Zod schemas.
+3. **Routes + list/dashboard/brand/template/saved-sections screens** (no editor yet).
+4. **Visual editor + inspector + viewport preview + autosave**.
+5. **AI builder panel + per-section AI actions + SEO/a11y panel**.
+6. **Publish workflow + schedule + history**.
+
+Each step ships behind the admin-only sidebar entry, so nothing is user-visible to non-admins until §3+ lands. The public site is never modified.
