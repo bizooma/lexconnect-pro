@@ -53,6 +53,23 @@ export const Route = createFileRoute("/p/$orgSlug/$slug")({
 
 function PublicPage() {
   const { page, sections, brand, organization } = Route.useLoaderData();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = `wpv:${page.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    trackPageView({
+      data: {
+        organizationId: organization.id,
+        pageId: page.id,
+        referrer: document.referrer || null,
+        userAgent: navigator.userAgent.slice(0, 500),
+        visitorHash: null,
+      },
+    }).catch(() => {});
+  }, [page.id, organization.id]);
+
   const fontImports: string[] = [];
   if (brand?.heading_font) fontImports.push(brand.heading_font);
   if (brand?.body_font && brand.body_font !== brand.heading_font) fontImports.push(brand.body_font);
