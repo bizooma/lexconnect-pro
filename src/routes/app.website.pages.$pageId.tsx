@@ -303,6 +303,14 @@ function PageEditorPage() {
                 <h3 className="text-sm font-semibold text-foreground">{SECTION_LABELS[selected.section_type]}</h3>
               </div>
 
+              <AiRewriteButton
+                onRun={async (instruction) => {
+                  const r = await aiRewrite({ data: { sectionId: selected.id, instruction } });
+                  await updateSelected({ content_json: r.content_json as Record<string, unknown> });
+                  toast.success("Section rewritten");
+                }}
+              />
+
               <ContentFields section={selected} onChange={(content_json) => updateSelected({ content_json })} />
 
               <label className="flex items-center gap-2 text-xs text-foreground">
@@ -319,7 +327,21 @@ function PageEditorPage() {
           )}
 
           <div className="border-t border-border p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Page SEO</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Page SEO</p>
+              <button
+                onClick={async () => {
+                  try {
+                    const r = await aiSeo({ data: { pageId } });
+                    queueMetaSave({ meta_title: r.meta_title, meta_description: r.meta_description });
+                    toast.success("SEO improved");
+                  } catch (e) { toast.error((e as Error).message); }
+                }}
+                className="text-[11px] text-primary hover:underline"
+              >
+                ✨ Improve with AI
+              </button>
+            </div>
             <div className="mt-2 space-y-2 text-xs">
               <label className="block">
                 <span className="text-muted-foreground">Slug</span>
