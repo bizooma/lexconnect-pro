@@ -22,6 +22,7 @@ import { Route as JoinIndexRouteImport } from './routes/join.index'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQaRouteImport } from './routes/app.qa'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
@@ -31,11 +32,14 @@ import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
+import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
+import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
 import { Route as AppQaSearchRouteImport } from './routes/app.qa.search'
 import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
 import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
@@ -52,11 +56,14 @@ import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
+import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pages.new'
+import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -125,6 +132,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/return',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const AppWebsiteRoute = AppWebsiteRouteImport.update({
+  id: '/website',
+  path: '/website',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -170,6 +182,11 @@ const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const AppQaIndexRoute = AppQaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -194,6 +211,16 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteBrandRoute = AppWebsiteBrandRouteImport.update({
+  id: '/brand',
+  path: '/brand',
+  getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppQaSearchRoute = AppQaSearchRouteImport.update({
   id: '/search',
@@ -275,6 +302,11 @@ const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   path: '/api/public/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -302,6 +334,16 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWebsitePagesNewRoute = AppWebsitePagesNewRouteImport.update({
+  id: '/pages/new',
+  path: '/pages/new',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsitePagesPageIdRoute = AppWebsitePagesPageIdRouteImport.update({
+  id: '/pages/$pageId',
+  path: '/pages/$pageId',
+  getParentRoute: () => AppWebsiteRoute,
 } as any)
 const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
   id: '/api/public/push/dispatch',
@@ -334,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
+  '/app/website': typeof AppWebsiteRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -354,18 +397,24 @@ export interface FileRoutesByFullPath {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages/': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -403,18 +452,24 @@ export interface FileRoutesByTo {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
+  '/app/website': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -436,6 +491,7 @@ export interface FileRoutesById {
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
+  '/app/website': typeof AppWebsiteRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -456,18 +512,24 @@ export interface FileRoutesById {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages/': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -490,6 +552,7 @@ export interface FileRouteTypes {
     | '/app/messages'
     | '/app/qa'
     | '/app/settings'
+    | '/app/website'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -510,18 +573,24 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/$pageId'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -559,18 +628,24 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin'
     | '/app/messages'
     | '/app/org'
     | '/app/qa'
+    | '/app/website'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/$pageId'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages'
   id:
     | '__root__'
     | '/'
@@ -591,6 +666,7 @@ export interface FileRouteTypes {
     | '/app/messages'
     | '/app/qa'
     | '/app/settings'
+    | '/app/website'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -611,18 +687,24 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/$pageId'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -743,6 +825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/app/website': {
+      id: '/app/website'
+      path: '/website'
+      fullPath: '/app/website'
+      preLoaderRoute: typeof AppWebsiteRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/settings': {
       id: '/app/settings'
       path: '/settings'
@@ -806,6 +895,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcceptInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/': {
+      id: '/app/website/'
+      path: '/'
+      fullPath: '/app/website/'
+      preLoaderRoute: typeof AppWebsiteIndexRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/app/qa/': {
       id: '/app/qa/'
       path: '/'
@@ -840,6 +936,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/website/templates': {
+      id: '/app/website/templates'
+      path: '/templates'
+      fullPath: '/app/website/templates'
+      preLoaderRoute: typeof AppWebsiteTemplatesRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/brand': {
+      id: '/app/website/brand'
+      path: '/brand'
+      fullPath: '/app/website/brand'
+      preLoaderRoute: typeof AppWebsiteBrandRouteImport
+      parentRoute: typeof AppWebsiteRoute
     }
     '/app/qa/search': {
       id: '/app/qa/search'
@@ -953,6 +1063,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/pages/': {
+      id: '/app/website/pages/'
+      path: '/pages'
+      fullPath: '/app/website/pages/'
+      preLoaderRoute: typeof AppWebsitePagesIndexRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -987,6 +1104,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/auth/preview'
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/website/pages/new': {
+      id: '/app/website/pages/new'
+      path: '/pages/new'
+      fullPath: '/app/website/pages/new'
+      preLoaderRoute: typeof AppWebsitePagesNewRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/pages/$pageId': {
+      id: '/app/website/pages/$pageId'
+      path: '/pages/$pageId'
+      fullPath: '/app/website/pages/$pageId'
+      preLoaderRoute: typeof AppWebsitePagesPageIdRouteImport
+      parentRoute: typeof AppWebsiteRoute
     }
     '/api/public/push/dispatch': {
       id: '/api/public/push/dispatch'
@@ -1057,6 +1188,28 @@ const AppQaRouteChildren: AppQaRouteChildren = {
 
 const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
+interface AppWebsiteRouteChildren {
+  AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
+  AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
+  AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
+  AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRoute
+  AppWebsitePagesNewRoute: typeof AppWebsitePagesNewRoute
+  AppWebsitePagesIndexRoute: typeof AppWebsitePagesIndexRoute
+}
+
+const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
+  AppWebsiteBrandRoute: AppWebsiteBrandRoute,
+  AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
+  AppWebsiteIndexRoute: AppWebsiteIndexRoute,
+  AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRoute,
+  AppWebsitePagesNewRoute: AppWebsitePagesNewRoute,
+  AppWebsitePagesIndexRoute: AppWebsitePagesIndexRoute,
+}
+
+const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
+  AppWebsiteRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -1066,6 +1219,7 @@ interface AppRouteChildren {
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
@@ -1084,6 +1238,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
+  AppWebsiteRoute: AppWebsiteRouteWithChildren,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
