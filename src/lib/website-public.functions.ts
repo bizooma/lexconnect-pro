@@ -59,15 +59,16 @@ export const getPublicPage = createServerFn({ method: "GET" })
     if (sectionsRes.error) throw new Error(sectionsRes.error.message);
     if (brandRes.error) throw new Error(brandRes.error.message);
 
-    return {
+    const result: PublicPageBundle = {
       organization: {
         id: org.id,
         name: org.name,
         slug: org.slug,
         logo_url: org.logo_url,
       },
-      page: page as unknown as Record<string, unknown>,
-      sections: (sectionsRes.data ?? []) as unknown as Array<Record<string, unknown>>,
-      brand: (brandRes.data ?? null) as unknown as Record<string, unknown> | null,
+      page: page as unknown as WebsitePage,
+      sections: (sectionsRes.data ?? []) as unknown as WebsiteSection[],
+      brand: (brandRes.data ?? null) as unknown as WebsiteBrandSettings | null,
     };
+    return JSON.parse(JSON.stringify(result)) as PublicPageBundle;
   });
