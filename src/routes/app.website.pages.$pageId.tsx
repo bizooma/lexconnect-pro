@@ -725,6 +725,13 @@ function ContentFields({
           </label>
         );
       })}
+      {getItemSchema(section.section_type) && (
+        <ItemListEditor
+          sectionType={section.section_type}
+          items={Array.isArray(c.items) ? (c.items as Array<Record<string, unknown>>) : []}
+          onChange={(items) => onChange({ ...c, items })}
+        />
+      )}
     </div>
   );
 }
@@ -738,66 +745,15 @@ function SectionPreview({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const c = (section.content_json ?? {}) as Record<string, string>;
   const ring = selected ? "ring-2 ring-primary ring-inset" : "hover:ring-2 hover:ring-border hover:ring-inset";
-  const base = `relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`;
-
-  switch (section.section_type) {
-    case "hero":
-      return (
-        <div onClick={onSelect} className={`${base} bg-gradient-to-br from-primary/10 to-accent/10 px-8 py-16 text-center`}>
-          <h1 className="text-3xl font-semibold text-foreground">{c.headline || "Hero headline"}</h1>
-          <p className="mt-3 text-muted-foreground">{c.subheadline || "Subheadline goes here"}</p>
-          {c.cta_label && (
-            <button className="mt-5 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
-              {c.cta_label}
-            </button>
-          )}
-        </div>
-      );
-    case "cta":
-      return (
-        <div onClick={onSelect} className={`${base} bg-primary/5 px-8 py-10 text-center`}>
-          <h2 className="text-xl font-semibold text-foreground">{c.headline || "Call to action"}</h2>
-          {c.subheadline && <p className="mt-2 text-sm text-muted-foreground">{c.subheadline}</p>}
-          {c.cta_label && (
-            <button className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              {c.cta_label}
-            </button>
-          )}
-        </div>
-      );
-    case "text":
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <p className="whitespace-pre-wrap text-sm text-foreground">{c.body || "Text block — click to edit."}</p>
-        </div>
-      );
-    case "image_text":
-      return (
-        <div onClick={onSelect} className={`${base} grid gap-6 px-8 py-10 md:grid-cols-2`}>
-          <div className="aspect-video rounded-lg bg-muted" style={c.image_url ? { backgroundImage: `url(${c.image_url})`, backgroundSize: "cover" } : undefined} />
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">{c.headline || "Section headline"}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{c.body || "Body copy goes here."}</p>
-          </div>
-        </div>
-      );
-    case "custom_html":
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <pre className="overflow-x-auto rounded bg-muted p-3 text-xs text-muted-foreground">{c.html || "<!-- custom html -->"}</pre>
-        </div>
-      );
-    default:
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{SECTION_LABELS[section.section_type]}</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">{c.headline || SECTION_LABELS[section.section_type]}</h3>
-          {c.body && <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>}
-        </div>
-      );
-  }
+  return (
+    <div
+      onClick={onSelect}
+      className={`relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`}
+    >
+      <PublicSectionRenderer section={section as never} context={{ preview: true }} />
+    </div>
+  );
 }
 
 function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
