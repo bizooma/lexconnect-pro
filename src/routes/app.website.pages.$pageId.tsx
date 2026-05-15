@@ -386,6 +386,33 @@ function PageEditorPage() {
         </div>
       </div>
 
+      {scheduleOpen && canPublish && (
+        <div className="border-b border-border bg-muted/30 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-xs font-medium text-foreground">Publish at:</label>
+            <input
+              type="datetime-local"
+              value={scheduleAt}
+              onChange={(e) => setScheduleAt(e.target.value)}
+              className="rounded border border-border bg-background px-2 py-1 text-xs text-foreground"
+            />
+            <button
+              onClick={schedule}
+              disabled={!scheduleAt}
+              className="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
+            >
+              Schedule
+            </button>
+            <button onClick={() => setScheduleOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">
+              Cancel
+            </button>
+            <span className="text-[11px] text-muted-foreground">
+              The page will auto-publish within 5 minutes of this time.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* 3-pane editor */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Sections */}
