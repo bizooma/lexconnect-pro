@@ -398,6 +398,30 @@ function PageEditorPage() {
                 }}
               />
 
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { label: "Shorten", instr: "Make this 30% shorter while keeping the key message." },
+                  { label: "Professional", instr: "Rewrite in a more professional, formal legal-industry tone." },
+                  { label: "A11y", instr: "Improve accessibility: clearer headings, plain language, descriptive CTAs." },
+                  { label: "Add FAQ", instr: "Append 3 short, helpful FAQ items relevant to this section." },
+                  { label: "Add CTA", instr: "Add a compelling call-to-action sentence and button label." },
+                ].map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={async () => {
+                      try {
+                        const r = await aiRewrite({ data: { sectionId: selected.id, instruction: q.instr } });
+                        await updateSelected({ content_json: r.content_json as Record<string, unknown> });
+                        toast.success(`Applied: ${q.label}`);
+                      } catch (e) { toast.error((e as Error).message); }
+                    }}
+                    className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    ✨ {q.label}
+                  </button>
+                ))}
+              </div>
+
               <ContentFields section={selected} onChange={(content_json) => updateSelected({ content_json })} />
 
               <div className="flex items-center justify-between gap-2">
