@@ -52,6 +52,7 @@ function Landing() {
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#install" className="hover:text-foreground">Install</a>
             <a href="#pricing" className="hover:text-foreground">Pricing</a>
+            <a href="#addons" className="hover:text-foreground">Add-ons</a>
             <a href="#faq" className="hover:text-foreground">FAQ</a>
             <a href="#contact" className="hover:text-foreground">Contact</a>
             <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
