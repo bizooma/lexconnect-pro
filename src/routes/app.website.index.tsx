@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { getWebsiteStats, listAiGenerations } from "@/lib/website.functions";
+import { getWebsiteAnalytics } from "@/lib/website-analytics.functions";
 import { STATUS_LABELS, type WebsitePageStatus } from "@/lib/website";
 
 export const Route = createFileRoute("/app/website/")({
