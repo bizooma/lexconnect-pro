@@ -42,7 +42,7 @@ function AppLayout() {
   const WEBSITE_NAV = { to: "/app/website", label: "Website", icon: GlobeIcon } as const;
   const NAV = [
     ...BASE_NAV,
-    ...((isOrgAdmin || isAdmin) ? [WEBSITE_NAV] : []),
+    ...((canEditWebsite || isAdmin) ? [WEBSITE_NAV] : []),
     ...(isAdmin ? [ADMIN_NAV] : []),
   ];
   const [profileName, setProfileName] = useState<string>("");
