@@ -359,12 +359,30 @@ function PageEditorPage() {
           >
             Mark for review
           </button>
-          <button
-            onClick={() => publish("published")}
-            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
-          >
-            Publish
-          </button>
+          {canPublish && (
+            <>
+              <button
+                onClick={() => setScheduleOpen((v) => !v)}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+              >
+                Schedule…
+              </button>
+              <button
+                onClick={() => publish("published")}
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+              >
+                Publish
+              </button>
+            </>
+          )}
+          {!canPublish && (
+            <span
+              title="Only owners and admins can publish or schedule"
+              className="rounded-lg border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground"
+            >
+              Publish (admin only)
+            </span>
+          )}
         </div>
       </div>
 
