@@ -55,8 +55,8 @@ function AppLayout() {
       to: "/app/website",
       label: "Website Builder",
       icon: GlobeIcon,
-      enabled: canEditWebsite || isPlatformAdmin,
-      locked: !(canEditWebsite || isPlatformAdmin),
+      enabled: isPlatformAdmin,
+      locked: !isPlatformAdmin,
     },
     {
       to: "/app/directory",
