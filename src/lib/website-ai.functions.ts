@@ -244,7 +244,7 @@ export const regenerateSection = createServerFn({ method: "POST" })
 
     await logGeneration(supabase, section.organization_id, userId, "section_rewrite", data.instruction, output, model);
 
-    return { content_json: merged };
+    return { content_json: merged as Record<string, string> };
   });
 
 // ---------------- Improve SEO meta ----------------
@@ -298,5 +298,8 @@ export const improvePageSeo = createServerFn({ method: "POST" })
 
     await logGeneration(supabase, page.organization_id, userId, "seo", page.title, output, model);
 
-    return { meta_title: output.meta_title, meta_description: output.meta_description };
+    return {
+      meta_title: String(output.meta_title ?? ""),
+      meta_description: String(output.meta_description ?? ""),
+    };
   });
