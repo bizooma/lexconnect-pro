@@ -37,6 +37,7 @@ import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
+import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
@@ -212,6 +213,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAdminRoute,
+} as any)
+const POrgSlugSlugRoute = POrgSlugSlugRouteImport.update({
+  id: '/p/$orgSlug/$slug',
+  path: '/p/$orgSlug/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
@@ -442,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
@@ -569,6 +577,7 @@ export interface FileRoutesById {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
@@ -636,6 +645,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
+    | '/p/$orgSlug/$slug'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
@@ -697,6 +707,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
+    | '/p/$orgSlug/$slug'
     | '/app/admin'
     | '/app/messages'
     | '/app/org'
@@ -762,6 +773,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
+    | '/p/$orgSlug/$slug'
     | '/app/admin/'
     | '/app/messages/'
     | '/app/org/'
@@ -796,6 +808,7 @@ export interface RootRouteChildren {
   JoinIndexRoute: typeof JoinIndexRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  POrgSlugSlugRoute: typeof POrgSlugSlugRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1002,6 +1015,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/'
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
+    }
+    '/p/$orgSlug/$slug': {
+      id: '/p/$orgSlug/$slug'
+      path: '/p/$orgSlug/$slug'
+      fullPath: '/p/$orgSlug/$slug'
+      preLoaderRoute: typeof POrgSlugSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -1416,6 +1436,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinIndexRoute: JoinIndexRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  POrgSlugSlugRoute: POrgSlugSlugRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

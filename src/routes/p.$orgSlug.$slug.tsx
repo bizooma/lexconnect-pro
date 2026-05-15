@@ -86,7 +86,7 @@ function PublicPage() {
             <h1 className="text-3xl font-semibold">{page.title}</h1>
           </section>
         ) : (
-          sections.map((s) => <PublicSectionRenderer key={s.id} section={s} />)
+          sections.map((s: { id: string }) => <PublicSectionRenderer key={s.id} section={s as never} />)
         )}
       </main>
       <footer className="border-t border-border mt-16">
