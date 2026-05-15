@@ -24,7 +24,7 @@ export const getPublicPage = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
     z.object({ orgSlug: slugSchema, slug: slugSchema }).parse(input),
   )
-  .handler(async ({ data }): Promise<PublicPageBundle> => {
+  .handler(async ({ data }) => {
     const { data: org, error: orgErr } = await supabaseAdmin
       .from("organizations")
       .select("id,name,slug,logo_url,paused")
