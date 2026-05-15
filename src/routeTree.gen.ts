@@ -64,6 +64,7 @@ import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
+import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -352,6 +353,11 @@ const AppAdminOrgsRoute = AppAdminOrgsRouteImport.update({
   path: '/orgs',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const ApiPublicWebsiteFormRoute = ApiPublicWebsiteFormRouteImport.update({
+  id: '/api/public/website-form',
+  path: '/api/public/website-form',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   id: '/api/public/contact',
   path: '/api/public/contact',
@@ -445,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -510,6 +517,7 @@ export interface FileRoutesByTo {
   '/join/$code': typeof JoinCodeRoute
   '/join': typeof JoinIndexRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -580,6 +588,7 @@ export interface FileRoutesById {
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
@@ -651,6 +660,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join/'
     | '/api/public/contact'
+    | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -716,6 +726,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join'
     | '/api/public/contact'
+    | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -785,6 +796,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/join/'
     | '/api/public/contact'
+    | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/messages/$id'
@@ -845,6 +857,7 @@ export interface RootRouteChildren {
   JoinCodeRoute: typeof JoinCodeRoute
   JoinIndexRoute: typeof JoinIndexRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
+  ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   POrgSlugSlugRoute: typeof POrgSlugSlugRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -1243,6 +1256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminOrgsRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/api/public/website-form': {
+      id: '/api/public/website-form'
+      path: '/api/public/website-form'
+      fullPath: '/api/public/website-form'
+      preLoaderRoute: typeof ApiPublicWebsiteFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/contact': {
       id: '/api/public/contact'
       path: '/api/public/contact'
@@ -1498,6 +1518,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinCodeRoute: JoinCodeRoute,
   JoinIndexRoute: JoinIndexRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
+  ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   POrgSlugSlugRoute: POrgSlugSlugRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
