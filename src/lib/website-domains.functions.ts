@@ -77,7 +77,7 @@ export const updateCustomDomain = createServerFn({ method: "POST" })
           .eq("organization_id", target.organization_id);
       }
     }
-    const patch: Record<string, unknown> = {};
+    const patch: { default_page_slug?: string | null; is_primary?: boolean } = {};
     if (data.defaultPageSlug !== undefined) patch.default_page_slug = data.defaultPageSlug;
     if (data.isPrimary !== undefined) patch.is_primary = data.isPrimary;
     const { data: row, error } = await context.supabase
