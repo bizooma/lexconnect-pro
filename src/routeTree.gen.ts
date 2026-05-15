@@ -54,6 +54,7 @@ import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
+import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -287,6 +288,11 @@ const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   path: '/api/public/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages/': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -430,6 +437,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -485,6 +493,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/website/pages/': typeof AppWebsitePagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -541,6 +550,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages'
   id:
     | '__root__'
     | '/'
@@ -645,6 +656,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/website/pages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -989,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/pages/': {
+      id: '/app/website/pages/'
+      path: '/pages'
+      fullPath: '/app/website/pages/'
+      preLoaderRoute: typeof AppWebsitePagesIndexRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -1095,10 +1114,12 @@ const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsiteRouteChildren {
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
+  AppWebsitePagesIndexRoute: typeof AppWebsitePagesIndexRoute
 }
 
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
+  AppWebsitePagesIndexRoute: AppWebsitePagesIndexRoute,
 }
 
 const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
