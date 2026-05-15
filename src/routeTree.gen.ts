@@ -42,6 +42,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
+import { Route as AppWebsiteSubmissionsRouteImport } from './routes/app.website.submissions'
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
 import { Route as AppWebsiteSectionsRouteImport } from './routes/app.website.sections'
 import { Route as AppWebsitePublishedRouteImport } from './routes/app.website.published'
@@ -242,6 +243,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
 const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteSubmissionsRoute = AppWebsiteSubmissionsRouteImport.update({
+  id: '/submissions',
+  path: '/submissions',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppWebsiteSettingsRoute = AppWebsiteSettingsRouteImport.update({
@@ -481,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
+  '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
@@ -548,6 +555,7 @@ export interface FileRoutesByTo {
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
+  '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
@@ -620,6 +628,7 @@ export interface FileRoutesById {
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
+  '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
@@ -693,6 +702,7 @@ export interface FileRouteTypes {
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
+    | '/app/website/submissions'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
+    | '/app/website/submissions'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
@@ -831,6 +842,7 @@ export interface FileRouteTypes {
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
+    | '/app/website/submissions'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
@@ -1114,6 +1126,13 @@ declare module '@tanstack/react-router' {
       path: '/templates'
       fullPath: '/app/website/templates'
       preLoaderRoute: typeof AppWebsiteTemplatesRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/submissions': {
+      id: '/app/website/submissions'
+      path: '/submissions'
+      fullPath: '/app/website/submissions'
+      preLoaderRoute: typeof AppWebsiteSubmissionsRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
     '/app/website/settings': {
@@ -1444,6 +1463,7 @@ interface AppWebsiteRouteChildren {
   AppWebsitePublishedRoute: typeof AppWebsitePublishedRoute
   AppWebsiteSectionsRoute: typeof AppWebsiteSectionsRoute
   AppWebsiteSettingsRoute: typeof AppWebsiteSettingsRoute
+  AppWebsiteSubmissionsRoute: typeof AppWebsiteSubmissionsRoute
   AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
   AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRouteWithChildren
@@ -1459,6 +1479,7 @@ const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsitePublishedRoute: AppWebsitePublishedRoute,
   AppWebsiteSectionsRoute: AppWebsiteSectionsRoute,
   AppWebsiteSettingsRoute: AppWebsiteSettingsRoute,
+  AppWebsiteSubmissionsRoute: AppWebsiteSubmissionsRoute,
   AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
   AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRouteWithChildren,
