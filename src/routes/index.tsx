@@ -7,6 +7,9 @@ import bizoomaLogo from "@/assets/bizooma-logo.png";
 import installIosSafari from "@/assets/install-ios-safari.png";
 import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
+import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
+import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
+import addonCleLms from "@/assets/addon-cle-lms.jpg";
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
