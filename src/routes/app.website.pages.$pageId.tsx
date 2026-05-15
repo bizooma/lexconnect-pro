@@ -125,6 +125,7 @@ function PageEditorPage() {
     }
   }, [get, pageId, selectedId]);
 
+  useEffect(() => { refreshRef.current = refresh; }, [refresh]);
   useEffect(() => { void refresh(); }, [pageId]); // eslint-disable-line
 
   // Debounced meta autosave
