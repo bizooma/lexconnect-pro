@@ -119,6 +119,7 @@ function PageEditorPage() {
   }
 
   const addSection = async (type: WebsiteSectionType) => {
+    pushSnapshot();
     try {
       const r = await upsert({
         data: {
@@ -141,23 +142,29 @@ function PageEditorPage() {
 
   const removeSection = async (id: string) => {
     if (!confirm("Remove this section?")) return;
+    pushSnapshot();
     await del({ data: { sectionId: id } });
     if (selectedId === id) setSelectedId(null);
     refresh();
   };
 
-  const move = async (id: string, dir: -1 | 1) => {
-    const idx = sections.findIndex((s) => s.id === id);
-    const next = idx + dir;
-    if (idx < 0 || next < 0 || next >= sections.length) return;
+  const handleDrop = async (targetId: string) => {
+    if (!dragId || dragId === targetId) { setDragId(null); return; }
+    const from = sections.findIndex((s) => s.id === dragId);
+    const to = sections.findIndex((s) => s.id === targetId);
+    if (from < 0 || to < 0) { setDragId(null); return; }
+    pushSnapshot();
     const reordered = [...sections];
-    [reordered[idx], reordered[next]] = [reordered[next], reordered[idx]];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
     setSections(reordered);
+    setDragId(null);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
   };
 
-  const updateSelected = async (patch: Partial<WebsiteSection>) => {
+  const updateSelected = async (patch: Partial<WebsiteSection>, snapshot = true) => {
     if (!selected) return;
+    if (snapshot) pushSnapshot();
     const merged = { ...selected, ...patch } as WebsiteSection;
     setSections(sections.map((s) => (s.id === selected.id ? merged : s)));
     await upsert({
@@ -173,6 +180,40 @@ function PageEditorPage() {
         responsive_json: merged.responsive_json,
       },
     });
+  };
+
+  const restoreSnapshot = async (snap: Snapshot) => {
+    skipSnapshot.current = true;
+    setSections(snap.sections);
+    setPage(snap.page);
+    try {
+      await upd({ data: { pageId, patch: {
+        title: snap.page.title, slug: snap.page.slug,
+        meta_title: snap.page.meta_title, meta_description: snap.page.meta_description,
+      } as any } });
+      await reorder({ data: { pageId, orderedIds: snap.sections.map((s) => s.id) } });
+      for (const s of snap.sections) {
+        await upsert({ data: {
+          sectionId: s.id, pageId, organizationId: page.organization_id,
+          section_type: s.section_type, display_order: s.display_order,
+          settings_json: s.settings_json, content_json: s.content_json,
+          visible: s.visible, responsive_json: s.responsive_json,
+        }});
+      }
+    } finally { skipSnapshot.current = false; }
+  };
+
+  const undo = async () => {
+    const snap = undoStack.current.pop();
+    if (!snap || !page) return;
+    redoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    await restoreSnapshot(snap);
+  };
+  const redo = async () => {
+    const snap = redoStack.current.pop();
+    if (!snap || !page) return;
+    undoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    await restoreSnapshot(snap);
   };
 
   const publish = async (status: "draft" | "ready_for_review" | "published" | "archived") => {
