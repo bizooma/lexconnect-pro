@@ -10,6 +10,7 @@ import {
   reorderSections,
   setPageStatus,
 } from "@/lib/website.functions";
+import { regenerateSection, improvePageSeo } from "@/lib/website-ai.functions";
 import {
   SECTION_LABELS,
   STATUS_LABELS,
@@ -45,7 +46,8 @@ function PageEditorPage() {
   const del = useServerFn(deleteSection);
   const reorder = useServerFn(reorderSections);
   const setStatus = useServerFn(setPageStatus);
-
+  const aiRewrite = useServerFn(regenerateSection);
+  const aiSeo = useServerFn(improvePageSeo);
   const [page, setPage] = useState<WebsitePage | null>(null);
   const [sections, setSections] = useState<WebsiteSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -301,6 +303,14 @@ function PageEditorPage() {
                 <h3 className="text-sm font-semibold text-foreground">{SECTION_LABELS[selected.section_type]}</h3>
               </div>
 
+              <AiRewriteButton
+                onRun={async (instruction) => {
+                  const r = await aiRewrite({ data: { sectionId: selected.id, instruction } });
+                  await updateSelected({ content_json: r.content_json as Record<string, unknown> });
+                  toast.success("Section rewritten");
+                }}
+              />
+
               <ContentFields section={selected} onChange={(content_json) => updateSelected({ content_json })} />
 
               <label className="flex items-center gap-2 text-xs text-foreground">
@@ -317,7 +327,21 @@ function PageEditorPage() {
           )}
 
           <div className="border-t border-border p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Page SEO</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Page SEO</p>
+              <button
+                onClick={async () => {
+                  try {
+                    const r = await aiSeo({ data: { pageId } });
+                    queueMetaSave({ meta_title: r.meta_title, meta_description: r.meta_description });
+                    toast.success("SEO improved");
+                  } catch (e) { toast.error((e as Error).message); }
+                }}
+                className="text-[11px] text-primary hover:underline"
+              >
+                ✨ Improve with AI
+              </button>
+            </div>
             <div className="mt-2 space-y-2 text-xs">
               <label className="block">
                 <span className="text-muted-foreground">Slug</span>
@@ -509,4 +533,46 @@ function SectionPreview({
         </div>
       );
   }
+}
+
+function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [instruction, setInstruction] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full rounded-lg border border-dashed border-primary/50 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+      >
+        ✨ Rewrite with AI
+      </button>
+    );
+  }
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-2">
+      <textarea
+        value={instruction}
+        onChange={(e) => setInstruction(e.target.value)}
+        placeholder="e.g. Make it more concise and add urgency"
+        rows={2}
+        className="w-full rounded border border-border bg-background px-2 py-1.5 text-xs text-foreground"
+      />
+      <div className="flex justify-end gap-1">
+        <button onClick={() => setOpen(false)} className="rounded px-2 py-1 text-[11px] text-muted-foreground">Cancel</button>
+        <button
+          disabled={busy || instruction.trim().length < 3}
+          onClick={async () => {
+            setBusy(true);
+            try { await onRun(instruction.trim()); setOpen(false); setInstruction(""); }
+            catch (e) { toast.error((e as Error).message); }
+            finally { setBusy(false); }
+          }}
+          className="rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {busy ? "Rewriting…" : "Run"}
+        </button>
+      </div>
+    </div>
+  );
 }
