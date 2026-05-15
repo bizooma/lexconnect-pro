@@ -56,7 +56,7 @@ function OrgMembersPage() {
   const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
+  const [inviteRole, setInviteRole] = useState<"member" | "content_editor" | "admin">("member");
   const [submitting, setSubmitting] = useState(false);
   const [bulkEmails, setBulkEmails] = useState("");
 
