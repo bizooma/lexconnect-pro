@@ -107,6 +107,33 @@ function WebsiteOverviewPage() {
         </Link>
       </div>
 
+      <section className="rounded-xl border border-border bg-card">
+        <header className="flex items-center justify-between border-b border-border px-5 py-3">
+          <h2 className="text-sm font-semibold text-foreground">Page views (last 30 days)</h2>
+          <span className="text-xs text-muted-foreground">{totalViews.toLocaleString()} total</span>
+        </header>
+        <div className="px-5 py-4">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <ViewsChart series={series} />
+          )}
+          {topPages.length > 0 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Top pages</p>
+              <ul className="space-y-1.5">
+                {topPages.map((p) => (
+                  <li key={p.pageId} className="flex items-center justify-between text-sm">
+                    <span className="truncate text-foreground">{p.title}</span>
+                    <span className="shrink-0 text-muted-foreground">{p.views.toLocaleString()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card">
           <header className="flex items-center justify-between border-b border-border px-5 py-3">
