@@ -1,5 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { getPublicPage } from "@/lib/website-public.functions";
+import { trackPageView } from "@/lib/website-analytics.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
 
 export const Route = createFileRoute("/p/$orgSlug/$slug")({
