@@ -92,18 +92,17 @@ export const Route = createFileRoute("/sitemap.xml")({
           priority: p === "/" ? "1.0" : "0.5",
         }));
 
-        const { data: pages, error } = await supabaseAdmin
-          .from("website_pages")
-          .select("slug,updated_at,published_at,organizations!inner(slug,paused)")
-          .eq("status", "published");
-        if (!error && pages) {
-          for (const row of pages as Array<{
-            slug: string;
-            updated_at: string | null;
-            published_at: string | null;
-            organizations: { slug: string; paused: boolean } | null;
-          }>) {
-            const org = row.organizations;
+        const [pagesRes, orgsRes] = await Promise.all([
+          supabaseAdmin
+            .from("website_pages")
+            .select("slug,updated_at,published_at,organization_id")
+            .eq("status", "published"),
+          supabaseAdmin.from("organizations").select("id,slug,paused"),
+        ]);
+        if (!pagesRes.error && pagesRes.data && !orgsRes.error && orgsRes.data) {
+          const orgMap = new Map(orgsRes.data.map((o) => [o.id, o]));
+          for (const row of pagesRes.data) {
+            const org = orgMap.get(row.organization_id);
             if (!org || org.paused) continue;
             entries.push({
               loc: `${base}/p/${org.slug}/${row.slug}`,
