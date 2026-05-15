@@ -232,7 +232,7 @@ export const upsertSection = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     if (data.sectionId) {
-      const { error } = await supabase.from("website_sections").update({} as any)/* placeholder */
+      const { error } = await (supabase.from("website_sections") as any).update({
         section_type: data.section_type,
         display_order: data.display_order,
         settings_json: data.settings_json,
