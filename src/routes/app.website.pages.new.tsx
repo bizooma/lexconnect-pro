@@ -165,6 +165,7 @@ function NewPagePage() {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
