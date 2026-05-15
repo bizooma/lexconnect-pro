@@ -109,7 +109,7 @@ export const createWebsitePage = createServerFn({ method: "POST" })
         settings_json: s.settings_json ?? {},
         content_json: s.content_json ?? {},
       }));
-      const { error: sErr } = await supabase.from("website_sections").insert(rows);
+      const { error: sErr } = await supabase.from("website_sections").insert(rows as any);
       if (sErr) throw new Error(sErr.message);
     }
     return { pageId: page.id };
@@ -136,7 +136,7 @@ export const updateWebsitePage = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const patch: Record<string, unknown> = { ...data.patch, updated_by: userId };
     if (data.patch.slug) patch.slug = slugify(data.patch.slug);
-    const { error } = await supabase.from("website_pages").update(patch).eq("id", data.pageId);
+    const { error } = await supabase.from("website_pages").update(patch as any).eq("id", data.pageId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -187,7 +187,7 @@ export const duplicateWebsitePage = createServerFn({ method: "POST" })
         visible: s.visible,
         responsive_json: s.responsive_json,
       }));
-      await supabase.from("website_sections").insert(rows);
+      await supabase.from("website_sections").insert(rows as any);
     }
     return { pageId: copy.id };
   });
@@ -207,7 +207,7 @@ export const setPageStatus = createServerFn({ method: "POST" })
     if (data.status === "published") patch.published_at = new Date().toISOString();
     if (data.status === "archived") patch.archived_at = new Date().toISOString();
     if (data.status === "scheduled") patch.scheduled_at = data.scheduledAt ?? new Date().toISOString();
-    const { error } = await supabase.from("website_pages").update(patch).eq("id", data.pageId);
+    const { error } = await supabase.from("website_pages").update(patch as any).eq("id", data.pageId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -232,7 +232,7 @@ export const upsertSection = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     if (data.sectionId) {
-      const { error } = await supabase.from("website_sections").update({
+      const { error } = await supabase.from("website_sections").update({} as any)/* placeholder */
         section_type: data.section_type,
         display_order: data.display_order,
         settings_json: data.settings_json,
