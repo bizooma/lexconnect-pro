@@ -5,6 +5,7 @@ import { Logo } from "@/components/logo";
 import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { useIsPlatformAdmin } from "@/hooks/use-is-platform-admin";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
@@ -23,39 +24,66 @@ export const Route = createFileRoute("/app")({
   ),
 });
 
-const BASE_NAV = [
+type NavItem = {
+  to: string;
+  label: string;
+  icon: (p: any) => JSX.Element;
+  enabled: boolean;
+  locked?: boolean;
+};
+
+const CORE_NAV_DEF = [
   { to: "/app/dashboard", label: "Home", icon: HomeIcon },
   { to: "/app/discover", label: "Discover", icon: SearchIcon },
-  { to: "/app/qa", label: "Community", icon: QaIcon },
+  { to: "/app/qa", label: "Community Q&A", icon: QaIcon },
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
 ] as const;
-const ADMIN_NAV = { to: "/app/admin", label: "Platform", icon: ShieldIcon } as const;
 
 function AppLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const { isPlatformAdmin } = useIsPlatformAdmin();
   const { currentOrg, canEditWebsite } = useCurrentOrg();
-  const WEBSITE_NAV = { to: "/app/website", label: "Website", icon: GlobeIcon } as const;
-  const NAV = [
-    ...BASE_NAV,
-    ...((canEditWebsite || isAdmin) ? [WEBSITE_NAV] : []),
-    ...(isAdmin ? [ADMIN_NAV] : []),
+
+  const coreNav: NavItem[] = CORE_NAV_DEF.map((i) => ({ ...i, enabled: true }));
+  const addonNav: NavItem[] = [
+    {
+      to: "/app/website",
+      label: "Website Builder",
+      icon: GlobeIcon,
+      enabled: canEditWebsite || isPlatformAdmin,
+      locked: !(canEditWebsite || isPlatformAdmin),
+    },
+    {
+      to: "/app/directory",
+      label: "Attorney Directory",
+      icon: BookIcon,
+      enabled: isPlatformAdmin,
+      locked: !isPlatformAdmin,
+    },
+    {
+      to: "/app/cle",
+      label: "CLE & Learning",
+      icon: GraduationIcon,
+      enabled: isPlatformAdmin,
+      locked: !isPlatformAdmin,
+    },
   ];
+  const platformNav: NavItem[] = isAdmin
+    ? [{ to: "/app/admin", label: "Admin", icon: ShieldIcon, enabled: true }]
+    : [];
+
   const [profileName, setProfileName] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate({ to: "/login" });
-    }
+    if (!loading && !user) navigate({ to: "/login" });
   }, [user, loading, navigate]);
 
-  // Enforce org pause: if the signed-in user has no non-paused active org
-  // memberships and is not a platform admin, sign out.
   useEffect(() => {
     if (!user || isAdmin) return;
     let cancelled = false;
@@ -67,7 +95,7 @@ function AppLayout() {
         .eq("status", "active");
       if (cancelled) return;
       const rows = (data ?? []) as { organizations: { paused: boolean } | null }[];
-      if (rows.length === 0) return; // onboarding flow handles no-org case
+      if (rows.length === 0) return;
       const hasUnpaused = rows.some((r) => r.organizations && !r.organizations.paused);
       if (!hasUnpaused) {
         toast.error("Your organization is paused. Please contact your administrator.");
@@ -106,6 +134,52 @@ function AppLayout() {
     .map((s) => s[0]?.toUpperCase())
     .join("");
 
+  // Mobile bottom nav: keep 5 core + a "More" entry that links to dashboard groups page
+  const mobileNav = coreNav.slice(0, 5);
+
+  const handleLockedClick = () => {
+    toast.message("Add-on not enabled", {
+      description: "This module isn't included in your plan yet. Contact your administrator to enable it.",
+    });
+  };
+
+  const renderDesktopItem = (item: NavItem) => {
+    const active = pathname.startsWith(item.to);
+    const Icon = item.icon;
+    const baseClass = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition";
+    if (!item.enabled) {
+      return (
+        <button
+          key={item.to}
+          type="button"
+          onClick={handleLockedClick}
+          className={`${baseClass} w-full text-left text-muted-foreground/70 hover:bg-accent/40`}
+          title="Add-on not enabled"
+        >
+          <Icon className="h-4 w-4 opacity-60" />
+          <span className="flex-1 truncate">{item.label}</span>
+          <LockIcon className="h-3.5 w-3.5 opacity-70" />
+        </button>
+      );
+    }
+    return (
+      <Link
+        key={item.to}
+        to={item.to}
+        className={`${baseClass} ${active ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+      >
+        <Icon className="h-4 w-4" />
+        {item.label}
+      </Link>
+    );
+  };
+
+  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+    <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+      {children}
+    </p>
+  );
+
   return (
     <div className="min-h-screen bg-background lg:flex">
       {/* Desktop sidebar */}
@@ -124,21 +198,19 @@ function AppLayout() {
             <Logo />
           )}
         </div>
-        <nav className="flex-1 space-y-1 px-3">
-          {NAV.map((item) => {
-            const active = pathname.startsWith(item.to);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${active ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-3 pb-3">
+          <SectionLabel>Mentorship & Community</SectionLabel>
+          <div className="space-y-1">{coreNav.map(renderDesktopItem)}</div>
+
+          <SectionLabel>Add-ons</SectionLabel>
+          <div className="space-y-1">{addonNav.map(renderDesktopItem)}</div>
+
+          {platformNav.length > 0 && (
+            <>
+              <SectionLabel>Platform</SectionLabel>
+              <div className="space-y-1">{platformNav.map(renderDesktopItem)}</div>
+            </>
+          )}
         </nav>
         <div className="border-t border-border p-3">
           <div className="mb-2 flex items-center justify-between gap-2 px-1">
@@ -194,9 +266,8 @@ function AppLayout() {
         className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background/95 backdrop-blur lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="mx-auto flex max-w-2xl items-stretch overflow-x-auto"
-             style={{ scrollbarWidth: "none" }}>
-          {NAV.map((item) => {
+        <div className="mx-auto flex max-w-2xl items-stretch overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          {mobileNav.map((item) => {
             const active = pathname.startsWith(item.to);
             const Icon = item.icon;
             return (
@@ -206,9 +277,99 @@ function AppLayout() {
               </Link>
             );
           })}
+          <MobileMoreMenu addonNav={addonNav} platformNav={platformNav} pathname={pathname} onLocked={handleLockedClick} />
         </div>
       </nav>
     </div>
+  );
+}
+
+function MobileMoreMenu({
+  addonNav,
+  platformNav,
+  pathname,
+  onLocked,
+}: {
+  addonNav: NavItem[];
+  platformNav: NavItem[];
+  pathname: string;
+  onLocked: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex min-w-[64px] flex-1 flex-col items-center gap-1 px-2 py-2.5"
+      >
+        <MoreIcon className="h-5 w-5 text-muted-foreground" />
+        <span className="text-[10px] font-medium text-muted-foreground">More</span>
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-40 flex items-end bg-background/60 backdrop-blur" onClick={() => setOpen(false)}>
+          <div
+            className="w-full rounded-t-2xl border-t border-border bg-card p-4"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Add-ons</p>
+            <div className="space-y-1">
+              {addonNav.map((item) => {
+                const Icon = item.icon;
+                const active = pathname.startsWith(item.to);
+                if (!item.enabled) {
+                  return (
+                    <button
+                      key={item.to}
+                      type="button"
+                      onClick={() => { onLocked(); setOpen(false); }}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70"
+                    >
+                      <Icon className="h-4 w-4 opacity-60" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <LockIcon className="h-3.5 w-3.5 opacity-70" />
+                    </button>
+                  );
+                }
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+            {platformNav.length > 0 && (
+              <>
+                <p className="px-1 pt-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Platform</p>
+                <div className="space-y-1">
+                  {platformNav.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -220,3 +381,7 @@ function ShieldIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke
 function ActivityIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>; }
 function QaIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M7 8h10M7 12h6"/><path d="M21 12a8 8 0 0 1-12.3 6.7L3 20l1.3-5.7A8 8 0 1 1 21 12z"/></svg>; }
 function GlobeIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>; }
+function BookIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"/><path d="M4 17a3 3 0 0 1 3-3h11"/></svg>; }
+function GraduationIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M2 9l10-5 10 5-10 5L2 9z"/><path d="M6 11v5c2 2 10 2 12 0v-5"/></svg>; }
+function LockIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>; }
+function MoreIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>; }
