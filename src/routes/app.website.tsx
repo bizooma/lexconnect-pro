@@ -20,18 +20,18 @@ const TABS: Array<{ to: string; label: string; exact?: boolean }> = [
 
 function WebsiteLayout() {
   const { pathname } = useLocation();
-  const { isOrgAdmin, currentOrg, loading } = useCurrentOrg();
+  const { canEditWebsite, currentOrg, loading } = useCurrentOrg();
   const { isAdmin, checking } = useIsAdmin();
 
   if (loading || checking) {
     return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
   }
-  if (!isOrgAdmin && !isAdmin) {
+  if (!canEditWebsite && !isAdmin) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold text-foreground">Website Builder</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Only organization administrators can access the Website Builder.
+          Only organization administrators and content editors can access the Website Builder.
         </p>
       </div>
     );
