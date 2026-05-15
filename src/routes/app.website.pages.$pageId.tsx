@@ -56,6 +56,19 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+
+  // Undo/redo stacks (capacity 30). A snapshot is { sections, page }.
+  type Snapshot = { sections: WebsiteSection[]; page: WebsitePage };
+  const undoStack = useRef<Snapshot[]>([]);
+  const redoStack = useRef<Snapshot[]>([]);
+  const skipSnapshot = useRef(false);
+  const pushSnapshot = useCallback(() => {
+    if (skipSnapshot.current || !page) return;
+    undoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    if (undoStack.current.length > 30) undoStack.current.shift();
+    redoStack.current = [];
+  }, [page, sections]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -106,6 +119,7 @@ function PageEditorPage() {
   }
 
   const addSection = async (type: WebsiteSectionType) => {
+    pushSnapshot();
     try {
       const r = await upsert({
         data: {
@@ -128,23 +142,29 @@ function PageEditorPage() {
 
   const removeSection = async (id: string) => {
     if (!confirm("Remove this section?")) return;
+    pushSnapshot();
     await del({ data: { sectionId: id } });
     if (selectedId === id) setSelectedId(null);
     refresh();
   };
 
-  const move = async (id: string, dir: -1 | 1) => {
-    const idx = sections.findIndex((s) => s.id === id);
-    const next = idx + dir;
-    if (idx < 0 || next < 0 || next >= sections.length) return;
+  const handleDrop = async (targetId: string) => {
+    if (!dragId || dragId === targetId) { setDragId(null); return; }
+    const from = sections.findIndex((s) => s.id === dragId);
+    const to = sections.findIndex((s) => s.id === targetId);
+    if (from < 0 || to < 0) { setDragId(null); return; }
+    pushSnapshot();
     const reordered = [...sections];
-    [reordered[idx], reordered[next]] = [reordered[next], reordered[idx]];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
     setSections(reordered);
+    setDragId(null);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
   };
 
-  const updateSelected = async (patch: Partial<WebsiteSection>) => {
+  const updateSelected = async (patch: Partial<WebsiteSection>, snapshot = true) => {
     if (!selected) return;
+    if (snapshot) pushSnapshot();
     const merged = { ...selected, ...patch } as WebsiteSection;
     setSections(sections.map((s) => (s.id === selected.id ? merged : s)));
     await upsert({
@@ -160,6 +180,40 @@ function PageEditorPage() {
         responsive_json: merged.responsive_json,
       },
     });
+  };
+
+  const restoreSnapshot = async (snap: Snapshot) => {
+    skipSnapshot.current = true;
+    setSections(snap.sections);
+    setPage(snap.page);
+    try {
+      await upd({ data: { pageId, patch: {
+        title: snap.page.title, slug: snap.page.slug,
+        meta_title: snap.page.meta_title, meta_description: snap.page.meta_description,
+      } as any } });
+      await reorder({ data: { pageId, orderedIds: snap.sections.map((s) => s.id) } });
+      for (const s of snap.sections) {
+        await upsert({ data: {
+          sectionId: s.id, pageId, organizationId: page.organization_id,
+          section_type: s.section_type, display_order: s.display_order,
+          settings_json: s.settings_json, content_json: s.content_json,
+          visible: s.visible, responsive_json: s.responsive_json,
+        }});
+      }
+    } finally { skipSnapshot.current = false; }
+  };
+
+  const undo = async () => {
+    const snap = undoStack.current.pop();
+    if (!snap || !page) return;
+    redoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    await restoreSnapshot(snap);
+  };
+  const redo = async () => {
+    const snap = redoStack.current.pop();
+    if (!snap || !page) return;
+    undoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    await restoreSnapshot(snap);
   };
 
   const publish = async (status: "draft" | "ready_for_review" | "published" | "archived") => {
@@ -191,6 +245,20 @@ function PageEditorPage() {
           {savingMeta && <span className="text-xs text-muted-foreground">Saving…</span>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
+            <button
+              onClick={undo}
+              disabled={undoStack.current.length === 0}
+              title="Undo"
+              className="rounded px-2 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >↶</button>
+            <button
+              onClick={redo}
+              disabled={redoStack.current.length === 0}
+              title="Redo"
+              className="rounded px-2 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >↷</button>
+          </div>
           <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
             {(["desktop", "tablet", "mobile"] as Viewport[]).map((v) => (
               <button
@@ -243,19 +311,29 @@ function PageEditorPage() {
             ) : (
               <ul className="space-y-1">
                 {sections.map((s, i) => (
-                  <li key={s.id}>
+                  <li
+                    key={s.id}
+                    draggable
+                    onDragStart={() => setDragId(s.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleDrop(s.id)}
+                    onDragEnd={() => setDragId(null)}
+                    className={dragId === s.id ? "opacity-50" : ""}
+                  >
                     <button
                       onClick={() => setSelectedId(s.id)}
                       className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-xs ${
                         selectedId === s.id ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
                       }`}
                     >
-                      <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
-                      <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
-                        <span onClick={(e) => { e.stopPropagation(); move(s.id, -1); }} className="rounded p-0.5 hover:bg-background">↑</span>
-                        <span onClick={(e) => { e.stopPropagation(); move(s.id, 1); }} className="rounded p-0.5 hover:bg-background">↓</span>
-                        <span onClick={(e) => { e.stopPropagation(); removeSection(s.id); }} className="rounded p-0.5 text-destructive hover:bg-background">×</span>
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <span className="cursor-grab text-muted-foreground/60">⋮⋮</span>
+                        <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
                       </span>
+                      <span
+                        onClick={(e) => { e.stopPropagation(); removeSection(s.id); }}
+                        className="rounded p-0.5 text-destructive opacity-0 hover:bg-background group-hover:opacity-100"
+                      >×</span>
                     </button>
                   </li>
                 ))}
@@ -319,6 +397,30 @@ function PageEditorPage() {
                   toast.success("Section rewritten");
                 }}
               />
+
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { label: "Shorten", instr: "Make this 30% shorter while keeping the key message." },
+                  { label: "Professional", instr: "Rewrite in a more professional, formal legal-industry tone." },
+                  { label: "A11y", instr: "Improve accessibility: clearer headings, plain language, descriptive CTAs." },
+                  { label: "Add FAQ", instr: "Append 3 short, helpful FAQ items relevant to this section." },
+                  { label: "Add CTA", instr: "Add a compelling call-to-action sentence and button label." },
+                ].map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={async () => {
+                      try {
+                        const r = await aiRewrite({ data: { sectionId: selected.id, instruction: q.instr } });
+                        await updateSelected({ content_json: r.content_json as Record<string, unknown> });
+                        toast.success(`Applied: ${q.label}`);
+                      } catch (e) { toast.error((e as Error).message); }
+                    }}
+                    className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    ✨ {q.label}
+                  </button>
+                ))}
+              </div>
 
               <ContentFields section={selected} onChange={(content_json) => updateSelected({ content_json })} />
 
