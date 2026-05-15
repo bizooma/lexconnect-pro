@@ -202,6 +202,7 @@ function PageEditorPage() {
     const reordered = arrayMove(sections, from, to);
     setSections(reordered);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
+    broadcastSaved();
   };
 
   const updateSelected = async (patch: Partial<WebsiteSection>, snapshot = true) => {
