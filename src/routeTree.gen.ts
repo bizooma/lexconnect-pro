@@ -46,7 +46,6 @@ import { Route as AppWebsiteSubmissionsRouteImport } from './routes/app.website.
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
 import { Route as AppWebsiteSectionsRouteImport } from './routes/app.website.sections'
 import { Route as AppWebsitePublishedRouteImport } from './routes/app.website.published'
-import { Route as AppWebsiteDraftsRouteImport } from './routes/app.website.drafts'
 import { Route as AppWebsiteDomainsRouteImport } from './routes/app.website.domains'
 import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
 import { Route as AppWebsiteAiRouteImport } from './routes/app.website.ai'
@@ -265,11 +264,6 @@ const AppWebsitePublishedRoute = AppWebsitePublishedRouteImport.update({
   path: '/published',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
-const AppWebsiteDraftsRoute = AppWebsiteDraftsRouteImport.update({
-  id: '/drafts',
-  path: '/drafts',
-  getParentRoute: () => AppWebsiteRoute,
-} as any)
 const AppWebsiteDomainsRoute = AppWebsiteDomainsRouteImport.update({
   id: '/domains',
   path: '/domains',
@@ -483,7 +477,6 @@ export interface FileRoutesByFullPath {
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
-  '/app/website/drafts': typeof AppWebsiteDraftsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -551,7 +544,6 @@ export interface FileRoutesByTo {
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
-  '/app/website/drafts': typeof AppWebsiteDraftsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -624,7 +616,6 @@ export interface FileRoutesById {
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
-  '/app/website/drafts': typeof AppWebsiteDraftsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -698,7 +689,6 @@ export interface FileRouteTypes {
     | '/app/website/ai'
     | '/app/website/brand'
     | '/app/website/domains'
-    | '/app/website/drafts'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -766,7 +756,6 @@ export interface FileRouteTypes {
     | '/app/website/ai'
     | '/app/website/brand'
     | '/app/website/domains'
-    | '/app/website/drafts'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -838,7 +827,6 @@ export interface FileRouteTypes {
     | '/app/website/ai'
     | '/app/website/brand'
     | '/app/website/domains'
-    | '/app/website/drafts'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -1156,13 +1144,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebsitePublishedRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
-    '/app/website/drafts': {
-      id: '/app/website/drafts'
-      path: '/drafts'
-      fullPath: '/app/website/drafts'
-      preLoaderRoute: typeof AppWebsiteDraftsRouteImport
-      parentRoute: typeof AppWebsiteRoute
-    }
     '/app/website/domains': {
       id: '/app/website/domains'
       path: '/domains'
@@ -1459,7 +1440,6 @@ interface AppWebsiteRouteChildren {
   AppWebsiteAiRoute: typeof AppWebsiteAiRoute
   AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
   AppWebsiteDomainsRoute: typeof AppWebsiteDomainsRoute
-  AppWebsiteDraftsRoute: typeof AppWebsiteDraftsRoute
   AppWebsitePublishedRoute: typeof AppWebsitePublishedRoute
   AppWebsiteSectionsRoute: typeof AppWebsiteSectionsRoute
   AppWebsiteSettingsRoute: typeof AppWebsiteSettingsRoute
@@ -1475,7 +1455,6 @@ const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteAiRoute: AppWebsiteAiRoute,
   AppWebsiteBrandRoute: AppWebsiteBrandRoute,
   AppWebsiteDomainsRoute: AppWebsiteDomainsRoute,
-  AppWebsiteDraftsRoute: AppWebsiteDraftsRoute,
   AppWebsitePublishedRoute: AppWebsitePublishedRoute,
   AppWebsiteSectionsRoute: AppWebsiteSectionsRoute,
   AppWebsiteSettingsRoute: AppWebsiteSettingsRoute,
@@ -1575,3 +1554,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
