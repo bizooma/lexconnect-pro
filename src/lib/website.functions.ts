@@ -428,6 +428,56 @@ export const saveSectionAsReusable = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const insertSavedSection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      savedSectionId: z.string().uuid(),
+      pageId: z.string().uuid(),
+      organizationId: orgIdSchema,
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: saved, error } = await supabase
+      .from("website_saved_sections")
+      .select("section_type,settings_json,content_json")
+      .eq("id", data.savedSectionId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!saved) throw new Error("Saved section not found");
+    const { count } = await supabase
+      .from("website_sections")
+      .select("id", { count: "exact", head: true })
+      .eq("page_id", data.pageId);
+    const { error: iErr } = await (supabase.from("website_sections") as any).insert({
+      page_id: data.pageId,
+      organization_id: data.organizationId,
+      section_type: saved.section_type,
+      display_order: count ?? 0,
+      settings_json: saved.settings_json ?? {},
+      content_json: saved.content_json ?? {},
+      visible: true,
+      responsive_json: {},
+    });
+    if (iErr) throw new Error(iErr.message);
+    return { ok: true };
+  });
+
+export const listAiGenerations = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ organizationId: orgIdSchema, limit: z.number().int().min(1).max(100).default(20) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("website_ai_generations")
+      .select("id,kind,prompt,model,created_at,user_id")
+      .eq("organization_id", data.organizationId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+    return { generations: rows ?? [] };
+  });
+
 export const deleteSavedSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ savedSectionId: z.string().uuid() }).parse(input))

@@ -9,8 +9,13 @@ export const Route = createFileRoute("/app/website")({
 const TABS: Array<{ to: string; label: string; exact?: boolean }> = [
   { to: "/app/website", label: "Overview", exact: true },
   { to: "/app/website/pages", label: "Pages" },
+  { to: "/app/website/drafts", label: "Drafts" },
+  { to: "/app/website/published", label: "Published" },
   { to: "/app/website/templates", label: "Templates" },
+  { to: "/app/website/sections", label: "Saved Sections" },
+  { to: "/app/website/ai", label: "AI Builder" },
   { to: "/app/website/brand", label: "Brand" },
+  { to: "/app/website/settings", label: "Settings" },
 ];
 
 function WebsiteLayout() {
