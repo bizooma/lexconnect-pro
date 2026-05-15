@@ -18,11 +18,15 @@ function WebsiteOverviewPage() {
   const { currentOrgId } = useCurrentOrg();
   const stats = useServerFn(getWebsiteStats);
   const aiList = useServerFn(listAiGenerations);
+  const analytics = useServerFn(getWebsiteAnalytics);
 
   const [counts, setCounts] = useState({ total: 0, draft: 0, published: 0, scheduled: 0 });
   const [recent, setRecent] = useState<Recent[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [ai, setAi] = useState<AiItem[]>([]);
+  const [series, setSeries] = useState<{ date: string; views: number }[]>([]);
+  const [totalViews, setTotalViews] = useState(0);
+  const [topPages, setTopPages] = useState<{ pageId: string; title: string; views: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,15 +35,19 @@ function WebsiteOverviewPage() {
     Promise.all([
       stats({ data: { organizationId: currentOrgId } }),
       aiList({ data: { organizationId: currentOrgId, limit: 10 } }),
+      analytics({ data: { organizationId: currentOrgId, days: 30 } }),
     ])
-      .then(([s, a]) => {
+      .then(([s, a, an]) => {
         setCounts({ total: s.total, draft: s.draft, published: s.published, scheduled: s.scheduled });
         setRecent(s.recent as Recent[]);
         setHistory(s.history as HistoryItem[]);
         setAi(a.generations as AiItem[]);
+        setSeries(an.series);
+        setTotalViews(an.total);
+        setTopPages(an.topPages);
       })
       .finally(() => setLoading(false));
-  }, [currentOrgId, stats, aiList]);
+  }, [currentOrgId, stats, aiList, analytics]);
 
   if (!currentOrgId) {
     return <div className="text-sm text-muted-foreground">Select an organization to begin.</div>;
