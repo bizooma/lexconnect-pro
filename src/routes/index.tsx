@@ -7,6 +7,9 @@ import bizoomaLogo from "@/assets/bizooma-logo.png";
 import installIosSafari from "@/assets/install-ios-safari.png";
 import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
+import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
+import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
+import addonCleLms from "@/assets/addon-cle-lms.jpg";
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
@@ -49,6 +52,7 @@ function Landing() {
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#install" className="hover:text-foreground">Install</a>
             <a href="#pricing" className="hover:text-foreground">Pricing</a>
+            <a href="#addons" className="hover:text-foreground">Add-ons</a>
             <a href="#faq" className="hover:text-foreground">FAQ</a>
             <a href="#contact" className="hover:text-foreground">Contact</a>
             <Link to="/login" className="text-foreground hover:text-primary">Sign in</Link>
@@ -398,6 +402,90 @@ function Landing() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Add-ons */}
+      <section id="addons" className="border-t border-border bg-background">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              Expand your platform
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              Platform Add-ons
+            </h2>
+            <p className="mt-3 text-base text-muted-foreground">
+              Supercharge your organization with powerful modules designed specifically for the legal profession.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {[
+              {
+                img: addonWebsiteBuilder,
+                alt: "Website Builder — drag-and-drop editor for legal organizations",
+                badge: "Available now",
+                title: "Website Builder",
+                desc: "Create a beautiful, professional website for your bar association or legal organization with our drag-and-drop editor. No coding required.",
+                features: ["Drag-and-drop page editor", "Custom domains & SSL", "Lead capture forms", "Organization branding"],
+              },
+              {
+                img: addonAttorneyDirectory,
+                alt: "Attorney Directory — searchable lawyer referral service",
+                badge: "Coming soon",
+                title: "Attorney Directory & Referral Service",
+                desc: "A searchable directory of vetted attorneys that evolves into a full lawyer referral service for your members and the public.",
+                features: ["Searchable attorney profiles", "Practice area filters", "Referral tracking", "Public & member access"],
+              },
+              {
+                img: addonCleLms,
+                alt: "CLE Learning Management System — continuing legal education courses",
+                badge: "Coming soon",
+                title: "CLE & Learning Management",
+                desc: "Deliver Continuing Legal Education courses, certification tracks, and professional development through an integrated learning platform.",
+                features: ["Course creation & hosting", "Progress tracking", "Certificates & credits", "Member enrollment"],
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:shadow-elegant"
+              >
+                <div className="relative aspect-[3/2] overflow-hidden">
+                  <img
+                    src={card.img}
+                    alt={card.alt}
+                    loading="lazy"
+                    width={1200}
+                    height={800}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                  <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    card.badge === "Available now"
+                      ? "bg-gold text-gold-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {card.badge}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-serif text-xl font-semibold text-foreground">{card.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {card.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
