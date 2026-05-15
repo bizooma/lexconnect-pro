@@ -39,7 +39,12 @@ import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.inde
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
+import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
+import { Route as AppWebsiteSectionsRouteImport } from './routes/app.website.sections'
+import { Route as AppWebsitePublishedRouteImport } from './routes/app.website.published'
+import { Route as AppWebsiteDraftsRouteImport } from './routes/app.website.drafts'
 import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
+import { Route as AppWebsiteAiRouteImport } from './routes/app.website.ai'
 import { Route as AppQaSearchRouteImport } from './routes/app.qa.search'
 import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
 import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
@@ -218,9 +223,34 @@ const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
   path: '/templates',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
+const AppWebsiteSettingsRoute = AppWebsiteSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteSectionsRoute = AppWebsiteSectionsRouteImport.update({
+  id: '/sections',
+  path: '/sections',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsitePublishedRoute = AppWebsitePublishedRouteImport.update({
+  id: '/published',
+  path: '/published',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteDraftsRoute = AppWebsiteDraftsRouteImport.update({
+  id: '/drafts',
+  path: '/drafts',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const AppWebsiteBrandRoute = AppWebsiteBrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteAiRoute = AppWebsiteAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppQaSearchRoute = AppQaSearchRouteImport.update({
@@ -404,7 +434,12 @@ export interface FileRoutesByFullPath {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/drafts': typeof AppWebsiteDraftsRoute
+  '/app/website/published': typeof AppWebsitePublishedRoute
+  '/app/website/sections': typeof AppWebsiteSectionsRoute
+  '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -460,7 +495,12 @@ export interface FileRoutesByTo {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/drafts': typeof AppWebsiteDraftsRoute
+  '/app/website/published': typeof AppWebsitePublishedRoute
+  '/app/website/sections': typeof AppWebsiteSectionsRoute
+  '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -521,7 +561,12 @@ export interface FileRoutesById {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/drafts': typeof AppWebsiteDraftsRoute
+  '/app/website/published': typeof AppWebsitePublishedRoute
+  '/app/website/sections': typeof AppWebsiteSectionsRoute
+  '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -583,7 +628,12 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/drafts'
+    | '/app/website/published'
+    | '/app/website/sections'
+    | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -639,7 +689,12 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/drafts'
+    | '/app/website/published'
+    | '/app/website/sections'
+    | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin'
@@ -699,7 +754,12 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/drafts'
+    | '/app/website/published'
+    | '/app/website/sections'
+    | '/app/website/settings'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -957,11 +1017,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebsiteTemplatesRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
+    '/app/website/settings': {
+      id: '/app/website/settings'
+      path: '/settings'
+      fullPath: '/app/website/settings'
+      preLoaderRoute: typeof AppWebsiteSettingsRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/sections': {
+      id: '/app/website/sections'
+      path: '/sections'
+      fullPath: '/app/website/sections'
+      preLoaderRoute: typeof AppWebsiteSectionsRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/published': {
+      id: '/app/website/published'
+      path: '/published'
+      fullPath: '/app/website/published'
+      preLoaderRoute: typeof AppWebsitePublishedRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/drafts': {
+      id: '/app/website/drafts'
+      path: '/drafts'
+      fullPath: '/app/website/drafts'
+      preLoaderRoute: typeof AppWebsiteDraftsRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/app/website/brand': {
       id: '/app/website/brand'
       path: '/brand'
       fullPath: '/app/website/brand'
       preLoaderRoute: typeof AppWebsiteBrandRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/ai': {
+      id: '/app/website/ai'
+      path: '/ai'
+      fullPath: '/app/website/ai'
+      preLoaderRoute: typeof AppWebsiteAiRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
     '/app/qa/search': {
@@ -1222,7 +1317,12 @@ const AppWebsitePagesPageIdRouteWithChildren =
   )
 
 interface AppWebsiteRouteChildren {
+  AppWebsiteAiRoute: typeof AppWebsiteAiRoute
   AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
+  AppWebsiteDraftsRoute: typeof AppWebsiteDraftsRoute
+  AppWebsitePublishedRoute: typeof AppWebsitePublishedRoute
+  AppWebsiteSectionsRoute: typeof AppWebsiteSectionsRoute
+  AppWebsiteSettingsRoute: typeof AppWebsiteSettingsRoute
   AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
   AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRouteWithChildren
@@ -1231,7 +1331,12 @@ interface AppWebsiteRouteChildren {
 }
 
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
+  AppWebsiteAiRoute: AppWebsiteAiRoute,
   AppWebsiteBrandRoute: AppWebsiteBrandRoute,
+  AppWebsiteDraftsRoute: AppWebsiteDraftsRoute,
+  AppWebsitePublishedRoute: AppWebsitePublishedRoute,
+  AppWebsiteSectionsRoute: AppWebsiteSectionsRoute,
+  AppWebsiteSettingsRoute: AppWebsiteSettingsRoute,
   AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
   AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRouteWithChildren,
