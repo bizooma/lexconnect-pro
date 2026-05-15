@@ -90,7 +90,7 @@ function PublicPage() {
       {fontHref && <link rel="stylesheet" href={fontHref} />}
       <header className="border-b border-border">
         <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
-          <a href={`/p/${organization.slug}`} className="flex items-center gap-2">
+          <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
             {organization.logo_url ? (
               <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
             ) : (
@@ -105,7 +105,13 @@ function PublicPage() {
             <h1 className="text-3xl font-semibold">{page.title}</h1>
           </section>
         ) : (
-          sections.map((s: { id: string }) => <PublicSectionRenderer key={s.id} section={s as never} />)
+          sections.map((s: { id: string }) => (
+            <PublicSectionRenderer
+              key={s.id}
+              section={s as never}
+              context={{ organizationId: organization.id, pageId: page.id }}
+            />
+          ))
         )}
       </main>
       <footer className="border-t border-border mt-16">
