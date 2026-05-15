@@ -468,3 +468,49 @@ export const getWebsiteStats = createServerFn({ method: "POST" })
       .limit(10);
     return { total, draft, published, scheduled, recent: recent ?? [], history: history ?? [] };
   });
+
+// ---------------- PUBLISH HISTORY ----------------
+
+export const getPagePublishHistory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ pageId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("website_publish_history")
+      .select("id,page_id,action,published_at,published_by,version_snapshot_json")
+      .eq("page_id", data.pageId)
+      .order("published_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return { history: rows ?? [] };
+  });
+
+export const restorePublishSnapshot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ historyId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: snap, error } = await supabase
+      .from("website_publish_history")
+      .select("page_id, version_snapshot_json")
+      .eq("id", data.historyId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!snap) throw new Error("Snapshot not found");
+    const v = snap.version_snapshot_json as Record<string, unknown>;
+    const patch: Record<string, unknown> = {
+      title: v.title,
+      slug: v.slug,
+      meta_title: v.meta_title,
+      meta_description: v.meta_description,
+      content_json: v.content_json,
+      status: "draft",
+      updated_by: userId,
+    };
+    const { error: uErr } = await supabase
+      .from("website_pages")
+      .update(patch as any)
+      .eq("id", snap.page_id);
+    if (uErr) throw new Error(uErr.message);
+    return { pageId: snap.page_id };
+  });

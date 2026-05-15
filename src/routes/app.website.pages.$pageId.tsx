@@ -202,6 +202,13 @@ function PageEditorPage() {
               </button>
             ))}
           </div>
+          <Link
+            to="/app/website/pages/$pageId/history"
+            params={{ pageId }}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+          >
+            History
+          </Link>
           <button
             onClick={() => publish("draft")}
             className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"

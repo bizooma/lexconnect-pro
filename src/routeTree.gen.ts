@@ -66,6 +66,7 @@ import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pag
 import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as AppWebsitePagesPageIdHistoryRouteImport } from './routes/app.website.pages.$pageId.history'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -356,6 +357,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppWebsitePagesPageIdHistoryRoute =
+  AppWebsitePagesPageIdHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => AppWebsitePagesPageIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -407,7 +414,7 @@ export interface FileRoutesByFullPath {
   '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
-  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -415,6 +422,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -462,7 +470,7 @@ export interface FileRoutesByTo {
   '/app/website': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
-  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -470,6 +478,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
+  '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -522,7 +531,7 @@ export interface FileRoutesById {
   '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
-  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRoute
+  '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -530,6 +539,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/app/website/pages/'
+    | '/app/website/pages/$pageId/history'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/app/website/pages'
+    | '/app/website/pages/$pageId/history'
   id:
     | '__root__'
     | '/'
@@ -705,6 +717,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/app/website/pages/'
+    | '/app/website/pages/$pageId/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1133,6 +1146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/pages/$pageId/history': {
+      id: '/app/website/pages/$pageId/history'
+      path: '/history'
+      fullPath: '/app/website/pages/$pageId/history'
+      preLoaderRoute: typeof AppWebsitePagesPageIdHistoryRouteImport
+      parentRoute: typeof AppWebsitePagesPageIdRoute
+    }
   }
 }
 
@@ -1188,11 +1208,24 @@ const AppQaRouteChildren: AppQaRouteChildren = {
 
 const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
+interface AppWebsitePagesPageIdRouteChildren {
+  AppWebsitePagesPageIdHistoryRoute: typeof AppWebsitePagesPageIdHistoryRoute
+}
+
+const AppWebsitePagesPageIdRouteChildren: AppWebsitePagesPageIdRouteChildren = {
+  AppWebsitePagesPageIdHistoryRoute: AppWebsitePagesPageIdHistoryRoute,
+}
+
+const AppWebsitePagesPageIdRouteWithChildren =
+  AppWebsitePagesPageIdRoute._addFileChildren(
+    AppWebsitePagesPageIdRouteChildren,
+  )
+
 interface AppWebsiteRouteChildren {
   AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
   AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
-  AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRoute
+  AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRouteWithChildren
   AppWebsitePagesNewRoute: typeof AppWebsitePagesNewRoute
   AppWebsitePagesIndexRoute: typeof AppWebsitePagesIndexRoute
 }
@@ -1201,7 +1234,7 @@ const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteBrandRoute: AppWebsiteBrandRoute,
   AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
-  AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRoute,
+  AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRouteWithChildren,
   AppWebsitePagesNewRoute: AppWebsitePagesNewRoute,
   AppWebsitePagesIndexRoute: AppWebsitePagesIndexRoute,
 }
