@@ -1346,6 +1346,45 @@ export type Database = {
         }
         Relationships: []
       }
+      website_custom_domains: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_page_slug: string | null
+          domain: string
+          id: string
+          is_primary: boolean
+          organization_id: string
+          updated_at: string
+          verification_token: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_page_slug?: string | null
+          domain: string
+          id?: string
+          is_primary?: boolean
+          organization_id: string
+          updated_at?: string
+          verification_token?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_page_slug?: string | null
+          domain?: string
+          id?: string
+          is_primary?: boolean
+          organization_id?: string
+          updated_at?: string
+          verification_token?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       website_page_views: {
         Row: {
           created_at: string
