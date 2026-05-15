@@ -1250,6 +1250,340 @@ export type Database = {
         }
         Relationships: []
       }
+      website_ai_generations: {
+        Row: {
+          created_at: string
+          generated_content_json: Json
+          id: string
+          kind: Database["public"]["Enums"]["website_ai_generation_kind"]
+          model: string | null
+          organization_id: string
+          prompt: string
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generated_content_json?: Json
+          id?: string
+          kind: Database["public"]["Enums"]["website_ai_generation_kind"]
+          model?: string | null
+          organization_id: string
+          prompt: string
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generated_content_json?: Json
+          id?: string
+          kind?: Database["public"]["Enums"]["website_ai_generation_kind"]
+          model?: string | null
+          organization_id?: string
+          prompt?: string
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      website_brand_settings: {
+        Row: {
+          accent_color: string | null
+          body_font: string | null
+          border_radius: string | null
+          button_style: string | null
+          contact_info: Json
+          created_at: string
+          favicon_url: string | null
+          footer_text: string | null
+          heading_font: string | null
+          logo_url: string | null
+          organization_id: string
+          page_width: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          seo_title_suffix: string | null
+          social_links: Json
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          body_font?: string | null
+          border_radius?: string | null
+          button_style?: string | null
+          contact_info?: Json
+          created_at?: string
+          favicon_url?: string | null
+          footer_text?: string | null
+          heading_font?: string | null
+          logo_url?: string | null
+          organization_id: string
+          page_width?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          seo_title_suffix?: string | null
+          social_links?: Json
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          body_font?: string | null
+          border_radius?: string | null
+          button_style?: string | null
+          contact_info?: Json
+          created_at?: string
+          favicon_url?: string | null
+          footer_text?: string | null
+          heading_font?: string | null
+          logo_url?: string | null
+          organization_id?: string
+          page_width?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          seo_title_suffix?: string | null
+          social_links?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      website_pages: {
+        Row: {
+          archived_at: string | null
+          content_html: string | null
+          content_json: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          organization_id: string
+          page_type: Database["public"]["Enums"]["website_page_type"]
+          published_at: string | null
+          scheduled_at: string | null
+          slug: string
+          status: Database["public"]["Enums"]["website_page_status"]
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          content_html?: string | null
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          organization_id: string
+          page_type?: Database["public"]["Enums"]["website_page_type"]
+          published_at?: string | null
+          scheduled_at?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["website_page_status"]
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          content_html?: string | null
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          organization_id?: string
+          page_type?: Database["public"]["Enums"]["website_page_type"]
+          published_at?: string | null
+          scheduled_at?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["website_page_status"]
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      website_publish_history: {
+        Row: {
+          action: Database["public"]["Enums"]["website_publish_action"]
+          id: string
+          organization_id: string
+          page_id: string
+          published_at: string
+          published_by: string | null
+          version_snapshot_json: Json
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["website_publish_action"]
+          id?: string
+          organization_id: string
+          page_id: string
+          published_at?: string
+          published_by?: string | null
+          version_snapshot_json?: Json
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["website_publish_action"]
+          id?: string
+          organization_id?: string
+          page_id?: string
+          published_at?: string
+          published_by?: string | null
+          version_snapshot_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_publish_history_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "website_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      website_saved_sections: {
+        Row: {
+          content_json: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          organization_id: string
+          section_type: Database["public"]["Enums"]["website_section_type"]
+          settings_json: Json
+          updated_at: string
+        }
+        Insert: {
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          section_type: Database["public"]["Enums"]["website_section_type"]
+          settings_json?: Json
+          updated_at?: string
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          section_type?: Database["public"]["Enums"]["website_section_type"]
+          settings_json?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      website_sections: {
+        Row: {
+          content_json: Json
+          created_at: string
+          display_order: number
+          id: string
+          organization_id: string
+          page_id: string
+          responsive_json: Json
+          section_type: Database["public"]["Enums"]["website_section_type"]
+          settings_json: Json
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          content_json?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          organization_id: string
+          page_id: string
+          responsive_json?: Json
+          section_type: Database["public"]["Enums"]["website_section_type"]
+          settings_json?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          organization_id?: string
+          page_id?: string
+          responsive_json?: Json
+          section_type?: Database["public"]["Enums"]["website_section_type"]
+          settings_json?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "website_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      website_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_sections_json: Json
+          description: string | null
+          id: string
+          is_global: boolean
+          name: string
+          organization_id: string | null
+          page_type: Database["public"]["Enums"]["website_page_type"]
+          preview_image: string | null
+          suggested_copy_json: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_sections_json?: Json
+          description?: string | null
+          id?: string
+          is_global?: boolean
+          name: string
+          organization_id?: string | null
+          page_type?: Database["public"]["Enums"]["website_page_type"]
+          preview_image?: string | null
+          suggested_copy_json?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_sections_json?: Json
+          description?: string | null
+          id?: string
+          is_global?: boolean
+          name?: string
+          organization_id?: string | null
+          page_type?: Database["public"]["Enums"]["website_page_type"]
+          preview_image?: string | null
+          suggested_copy_json?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1343,6 +1677,54 @@ export type Database = {
         | "canceled"
         | "incomplete"
         | "grandfathered"
+      website_ai_generation_kind:
+        | "page_draft"
+        | "section_rewrite"
+        | "copy_rewrite"
+        | "seo"
+        | "accessibility"
+        | "faq"
+        | "cta"
+      website_page_status:
+        | "draft"
+        | "ready_for_review"
+        | "scheduled"
+        | "published"
+        | "archived"
+      website_page_type:
+        | "home"
+        | "landing"
+        | "event"
+        | "sponsor"
+        | "committee"
+        | "mentorship"
+        | "cle"
+        | "resource"
+        | "blog"
+        | "legal_aid"
+        | "custom"
+      website_publish_action: "publish" | "unpublish" | "schedule" | "archive"
+      website_section_type:
+        | "hero"
+        | "text"
+        | "image_text"
+        | "cta"
+        | "event_details"
+        | "sponsor_grid"
+        | "speaker_cards"
+        | "member_directory"
+        | "committee_cards"
+        | "resource_cards"
+        | "faq"
+        | "testimonials"
+        | "contact_form"
+        | "newsletter"
+        | "video"
+        | "pricing_tiers"
+        | "feature_grid"
+        | "stats"
+        | "timeline"
+        | "custom_html"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1497,6 +1879,58 @@ export const Constants = {
         "canceled",
         "incomplete",
         "grandfathered",
+      ],
+      website_ai_generation_kind: [
+        "page_draft",
+        "section_rewrite",
+        "copy_rewrite",
+        "seo",
+        "accessibility",
+        "faq",
+        "cta",
+      ],
+      website_page_status: [
+        "draft",
+        "ready_for_review",
+        "scheduled",
+        "published",
+        "archived",
+      ],
+      website_page_type: [
+        "home",
+        "landing",
+        "event",
+        "sponsor",
+        "committee",
+        "mentorship",
+        "cle",
+        "resource",
+        "blog",
+        "legal_aid",
+        "custom",
+      ],
+      website_publish_action: ["publish", "unpublish", "schedule", "archive"],
+      website_section_type: [
+        "hero",
+        "text",
+        "image_text",
+        "cta",
+        "event_details",
+        "sponsor_grid",
+        "speaker_cards",
+        "member_directory",
+        "committee_cards",
+        "resource_cards",
+        "faq",
+        "testimonials",
+        "contact_form",
+        "newsletter",
+        "video",
+        "pricing_tiers",
+        "feature_grid",
+        "stats",
+        "timeline",
+        "custom_html",
       ],
     },
   },
