@@ -178,6 +178,7 @@ function PageEditorPage() {
       });
       await refresh();
       setSelectedId(r.sectionId);
+      broadcastSaved();
     } catch (e) {
       toast.error((e as Error).message);
     }
