@@ -208,3 +208,29 @@ function Stat({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+function ViewsChart({ series }: { series: { date: string; views: number }[] }) {
+  if (!series.length) return <p className="text-sm text-muted-foreground">No views yet.</p>;
+  const max = Math.max(1, ...series.map((d) => d.views));
+  const w = 800;
+  const h = 140;
+  const pad = 8;
+  const stepX = (w - pad * 2) / Math.max(1, series.length - 1);
+  const points = series
+    .map((d, i) => `${pad + i * stepX},${h - pad - (d.views / max) * (h - pad * 2)}`)
+    .join(" ");
+  const area = `${pad},${h - pad} ${points} ${pad + (series.length - 1) * stepX},${h - pad}`;
+  return (
+    <div>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-36" preserveAspectRatio="none">
+        <polygon points={area} fill="hsl(var(--primary) / 0.15)" />
+        <polyline points={points} fill="none" stroke="hsl(var(--primary))" strokeWidth={2} />
+      </svg>
+      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+        <span>{new Date(series[0].date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+        <span>Peak: {max}</span>
+        <span>{new Date(series[series.length - 1].date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+      </div>
+    </div>
+  );
+}
