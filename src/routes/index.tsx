@@ -465,7 +465,7 @@ function Landing() {
                   <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                     card.badge === "Available now"
                       ? "bg-gold text-gold-foreground"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-destructive text-destructive-foreground"
                   }`}>
                     {card.badge}
                   </span>
