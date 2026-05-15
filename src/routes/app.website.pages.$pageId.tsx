@@ -516,6 +516,16 @@ function PageEditorPage() {
                 />
               </label>
             </div>
+            <div className="mt-3">
+              <ImageUploader
+                organizationId={page.organization_id}
+                value={page.og_image}
+                onChange={(url) => queueMetaSave({ og_image: url })}
+                label="Open Graph image"
+                hint="1200×630 recommended"
+                aspect="wide"
+              />
+            </div>
             <div className="mt-3 rounded-lg bg-muted/40 p-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Quality score</span>
