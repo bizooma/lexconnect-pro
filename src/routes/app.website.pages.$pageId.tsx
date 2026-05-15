@@ -223,6 +223,7 @@ function PageEditorPage() {
         responsive_json: merged.responsive_json,
       },
     });
+    broadcastSaved();
   };
 
   const restoreSnapshot = async (snap: Snapshot) => {
