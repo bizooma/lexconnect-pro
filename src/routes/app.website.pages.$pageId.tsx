@@ -81,7 +81,12 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState<string>("");
   const { user } = useAuth();
+  const { isOrgAdmin } = useCurrentOrg();
+  const { isAdmin: isPlatformAdmin } = useIsAdmin();
+  const canPublish = isOrgAdmin || isPlatformAdmin;
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
