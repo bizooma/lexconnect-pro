@@ -542,18 +542,19 @@ export const restorePublishSnapshot = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: snap, error } = await supabase
       .from("website_publish_history")
-      .select("page_id, version_snapshot_json")
+      .select("page_id, organization_id, version_snapshot_json")
       .eq("id", data.historyId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!snap) throw new Error("Snapshot not found");
     const v = snap.version_snapshot_json as Record<string, unknown>;
+
+    // 1) Restore page meta (status returns to draft so the editor can review before re-publishing)
     const patch: Record<string, unknown> = {
       title: v.title,
       slug: v.slug,
       meta_title: v.meta_title,
       meta_description: v.meta_description,
-      content_json: v.content_json,
       status: "draft",
       updated_by: userId,
     };
@@ -562,5 +563,61 @@ export const restorePublishSnapshot = createServerFn({ method: "POST" })
       .update(patch as any)
       .eq("id", snap.page_id);
     if (uErr) throw new Error(uErr.message);
-    return { pageId: snap.page_id };
+
+    // 2) Restore sections from the snapshot (replaces current sections atomically)
+    const sectionsRaw = Array.isArray(v.sections) ? (v.sections as Array<Record<string, unknown>>) : [];
+    const { error: delErr } = await supabase
+      .from("website_sections")
+      .delete()
+      .eq("page_id", snap.page_id);
+    if (delErr) throw new Error(delErr.message);
+
+    if (sectionsRaw.length > 0) {
+      const rows = sectionsRaw.map((s, i) => ({
+        page_id: snap.page_id,
+        organization_id: snap.organization_id,
+        section_type: String(s.section_type),
+        display_order: typeof s.display_order === "number" ? s.display_order : i,
+        settings_json: (s.settings_json as Record<string, unknown>) ?? {},
+        content_json: (s.content_json as Record<string, unknown>) ?? {},
+        visible: s.visible !== false,
+        responsive_json: (s.responsive_json as Record<string, unknown>) ?? {},
+      }));
+      const { error: insErr } = await (supabase.from("website_sections") as any).insert(rows);
+      if (insErr) throw new Error(insErr.message);
+    }
+    return { pageId: snap.page_id, sectionsRestored: sectionsRaw.length };
+  });
+
+// ---------------- FORM SUBMISSIONS ----------------
+
+export const listFormSubmissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      organizationId: orgIdSchema,
+      limit: z.number().int().min(1).max(200).default(50),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("website_form_submissions")
+      .select("id,organization_id,page_id,section_id,form_kind,data,referrer,created_at")
+      .eq("organization_id", data.organizationId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+    return { submissions: rows ?? [] };
+  });
+
+export const deleteFormSubmission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("website_form_submissions")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });

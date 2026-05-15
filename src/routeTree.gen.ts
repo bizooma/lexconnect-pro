@@ -76,6 +76,7 @@ import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pag
 import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicHooksAutoPublishRouteImport } from './routes/api/public/hooks/auto-publish'
 import { Route as AppWebsitePagesPageIdHistoryRouteImport } from './routes/app.website.pages.$pageId.history'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -417,6 +418,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoPublishRoute =
+  ApiPublicHooksAutoPublishRouteImport.update({
+    id: '/api/public/hooks/auto-publish',
+    path: '/api/public/hooks/auto-publish',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppWebsitePagesPageIdHistoryRoute =
   AppWebsitePagesPageIdHistoryRouteImport.update({
     id: '/history',
@@ -482,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
@@ -548,6 +556,7 @@ export interface FileRoutesByTo {
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
   '/app/website': typeof AppWebsiteIndexRoute
+  '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
@@ -619,6 +628,7 @@ export interface FileRoutesById {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
@@ -691,6 +701,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/api/public/hooks/auto-publish'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/app/website/pages/$pageId'
@@ -757,6 +768,7 @@ export interface FileRouteTypes {
     | '/app/org'
     | '/app/qa'
     | '/app/website'
+    | '/api/public/hooks/auto-publish'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/app/website/pages/$pageId'
@@ -827,6 +839,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/api/public/hooks/auto-publish'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/app/website/pages/$pageId'
@@ -860,6 +873,7 @@ export interface RootRouteChildren {
   ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   POrgSlugSlugRoute: typeof POrgSlugSlugRoute
+  ApiPublicHooksAutoPublishRoute: typeof ApiPublicHooksAutoPublishRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1340,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-publish': {
+      id: '/api/public/hooks/auto-publish'
+      path: '/api/public/hooks/auto-publish'
+      fullPath: '/api/public/hooks/auto-publish'
+      preLoaderRoute: typeof ApiPublicHooksAutoPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/website/pages/$pageId/history': {
       id: '/app/website/pages/$pageId/history'
       path: '/history'
@@ -1521,6 +1542,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   POrgSlugSlugRoute: POrgSlugSlugRoute,
+  ApiPublicHooksAutoPublishRoute: ApiPublicHooksAutoPublishRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
