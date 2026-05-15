@@ -56,6 +56,19 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+
+  // Undo/redo stacks (capacity 30). A snapshot is { sections, page }.
+  type Snapshot = { sections: WebsiteSection[]; page: WebsitePage };
+  const undoStack = useRef<Snapshot[]>([]);
+  const redoStack = useRef<Snapshot[]>([]);
+  const skipSnapshot = useRef(false);
+  const pushSnapshot = useCallback(() => {
+    if (skipSnapshot.current || !page) return;
+    undoStack.current.push({ sections: sections.map((s) => ({ ...s })), page: { ...page } });
+    if (undoStack.current.length > 30) undoStack.current.shift();
+    redoStack.current = [];
+  }, [page, sections]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
