@@ -169,17 +169,15 @@ function PageEditorPage() {
     refresh();
   };
 
-  const handleDrop = async (targetId: string) => {
-    if (!dragId || dragId === targetId) { setDragId(null); return; }
-    const from = sections.findIndex((s) => s.id === dragId);
-    const to = sections.findIndex((s) => s.id === targetId);
-    if (from < 0 || to < 0) { setDragId(null); return; }
+  const handleDragEnd = async (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = sections.findIndex((s) => s.id === active.id);
+    const to = sections.findIndex((s) => s.id === over.id);
+    if (from < 0 || to < 0) return;
     pushSnapshot();
-    const reordered = [...sections];
-    const [moved] = reordered.splice(from, 1);
-    reordered.splice(to, 0, moved);
+    const reordered = arrayMove(sections, from, to);
     setSections(reordered);
-    setDragId(null);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
   };
 
