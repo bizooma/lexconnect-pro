@@ -38,7 +38,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
-  const { currentOrg, isOrgAdmin } = useCurrentOrg();
+  const { currentOrg, isOrgAdmin, canEditWebsite } = useCurrentOrg();
   const WEBSITE_NAV = { to: "/app/website", label: "Website", icon: GlobeIcon } as const;
   const NAV = [
     ...BASE_NAV,
