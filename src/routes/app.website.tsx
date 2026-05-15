@@ -50,7 +50,7 @@ function WebsiteLayout() {
               return (
                 <Link
                   key={t.to}
-                  to={t.to}
+                  to={t.to as any}
                   className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition ${
                     active
                       ? "border-primary text-foreground"
