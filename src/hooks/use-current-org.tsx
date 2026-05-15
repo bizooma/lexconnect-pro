@@ -132,6 +132,10 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
       subscription,
       canWrite: status === "active" || status === "trialing" || status === "grandfathered",
       isOrgAdmin: membership?.org_role === "owner" || membership?.org_role === "admin",
+      canEditWebsite:
+        membership?.org_role === "owner" ||
+        membership?.org_role === "admin" ||
+        membership?.org_role === "content_editor",
       switchOrg,
       refresh,
     };
