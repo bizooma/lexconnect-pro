@@ -372,6 +372,7 @@ function PageEditorPage() {
                         selected={selectedId === s.id}
                         onSelect={() => setSelectedId(s.id)}
                         onRemove={() => removeSection(s.id)}
+                        editor={peers.find((p) => p.selectedSectionId === s.id) ?? null}
                       />
                     ))}
                   </ul>
