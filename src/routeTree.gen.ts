@@ -32,6 +32,7 @@ import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
+import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
@@ -175,6 +176,11 @@ const AcceptInviteTokenRoute = AcceptInviteTokenRouteImport.update({
   id: '/accept-invite/$token',
   path: '/accept-invite/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppQaIndexRoute = AppQaIndexRouteImport.update({
   id: '/',
@@ -340,7 +346,7 @@ export interface FileRoutesByFullPath {
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
-  '/app/website': typeof AppWebsiteRoute
+  '/app/website': typeof AppWebsiteRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -366,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -390,7 +397,6 @@ export interface FileRoutesByTo {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/website': typeof AppWebsiteRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -416,6 +422,7 @@ export interface FileRoutesByTo {
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
+  '/app/website': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -444,7 +451,7 @@ export interface FileRoutesById {
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
-  '/app/website': typeof AppWebsiteRoute
+  '/app/website': typeof AppWebsiteRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -470,6 +477,7 @@ export interface FileRoutesById {
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -525,6 +533,7 @@ export interface FileRouteTypes {
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -549,7 +558,6 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/settings'
-    | '/app/website'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -575,6 +583,7 @@ export interface FileRouteTypes {
     | '/app/messages'
     | '/app/org'
     | '/app/qa'
+    | '/app/website'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -628,6 +637,7 @@ export interface FileRouteTypes {
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
     | '/lovable/email/auth/preview'
@@ -824,6 +834,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/accept-invite/$token'
       preLoaderRoute: typeof AcceptInviteTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/website/': {
+      id: '/app/website/'
+      path: '/'
+      fullPath: '/app/website/'
+      preLoaderRoute: typeof AppWebsiteIndexRouteImport
+      parentRoute: typeof AppWebsiteRoute
     }
     '/app/qa/': {
       id: '/app/qa/'
@@ -1076,6 +1093,18 @@ const AppQaRouteChildren: AppQaRouteChildren = {
 
 const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
+interface AppWebsiteRouteChildren {
+  AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
+}
+
+const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
+  AppWebsiteIndexRoute: AppWebsiteIndexRoute,
+}
+
+const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
+  AppWebsiteRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -1085,7 +1114,7 @@ interface AppRouteChildren {
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
-  AppWebsiteRoute: typeof AppWebsiteRoute
+  AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
@@ -1104,7 +1133,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
-  AppWebsiteRoute: AppWebsiteRoute,
+  AppWebsiteRoute: AppWebsiteRouteWithChildren,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
