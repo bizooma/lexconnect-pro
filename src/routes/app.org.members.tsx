@@ -346,6 +346,7 @@ function OrgMembersPage() {
                         <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="content_editor">Content Editor</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="owner">Owner</SelectItem>
                         </SelectContent>
