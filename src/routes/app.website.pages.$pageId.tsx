@@ -92,7 +92,7 @@ function PageEditorPage() {
     selectedSectionId: selectedId,
     onRemoteSave: (by) => {
       const peer = peers.find((p) => p.userId === by);
-      sonnerToast.message(`${peer?.name ?? "A teammate"} updated this page`, {
+      toast.message(`${peer?.name ?? "A teammate"} updated this page`, {
         action: { label: "Refresh", onClick: () => void refreshRef.current() },
       });
     },
