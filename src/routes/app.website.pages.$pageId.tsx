@@ -20,6 +20,7 @@ import {
   type WebsiteSection,
   type WebsiteSectionType,
 } from "@/lib/website";
+import { ImageUploader } from "@/components/website/ImageUploader";
 import {
   DndContext,
   KeyboardSensor,
