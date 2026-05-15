@@ -109,7 +109,7 @@ export const createWebsitePage = createServerFn({ method: "POST" })
         settings_json: s.settings_json ?? {},
         content_json: s.content_json ?? {},
       }));
-      const { error: sErr } = await supabase.from("website_sections").insert(rows as any);
+      const { error: sErr } = await (supabase.from("website_sections") as any).insert(rows);
       if (sErr) throw new Error(sErr.message);
     }
     return { pageId: page.id };
