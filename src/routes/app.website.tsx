@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useCurrentOrg } from "@/hooks/use-current-org";
-import { useIsAdmin } from "@/hooks/use-is-admin";
+import { useIsPlatformAdmin } from "@/hooks/use-is-platform-admin";
 
 export const Route = createFileRoute("/app/website")({
   component: WebsiteLayout,
@@ -20,18 +20,18 @@ const TABS: Array<{ to: string; label: string; exact?: boolean }> = [
 
 function WebsiteLayout() {
   const { pathname } = useLocation();
-  const { canEditWebsite, currentOrg, loading } = useCurrentOrg();
-  const { isAdmin, checking } = useIsAdmin();
+  const { currentOrg, loading } = useCurrentOrg();
+  const { isPlatformAdmin, checking } = useIsPlatformAdmin();
 
   if (loading || checking) {
     return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
   }
-  if (!canEditWebsite && !isAdmin) {
+  if (!isPlatformAdmin) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold text-foreground">Website Builder</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Only organization administrators and content editors can access the Website Builder.
+          The Website Builder add-on isn't enabled for your plan yet. Contact your administrator to enable it.
         </p>
       </div>
     );
