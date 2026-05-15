@@ -33,6 +33,7 @@ type Ctx = {
   subscription: OrgSubscription | null;
   canWrite: boolean;
   isOrgAdmin: boolean;
+  canEditWebsite: boolean;
   switchOrg: (orgId: string) => void;
   refresh: () => Promise<void>;
 };
