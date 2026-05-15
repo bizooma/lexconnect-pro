@@ -427,7 +427,7 @@ function Landing() {
               {
                 img: addonWebsiteBuilder,
                 alt: "Website Builder — drag-and-drop editor for legal organizations",
-                badge: "Available now",
+                badge: "Coming soon",
                 title: "Website Builder",
                 desc: "Create a beautiful, professional website for your bar association or legal organization with our drag-and-drop editor. No coding required.",
                 features: ["Drag-and-drop page editor", "Custom domains & SSL", "Lead capture forms", "Organization branding"],
