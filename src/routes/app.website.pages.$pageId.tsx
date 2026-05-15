@@ -782,6 +782,7 @@ function SortableSectionItem({
   selected,
   onSelect,
   onRemove,
+  editor,
 }: {
   id: string;
   index: number;
@@ -789,6 +790,7 @@ function SortableSectionItem({
   selected: boolean;
   onSelect: () => void;
   onRemove: () => void;
+  editor: PresencePeer | null;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id });
   const style = {
