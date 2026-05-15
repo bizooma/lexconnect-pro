@@ -66,8 +66,8 @@ export const getPublicPage = createServerFn({ method: "GET" })
         slug: org.slug,
         logo_url: org.logo_url,
       },
-      page: page as WebsitePage,
-      sections: (sectionsRes.data ?? []) as WebsiteSection[],
-      brand: (brandRes.data ?? null) as WebsiteBrandSettings | null,
+      page: page as unknown as Record<string, unknown>,
+      sections: (sectionsRes.data ?? []) as unknown as Array<Record<string, unknown>>,
+      brand: (brandRes.data ?? null) as unknown as Record<string, unknown> | null,
     };
   });
