@@ -3,20 +3,15 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export const Route = createFileRoute("/app/website")({
-  beforeLoad: ({ location }) => {
-    if (location.pathname === "/app/website" || location.pathname === "/app/website/") {
-      throw redirect({ to: "/app/website" as any, replace: true });
-    }
-  },
   component: WebsiteLayout,
 });
 
-const TABS = [
+const TABS: Array<{ to: string; label: string; exact?: boolean }> = [
   { to: "/app/website", label: "Overview", exact: true },
   { to: "/app/website/pages", label: "Pages" },
   { to: "/app/website/templates", label: "Templates" },
   { to: "/app/website/brand", label: "Brand" },
-] as const;
+];
 
 function WebsiteLayout() {
   const { pathname } = useLocation();
