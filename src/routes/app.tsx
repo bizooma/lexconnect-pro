@@ -27,7 +27,7 @@ export const Route = createFileRoute("/app")({
 type NavItem = {
   to: string;
   label: string;
-  icon: (p: any) => JSX.Element;
+  icon: (p: any) => React.ReactElement;
   enabled: boolean;
   locked?: boolean;
 };
