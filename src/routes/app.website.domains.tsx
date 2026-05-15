@@ -211,16 +211,28 @@ function DomainsPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-muted/30 p-5 text-sm text-muted-foreground">
-        <p className="font-medium text-foreground">How custom domains work</p>
-        <ol className="mt-2 list-decimal space-y-1 pl-5">
-          <li>Add the TXT record above to prove ownership, then click Verify.</li>
+        <p className="font-medium text-foreground">How custom domains work — two-step setup</p>
+        <ol className="mt-2 list-decimal space-y-2 pl-5">
           <li>
-            Point a CNAME from your domain to the hosting provider in front of this app
-            (e.g. Cloudflare for SaaS or your reverse proxy) so SSL is terminated and the original
-            <code className="mx-1 rounded bg-background px-1">Host</code> header is forwarded.
+            <span className="font-medium text-foreground">Verify ownership here.</span> Add the TXT
+            record shown above at your registrar, wait for DNS to propagate, then click <em>Verify</em>.
+            This proves you own the domain.
           </li>
-          <li>Once verified, requests on that domain will resolve to your default page slug ("home" by default).</li>
+          <li>
+            <span className="font-medium text-foreground">Connect the domain to hosting.</span> Open
+            your project's <em>Project Settings → Domains</em> and add the same domain there. That
+            step issues an SSL certificate and routes incoming traffic to your published site.
+          </li>
+          <li>
+            <span className="font-medium text-foreground">Pick a default page.</span> Once verified
+            and connected, requests to your domain resolve to the page slug you set as the default
+            (<code className="rounded bg-background px-1">home</code> if unset).
+          </li>
         </ol>
+        <p className="mt-3 text-xs">
+          Verifying here without connecting the domain in Project Settings means the TXT check
+          passes, but the domain still won't serve your site.
+        </p>
       </div>
     </div>
   );

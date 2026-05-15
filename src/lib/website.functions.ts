@@ -203,6 +203,39 @@ export const setPageStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Gate publish/schedule/archive to organization owners/admins (or platform admins).
+    if (data.status === "published" || data.status === "scheduled" || data.status === "archived") {
+      const { data: page } = await supabase
+        .from("website_pages")
+        .select("organization_id")
+        .eq("id", data.pageId)
+        .maybeSingle();
+      if (!page) throw new Error("Page not found");
+      const [{ data: mem }, { data: platformAdmin }] = await Promise.all([
+        supabase
+          .from("organization_members")
+          .select("org_role")
+          .eq("organization_id", page.organization_id)
+          .eq("user_id", userId)
+          .eq("status", "active")
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "admin")
+          .maybeSingle(),
+      ]);
+      const isAdmin =
+        !!platformAdmin ||
+        mem?.org_role === "owner" ||
+        mem?.org_role === "admin";
+      if (!isAdmin) {
+        throw new Error("Only organization owners and admins can publish, schedule, or archive pages.");
+      }
+    }
+
     const patch: Record<string, unknown> = { status: data.status, updated_by: userId };
     if (data.status === "published") patch.published_at = new Date().toISOString();
     if (data.status === "archived") patch.archived_at = new Date().toISOString();

@@ -21,8 +21,12 @@ import {
   type WebsiteSectionType,
 } from "@/lib/website";
 import { ImageUploader } from "@/components/website/ImageUploader";
+import { ItemListEditor, getItemSchema } from "@/components/website/ItemListEditor";
+import { PublicSectionRenderer } from "@/components/website/PublicSectionRenderer";
 import { usePagePresence, type PresencePeer } from "@/hooks/use-page-presence";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrg } from "@/hooks/use-current-org";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import {
   DndContext,
   KeyboardSensor,
@@ -77,7 +81,12 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState<string>("");
   const { user } = useAuth();
+  const { isOrgAdmin } = useCurrentOrg();
+  const { isAdmin: isPlatformAdmin } = useIsAdmin();
+  const canPublish = isOrgAdmin || isPlatformAdmin;
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -270,6 +279,20 @@ function PageEditorPage() {
     }
   };
 
+  const schedule = async () => {
+    if (!scheduleAt) { toast.error("Pick a date and time"); return; }
+    const iso = new Date(scheduleAt).toISOString();
+    if (Number.isNaN(Date.parse(iso))) { toast.error("Invalid date"); return; }
+    try {
+      await setStatus({ data: { pageId, status: "scheduled", scheduledAt: iso } });
+      toast.success(`Scheduled for ${new Date(iso).toLocaleString()}`);
+      setScheduleOpen(false);
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <div className="-m-6 flex h-[calc(100vh-9.5rem)] flex-col">
       {/* Toolbar */}
@@ -336,14 +359,59 @@ function PageEditorPage() {
           >
             Mark for review
           </button>
-          <button
-            onClick={() => publish("published")}
-            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
-          >
-            Publish
-          </button>
+          {canPublish && (
+            <>
+              <button
+                onClick={() => setScheduleOpen((v) => !v)}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+              >
+                Schedule…
+              </button>
+              <button
+                onClick={() => publish("published")}
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+              >
+                Publish
+              </button>
+            </>
+          )}
+          {!canPublish && (
+            <span
+              title="Only owners and admins can publish or schedule"
+              className="rounded-lg border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground"
+            >
+              Publish (admin only)
+            </span>
+          )}
         </div>
       </div>
+
+      {scheduleOpen && canPublish && (
+        <div className="border-b border-border bg-muted/30 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-xs font-medium text-foreground">Publish at:</label>
+            <input
+              type="datetime-local"
+              value={scheduleAt}
+              onChange={(e) => setScheduleAt(e.target.value)}
+              className="rounded border border-border bg-background px-2 py-1 text-xs text-foreground"
+            />
+            <button
+              onClick={schedule}
+              disabled={!scheduleAt}
+              className="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
+            >
+              Schedule
+            </button>
+            <button onClick={() => setScheduleOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">
+              Cancel
+            </button>
+            <span className="text-[11px] text-muted-foreground">
+              The page will auto-publish within 5 minutes of this time.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* 3-pane editor */}
       <div className="flex flex-1 overflow-hidden">
@@ -657,6 +725,13 @@ function ContentFields({
           </label>
         );
       })}
+      {getItemSchema(section.section_type) && (
+        <ItemListEditor
+          sectionType={section.section_type}
+          items={Array.isArray(c.items) ? (c.items as Array<Record<string, unknown>>) : []}
+          onChange={(items) => onChange({ ...c, items })}
+        />
+      )}
     </div>
   );
 }
@@ -670,66 +745,15 @@ function SectionPreview({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const c = (section.content_json ?? {}) as Record<string, string>;
   const ring = selected ? "ring-2 ring-primary ring-inset" : "hover:ring-2 hover:ring-border hover:ring-inset";
-  const base = `relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`;
-
-  switch (section.section_type) {
-    case "hero":
-      return (
-        <div onClick={onSelect} className={`${base} bg-gradient-to-br from-primary/10 to-accent/10 px-8 py-16 text-center`}>
-          <h1 className="text-3xl font-semibold text-foreground">{c.headline || "Hero headline"}</h1>
-          <p className="mt-3 text-muted-foreground">{c.subheadline || "Subheadline goes here"}</p>
-          {c.cta_label && (
-            <button className="mt-5 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
-              {c.cta_label}
-            </button>
-          )}
-        </div>
-      );
-    case "cta":
-      return (
-        <div onClick={onSelect} className={`${base} bg-primary/5 px-8 py-10 text-center`}>
-          <h2 className="text-xl font-semibold text-foreground">{c.headline || "Call to action"}</h2>
-          {c.subheadline && <p className="mt-2 text-sm text-muted-foreground">{c.subheadline}</p>}
-          {c.cta_label && (
-            <button className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              {c.cta_label}
-            </button>
-          )}
-        </div>
-      );
-    case "text":
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <p className="whitespace-pre-wrap text-sm text-foreground">{c.body || "Text block — click to edit."}</p>
-        </div>
-      );
-    case "image_text":
-      return (
-        <div onClick={onSelect} className={`${base} grid gap-6 px-8 py-10 md:grid-cols-2`}>
-          <div className="aspect-video rounded-lg bg-muted" style={c.image_url ? { backgroundImage: `url(${c.image_url})`, backgroundSize: "cover" } : undefined} />
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">{c.headline || "Section headline"}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{c.body || "Body copy goes here."}</p>
-          </div>
-        </div>
-      );
-    case "custom_html":
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <pre className="overflow-x-auto rounded bg-muted p-3 text-xs text-muted-foreground">{c.html || "<!-- custom html -->"}</pre>
-        </div>
-      );
-    default:
-      return (
-        <div onClick={onSelect} className={`${base} px-8 py-10`}>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{SECTION_LABELS[section.section_type]}</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">{c.headline || SECTION_LABELS[section.section_type]}</h3>
-          {c.body && <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>}
-        </div>
-      );
-  }
+  return (
+    <div
+      onClick={onSelect}
+      className={`relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`}
+    >
+      <PublicSectionRenderer section={section as never} context={{ preview: true }} />
+    </div>
+  );
 }
 
 function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
