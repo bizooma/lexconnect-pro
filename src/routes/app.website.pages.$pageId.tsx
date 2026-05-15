@@ -9,6 +9,7 @@ import {
   deleteSection,
   reorderSections,
   setPageStatus,
+  saveSectionAsReusable,
 } from "@/lib/website.functions";
 import { regenerateSection, improvePageSeo } from "@/lib/website-ai.functions";
 import {
@@ -48,6 +49,7 @@ function PageEditorPage() {
   const setStatus = useServerFn(setPageStatus);
   const aiRewrite = useServerFn(regenerateSection);
   const aiSeo = useServerFn(improvePageSeo);
+  const saveReusable = useServerFn(saveSectionAsReusable);
   const [page, setPage] = useState<WebsitePage | null>(null);
   const [sections, setSections] = useState<WebsiteSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,14 +322,37 @@ function PageEditorPage() {
 
               <ContentFields section={selected} onChange={(content_json) => updateSelected({ content_json })} />
 
-              <label className="flex items-center gap-2 text-xs text-foreground">
-                <input
-                  type="checkbox"
-                  checked={selected.visible}
-                  onChange={(e) => updateSelected({ visible: e.target.checked })}
-                />
-                Visible on page
-              </label>
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-2 text-xs text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={selected.visible}
+                    onChange={(e) => updateSelected({ visible: e.target.checked })}
+                  />
+                  Visible on page
+                </label>
+                <button
+                  onClick={async () => {
+                    const name = prompt("Name this saved section:", `${SECTION_LABELS[selected.section_type]} block`);
+                    if (!name) return;
+                    try {
+                      await saveReusable({
+                        data: {
+                          organizationId: page.organization_id,
+                          name,
+                          section_type: selected.section_type,
+                          settings_json: selected.settings_json,
+                          content_json: selected.content_json,
+                        },
+                      });
+                      toast.success("Saved to library");
+                    } catch (e) { toast.error((e as Error).message); }
+                  }}
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Save as reusable
+                </button>
+              </div>
             </div>
           ) : (
             <div className="p-4 text-xs text-muted-foreground">Select a section to edit it.</div>
