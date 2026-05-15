@@ -246,6 +246,20 @@ function PageEditorPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
+            <button
+              onClick={undo}
+              disabled={undoStack.current.length === 0}
+              title="Undo"
+              className="rounded px-2 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >↶</button>
+            <button
+              onClick={redo}
+              disabled={redoStack.current.length === 0}
+              title="Redo"
+              className="rounded px-2 py-1 text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >↷</button>
+          </div>
+          <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
             {(["desktop", "tablet", "mobile"] as Viewport[]).map((v) => (
               <button
                 key={v}
