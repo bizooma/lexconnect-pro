@@ -24,7 +24,7 @@ const ACTIVE_WINDOW_DAYS = 30;
 
 type MemberRow = {
   user_id: string;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   joined_at: string | null;
   profile: {
     full_name: string | null;

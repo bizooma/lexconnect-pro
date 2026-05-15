@@ -1589,6 +1589,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_website: {
+        Args: { _org: string; _user: string }
+        Returns: boolean
+      }
       create_organization_with_owner: {
         Args: {
           _kind: Database["public"]["Enums"]["org_kind"]
@@ -1656,7 +1660,7 @@ export type Database = {
       mentorship_status: "pending" | "active" | "declined" | "completed"
       org_kind: "firm" | "bar_association"
       org_member_status: "active" | "invited" | "removed"
-      org_role: "owner" | "admin" | "member"
+      org_role: "owner" | "admin" | "member" | "content_editor"
       qa_notif_mode: "all" | "my_posts" | "followed" | "digest" | "muted"
       qa_post_status: "open" | "resolved" | "closed"
       qa_target_type: "post" | "reply"
@@ -1857,7 +1861,7 @@ export const Constants = {
       mentorship_status: ["pending", "active", "declined", "completed"],
       org_kind: ["firm", "bar_association"],
       org_member_status: ["active", "invited", "removed"],
-      org_role: ["owner", "admin", "member"],
+      org_role: ["owner", "admin", "member", "content_editor"],
       qa_notif_mode: ["all", "my_posts", "followed", "digest", "muted"],
       qa_post_status: ["open", "resolved", "closed"],
       qa_target_type: ["post", "reply"],

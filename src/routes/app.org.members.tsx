@@ -22,7 +22,7 @@ export const Route = createFileRoute("/app/org/members")({
 type Member = {
   id: string;
   user_id: string | null;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   status: "active" | "invited" | "removed";
   invited_email: string | null;
   joined_at: string | null;
@@ -32,7 +32,7 @@ type Member = {
 type Invite = {
   id: string;
   email: string;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   token: string;
   expires_at: string;
   accepted_at: string | null;
@@ -41,7 +41,7 @@ type Invite = {
 type InviteCode = {
   id: string;
   code: string;
-  role_assigned: "owner" | "admin" | "member";
+  role_assigned: "owner" | "admin" | "content_editor" | "member";
   expires_at: string | null;
   max_uses: number | null;
   current_uses: number;
@@ -56,7 +56,7 @@ function OrgMembersPage() {
   const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
+  const [inviteRole, setInviteRole] = useState<"member" | "content_editor" | "admin">("member");
   const [submitting, setSubmitting] = useState(false);
   const [bulkEmails, setBulkEmails] = useState("");
 
@@ -186,7 +186,7 @@ function OrgMembersPage() {
     void refresh();
   };
 
-  const changeRole = async (memberId: string, newRole: "owner" | "admin" | "member") => {
+  const changeRole = async (memberId: string, newRole: "owner" | "admin" | "content_editor" | "member") => {
     const { error } = await supabase.from("organization_members").update({ org_role: newRole }).eq("id", memberId);
     if (error) return toast.error(error.message);
     toast.success("Role updated");
@@ -231,6 +231,7 @@ function OrgMembersPage() {
               <SelectTrigger className="sm:w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="content_editor">Content Editor</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
@@ -342,16 +343,17 @@ function OrgMembersPage() {
                   <div className="flex items-center gap-2">
                     {isOrgAdmin && m.user_id !== user?.id ? (
                       <Select value={m.org_role} onValueChange={(v) => changeRole(m.id, v as any)}>
-                        <SelectTrigger className="h-8 w-28 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="content_editor">Content Editor</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="owner">Owner</SelectItem>
                         </SelectContent>
                       </Select>
                     ) : (
                       <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                        {m.org_role}
+                        {m.org_role.replace("_", " ")}
                       </span>
                     )}
                     {isOrgAdmin && m.user_id !== user?.id && (

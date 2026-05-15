@@ -14,7 +14,7 @@ type InviteRow = {
   id: string;
   organization_id: string;
   email: string;
-  org_role: "owner" | "admin" | "member";
+  org_role: "owner" | "admin" | "content_editor" | "member";
   expires_at: string;
   accepted_at: string | null;
   organizations: { name: string } | null;

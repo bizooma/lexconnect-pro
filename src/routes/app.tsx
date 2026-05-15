@@ -38,11 +38,11 @@ function AppLayout() {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
-  const { currentOrg, isOrgAdmin } = useCurrentOrg();
+  const { currentOrg, canEditWebsite } = useCurrentOrg();
   const WEBSITE_NAV = { to: "/app/website", label: "Website", icon: GlobeIcon } as const;
   const NAV = [
     ...BASE_NAV,
-    ...((isOrgAdmin || isAdmin) ? [WEBSITE_NAV] : []),
+    ...((canEditWebsite || isAdmin) ? [WEBSITE_NAV] : []),
     ...(isAdmin ? [ADMIN_NAV] : []),
   ];
   const [profileName, setProfileName] = useState<string>("");
