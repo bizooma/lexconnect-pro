@@ -82,10 +82,15 @@ function WebsiteSettingsPage() {
 
       <section className="rounded-xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">Roles & permissions</h3>
-        <div className="mt-3 rounded-lg border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">Content Editor & Reviewer roles — coming soon</p>
-          <p className="mt-1 text-xs">
-            Today, only organization admins can edit pages. Granular per-section review/approve permissions will be added in a future release.
+        <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <p>
+            <span className="font-medium text-foreground">Owners and admins</span> can build, edit, schedule, publish, archive, and manage domains.
+          </p>
+          <p>
+            <span className="font-medium text-foreground">Content editors</span> can build and edit pages and send them for review, but cannot publish, schedule, or archive — those actions are reserved for owners and admins.
+          </p>
+          <p>
+            All other members have read-only access to the public site.
           </p>
         </div>
       </section>
