@@ -39,6 +39,7 @@ import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.inde
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
+import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
 import { Route as AppQaSearchRouteImport } from './routes/app.qa.search'
 import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
 import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
@@ -216,6 +217,11 @@ const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
   path: '/templates',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
+const AppWebsiteBrandRoute = AppWebsiteBrandRouteImport.update({
+  id: '/brand',
+  path: '/brand',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const AppQaSearchRoute = AppQaSearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -445,6 +452,7 @@ export interface FileRoutesByTo {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -504,6 +512,7 @@ export interface FileRoutesById {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -564,6 +573,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -618,6 +628,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/brand'
     | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
@@ -932,6 +944,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebsiteTemplatesRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
+    '/app/website/brand': {
+      id: '/app/website/brand'
+      path: '/brand'
+      fullPath: '/app/website/brand'
+      preLoaderRoute: typeof AppWebsiteBrandRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/app/qa/search': {
       id: '/app/qa/search'
       path: '/search'
@@ -1170,6 +1189,7 @@ const AppQaRouteChildren: AppQaRouteChildren = {
 const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsiteRouteChildren {
+  AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
   AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
   AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRoute
@@ -1178,6 +1198,7 @@ interface AppWebsiteRouteChildren {
 }
 
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
+  AppWebsiteBrandRoute: AppWebsiteBrandRoute,
   AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
   AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRoute,
@@ -1268,3 +1289,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
