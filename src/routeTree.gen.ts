@@ -60,6 +60,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pages.new'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -321,6 +322,11 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWebsitePagesNewRoute = AppWebsitePagesNewRouteImport.update({
+  id: '/pages/new',
+  path: '/pages/new',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
 const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
   id: '/api/public/push/dispatch',
   path: '/api/public/push/dispatch',
@@ -381,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -432,6 +439,7 @@ export interface FileRoutesByTo {
   '/app/website': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -488,6 +496,7 @@ export interface FileRoutesById {
   '/app/website/': typeof AppWebsiteIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -545,6 +554,7 @@ export interface FileRouteTypes {
     | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -596,6 +606,7 @@ export interface FileRouteTypes {
     | '/app/website'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -651,6 +662,7 @@ export interface FileRouteTypes {
     | '/app/website/'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1043,6 +1055,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/pages/new': {
+      id: '/app/website/pages/new'
+      path: '/pages/new'
+      fullPath: '/app/website/pages/new'
+      preLoaderRoute: typeof AppWebsitePagesNewRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/api/public/push/dispatch': {
       id: '/api/public/push/dispatch'
       path: '/api/public/push/dispatch'
@@ -1114,11 +1133,13 @@ const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsiteRouteChildren {
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
+  AppWebsitePagesNewRoute: typeof AppWebsitePagesNewRoute
   AppWebsitePagesIndexRoute: typeof AppWebsitePagesIndexRoute
 }
 
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
+  AppWebsitePagesNewRoute: AppWebsitePagesNewRoute,
   AppWebsitePagesIndexRoute: AppWebsitePagesIndexRoute,
 }
 
