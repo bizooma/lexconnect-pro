@@ -182,3 +182,35 @@ export const resolveDomain = createServerFn({ method: "GET" })
       match: { orgSlug: org.slug, slug: row.default_page_slug || "home" },
     };
   });
+
+// Server-only: reads the incoming Host header and returns a redirect target
+// if it's a verified tenant domain. Returns null otherwise.
+export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(async () => {
+  let host = "";
+  try {
+    host = (getRequestHost() || "").toLowerCase();
+  } catch {
+    return { redirectTo: null as string | null };
+  }
+  if (!host) return { redirectTo: null };
+  // Strip port
+  host = host.replace(/:\d+$/, "");
+  if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
+    return { redirectTo: null };
+  }
+  const bare = host.replace(/^www\./, "");
+  const { data: row } = await supabaseAdmin
+    .from("website_custom_domains")
+    .select("organization_id, default_page_slug")
+    .or(`domain.eq.${host},domain.eq.${bare},domain.eq.www.${bare}`)
+    .not("verified_at", "is", null)
+    .maybeSingle();
+  if (!row) return { redirectTo: null };
+  const { data: org } = await supabaseAdmin
+    .from("organizations")
+    .select("slug")
+    .eq("id", row.organization_id)
+    .single();
+  if (!org) return { redirectTo: null };
+  return { redirectTo: `/p/${org.slug}/${row.default_page_slug || "home"}` };
+});
