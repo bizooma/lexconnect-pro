@@ -1,24 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import type {
-  WebsitePage,
-  WebsiteSection,
-  WebsiteBrandSettings,
-} from "@/lib/website";
 
 const slugSchema = z
   .string()
   .min(1)
   .max(120)
   .regex(/^[a-z0-9][a-z0-9-]*$/, "Invalid slug");
-
-export type PublicPageBundle = {
-  organization: { id: string; name: string; slug: string; logo_url: string | null };
-  page: WebsitePage;
-  sections: WebsiteSection[];
-  brand: WebsiteBrandSettings | null;
-};
 
 export const getPublicPage = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
@@ -59,16 +47,15 @@ export const getPublicPage = createServerFn({ method: "GET" })
     if (sectionsRes.error) throw new Error(sectionsRes.error.message);
     if (brandRes.error) throw new Error(brandRes.error.message);
 
-    const result: PublicPageBundle = {
+    return {
       organization: {
         id: org.id,
         name: org.name,
         slug: org.slug,
         logo_url: org.logo_url,
       },
-      page: page as unknown as WebsitePage,
-      sections: (sectionsRes.data ?? []) as unknown as WebsiteSection[],
-      brand: (brandRes.data ?? null) as unknown as WebsiteBrandSettings | null,
+      page,
+      sections: sectionsRes.data ?? [],
+      brand: brandRes.data ?? null,
     };
-    return JSON.parse(JSON.stringify(result)) as PublicPageBundle;
   });
