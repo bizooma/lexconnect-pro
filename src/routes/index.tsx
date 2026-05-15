@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -7,8 +7,18 @@ import bizoomaLogo from "@/assets/bizooma-logo.png";
 import installIosSafari from "@/assets/install-ios-safari.png";
 import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
+import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: async () => {
+    try {
+      const { redirectTo } = await resolveCurrentHost();
+      if (redirectTo) throw redirect({ to: redirectTo });
+    } catch (e) {
+      if (e && typeof e === "object" && "isRedirect" in e) throw e;
+      // Swallow lookup failures — fall through to marketing site.
+    }
+  },
   head: () => ({
     meta: [
       { title: "LexGuild — Modern attorney mentorship" },
