@@ -1,149 +1,78 @@
+## Website Builder — audit results
 
-## Website Builder — Admin Module Plan
-
-A new admin-only module inside the existing LexGuild dashboard. Strictly multi-tenant via the existing `organizations` + `organization_members` model. The current public site at `/` and the mentorship UX stay untouched. Published pages are stored but **not** rendered on the public frontend in this phase — preview is admin-only.
-
----
-
-### 1. Scope guardrails
-
-- No changes to `src/routes/index.tsx`, `__root.tsx` marketing chrome, or any non-`/app/*` route.
-- No new public routes. No custom-domain wiring. No public page rendering.
-- Sidebar entry added only inside `src/routes/app.tsx` and only visible when `useCurrentOrg().isOrgAdmin` is true (or platform admin via `useIsAdmin`).
-- All access gated by RLS using existing `is_org_member` / `is_org_admin` helpers.
+I went through the schema, server fns, public renderer, editor inspector, public route, sitemap/robots, custom domains, presence hook, and seeded data. Headline: **most plumbing is real, but several user-facing capabilities the prior progress notes called "complete" are partially fake or unreachable from the UI.** Below is what's actually working, what isn't, and what to fix.
 
 ---
 
-### 2. Database (single migration)
+### ✅ What is actually wired end-to-end
 
-New enums:
-- `website_page_status`: `draft`, `ready_for_review`, `scheduled`, `published`, `archived`
-- `website_page_type`: `home`, `landing`, `event`, `sponsor`, `committee`, `mentorship`, `cle`, `resource`, `blog`, `legal_aid`, `custom`
-- `website_section_type`: hero, text, image_text, cta, event_details, sponsor_grid, speaker_cards, member_directory, committee_cards, resource_cards, faq, testimonials, contact_form, newsletter, video, pricing_tiers, feature_grid, stats, timeline, custom_html
-- `website_ai_generation_kind`: `page_draft`, `section_rewrite`, `copy_rewrite`, `seo`, `accessibility`, `faq`, `cta`
-
-New tables (every row carries `organization_id`, RLS scoped via `is_org_member` / `is_org_admin`):
-
-| Table | Key columns |
-|---|---|
-| `website_pages` | org_id, title, slug (unique per org), page_type, status, meta_title, meta_description, og_title, og_description, og_image, content_json (jsonb section tree), content_html (cached render, nullable), created_by, updated_by, published_at, scheduled_at, archived_at |
-| `website_sections` | page_id, org_id, section_type, display_order, settings_json, content_json, visible bool, responsive_json (desktop/tablet/mobile overrides) |
-| `website_templates` | org_id (nullable for global seeded templates), name, page_type, preview_image, default_sections_json, suggested_copy_json, is_global bool |
-| `website_brand_settings` | org_id (unique), logo_url, favicon_url, primary/secondary/accent colors, heading_font, body_font, button_style, page_width, border_radius, seo_title_suffix, social_links jsonb, contact_info jsonb, footer_text |
-| `website_saved_sections` | org_id, name, section_type, settings_json, content_json, created_by |
-| `website_ai_generations` | org_id, user_id, prompt, kind, generated_content_json, model, tokens_used, created_at |
-| `website_publish_history` | page_id, org_id, published_by, version_snapshot_json, published_at, action (publish/unpublish/schedule) |
-
-Indexes: `(org_id, status, updated_at desc)`, `(org_id, page_type)`, unique `(org_id, slug)`.
-
-Triggers:
-- `updated_at` maintenance on all mutable tables.
-- `website_pages` insert/update → auto-snapshot into `website_publish_history` on transition to `published`.
-- Auto-seed `website_brand_settings` row on org creation; auto-seed global templates flag on first read (templates seeded by migration loop with `is_global = true`).
-
-RLS:
-- SELECT: `is_org_member(org_id, auth.uid())` OR (`is_global = true` for templates).
-- INSERT/UPDATE/DELETE: `is_org_admin(org_id, auth.uid())` plus `org_can_write(org_id)` for writes. Content editors covered by `is_org_admin` for v1 — finer-grained roles deferred (see §7).
-
-Seed migration loops over existing orgs to insert one `website_brand_settings` row each, plus inserts ~13 global templates listed in §5.
+- DB migrations, enums, RLS, `can_edit_website` helper, brand-settings + global-templates seeds (13 templates present).
+- Page CRUD, section upsert/reorder/delete, duplicate, status transitions, publish-history snapshot trigger.
+- Brand settings get/update; saved-sections library; AI generations log.
+- AI: `generatePageDraft`, `regenerateSection`, `improvePageSeo` all hit Lovable AI Gateway with structured tool calls and persist results.
+- Public page route `/p/$orgSlug/$slug` (SSR + meta), brand-token CSS vars, og image via `ImageUploader`, `website-media` bucket.
+- Page-view tracking + 30-day chart + top pages on dashboard (real inserts; verified table exists, 0 rows yet because no traffic).
+- Custom domains: TXT verification via Cloudflare DoH, host resolution in `resolveCurrentHost`, host-aware sitemap + robots.txt.
+- Real-time presence hook (`use-page-presence`) + avatar stack + per-section editor dot + "saved" broadcasts + refresh toast.
+- 13 seeded global templates, drafts/published/sections/saved-sections/templates/AI/brand/domains/settings nav tabs all routed.
 
 ---
 
-### 3. Routes (TanStack Start, all under `/app/website/`)
+### ❌ Hard-coded / fake / broken functionality
 
-```
-src/routes/app.website.tsx                layout + tab nav, gated by isOrgAdmin
-src/routes/app.website.index.tsx          dashboard overview (cards + recent activity)
-src/routes/app.website.pages.tsx          page list (filter by status/type)
-src/routes/app.website.pages.$pageId.tsx  visual editor (sections + right-side settings)
-src/routes/app.website.pages.new.tsx      create flow (blank / template / AI)
-src/routes/app.website.templates.tsx      template library + preview
-src/routes/app.website.sections.tsx       saved/reusable sections manager
-src/routes/app.website.brand.tsx          brand settings form
-src/routes/app.website.ai.tsx             AI builder full-page panel
-src/routes/app.website.drafts.tsx         drafts queue
-src/routes/app.website.published.tsx      published + scheduled list
-src/routes/app.website.settings.tsx       module settings (seo defaults, etc.)
-```
+**1. Newsletter & Contact-form sections do nothing on the public site** — *fake*  
+`PublicSectionRenderer.tsx` lines 207, 221: both `<form onSubmit={(e) => e.preventDefault()}>` with no handler, no server fn, no destination. Visitors fill them out and the data is silently dropped. The seeded "Volunteer Signup", "Sponsor Spotlight", and contact templates rely on these.  
+**Fix**: add a `website_form_submissions` table (org_id, page_id, section_id, kind, data jsonb, created_at, RLS readable by org admins/editors) + a `submitWebsiteForm` server fn (no auth — public) + a "Submissions" tab on the page editor or website overview. Wire both forms to call it.
 
-Sidebar in `src/routes/app.tsx`: insert "Website Builder" (Globe icon) under the admin-visible group, between "Organization" and "Admin". Hidden entirely when not org admin.
+**2. Scheduled publishing has no scheduler** — *the plan and follow-ups marked "schedule" complete, but it does nothing*  
+`setPageStatus` accepts `status='scheduled'` and stores `scheduled_at`, the dashboard counts "Scheduled", and `published.tsx` shows a Scheduled tab — but **no UI lets a user pick a date and call it** (`grep schedulePage` returns zero hits in routes), and **nothing auto-promotes a scheduled page to `published` when the date arrives** (no pg_cron, no scheduled job, no edge function).  
+**Fix**: (a) add a "Schedule…" button in the page-editor publish bar that opens a datetime dialog and calls `setPageStatus({ status: "scheduled", scheduledAt })`; (b) add a `pg_cron` job (every 5 min) that runs `UPDATE website_pages SET status='published', published_at=now() WHERE status='scheduled' AND scheduled_at <= now()` — the snapshot trigger will then fire.
 
----
+**3. The section inspector only edits headline + body for most section types** — *fake editing*  
+`ContentFields` in `app.website.pages.$pageId.tsx` only knows about hero, text, image_text, cta, video, custom_html. **Every "items"-based section (feature_grid, stats, faq, testimonials, pricing_tiers, event_details, sponsor_grid, speaker_cards, committee_cards, resource_cards, member_directory, timeline) falls through to a generic 2-field stub — you cannot add/edit/reorder the items through the UI.** Today the only way to get items into those sections is via the AI generator; once placed you can't edit them.  
+**Fix**: extend `ContentFields` with array editors for each of those `items` shapes (title/body for feature_grid; value/label for stats; question/answer for faq; quote/author/role for testimonials; tier/price/features[] for pricing_tiers; date/title/desc for event_details/timeline; logo_url/name/href for sponsor_grid; etc.). One small `<ItemListEditor schema=... />` that handles add / remove / drag-reorder is enough.
 
-### 4. Server functions (`src/lib/website.functions.ts` + `website-ai.functions.ts`)
+**4. The public renderer renders ~half the section types as a generic 2-line block** — *fake output*  
+`PublicSectionRenderer.tsx` switch covers hero/cta/text/image_text/feature_grid/stats/faq/testimonials/video/newsletter/contact_form/custom_html. **event_details, sponsor_grid, speaker_cards, member_directory, committee_cards, resource_cards, pricing_tiers, timeline all hit the `default:` branch and render only `headline + body`** — even though they're in the section palette and the seeded templates use them.  
+**Fix**: implement real renderers for the eight missing types. They're all simple `items[]` layouts (logo grid, person card grid, pricing columns, vertical timeline, agenda list).
 
-All use `requireSupabaseAuth` so RLS applies as the user. Org id pulled from authenticated context — never trusted from client. Zod-validated input on every call.
+**5. The editor's center-pane preview also stops at 5 section types**  
+Same issue as #4 inside the admin preview (`SectionPreview` switch handles hero/cta/text/image_text/custom_html). Authors can't see what the public site will render. After fixing #4, refactor `SectionPreview` to wrap `PublicSectionRenderer` so admin preview = public output (already used by the public route).
 
-- `listPages`, `getPage`, `createPage`, `updatePage`, `duplicatePage`, `archivePage`, `deletePage`
-- `publishPage`, `unpublishPage`, `schedulePage` (writes to `website_publish_history`)
-- `listSections`, `upsertSection`, `reorderSections`, `deleteSection`, `duplicateSection`
-- `listTemplates` (global + org), `useTemplate(templateId, targetTitle)` → creates draft page
-- `listSavedSections`, `saveSectionAsReusable`, `insertSavedSection`
-- `getBrandSettings`, `updateBrandSettings`
-- AI: `generatePageDraft(prompt)`, `regenerateSection(sectionId, instruction)`, `rewriteCopy`, `improveSeo`, `improveAccessibility`, `addFaq`, `addCta` — all call Lovable AI Gateway (`google/gemini-2.5-flash` default; `gpt-5-mini` for SEO/accessibility analysis), persist to `website_ai_generations`, return draft JSON. Never auto-publish.
+**6. `restorePublishSnapshot` can't actually restore a page** — *broken*  
+The `website_pages_publish_snapshot` trigger captures page meta + `content_json` (an unused legacy column on `website_pages`), **not the `website_sections` rows that drive rendering**. So `restorePublishSnapshot` overwrites the page's title/slug/meta and a column nothing reads — the sections you saw at publish time don't come back.  
+**Fix**: change the trigger to also include `(SELECT jsonb_agg(s ORDER BY display_order) FROM website_sections s WHERE s.page_id = NEW.id)` into `version_snapshot_json.sections`, then in `restorePublishSnapshot` delete the current sections and re-insert from the snapshot inside a transaction.
 
----
+**7. Public-page header logo links to a non-existent route** — *broken link*  
+`p.$orgSlug.$slug.tsx` line 93: `<a href={`/p/${organization.slug}`}>` — there is no `/p/$orgSlug` route, so clicking the logo on any public page 404s.  
+**Fix**: link to `/p/${slug}/home` (or whichever page is the org's default — same logic `resolveCurrentHost` already uses).
 
-### 5. Visual builder components (`src/components/website/`)
+**8. Custom-domain UI doesn't say it's a two-step setup** — *misleading, not strictly fake*  
+The TXT-verification path works, but DNS still has to point at Lovable's hosting (`185.158.133.1`) and the domain has to be added in the Lovable platform's project settings for SSL termination. The current "How custom domains work" panel says "point a CNAME at the hosting provider in front of this app" without naming it, so users will get to "Verified" and still see no traffic.  
+**Fix**: rewrite the help panel to call out the two systems explicitly (1) DNS at registrar → 185.158.133.1, (2) add domain in **Lovable Project Settings → Domains**, (3) then verify TXT here. Or, simpler: drop our custom-domain table and lean entirely on the platform's domain feature.
 
-- `page-editor.tsx` — three-pane layout: section list (left), canvas preview (center), inspector (right).
-- `section-renderer.tsx` — switch on `section_type` → renders preview using brand tokens.
-- `section-inspector.tsx` — type-specific form (settings_json + content_json) using existing shadcn Form primitives.
-- `section-palette.tsx` — drag-to-add new section.
-- `viewport-toggle.tsx` — desktop / tablet / mobile preview frame (CSS width clamp, no iframe).
-- `ai-prompt-panel.tsx` — prompt box + quick-action buttons (Generate / Rewrite / Shorten / Make Professional / Improve SEO / Improve A11y / Add FAQ / Add CTA).
-- `seo-panel.tsx` — title/desc/og/slug + live quality score (heading hierarchy, alt text, contrast against brand colors, missing CTA, mobile warnings).
-- `template-card.tsx`, `page-status-badge.tsx`, `publish-dialog.tsx` (publish now / schedule), `brand-settings-form.tsx`.
-- Drag-and-drop via `@dnd-kit/core` + `@dnd-kit/sortable` (already common; add as new dep). Autosave via debounced `updatePage` (1.5s). Undo/redo via in-memory stack on the editor (last 30 states) — not persisted.
+**9. "Content Editor & Reviewer roles — coming soon" copy is stale**  
+`app.website.settings.tsx:86` still says "coming soon" but `can_edit_website` and the `content_editor` enum are live and used by RLS.  
+**Fix**: replace with a one-liner "Content editors can build and edit pages but can't publish; only owners/admins can publish." (and gate the Publish button accordingly — currently any `canEditWebsite` user can publish).
 
-Templates seeded (§2):
-Bar Association Homepage, Annual Convention Landing, CLE Event, Sponsorship Opportunities, Mentorship Program, Committee, Member Benefits, Join/Renew Membership, Legal Aid Resource, Judicial Reception, Newsletter Article, Sponsor Spotlight, Volunteer Signup.
+**10. Two redundant nav entries**  
+Sidebar has both **Drafts** and **Pages** — Drafts is `listWebsitePages({status:'draft'})`, exactly the same data Pages already filters. Same for **AI Builder** as a full route vs. the in-editor AI panel. Not broken, just clutter.  
+**Fix**: drop Drafts (the Pages list already has a status filter), keep AI Builder as the new-page entry only, or merge it into `pages/new`.
 
 ---
 
-### 6. AI builder behavior
+### Suggested fix order (small to large)
 
-- Single `generatePageDraft` call returns `{ title, slug, page_type, meta_title, meta_description, sections: [...] }` — inserted as **draft** page. User reviews in editor before any publish.
-- Per-section "Regenerate" / "Rewrite" actions operate on a single section's `content_json` and return a replacement object the user must accept.
-- All AI outputs logged to `website_ai_generations` for audit + future analytics.
-- Uses Lovable AI Gateway — no extra API keys required.
+1. **#7** broken header link — 2 lines.  
+2. **#9** stale "coming soon" copy + gate Publish on owner/admin.  
+3. **#1** Form submissions table + handler + admin viewer.  
+4. **#4** + **#5** Implement remaining public renderers and fold the editor preview into them.  
+5. **#3** Item-list editor in inspector for the eight items-based section types.  
+6. **#2** Schedule UI + pg_cron promoter.  
+7. **#6** Snapshot restore that includes section rows.  
+8. **#8** Domains help text (or strategic decision to drop the table).  
+9. **#10** Nav cleanup.
 
----
+Steps 1–3 can land in a single follow-up; steps 4–5 are the biggest user-facing lift but unblock the templates (sponsor grid, speaker cards, pricing, timeline) the seed migration already inserts.
 
-### 7. Permissions (v1)
-
-- Platform admin (`useIsAdmin`) and org owner/admin (`isOrgAdmin`): full access.
-- Members / mentors / mentees: module hidden, server functions reject via RLS.
-- "Content Editor" / "Reviewer" sub-roles: deferred — noted in module settings as "coming soon" so the schema doesn't need a new role enum yet. When added later, gate writes on a new `org_member_role` value without touching this module's RLS predicates (just swap `is_org_admin` for a `can_edit_website` helper).
-
----
-
-### 8. Dashboard overview (`app.website.index.tsx`)
-
-Cards: Total Pages, Drafts, Published, Scheduled, Recently Updated.
-Recent activity feed: last 20 entries from `website_publish_history` + AI generations + page edits (joined client-side).
-Primary CTAs: Create New Page · Use Template · Generate with AI.
-
----
-
-### 9. Out of scope (this phase)
-
-- Public rendering of published pages (no `/p/:slug` route, no custom domains).
-- Public sitemap/robots changes.
-- Granular Editor/Reviewer roles (schema-ready, UI deferred).
-- Real-time multi-user editing.
-- Image upload for OG/hero (uses existing `resources` bucket via `resource-uploader` — reuse only, no new bucket).
-- Content version diffing UI (snapshots stored, viewer deferred).
-
----
-
-### 10. Delivery order
-
-1. **Migration**: enums, tables, RLS, triggers, brand-settings seed loop, global templates seed.
-2. **Server functions + types**: `website.functions.ts`, `website-ai.functions.ts`, Zod schemas.
-3. **Routes + list/dashboard/brand/template/saved-sections screens** (no editor yet).
-4. **Visual editor + inspector + viewport preview + autosave**.
-5. **AI builder panel + per-section AI actions + SEO/a11y panel**.
-6. **Publish workflow + schedule + history**.
-
-Each step ships behind the admin-only sidebar entry, so nothing is user-visible to non-admins until §3+ lands. The public site is never modified.
+Want me to start implementing in this order, or do you want to scope it differently (e.g. drop section types you don't need so #3/#4/#5 shrink)?

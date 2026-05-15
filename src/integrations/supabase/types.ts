@@ -1385,6 +1385,64 @@ export type Database = {
         }
         Relationships: []
       }
+      website_form_submissions: {
+        Row: {
+          created_at: string
+          data: Json
+          form_kind: string
+          id: string
+          organization_id: string
+          page_id: string | null
+          referrer: string | null
+          section_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          form_kind: string
+          id?: string
+          organization_id: string
+          page_id?: string | null
+          referrer?: string | null
+          section_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          form_kind?: string
+          id?: string
+          organization_id?: string
+          page_id?: string | null
+          referrer?: string | null
+          section_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_form_submissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "website_form_submissions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "website_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "website_form_submissions_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "website_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       website_page_views: {
         Row: {
           created_at: string
