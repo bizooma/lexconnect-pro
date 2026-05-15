@@ -845,3 +845,32 @@ function SortableSectionItem({
     </li>
   );
 }
+
+function PresenceStack({ peers }: { peers: PresencePeer[] }) {
+  if (peers.length === 0) return null;
+  const visible = peers.slice(0, 4);
+  const extra = peers.length - visible.length;
+  return (
+    <div className="flex items-center -space-x-1.5 pl-1">
+      {visible.map((p) => (
+        <div
+          key={p.userId}
+          title={`${p.name} is here`}
+          className="flex size-6 items-center justify-center overflow-hidden rounded-full text-[10px] font-medium text-white ring-2 ring-card"
+          style={{ backgroundColor: p.color }}
+        >
+          {p.avatarUrl ? (
+            <img src={p.avatarUrl} alt={p.name} className="size-full object-cover" />
+          ) : (
+            (p.name?.[0] ?? "?").toUpperCase()
+          )}
+        </div>
+      ))}
+      {extra > 0 && (
+        <div className="flex size-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
+          +{extra}
+        </div>
+      )}
+    </div>
+  );
+}
