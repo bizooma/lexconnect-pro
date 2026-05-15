@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { getWebsiteStats, listAiGenerations } from "@/lib/website.functions";
+import { getWebsiteAnalytics } from "@/lib/website-analytics.functions";
 import { STATUS_LABELS, type WebsitePageStatus } from "@/lib/website";
 
 export const Route = createFileRoute("/app/website/")({
@@ -17,11 +18,15 @@ function WebsiteOverviewPage() {
   const { currentOrgId } = useCurrentOrg();
   const stats = useServerFn(getWebsiteStats);
   const aiList = useServerFn(listAiGenerations);
+  const analytics = useServerFn(getWebsiteAnalytics);
 
   const [counts, setCounts] = useState({ total: 0, draft: 0, published: 0, scheduled: 0 });
   const [recent, setRecent] = useState<Recent[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [ai, setAi] = useState<AiItem[]>([]);
+  const [series, setSeries] = useState<{ date: string; views: number }[]>([]);
+  const [totalViews, setTotalViews] = useState(0);
+  const [topPages, setTopPages] = useState<{ pageId: string; title: string; views: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,15 +35,19 @@ function WebsiteOverviewPage() {
     Promise.all([
       stats({ data: { organizationId: currentOrgId } }),
       aiList({ data: { organizationId: currentOrgId, limit: 10 } }),
+      analytics({ data: { organizationId: currentOrgId, days: 30 } }),
     ])
-      .then(([s, a]) => {
+      .then(([s, a, an]) => {
         setCounts({ total: s.total, draft: s.draft, published: s.published, scheduled: s.scheduled });
         setRecent(s.recent as Recent[]);
         setHistory(s.history as HistoryItem[]);
         setAi(a.generations as AiItem[]);
+        setSeries(an.series);
+        setTotalViews(an.total);
+        setTopPages(an.topPages);
       })
       .finally(() => setLoading(false));
-  }, [currentOrgId, stats, aiList]);
+  }, [currentOrgId, stats, aiList, analytics]);
 
   if (!currentOrgId) {
     return <div className="text-sm text-muted-foreground">Select an organization to begin.</div>;
@@ -97,6 +106,33 @@ function WebsiteOverviewPage() {
           ✨ Generate with AI
         </Link>
       </div>
+
+      <section className="rounded-xl border border-border bg-card">
+        <header className="flex items-center justify-between border-b border-border px-5 py-3">
+          <h2 className="text-sm font-semibold text-foreground">Page views (last 30 days)</h2>
+          <span className="text-xs text-muted-foreground">{totalViews.toLocaleString()} total</span>
+        </header>
+        <div className="px-5 py-4">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <ViewsChart series={series} />
+          )}
+          {topPages.length > 0 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Top pages</p>
+              <ul className="space-y-1.5">
+                {topPages.map((p) => (
+                  <li key={p.pageId} className="flex items-center justify-between text-sm">
+                    <span className="truncate text-foreground">{p.title}</span>
+                    <span className="shrink-0 text-muted-foreground">{p.views.toLocaleString()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card">
@@ -169,6 +205,32 @@ function Stat({ label, value }: { label: string; value: number }) {
     <div className="rounded-xl border border-border bg-card p-4">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function ViewsChart({ series }: { series: { date: string; views: number }[] }) {
+  if (!series.length) return <p className="text-sm text-muted-foreground">No views yet.</p>;
+  const max = Math.max(1, ...series.map((d) => d.views));
+  const w = 800;
+  const h = 140;
+  const pad = 8;
+  const stepX = (w - pad * 2) / Math.max(1, series.length - 1);
+  const points = series
+    .map((d, i) => `${pad + i * stepX},${h - pad - (d.views / max) * (h - pad * 2)}`)
+    .join(" ");
+  const area = `${pad},${h - pad} ${points} ${pad + (series.length - 1) * stepX},${h - pad}`;
+  return (
+    <div>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-36 text-primary" preserveAspectRatio="none">
+        <polygon points={area} fill="currentColor" opacity={0.15} />
+        <polyline points={points} fill="none" stroke="currentColor" strokeWidth={2} />
+      </svg>
+      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+        <span>{new Date(series[0].date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+        <span>Peak: {max}</span>
+        <span>{new Date(series[series.length - 1].date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+      </div>
     </div>
   );
 }
