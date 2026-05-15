@@ -38,6 +38,7 @@ import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
 import { Route as AppQaSearchRouteImport } from './routes/app.qa.search'
 import { Route as AppQaNotificationsRouteImport } from './routes/app.qa.notifications'
 import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
@@ -209,6 +210,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppQaSearchRoute = AppQaSearchRouteImport.update({
   id: '/search',
@@ -385,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
@@ -496,6 +504,7 @@ export interface FileRoutesById {
   '/app/qa/categories': typeof AppQaCategoriesRoute
   '/app/qa/notifications': typeof AppQaNotificationsRoute
   '/app/qa/search': typeof AppQaSearchRoute
+  '/app/website/templates': typeof AppWebsiteTemplatesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -555,6 +564,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
@@ -608,6 +618,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin'
     | '/app/messages'
@@ -665,6 +676,7 @@ export interface FileRouteTypes {
     | '/app/qa/categories'
     | '/app/qa/notifications'
     | '/app/qa/search'
+    | '/app/website/templates'
     | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/messages/'
@@ -913,6 +925,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/templates': {
+      id: '/app/website/templates'
+      path: '/templates'
+      fullPath: '/app/website/templates'
+      preLoaderRoute: typeof AppWebsiteTemplatesRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
     '/app/qa/search': {
       id: '/app/qa/search'
       path: '/search'
@@ -1151,6 +1170,7 @@ const AppQaRouteChildren: AppQaRouteChildren = {
 const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsiteRouteChildren {
+  AppWebsiteTemplatesRoute: typeof AppWebsiteTemplatesRoute
   AppWebsiteIndexRoute: typeof AppWebsiteIndexRoute
   AppWebsitePagesPageIdRoute: typeof AppWebsitePagesPageIdRoute
   AppWebsitePagesNewRoute: typeof AppWebsitePagesNewRoute
@@ -1158,6 +1178,7 @@ interface AppWebsiteRouteChildren {
 }
 
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
+  AppWebsiteTemplatesRoute: AppWebsiteTemplatesRoute,
   AppWebsiteIndexRoute: AppWebsiteIndexRoute,
   AppWebsitePagesPageIdRoute: AppWebsitePagesPageIdRoute,
   AppWebsitePagesNewRoute: AppWebsitePagesNewRoute,

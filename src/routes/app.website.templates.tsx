@@ -21,7 +21,7 @@ function TemplatesPage() {
   useEffect(() => {
     if (!currentOrgId) return;
     list({ data: { organizationId: currentOrgId } })
-      .then((r) => setTemplates(r.templates as WebsiteTemplate[]))
+      .then((r) => setTemplates(r.templates as unknown as WebsiteTemplate[]))
       .finally(() => setLoading(false));
   }, [currentOrgId, list]);
 
