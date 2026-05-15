@@ -21,6 +21,8 @@ import {
   type WebsiteSectionType,
 } from "@/lib/website";
 import { ImageUploader } from "@/components/website/ImageUploader";
+import { usePagePresence, type PresencePeer } from "@/hooks/use-page-presence";
+import { useAuth } from "@/hooks/use-auth";
 import {
   DndContext,
   KeyboardSensor,
@@ -75,10 +77,26 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const { user } = useAuth();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  const refreshRef = useRef<() => Promise<void>>(async () => {});
+  const { peers, broadcastSaved } = usePagePresence({
+    pageId,
+    userId: user?.id ?? null,
+    name: (user?.user_metadata?.full_name as string) || user?.email || "Editor",
+    avatarUrl: (user?.user_metadata?.avatar_url as string) ?? null,
+    selectedSectionId: selectedId,
+    onRemoteSave: (by) => {
+      const peer = peers.find((p) => p.userId === by);
+      toast.message(`${peer?.name ?? "A teammate"} updated this page`, {
+        action: { label: "Refresh", onClick: () => void refreshRef.current() },
+      });
+    },
+  });
 
   // Undo/redo stacks (capacity 30). A snapshot is { sections, page }.
   type Snapshot = { sections: WebsiteSection[]; page: WebsitePage };
@@ -106,6 +124,7 @@ function PageEditorPage() {
     }
   }, [get, pageId, selectedId]);
 
+  useEffect(() => { refreshRef.current = refresh; }, [refresh]);
   useEffect(() => { void refresh(); }, [pageId]); // eslint-disable-line
 
   // Debounced meta autosave
@@ -118,6 +137,7 @@ function PageEditorPage() {
       setSavingMeta(true);
       try {
         await upd({ data: { pageId, patch: patch as any } });
+        broadcastSaved();
       } catch (e) {
         toast.error((e as Error).message);
       } finally {
@@ -157,6 +177,7 @@ function PageEditorPage() {
       });
       await refresh();
       setSelectedId(r.sectionId);
+      broadcastSaved();
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -167,6 +188,7 @@ function PageEditorPage() {
     pushSnapshot();
     await del({ data: { sectionId: id } });
     if (selectedId === id) setSelectedId(null);
+    broadcastSaved();
     refresh();
   };
 
@@ -180,6 +202,7 @@ function PageEditorPage() {
     const reordered = arrayMove(sections, from, to);
     setSections(reordered);
     await reorder({ data: { pageId, orderedIds: reordered.map((s) => s.id) } });
+    broadcastSaved();
   };
 
   const updateSelected = async (patch: Partial<WebsiteSection>, snapshot = true) => {
@@ -200,6 +223,7 @@ function PageEditorPage() {
         responsive_json: merged.responsive_json,
       },
     });
+    broadcastSaved();
   };
 
   const restoreSnapshot = async (snap: Snapshot) => {
@@ -263,6 +287,7 @@ function PageEditorPage() {
             {STATUS_LABELS[page.status]}
           </span>
           {savingMeta && <span className="text-xs text-muted-foreground">Saving…</span>}
+          <PresenceStack peers={peers} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
@@ -346,6 +371,7 @@ function PageEditorPage() {
                         selected={selectedId === s.id}
                         onSelect={() => setSelectedId(s.id)}
                         onRemove={() => removeSection(s.id)}
+                        editor={peers.find((p) => p.selectedSectionId === s.id) ?? null}
                       />
                     ))}
                   </ul>
@@ -755,6 +781,7 @@ function SortableSectionItem({
   selected,
   onSelect,
   onRemove,
+  editor,
 }: {
   id: string;
   index: number;
@@ -762,6 +789,7 @@ function SortableSectionItem({
   selected: boolean;
   onSelect: () => void;
   onRemove: () => void;
+  editor: PresencePeer | null;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } = useSortable({ id });
   const style = {
@@ -796,6 +824,13 @@ function SortableSectionItem({
           className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
         >
           <span className="truncate">{index + 1}. {label}</span>
+          {editor && (
+            <span
+              title={`${editor.name} is editing this section`}
+              className="inline-block size-2 shrink-0 rounded-full ring-2 ring-background"
+              style={{ backgroundColor: editor.color }}
+            />
+          )}
         </button>
         <button
           type="button"
@@ -807,5 +842,34 @@ function SortableSectionItem({
         </button>
       </div>
     </li>
+  );
+}
+
+function PresenceStack({ peers }: { peers: PresencePeer[] }) {
+  if (peers.length === 0) return null;
+  const visible = peers.slice(0, 4);
+  const extra = peers.length - visible.length;
+  return (
+    <div className="flex items-center -space-x-1.5 pl-1">
+      {visible.map((p) => (
+        <div
+          key={p.userId}
+          title={`${p.name} is here`}
+          className="flex size-6 items-center justify-center overflow-hidden rounded-full text-[10px] font-medium text-white ring-2 ring-card"
+          style={{ backgroundColor: p.color }}
+        >
+          {p.avatarUrl ? (
+            <img src={p.avatarUrl} alt={p.name} className="size-full object-cover" />
+          ) : (
+            (p.name?.[0] ?? "?").toUpperCase()
+          )}
+        </div>
+      ))}
+      {extra > 0 && (
+        <div className="flex size-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-card">
+          +{extra}
+        </div>
+      )}
+    </div>
   );
 }
