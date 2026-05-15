@@ -288,6 +288,7 @@ function PageEditorPage() {
             {STATUS_LABELS[page.status]}
           </span>
           {savingMeta && <span className="text-xs text-muted-foreground">Saving…</span>}
+          <PresenceStack peers={peers} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-background p-0.5 text-xs">
