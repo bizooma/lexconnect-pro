@@ -297,19 +297,29 @@ function PageEditorPage() {
             ) : (
               <ul className="space-y-1">
                 {sections.map((s, i) => (
-                  <li key={s.id}>
+                  <li
+                    key={s.id}
+                    draggable
+                    onDragStart={() => setDragId(s.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleDrop(s.id)}
+                    onDragEnd={() => setDragId(null)}
+                    className={dragId === s.id ? "opacity-50" : ""}
+                  >
                     <button
                       onClick={() => setSelectedId(s.id)}
                       className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-xs ${
                         selectedId === s.id ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
                       }`}
                     >
-                      <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
-                      <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
-                        <span onClick={(e) => { e.stopPropagation(); move(s.id, -1); }} className="rounded p-0.5 hover:bg-background">↑</span>
-                        <span onClick={(e) => { e.stopPropagation(); move(s.id, 1); }} className="rounded p-0.5 hover:bg-background">↓</span>
-                        <span onClick={(e) => { e.stopPropagation(); removeSection(s.id); }} className="rounded p-0.5 text-destructive hover:bg-background">×</span>
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <span className="cursor-grab text-muted-foreground/60">⋮⋮</span>
+                        <span className="truncate">{i + 1}. {SECTION_LABELS[s.section_type]}</span>
                       </span>
+                      <span
+                        onClick={(e) => { e.stopPropagation(); removeSection(s.id); }}
+                        className="rounded p-0.5 text-destructive opacity-0 hover:bg-background group-hover:opacity-100"
+                      >×</span>
                     </button>
                   </li>
                 ))}
