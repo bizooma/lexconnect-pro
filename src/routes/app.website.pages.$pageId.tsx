@@ -598,25 +598,39 @@ function ContentFields({
 
   return (
     <div className="space-y-2 text-xs">
-      {fields.map((f) => (
-        <label key={f.key} className="block">
-          <span className="text-muted-foreground">{f.label}</span>
-          {f.type === "textarea" ? (
-            <textarea
+      {fields.map((f) => {
+        if (f.key === "image_url") {
+          return (
+            <ImageUploader
+              key={f.key}
+              organizationId={section.organization_id}
               value={(c[f.key] as string) ?? ""}
-              onChange={(e) => update(f.key, e.target.value)}
-              rows={3}
-              className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-foreground"
+              onChange={(url) => update(f.key, url ?? "")}
+              label={f.label}
+              aspect={section.section_type === "hero" ? "wide" : "video"}
             />
-          ) : (
-            <input
-              value={(c[f.key] as string) ?? ""}
-              onChange={(e) => update(f.key, e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-foreground"
-            />
-          )}
-        </label>
-      ))}
+          );
+        }
+        return (
+          <label key={f.key} className="block">
+            <span className="text-muted-foreground">{f.label}</span>
+            {f.type === "textarea" ? (
+              <textarea
+                value={(c[f.key] as string) ?? ""}
+                onChange={(e) => update(f.key, e.target.value)}
+                rows={3}
+                className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-foreground"
+              />
+            ) : (
+              <input
+                value={(c[f.key] as string) ?? ""}
+                onChange={(e) => update(f.key, e.target.value)}
+                className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-foreground"
+              />
+            )}
+          </label>
+        );
+      })}
     </div>
   );
 }
