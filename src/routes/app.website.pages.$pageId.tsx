@@ -825,6 +825,13 @@ function SortableSectionItem({
           className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
         >
           <span className="truncate">{index + 1}. {label}</span>
+          {editor && (
+            <span
+              title={`${editor.name} is editing this section`}
+              className="inline-block size-2 shrink-0 rounded-full ring-2 ring-background"
+              style={{ backgroundColor: editor.color }}
+            />
+          )}
         </button>
         <button
           type="button"
