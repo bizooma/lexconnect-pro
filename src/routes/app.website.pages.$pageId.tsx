@@ -10,6 +10,7 @@ import {
   reorderSections,
   setPageStatus,
 } from "@/lib/website.functions";
+import { regenerateSection, improvePageSeo } from "@/lib/website-ai.functions";
 import {
   SECTION_LABELS,
   STATUS_LABELS,
@@ -45,7 +46,8 @@ function PageEditorPage() {
   const del = useServerFn(deleteSection);
   const reorder = useServerFn(reorderSections);
   const setStatus = useServerFn(setPageStatus);
-
+  const aiRewrite = useServerFn(regenerateSection);
+  const aiSeo = useServerFn(improvePageSeo);
   const [page, setPage] = useState<WebsitePage | null>(null);
   const [sections, setSections] = useState<WebsiteSection[]>([]);
   const [loading, setLoading] = useState(true);
