@@ -188,6 +188,7 @@ function PageEditorPage() {
     pushSnapshot();
     await del({ data: { sectionId: id } });
     if (selectedId === id) setSelectedId(null);
+    broadcastSaved();
     refresh();
   };
 
