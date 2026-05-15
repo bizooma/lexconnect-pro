@@ -78,10 +78,26 @@ function PageEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [savingMeta, setSavingMeta] = useState(false);
+  const { user } = useAuth();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  const refreshRef = useRef<() => Promise<void>>(async () => {});
+  const { peers, broadcastSaved } = usePagePresence({
+    pageId,
+    userId: user?.id ?? null,
+    name: (user?.user_metadata?.full_name as string) || user?.email || "Editor",
+    avatarUrl: (user?.user_metadata?.avatar_url as string) ?? null,
+    selectedSectionId: selectedId,
+    onRemoteSave: (by) => {
+      const peer = peers.find((p) => p.userId === by);
+      sonnerToast.message(`${peer?.name ?? "A teammate"} updated this page`, {
+        action: { label: "Refresh", onClick: () => void refreshRef.current() },
+      });
+    },
+  });
 
   // Undo/redo stacks (capacity 30). A snapshot is { sections, page }.
   type Snapshot = { sections: WebsiteSection[]; page: WebsitePage };
