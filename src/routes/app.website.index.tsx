@@ -222,9 +222,9 @@ function ViewsChart({ series }: { series: { date: string; views: number }[] }) {
   const area = `${pad},${h - pad} ${points} ${pad + (series.length - 1) * stepX},${h - pad}`;
   return (
     <div>
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-36" preserveAspectRatio="none">
-        <polygon points={area} fill="hsl(var(--primary) / 0.15)" />
-        <polyline points={points} fill="none" stroke="hsl(var(--primary))" strokeWidth={2} />
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-36 text-primary" preserveAspectRatio="none">
+        <polygon points={area} fill="currentColor" opacity={0.15} />
+        <polyline points={points} fill="none" stroke="currentColor" strokeWidth={2} />
       </svg>
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
         <span>{new Date(series[0].date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
