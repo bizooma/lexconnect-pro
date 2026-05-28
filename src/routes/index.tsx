@@ -5,7 +5,6 @@ import heroBg from "@/assets/hero-bg.jpg";
 import phoneMockup from "@/assets/lex-phones.png";
 import bizoomaLogo from "@/assets/bizooma-logo.png";
 import installIosSafari from "@/assets/install-ios-safari.png";
-import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
 import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
@@ -171,10 +170,9 @@ function Landing() {
             Installed on your phone as a Progressive Web App (PWA), LexGuild delivers a faster, cleaner, and more seamless experience for busy legal professionals.
           </h3>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
             {[
               { src: installIosSafari, alt: "Install LexGuild on iPhone using Safari — step-by-step screenshots" },
-              { src: installIosChrome, alt: "Install LexGuild on iPhone using Chrome — step-by-step screenshots" },
               { src: installAndroid, alt: "Install LexGuild on Android using Chrome — step-by-step screenshots" },
             ].map((img) => (
               <div key={img.alt} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
