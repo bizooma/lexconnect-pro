@@ -170,7 +170,7 @@ function Landing() {
             Installed on your phone as a Progressive Web App (PWA), LexGuild delivers a faster, cleaner, and more seamless experience for busy legal professionals.
           </h3>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
             {[
               { src: installIosSafari, alt: "Install LexGuild on iPhone using Safari — step-by-step screenshots" },
               { src: installAndroid, alt: "Install LexGuild on Android using Chrome — step-by-step screenshots" },
