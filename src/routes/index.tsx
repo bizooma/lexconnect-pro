@@ -5,7 +5,6 @@ import heroBg from "@/assets/hero-bg.jpg";
 import phoneMockup from "@/assets/lex-phones.png";
 import bizoomaLogo from "@/assets/bizooma-logo.png";
 import installIosSafari from "@/assets/install-ios-safari.png";
-import installIosChrome from "@/assets/install-ios-chrome.png";
 import installAndroid from "@/assets/install-android.png";
 import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
