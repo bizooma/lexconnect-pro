@@ -173,7 +173,6 @@ function Landing() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
               { src: installIosSafari, alt: "Install LexGuild on iPhone using Safari — step-by-step screenshots" },
-              { src: installIosChrome, alt: "Install LexGuild on iPhone using Chrome — step-by-step screenshots" },
               { src: installAndroid, alt: "Install LexGuild on Android using Chrome — step-by-step screenshots" },
             ].map((img) => (
               <div key={img.alt} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
