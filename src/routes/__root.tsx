@@ -116,6 +116,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       {
+        src: "https://datarightsos.com/functions/widgetJs",
+        defer: true,
+        "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
+      },
+      {
         async: true,
         src: "https://www.googletagmanager.com/gtag/js?id=G-T5YBQFESKV",
       },
