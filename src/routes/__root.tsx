@@ -123,11 +123,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
       },
       {
-        src: "https://bizooma.com/accessibility-widget.js",
-        defer: true,
-        "data-org": "lex-guild",
-      } as any,
-      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
