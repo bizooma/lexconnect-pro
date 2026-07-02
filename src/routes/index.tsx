@@ -630,7 +630,6 @@ function Landing() {
           <nav className="flex items-center gap-5">
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground">Terms</Link>
-            <a href="#contact" className="hover:text-foreground">Contact</a>
           </nav>
         </div>
       </footer>
