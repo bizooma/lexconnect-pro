@@ -32,7 +32,7 @@ import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDirectoryRouteImport } from './routes/app.directory'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
-import { Route as AppCleRouteImport } from './routes/app.cle'
+import { Route as AppCeRouteImport } from './routes/app.ce'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
@@ -40,6 +40,7 @@ import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
+import { Route as AppCeIndexRouteImport } from './routes/app.ce.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -64,11 +65,15 @@ import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
+import { Route as AppCeCatalogRouteImport } from './routes/app.ce.catalog'
+import { Route as AppCeAdminRouteImport } from './routes/app.ce.admin'
+import { Route as AppCeCourseIdRouteImport } from './routes/app.ce.$courseId'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
+import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -76,11 +81,15 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pages.new'
 import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
+import { Route as AppCeAdminResultsRouteImport } from './routes/app.ce.admin.results'
+import { Route as AppCeAdminAssignmentsRouteImport } from './routes/app.ce.admin.assignments'
+import { Route as AppCeCourseIdLessonIdRouteImport } from './routes/app.ce.$courseId.$lessonId'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push.dispatch'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksQaDigestRouteImport } from './routes/api/public/hooks/qa-digest'
 import { Route as ApiPublicHooksAutoPublishRouteImport } from './routes/api/public/hooks/auto-publish'
 import { Route as AppWebsitePagesPageIdHistoryRouteImport } from './routes/app.website.pages.$pageId.history'
+import { Route as AppCeAdminCourseCourseIdRouteImport } from './routes/app.ce.admin.course.$courseId'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -197,9 +206,9 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCleRoute = AppCleRouteImport.update({
-  id: '/cle',
-  path: '/cle',
+const AppCeRoute = AppCeRouteImport.update({
+  id: '/ce',
+  path: '/ce',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminRoute = AppAdminRouteImport.update({
@@ -236,6 +245,11 @@ const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppMessagesRoute,
+} as any)
+const AppCeIndexRoute = AppCeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCeRoute,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
@@ -357,6 +371,21 @@ const AppMessagesIdRoute = AppMessagesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppMessagesRoute,
 } as any)
+const AppCeCatalogRoute = AppCeCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => AppCeRoute,
+} as any)
+const AppCeAdminRoute = AppCeAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppCeRoute,
+} as any)
+const AppCeCourseIdRoute = AppCeCourseIdRouteImport.update({
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => AppCeRoute,
+} as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -381,6 +410,11 @@ const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
   id: '/pages/',
   path: '/pages/',
   getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppCeAdminIndexRoute = AppCeAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCeAdminRoute,
 } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
@@ -420,6 +454,21 @@ const AppWebsitePagesPageIdRoute = AppWebsitePagesPageIdRouteImport.update({
   path: '/pages/$pageId',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
+const AppCeAdminResultsRoute = AppCeAdminResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => AppCeAdminRoute,
+} as any)
+const AppCeAdminAssignmentsRoute = AppCeAdminAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppCeAdminRoute,
+} as any)
+const AppCeCourseIdLessonIdRoute = AppCeCourseIdLessonIdRouteImport.update({
+  id: '/$lessonId',
+  path: '/$lessonId',
+  getParentRoute: () => AppCeCourseIdRoute,
+} as any)
 const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
   id: '/api/public/push/dispatch',
   path: '/api/public/push/dispatch',
@@ -448,6 +497,12 @@ const AppWebsitePagesPageIdHistoryRoute =
     path: '/history',
     getParentRoute: () => AppWebsitePagesPageIdRoute,
   } as any)
+const AppCeAdminCourseCourseIdRoute =
+  AppCeAdminCourseCourseIdRouteImport.update({
+    id: '/course/$courseId',
+    path: '/course/$courseId',
+    getParentRoute: () => AppCeAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -464,7 +519,7 @@ export interface FileRoutesByFullPath {
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/activity': typeof AppActivityRoute
   '/app/admin': typeof AppAdminRouteWithChildren
-  '/app/cle': typeof AppCleRoute
+  '/app/ce': typeof AppCeRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -481,6 +536,9 @@ export interface FileRoutesByFullPath {
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
+  '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
+  '/app/ce/admin': typeof AppCeAdminRouteWithChildren
+  '/app/ce/catalog': typeof AppCeCatalogRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -505,6 +563,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/ce/': typeof AppCeIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
@@ -513,6 +572,9 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/ce/$courseId/$lessonId': typeof AppCeCourseIdLessonIdRoute
+  '/app/ce/admin/assignments': typeof AppCeAdminAssignmentsRoute
+  '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -520,7 +582,9 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRoutesByTo {
@@ -537,7 +601,6 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/activity': typeof AppActivityRoute
-  '/app/cle': typeof AppCleRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -551,6 +614,8 @@ export interface FileRoutesByTo {
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
+  '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
+  '/app/ce/catalog': typeof AppCeCatalogRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -575,6 +640,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin': typeof AppAdminIndexRoute
+  '/app/ce': typeof AppCeIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
@@ -583,6 +649,9 @@ export interface FileRoutesByTo {
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/ce/$courseId/$lessonId': typeof AppCeCourseIdLessonIdRoute
+  '/app/ce/admin/assignments': typeof AppCeAdminAssignmentsRoute
+  '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -590,7 +659,9 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/ce/admin': typeof AppCeAdminIndexRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
+  '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRoutesById {
@@ -609,7 +680,7 @@ export interface FileRoutesById {
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/activity': typeof AppActivityRoute
   '/app/admin': typeof AppAdminRouteWithChildren
-  '/app/cle': typeof AppCleRoute
+  '/app/ce': typeof AppCeRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -626,6 +697,9 @@ export interface FileRoutesById {
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
+  '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
+  '/app/ce/admin': typeof AppCeAdminRouteWithChildren
+  '/app/ce/catalog': typeof AppCeCatalogRoute
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
@@ -650,6 +724,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/ce/': typeof AppCeIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
@@ -658,6 +733,9 @@ export interface FileRoutesById {
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/push/dispatch': typeof ApiPublicPushDispatchRoute
+  '/app/ce/$courseId/$lessonId': typeof AppCeCourseIdLessonIdRoute
+  '/app/ce/admin/assignments': typeof AppCeAdminAssignmentsRoute
+  '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -665,7 +743,9 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
 export interface FileRouteTypes {
@@ -685,7 +765,7 @@ export interface FileRouteTypes {
     | '/accept-invite/$token'
     | '/app/activity'
     | '/app/admin'
-    | '/app/cle'
+    | '/app/ce'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -702,6 +782,9 @@ export interface FileRouteTypes {
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
+    | '/app/ce/$courseId'
+    | '/app/ce/admin'
+    | '/app/ce/catalog'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -726,6 +809,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
+    | '/app/ce/'
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
@@ -734,6 +818,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/ce/$courseId/$lessonId'
+    | '/app/ce/admin/assignments'
+    | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
@@ -741,7 +828,9 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -758,7 +847,6 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/accept-invite/$token'
     | '/app/activity'
-    | '/app/cle'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -772,6 +860,8 @@ export interface FileRouteTypes {
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
+    | '/app/ce/$courseId'
+    | '/app/ce/catalog'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -796,6 +886,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin'
+    | '/app/ce'
     | '/app/messages'
     | '/app/org'
     | '/app/qa'
@@ -804,6 +895,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/ce/$courseId/$lessonId'
+    | '/app/ce/admin/assignments'
+    | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
@@ -811,7 +905,9 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/ce/admin'
     | '/app/website/pages'
+    | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   id:
     | '__root__'
@@ -829,7 +925,7 @@ export interface FileRouteTypes {
     | '/accept-invite/$token'
     | '/app/activity'
     | '/app/admin'
-    | '/app/cle'
+    | '/app/ce'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -846,6 +942,9 @@ export interface FileRouteTypes {
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
+    | '/app/ce/$courseId'
+    | '/app/ce/admin'
+    | '/app/ce/catalog'
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
@@ -870,6 +969,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
+    | '/app/ce/'
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
@@ -878,6 +978,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
     | '/api/public/push/dispatch'
+    | '/app/ce/$courseId/$lessonId'
+    | '/app/ce/admin/assignments'
+    | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
     | '/lovable/email/auth/preview'
@@ -885,7 +988,9 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesById: FileRoutesById
 }
@@ -1083,11 +1188,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/cle': {
-      id: '/app/cle'
-      path: '/cle'
-      fullPath: '/app/cle'
-      preLoaderRoute: typeof AppCleRouteImport
+    '/app/ce': {
+      id: '/app/ce'
+      path: '/ce'
+      fullPath: '/app/ce'
+      preLoaderRoute: typeof AppCeRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/admin': {
@@ -1138,6 +1243,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/messages/'
       preLoaderRoute: typeof AppMessagesIndexRouteImport
       parentRoute: typeof AppMessagesRoute
+    }
+    '/app/ce/': {
+      id: '/app/ce/'
+      path: '/'
+      fullPath: '/app/ce/'
+      preLoaderRoute: typeof AppCeIndexRouteImport
+      parentRoute: typeof AppCeRoute
     }
     '/app/admin/': {
       id: '/app/admin/'
@@ -1307,6 +1419,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMessagesIdRouteImport
       parentRoute: typeof AppMessagesRoute
     }
+    '/app/ce/catalog': {
+      id: '/app/ce/catalog'
+      path: '/catalog'
+      fullPath: '/app/ce/catalog'
+      preLoaderRoute: typeof AppCeCatalogRouteImport
+      parentRoute: typeof AppCeRoute
+    }
+    '/app/ce/admin': {
+      id: '/app/ce/admin'
+      path: '/admin'
+      fullPath: '/app/ce/admin'
+      preLoaderRoute: typeof AppCeAdminRouteImport
+      parentRoute: typeof AppCeRoute
+    }
+    '/app/ce/$courseId': {
+      id: '/app/ce/$courseId'
+      path: '/$courseId'
+      fullPath: '/app/ce/$courseId'
+      preLoaderRoute: typeof AppCeCourseIdRouteImport
+      parentRoute: typeof AppCeRoute
+    }
     '/app/admin/users': {
       id: '/app/admin/users'
       path: '/users'
@@ -1341,6 +1474,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/website/pages/'
       preLoaderRoute: typeof AppWebsitePagesIndexRouteImport
       parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/ce/admin/': {
+      id: '/app/ce/admin/'
+      path: '/'
+      fullPath: '/app/ce/admin/'
+      preLoaderRoute: typeof AppCeAdminIndexRouteImport
+      parentRoute: typeof AppCeAdminRoute
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -1391,6 +1531,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebsitePagesPageIdRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
+    '/app/ce/admin/results': {
+      id: '/app/ce/admin/results'
+      path: '/results'
+      fullPath: '/app/ce/admin/results'
+      preLoaderRoute: typeof AppCeAdminResultsRouteImport
+      parentRoute: typeof AppCeAdminRoute
+    }
+    '/app/ce/admin/assignments': {
+      id: '/app/ce/admin/assignments'
+      path: '/assignments'
+      fullPath: '/app/ce/admin/assignments'
+      preLoaderRoute: typeof AppCeAdminAssignmentsRouteImport
+      parentRoute: typeof AppCeAdminRoute
+    }
+    '/app/ce/$courseId/$lessonId': {
+      id: '/app/ce/$courseId/$lessonId'
+      path: '/$lessonId'
+      fullPath: '/app/ce/$courseId/$lessonId'
+      preLoaderRoute: typeof AppCeCourseIdLessonIdRouteImport
+      parentRoute: typeof AppCeCourseIdRoute
+    }
     '/api/public/push/dispatch': {
       id: '/api/public/push/dispatch'
       path: '/api/public/push/dispatch'
@@ -1426,6 +1587,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebsitePagesPageIdHistoryRouteImport
       parentRoute: typeof AppWebsitePagesPageIdRoute
     }
+    '/app/ce/admin/course/$courseId': {
+      id: '/app/ce/admin/course/$courseId'
+      path: '/course/$courseId'
+      fullPath: '/app/ce/admin/course/$courseId'
+      preLoaderRoute: typeof AppCeAdminCourseCourseIdRouteImport
+      parentRoute: typeof AppCeAdminRoute
+    }
   }
 }
 
@@ -1444,6 +1612,52 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
 const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
+
+interface AppCeCourseIdRouteChildren {
+  AppCeCourseIdLessonIdRoute: typeof AppCeCourseIdLessonIdRoute
+}
+
+const AppCeCourseIdRouteChildren: AppCeCourseIdRouteChildren = {
+  AppCeCourseIdLessonIdRoute: AppCeCourseIdLessonIdRoute,
+}
+
+const AppCeCourseIdRouteWithChildren = AppCeCourseIdRoute._addFileChildren(
+  AppCeCourseIdRouteChildren,
+)
+
+interface AppCeAdminRouteChildren {
+  AppCeAdminAssignmentsRoute: typeof AppCeAdminAssignmentsRoute
+  AppCeAdminResultsRoute: typeof AppCeAdminResultsRoute
+  AppCeAdminIndexRoute: typeof AppCeAdminIndexRoute
+  AppCeAdminCourseCourseIdRoute: typeof AppCeAdminCourseCourseIdRoute
+}
+
+const AppCeAdminRouteChildren: AppCeAdminRouteChildren = {
+  AppCeAdminAssignmentsRoute: AppCeAdminAssignmentsRoute,
+  AppCeAdminResultsRoute: AppCeAdminResultsRoute,
+  AppCeAdminIndexRoute: AppCeAdminIndexRoute,
+  AppCeAdminCourseCourseIdRoute: AppCeAdminCourseCourseIdRoute,
+}
+
+const AppCeAdminRouteWithChildren = AppCeAdminRoute._addFileChildren(
+  AppCeAdminRouteChildren,
+)
+
+interface AppCeRouteChildren {
+  AppCeCourseIdRoute: typeof AppCeCourseIdRouteWithChildren
+  AppCeAdminRoute: typeof AppCeAdminRouteWithChildren
+  AppCeCatalogRoute: typeof AppCeCatalogRoute
+  AppCeIndexRoute: typeof AppCeIndexRoute
+}
+
+const AppCeRouteChildren: AppCeRouteChildren = {
+  AppCeCourseIdRoute: AppCeCourseIdRouteWithChildren,
+  AppCeAdminRoute: AppCeAdminRouteWithChildren,
+  AppCeCatalogRoute: AppCeCatalogRoute,
+  AppCeIndexRoute: AppCeIndexRoute,
+}
+
+const AppCeRouteWithChildren = AppCeRoute._addFileChildren(AppCeRouteChildren)
 
 interface AppMessagesRouteChildren {
   AppMessagesIdRoute: typeof AppMessagesIdRoute
@@ -1531,7 +1745,7 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
-  AppCleRoute: typeof AppCleRoute
+  AppCeRoute: typeof AppCeRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppDirectoryRoute: typeof AppDirectoryRoute
   AppDiscoverRoute: typeof AppDiscoverRoute
@@ -1552,7 +1766,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppActivityRoute: AppActivityRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
-  AppCleRoute: AppCleRoute,
+  AppCeRoute: AppCeRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
   AppDirectoryRoute: AppDirectoryRoute,
   AppDiscoverRoute: AppDiscoverRoute,
@@ -1617,13 +1831,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

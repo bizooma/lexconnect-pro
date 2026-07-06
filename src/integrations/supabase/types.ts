@@ -32,6 +32,395 @@ export type Database = {
         }
         Relationships: []
       }
+      ce_assignments: {
+        Row: {
+          assigned_by: string
+          assignee_role: Database["public"]["Enums"]["org_role"] | null
+          assignee_user_id: string | null
+          course_id: string
+          created_at: string
+          due_at: string | null
+          id: string
+          required: boolean
+        }
+        Insert: {
+          assigned_by: string
+          assignee_role?: Database["public"]["Enums"]["org_role"] | null
+          assignee_user_id?: string | null
+          course_id: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          required?: boolean
+        }
+        Update: {
+          assigned_by?: string
+          assignee_role?: Database["public"]["Enums"]["org_role"] | null
+          assignee_user_id?: string | null
+          course_id?: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          required?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "ce_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_courses: {
+        Row: {
+          allow_self_enroll: boolean
+          cover_image_url: string | null
+          created_at: string
+          created_by: string
+          credit_hours: number
+          description: string | null
+          id: string
+          organization_id: string
+          slug: string
+          status: Database["public"]["Enums"]["ce_course_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          allow_self_enroll?: boolean
+          cover_image_url?: string | null
+          created_at?: string
+          created_by: string
+          credit_hours?: number
+          description?: string | null
+          id?: string
+          organization_id: string
+          slug: string
+          status?: Database["public"]["Enums"]["ce_course_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          allow_self_enroll?: boolean
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string
+          credit_hours?: number
+          description?: string | null
+          id?: string
+          organization_id?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["ce_course_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_enrollments: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          enrolled_at: string
+          id: string
+          status: Database["public"]["Enums"]["ce_enrollment_status"]
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["ce_enrollment_status"]
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["ce_enrollment_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "ce_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_lesson_progress: {
+        Row: {
+          best_score_pct: number | null
+          enrollment_id: string
+          id: string
+          lesson_id: string
+          passed_at: string | null
+          updated_at: string
+          video_watched_at: string | null
+        }
+        Insert: {
+          best_score_pct?: number | null
+          enrollment_id: string
+          id?: string
+          lesson_id: string
+          passed_at?: string | null
+          updated_at?: string
+          video_watched_at?: string | null
+        }
+        Update: {
+          best_score_pct?: number | null
+          enrollment_id?: string
+          id?: string
+          lesson_id?: string
+          passed_at?: string | null
+          updated_at?: string
+          video_watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_lesson_progress_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "ce_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ce_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "ce_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          display_order: number
+          duration_seconds: number | null
+          has_quiz: boolean
+          id: string
+          required: boolean
+          title: string
+          updated_at: string
+          youtube_url: string
+          youtube_video_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_seconds?: number | null
+          has_quiz?: boolean
+          id?: string
+          required?: boolean
+          title: string
+          updated_at?: string
+          youtube_url: string
+          youtube_video_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_seconds?: number | null
+          has_quiz?: boolean
+          id?: string
+          required?: boolean
+          title?: string
+          updated_at?: string
+          youtube_url?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "ce_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_quiz_attempts: {
+        Row: {
+          answers_json: Json
+          attempt_no: number
+          enrollment_id: string
+          id: string
+          lesson_id: string
+          passed: boolean
+          score_pct: number
+          started_at: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          answers_json: Json
+          attempt_no: number
+          enrollment_id: string
+          id?: string
+          lesson_id: string
+          passed: boolean
+          score_pct: number
+          started_at?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          answers_json?: Json
+          attempt_no?: number
+          enrollment_id?: string
+          id?: string
+          lesson_id?: string
+          passed?: boolean
+          score_pct?: number
+          started_at?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_quiz_attempts_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "ce_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ce_quiz_attempts_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "ce_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_quiz_options: {
+        Row: {
+          display_order: number
+          id: string
+          is_correct: boolean
+          label: string
+          question_id: string
+        }
+        Insert: {
+          display_order?: number
+          id?: string
+          is_correct?: boolean
+          label: string
+          question_id: string
+        }
+        Update: {
+          display_order?: number
+          id?: string
+          is_correct?: boolean
+          label?: string
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_quiz_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "ce_quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_quiz_questions: {
+        Row: {
+          created_at: string
+          display_order: number
+          explanation: string | null
+          id: string
+          kind: Database["public"]["Enums"]["ce_question_kind"]
+          lesson_id: string
+          multi_select: boolean
+          prompt: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          explanation?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["ce_question_kind"]
+          lesson_id: string
+          multi_select?: boolean
+          prompt: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          explanation?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["ce_question_kind"]
+          lesson_id?: string
+          multi_select?: boolean
+          prompt?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_quiz_questions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "ce_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ce_quiz_settings: {
+        Row: {
+          lesson_id: string
+          max_attempts: number | null
+          passing_score_pct: number
+          shuffle_questions: boolean
+          updated_at: string
+        }
+        Insert: {
+          lesson_id: string
+          max_attempts?: number | null
+          passing_score_pct?: number
+          shuffle_questions?: boolean
+          updated_at?: string
+        }
+        Update: {
+          lesson_id?: string
+          max_attempts?: number | null
+          passing_score_pct?: number
+          shuffle_questions?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ce_quiz_settings_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "ce_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
@@ -1720,6 +2109,12 @@ export type Database = {
         Args: { _org: string; _user: string }
         Returns: boolean
       }
+      ce_org_of_course: { Args: { _course_id: string }; Returns: string }
+      ce_org_of_lesson: { Args: { _lesson_id: string }; Returns: string }
+      ce_user_can_access_course: {
+        Args: { _course_id: string; _user_id: string }
+        Returns: boolean
+      }
       create_organization_with_owner: {
         Args: {
           _kind: Database["public"]["Enums"]["org_kind"]
@@ -1784,6 +2179,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member"
+      ce_course_status: "draft" | "published" | "archived"
+      ce_enrollment_status: "in_progress" | "completed"
+      ce_question_kind: "multiple_choice" | "true_false"
       meeting_status: "scheduled" | "completed" | "cancelled"
       mentorship_status: "pending" | "active" | "declined" | "completed"
       org_kind: "firm" | "bar_association"
@@ -1985,6 +2383,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member"],
+      ce_course_status: ["draft", "published", "archived"],
+      ce_enrollment_status: ["in_progress", "completed"],
+      ce_question_kind: ["multiple_choice", "true_false"],
       meeting_status: ["scheduled", "completed", "cancelled"],
       mentorship_status: ["pending", "active", "declined", "completed"],
       org_kind: ["firm", "bar_association"],

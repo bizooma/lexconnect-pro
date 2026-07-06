@@ -66,11 +66,10 @@ function AppLayout() {
       locked: !isPlatformAdmin,
     },
     {
-      to: "/app/cle",
-      label: "CLE & Learning",
+      to: "/app/ce",
+      label: "CE Learning",
       icon: GraduationIcon,
-      enabled: isPlatformAdmin,
-      locked: !isPlatformAdmin,
+      enabled: true,
     },
   ];
   const platformNav: NavItem[] = isAdmin
