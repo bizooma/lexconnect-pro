@@ -535,9 +535,9 @@ export const getLessonForPlayer = createServerFn({ method: "POST" })
       .from("ce_enrollments").select("id").eq("course_id", lesson.course_id).eq("user_id", context.userId).maybeSingle();
     let progress: any = null;
     if (enrollment) {
-      const { data } = await context.supabase.from("ce_lesson_progress")
+      const { data: prog } = await context.supabase.from("ce_lesson_progress")
         .select("*").eq("enrollment_id", enrollment.id).eq("lesson_id", data.lessonId).maybeSingle();
-      progress = data;
+      progress = prog;
     }
     let quiz: { settings: any; questions: any[] } | null = null;
     if (lesson.has_quiz) {
