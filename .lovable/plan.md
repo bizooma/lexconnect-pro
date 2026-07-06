@@ -1,72 +1,46 @@
-## Goal
+Two fixes, both scoped to close the audit gaps you flagged.
 
-Reorganize the app sidebar so the four product modules are visually distinct, with the Mentorship/Community module fully available to all members and the other three (Website Builder, Attorney Directory, CLE/LMS) shown as locked "add-ons" — except for the platform admin (`joe@bizooma.com`), who can access everything for testing.
+## 1. Push notifications — add opt-in UI
 
-## Module map
+The full stack already exists (`src/lib/push-client.ts`, service worker at `/sw.js`, dispatcher at `src/routes/api/public/push.dispatch.ts`, VAPID keys, `push_subscriptions` table). The only gap: no UI calls `subscribeToPush()`.
 
-```text
-CORE
-  Mentorship & Community
-    - Home          /app/dashboard
-    - Discover      /app/discover
-    - Community Q&A /app/qa
-    - Messages      /app/messages
-    - Meetings      /app/meetings
-    - Activity      /app/activity
+**Add a "Push notifications" card to `src/routes/app.settings.tsx`:**
+- On mount, check `isPushSupported()` and current subscription state via `getCurrentSubscription()`.
+- Toggle button: "Enable push notifications" → calls `subscribeToPush(user.id)`; "Disable" → calls `unsubscribeFromPush(user.id)`.
+- Handle the three environment states cleanly:
+  - Unsupported browser → show disabled state with explanation.
+  - Inside Lovable preview iframe (`isInIframe()`) → show hint to open the published site (push registration is blocked in iframes).
+  - Permission previously denied → show instructions to re-enable in browser settings.
+- Toast success/error using existing `sonner` pattern.
+- No schema changes.
 
-ADD-ONS
-  Website Builder      /app/website         (locked unless add-on or admin)
-  Attorney Directory   /app/directory       (locked, "Coming soon")
-  CLE / LMS            /app/cle             (locked, "Coming soon")
+## 2. QA daily digest — build the missing job
 
-PLATFORM
-  Admin                /app/admin           (admins only)
-```
+Currently `qa_notification_prefs.mode = 'digest'` saves fine but nothing sends the email, so the option is labeled *(coming soon)*.
 
-## Sidebar changes (`src/routes/app.tsx`)
+**Build the cron + sender:**
 
-1. Replace the flat `NAV` list with two grouped sections rendered with subtle headers ("Core" / "Add-ons"):
-   - Core group: existing 6 items, always enabled for signed-in members.
-   - Add-ons group: 3 module entries with a small lock icon and muted styling when locked.
-2. Add a per-item `enabled` flag computed from:
-   - `isPlatformAdmin` (true if `user.email === "joe@bizooma.com"` OR `useIsAdmin()` returns true) → all unlocked.
-   - Website Builder: enabled when `canEditWebsite` OR admin.
-   - Directory & CLE: locked for everyone except admin.
-3. Locked items render as a `<button>` (not `<Link>`), with `opacity-60`, lock icon, and a tooltip / toast on click: "This module isn't included in your plan yet — contact your admin."
-4. Admin section stays separate at the bottom under a "Platform" label, only for admins.
-5. Apply the same grouped structure to the mobile bottom nav: keep core 5 visible; collapse add-ons + admin into a "More" sheet that lists locked modules with the same lock affordance.
+a. **New server route** `src/routes/api/public/hooks/qa-digest.ts` (POST, apikey-authenticated):
+   - Load all users where `qa_notification_prefs.mode = 'digest'`, grouped by `organization_id`.
+   - For each user, query `qa_posts` + `qa_replies` created in the last 24h in their org, excluding their own activity, respecting `qa_follows` when the user only wants followed threads.
+   - Render an email using a new template `src/lib/email-templates/qa-digest.tsx` (matches the existing template style — see `contact-notification.tsx`).
+   - Send via the existing email pipeline (enqueue into `pgmq` transactional queue using the same pattern the contact form uses) so unsubscribe tokens and suppression list are respected.
+   - Skip users with zero new activity (no empty digests).
+   - Return `{ sent, skipped }` JSON.
 
-## Routes to scaffold (placeholders so links resolve)
+b. **Register the template** in `src/lib/email-templates/registry.ts`.
 
-- `src/routes/app.directory.tsx` — simple "Attorney Directory — Coming soon" page; admin sees a stub list.
-- `src/routes/app.cle.tsx` — "CLE / LMS — Coming soon"; admin sees a stub.
-- Both gate content with `useIsAdmin()` + email check; non-admins see the marketing/coming-soon view (so direct URL visits don't 404).
+c. **Schedule via pg_cron** (supabase insert tool, not migration): daily at 9am user-org-agnostic UTC, calling the new route with the anon key in an `apikey` header. Empty body.
 
-## Admin override helper
+d. **Flip the label** in `src/routes/app.qa.notifications.tsx`: remove "(coming soon)" from the Daily digest option's description.
 
-Add `src/hooks/use-is-platform-admin.ts`:
+### Not included
+- Per-user digest send-time (fixed 9am UTC for v1).
+- Weekly digest option.
+- Push-notification prefs UI beyond on/off (per-kind mute toggles stay backend-only for now).
 
-```ts
-export function useIsPlatformAdmin() {
-  const { user } = useAuth();
-  const { isAdmin, checking } = useIsAdmin();
-  return {
-    isPlatformAdmin: isAdmin || user?.email === "joe@bizooma.com",
-    checking,
-  };
-}
-```
-
-Used by sidebar + the two new routes. (The hardcoded email is just a convenience for testing; real access still flows through the `user_roles` admin role.)
-
-## Out of scope
-
-- No DB/RLS changes. Add-on entitlement modeling (per-org feature flags) is left for a follow-up; this PR only handles UI gating + admin override.
-- No changes to existing Website Builder behavior beyond moving it under the "Add-ons" group.
-
-## Files touched
-
-- edit `src/routes/app.tsx` (grouped nav + lock affordance, mobile nav)
-- new  `src/hooks/use-is-platform-admin.ts`
-- new  `src/routes/app.directory.tsx`
-- new  `src/routes/app.cle.tsx`
+### Technical notes
+- Push toggle is purely frontend — reuses all existing `push-client.ts` helpers.
+- Digest route uses `/api/public/` prefix + `apikey` header (canonical cron auth), no new secrets required.
+- Email delivery goes through the existing pgmq queue, so DKIM/domain/suppression already work.
+- No RLS changes; digest route uses `supabaseAdmin` loaded inside the handler after `apikey` verification.
