@@ -39,8 +39,7 @@ async function orgOfLesson(ctx: { supabase: any }, lessonId: string): Promise<st
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Lesson not found");
-  // @ts-expect-error dynamic
-  return data.ce_courses.organization_id as string;
+  return (data as any).ce_courses.organization_id as string;
 }
 
 function slugify(s: string) {
