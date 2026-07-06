@@ -51,6 +51,15 @@ function CheckoutReturn() {
     (state.result.paymentStatus === "paid" ||
       state.result.paymentStatus === "no_payment_required");
 
+  useEffect(() => {
+    if (!isPaid) return;
+    const t = setTimeout(() => {
+      navigate({ to: "/app/dashboard" });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [isPaid, navigate]);
+
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
