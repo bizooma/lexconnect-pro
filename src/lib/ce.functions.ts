@@ -433,13 +433,13 @@ export const listMyCourses = createServerFn({ method: "POST" })
       .from("organization_members").select("org_role").eq("organization_id", data.orgId).eq("user_id", context.userId).eq("status", "active").maybeSingle();
     let roleAssigns: any[] = [];
     if (mem?.org_role) {
-      const { data } = await context.supabase
+      const { data: rows } = await context.supabase
         .from("ce_assignments")
         .select("course_id, due_at, required, ce_courses!inner(id, title, description, cover_image_url, credit_hours, status, organization_id)")
         .eq("assignee_role", mem.org_role)
         .eq("ce_courses.organization_id", data.orgId)
         .eq("ce_courses.status", "published");
-      roleAssigns = data ?? [];
+      roleAssigns = rows ?? [];
     }
     const seen = new Set<string>();
     const combined = [...(userAssigns ?? []), ...roleAssigns].filter((a: any) => {
