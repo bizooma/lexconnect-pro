@@ -582,7 +582,7 @@ async function maybeCompleteCourse(context: any, enrollmentId: string, courseId:
     .from("ce_lessons").select("id, required, has_quiz").eq("course_id", courseId);
   const { data: progress } = await context.supabase
     .from("ce_lesson_progress").select("lesson_id, video_watched_at, passed_at").eq("enrollment_id", enrollmentId);
-  const pmap = new Map((progress ?? []).map((p: any) => [p.lesson_id, p]));
+  const pmap = new Map<string, any>((progress ?? []).map((p: any) => [p.lesson_id, p]));
   const allDone = (lessons ?? []).filter((l: any) => l.required).every((l: any) => {
     const p = pmap.get(l.id);
     if (!p) return false;
