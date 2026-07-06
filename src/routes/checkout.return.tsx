@@ -22,6 +22,7 @@ export const Route = createFileRoute("/checkout/return")({
 
 function CheckoutReturn() {
   const { session_id } = Route.useSearch();
+  const navigate = useNavigate();
   const fetchStatus = useServerFn(getCheckoutStatus);
   const [state, setState] = useState<
     | { kind: "loading" }
