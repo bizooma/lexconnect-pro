@@ -632,9 +632,8 @@ export const submitQuizAttempt = createServerFn({ method: "POST" })
 
     let correctCount = 0;
     const perQuestion: any[] = [];
-    for (const q of questions ?? []) {
-      // @ts-expect-error dynamic join
-      const correctIds = new Set(q.ce_quiz_options.filter((o: any) => o.is_correct).map((o: any) => o.id));
+    for (const q of (questions ?? []) as any[]) {
+      const correctIds = new Set<string>(q.ce_quiz_options.filter((o: any) => o.is_correct).map((o: any) => o.id));
       const given = new Set(data.answers[q.id] ?? []);
       let ok = false;
       if (given.size === correctIds.size) {
