@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Logo } from "@/components/logo";
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/checkout/return")({
 
 function CheckoutReturn() {
   const { session_id } = Route.useSearch();
+  const navigate = useNavigate();
   const fetchStatus = useServerFn(getCheckoutStatus);
   const [state, setState] = useState<
     | { kind: "loading" }
@@ -49,6 +50,15 @@ function CheckoutReturn() {
     state.result.status === "complete" &&
     (state.result.paymentStatus === "paid" ||
       state.result.paymentStatus === "no_payment_required");
+
+  useEffect(() => {
+    if (!isPaid) return;
+    const t = setTimeout(() => {
+      navigate({ to: "/app/dashboard" });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [isPaid, navigate]);
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
