@@ -32,7 +32,6 @@ import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDirectoryRouteImport } from './routes/app.directory'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
-import { Route as AppCleRouteImport } from './routes/app.cle'
 import { Route as AppCeRouteImport } from './routes/app.ce'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
@@ -205,11 +204,6 @@ const AppDirectoryRoute = AppDirectoryRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppCleRoute = AppCleRouteImport.update({
-  id: '/cle',
-  path: '/cle',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCeRoute = AppCeRouteImport.update({
@@ -526,7 +520,6 @@ export interface FileRoutesByFullPath {
   '/app/activity': typeof AppActivityRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/ce': typeof AppCeRouteWithChildren
-  '/app/cle': typeof AppCleRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -608,7 +601,6 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/accept-invite/$token': typeof AcceptInviteTokenRoute
   '/app/activity': typeof AppActivityRoute
-  '/app/cle': typeof AppCleRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -689,7 +681,6 @@ export interface FileRoutesById {
   '/app/activity': typeof AppActivityRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/ce': typeof AppCeRouteWithChildren
-  '/app/cle': typeof AppCleRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -775,7 +766,6 @@ export interface FileRouteTypes {
     | '/app/activity'
     | '/app/admin'
     | '/app/ce'
-    | '/app/cle'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -857,7 +847,6 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/accept-invite/$token'
     | '/app/activity'
-    | '/app/cle'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -937,7 +926,6 @@ export interface FileRouteTypes {
     | '/app/activity'
     | '/app/admin'
     | '/app/ce'
-    | '/app/cle'
     | '/app/dashboard'
     | '/app/directory'
     | '/app/discover'
@@ -1198,13 +1186,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/cle': {
-      id: '/app/cle'
-      path: '/cle'
-      fullPath: '/app/cle'
-      preLoaderRoute: typeof AppCleRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/ce': {
@@ -1765,7 +1746,6 @@ interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppCeRoute: typeof AppCeRouteWithChildren
-  AppCleRoute: typeof AppCleRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppDirectoryRoute: typeof AppDirectoryRoute
   AppDiscoverRoute: typeof AppDiscoverRoute
@@ -1787,7 +1767,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppActivityRoute: AppActivityRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
   AppCeRoute: AppCeRouteWithChildren,
-  AppCleRoute: AppCleRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppDirectoryRoute: AppDirectoryRoute,
   AppDiscoverRoute: AppDiscoverRoute,
