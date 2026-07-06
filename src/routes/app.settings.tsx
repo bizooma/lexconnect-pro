@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { INTERESTS, PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
+import { PushNotificationsCard } from "@/components/push-notifications-card";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/settings")({
@@ -278,6 +279,8 @@ function Settings() {
           className="block w-full rounded-xl border border-input bg-card p-4 text-sm leading-relaxed text-foreground shadow-card outline-none ring-ring/30 focus:ring-2"
         />
       </Section>
+
+      <PushNotificationsCard userId={user?.id} />
 
       <section className="mt-8 rounded-2xl border border-border bg-card p-5">
         <h2 className="font-serif text-base font-semibold text-foreground">Community Q&amp;A notifications</h2>

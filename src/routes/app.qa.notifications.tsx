@@ -11,7 +11,7 @@ const OPTIONS: { value: Mode; title: string; desc: string }[] = [
   { value: "all", title: "All new questions and replies", desc: "Notify me whenever something new is posted." },
   { value: "my_posts", title: "Replies to my own questions", desc: "Only my posts and replies addressed to me." },
   { value: "followed", title: "Discussions I follow", desc: "Replies on questions I started or followed." },
-  { value: "digest", title: "Daily digest only", desc: "A summary email once a day (coming soon)." },
+  { value: "digest", title: "Daily digest only", desc: "A summary email once a day." },
   { value: "muted", title: "Muted", desc: "Don't send any community notifications." },
 ];
 
