@@ -118,13 +118,13 @@ async function upsertSubscription(sub: Stripe.Subscription, environment: StripeE
 
   const status = statusFromStripe(sub.status);
 
-  // Don't downgrade grandfathered orgs
+  // Don't downgrade grandfathered orgs (except when testing via test tier)
   const { data: current } = await supabaseAdmin
     .from("subscriptions")
     .select("status")
     .eq("organization_id", orgId)
     .maybeSingle();
-  if (current?.status === "grandfathered") {
+  if (current?.status === "grandfathered" && lookupKey !== "test_monthly") {
     console.log("[payments/webhook] skipping update for grandfathered org", orgId);
     return;
   }
