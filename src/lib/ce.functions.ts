@@ -139,7 +139,7 @@ export const upsertLesson = createServerFn({ method: "POST" })
     courseId: string;
     title: string;
     description?: string | null;
-    youtube_url: string;
+    youtube_url?: string | null;
     duration_seconds?: number | null;
     required?: boolean;
     has_quiz?: boolean;
@@ -148,13 +148,17 @@ export const upsertLesson = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const org = await orgOfCourse(context, data.courseId);
     await assertOrgAdmin(context, org);
-    const vid = parseYoutubeId(data.youtube_url);
-    if (!vid) throw new Error("Invalid YouTube URL");
+    const url = data.youtube_url?.trim() || null;
+    let vid: string | null = null;
+    if (url) {
+      vid = parseYoutubeId(url);
+      if (!vid) throw new Error("Invalid YouTube URL");
+    }
     if (data.lessonId) {
       const { error } = await context.supabase.from("ce_lessons").update({
         title: data.title,
         description: data.description ?? null,
-        youtube_url: data.youtube_url,
+        youtube_url: url,
         youtube_video_id: vid,
         duration_seconds: data.duration_seconds ?? null,
         required: data.required ?? true,
@@ -170,7 +174,7 @@ export const upsertLesson = createServerFn({ method: "POST" })
       course_id: data.courseId,
       title: data.title,
       description: data.description ?? null,
-      youtube_url: data.youtube_url,
+      youtube_url: url,
       youtube_video_id: vid,
       duration_seconds: data.duration_seconds ?? null,
       required: data.required ?? true,

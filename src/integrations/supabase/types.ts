@@ -218,8 +218,8 @@ export type Database = {
           required: boolean
           title: string
           updated_at: string
-          youtube_url: string
-          youtube_video_id: string
+          youtube_url: string | null
+          youtube_video_id: string | null
         }
         Insert: {
           course_id: string
@@ -232,8 +232,8 @@ export type Database = {
           required?: boolean
           title: string
           updated_at?: string
-          youtube_url: string
-          youtube_video_id: string
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Update: {
           course_id?: string
@@ -246,8 +246,8 @@ export type Database = {
           required?: boolean
           title?: string
           updated_at?: string
-          youtube_url?: string
-          youtube_video_id?: string
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Relationships: [
           {
