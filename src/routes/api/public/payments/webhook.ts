@@ -55,6 +55,7 @@ const PRICE_TO_PLAN: Record<string, { plan: "starter" | "pro" | "firm"; seats: n
   starter_annual: { plan: "starter", seats: 25 },
   professional_monthly: { plan: "pro", seats: 100 },
   professional_annual: { plan: "pro", seats: 100 },
+  test_monthly: { plan: "starter", seats: 1 },
 };
 
 type SubStatus = "active" | "canceled" | "grandfathered" | "incomplete" | "past_due" | "trialing";
