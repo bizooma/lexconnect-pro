@@ -9,7 +9,7 @@ import { createCheckoutSession } from "@/lib/payments.functions";
 import { Logo } from "@/components/logo";
 import { PaymentTestModeBanner } from "@/components/payment-test-banner";
 
-type Search = { price?: string };
+type Search = { price?: string; session_id?: string };
 
 const VALID_PRICES = new Set([
   "starter_monthly",
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/checkout")({
   }),
   validateSearch: (search: Record<string, unknown>): Search => ({
     price: typeof search.price === "string" ? search.price : undefined,
+    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),
   component: () => (
     <CurrentOrgProvider>
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { price } = Route.useSearch();
+  const { price, session_id } = Route.useSearch();
   const { session, user, loading: authLoading } = useAuth();
   const {
     currentOrgId,
@@ -48,6 +49,12 @@ function CheckoutPage() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const validPrice = price && VALID_PRICES.has(price) ? price : null;
+
+  useEffect(() => {
+    if (session_id && !validPrice) {
+      navigate({ to: "/app/dashboard" });
+    }
+  }, [session_id, validPrice, navigate]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -64,7 +71,7 @@ function CheckoutPage() {
             accessToken: session?.access_token ?? "",
             priceId: validPrice,
             organizationId: currentOrgId,
-            returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+              returnUrl: `${window.location.origin}/app/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
             environment: getStripeEnvironment(),
           },
         });
