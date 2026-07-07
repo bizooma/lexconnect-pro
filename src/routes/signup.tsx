@@ -5,7 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 
-type SignupSearch = { plan?: "starter" | "professional" | "enterprise"; billing?: "monthly" | "annual" };
+type PlanId = "starter" | "professional" | "enterprise" | "test";
+type SignupSearch = { plan?: PlanId; billing?: "monthly" | "annual" };
+
+function isPlanId(value: unknown): value is PlanId {
+  return value === "starter" || value === "professional" || value === "enterprise" || value === "test";
+}
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -15,7 +20,7 @@ export const Route = createFileRoute("/signup")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): SignupSearch => ({
-    plan: search.plan === "starter" || search.plan === "professional" || search.plan === "enterprise" ? search.plan : undefined,
+    plan: isPlanId(search.plan) ? search.plan : undefined,
     billing: search.billing === "annual" ? "annual" : search.billing === "monthly" ? "monthly" : undefined,
   }),
   component: SignupOrg,
@@ -31,7 +36,7 @@ const ORG_KINDS = [
 ] as const;
 
 type Plan = {
-  id: string;
+  id: PlanId;
   name: string;
   seats: number;
   monthly: string;
@@ -40,6 +45,46 @@ type Plan = {
   annualSub?: string;
   blurb: string;
   contactOnly?: boolean;
+};
+
+const PLANS_BY_ID: Record<PlanId, Plan> = {
+  test: {
+    id: "test",
+    name: "Test",
+    seats: 1,
+    monthly: "$1/mo",
+    annual: "$1/mo",
+    blurb: "Test subscription workflow",
+  },
+  starter: {
+    id: "starter",
+    name: "Starter",
+    seats: 25,
+    monthly: "$399/mo",
+    annual: "$3,990/yr",
+    annualSub: "$399/mo billed annually",
+    blurb: "Up to 25 members · Pilot programs & small firms",
+  },
+  professional: {
+    id: "professional",
+    name: "Professional",
+    seats: 100,
+    monthly: "$899/mo",
+    annual: "$8,990/yr",
+    annualSub: "$899/mo billed annually",
+    blurb: "Up to 100 members · Mid-sized bars, regional groups, larger firms",
+  },
+  enterprise: {
+    id: "enterprise",
+    name: "Enterprise",
+    seats: 9999,
+    monthly: "Custom",
+    annual: "Custom",
+    monthlySub: "From $1,500/mo",
+    annualSub: "From $1,500/mo",
+    blurb: "250+ members · State bars, multi-location firms, law schools",
+    contactOnly: true,
+  },
 };
 
 const PLANS: Plan[] = [
@@ -74,6 +119,11 @@ const PLANS: Plan[] = [
   },
 ];
 
+function priceIdForPlan(plan: Plan, billing: "monthly" | "annual") {
+  if (plan.id === "test") return "test_monthly";
+  return `${plan.id}_${billing}`;
+}
+
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "org";
 }
@@ -82,6 +132,7 @@ function SignupOrg() {
   const navigate = useNavigate();
   const { plan: planParam, billing: billingParam } = Route.useSearch();
   const initialPlanIdx = planParam === "starter" ? 0 : planParam === "enterprise" ? 2 : planParam === "professional" ? 1 : 1;
+  const tierWasPreselected = Boolean(planParam);
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
   const [orgName, setOrgName] = useState("");
@@ -101,6 +152,7 @@ function SignupOrg() {
 
   const slug = useMemo(() => slugify(orgName), [orgName]);
   const orgKindValue = ORG_KINDS.find((k) => k.label === orgKindLabel)?.value ?? "firm";
+  const selectedPlan = isPlanId(planParam) ? PLANS_BY_ID[planParam] : PLANS[planIdx];
 
   const finish = async () => {
     setSubmitting(true);
@@ -127,7 +179,7 @@ function SignupOrg() {
         }
       }
 
-      const plan = PLANS[planIdx];
+      const plan = selectedPlan;
       const planValue: "starter" | "pro" | "firm" =
         plan.id === "professional" ? "pro" : plan.id === "enterprise" ? "firm" : "starter";
       const { data: orgId, error: rpcErr } = await supabase.rpc("create_organization_with_owner", {
@@ -146,7 +198,7 @@ function SignupOrg() {
       if (plan.contactOnly) {
         navigate({ to: "/onboarding" });
       } else {
-        const priceId = `${plan.id}_${billing}`;
+        const priceId = priceIdForPlan(plan, billing);
         navigate({ to: "/checkout", search: { price: priceId } });
       }
     } catch (err: any) {
@@ -205,7 +257,22 @@ function SignupOrg() {
               <Field label="Work email" placeholder="you@firm.com" value={email} onChange={setEmail} type="email" />
               <Field label="Password" placeholder="At least 6 characters" value={password} onChange={setPassword} type="password" />
             </div>
-            <Footer onBack={() => setStep(0)} onNext={() => setStep(2)} disabled={!canNext1} />
+            <Footer
+              onBack={() => setStep(0)}
+              onNext={() => {
+                if (tierWasPreselected && selectedPlan && !selectedPlan.contactOnly) void finish();
+                else setStep(2);
+              }}
+              nextLabel={
+                tierWasPreselected && selectedPlan && !selectedPlan.contactOnly
+                  ? submitting
+                    ? "Creating…"
+                    : "Create organization"
+                  : "Continue"
+              }
+              disabled={!canNext1 || submitting}
+            />
+            {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
           </div>
         )}
 
@@ -259,7 +326,7 @@ function SignupOrg() {
               })}
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              {PLANS[planIdx]?.contactOnly
+              {selectedPlan?.contactOnly
                 ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
                 : "After creating your organization, you'll continue to secure checkout to activate billing."}
             </p>
@@ -267,7 +334,7 @@ function SignupOrg() {
             <Footer
               onBack={() => setStep(1)}
               onNext={finish}
-              nextLabel={submitting ? "Creating…" : PLANS[planIdx]?.contactOnly ? "Request Enterprise" : "Create organization"}
+              nextLabel={submitting ? "Creating…" : selectedPlan?.contactOnly ? "Request Enterprise" : "Create organization"}
               disabled={submitting}
             />
           </div>
