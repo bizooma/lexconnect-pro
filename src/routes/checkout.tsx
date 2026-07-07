@@ -16,6 +16,7 @@ const VALID_PRICES = new Set([
   "starter_annual",
   "professional_monthly",
   "professional_annual",
+  "test_monthly",
 ]);
 
 export const Route = createFileRoute("/checkout")({
