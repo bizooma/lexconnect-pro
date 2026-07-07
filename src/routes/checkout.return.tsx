@@ -54,8 +54,8 @@ function CheckoutReturn() {
   useEffect(() => {
     if (!isPaid) return;
     const t = setTimeout(() => {
-      navigate({ to: "/app/dashboard" });
-    }, 1500);
+      navigate({ to: "/app/dashboard", replace: true });
+    }, 0);
     return () => clearTimeout(t);
   }, [isPaid, navigate]);
 
