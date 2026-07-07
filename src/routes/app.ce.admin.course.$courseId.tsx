@@ -173,7 +173,7 @@ function LessonModal({ lesson, courseId, onClose, onSaved, save }: any) {
           className="block w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
         <textarea placeholder="Description (optional)" rows={2} value={description} onChange={(e) => setDescription(e.target.value)}
           className="block w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-        <input required placeholder="YouTube URL (youtube.com/watch or youtu.be/…)" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
+        <input placeholder="YouTube URL (optional — add later)" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
           className="block w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
         <div className="grid grid-cols-2 gap-3">
           <label className="flex items-center gap-2 text-sm">
