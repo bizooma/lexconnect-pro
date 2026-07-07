@@ -630,7 +630,7 @@ function Landing() {
           <nav className="flex items-center gap-5">
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground">Terms</Link>
-            <Link to="/checkout" search={{ price: "test_monthly" }} className="hover:text-foreground">Test</Link>
+            <Link to="/signup" search={{ plan: "test", billing: "monthly" }} className="hover:text-foreground">Test</Link>
           </nav>
         </div>
       </footer>

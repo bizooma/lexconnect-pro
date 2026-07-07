@@ -8,6 +8,10 @@ import { toast } from "sonner";
 type PlanId = "starter" | "professional" | "enterprise" | "test";
 type SignupSearch = { plan?: PlanId; billing?: "monthly" | "annual" };
 
+function isPlanId(value: unknown): value is PlanId {
+  return value === "starter" || value === "professional" || value === "enterprise" || value === "test";
+}
+
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
@@ -16,13 +20,7 @@ export const Route = createFileRoute("/signup")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): SignupSearch => ({
-    plan:
-      search.plan === "starter" ||
-      search.plan === "professional" ||
-      search.plan === "enterprise" ||
-      search.plan === "test"
-        ? search.plan
-        : undefined,
+    plan: isPlanId(search.plan) ? search.plan : undefined,
     billing: search.billing === "annual" ? "annual" : search.billing === "monthly" ? "monthly" : undefined,
   }),
   component: SignupOrg,
@@ -154,7 +152,7 @@ function SignupOrg() {
 
   const slug = useMemo(() => slugify(orgName), [orgName]);
   const orgKindValue = ORG_KINDS.find((k) => k.label === orgKindLabel)?.value ?? "firm";
-  const selectedPlan = planParam ? PLANS_BY_ID[planParam] : PLANS[planIdx];
+  const selectedPlan = isPlanId(planParam) ? PLANS_BY_ID[planParam] : PLANS[planIdx];
 
   const finish = async () => {
     setSubmitting(true);
@@ -274,6 +272,7 @@ function SignupOrg() {
               }
               disabled={!canNext1 || submitting}
             />
+            {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
           </div>
         )}
 
