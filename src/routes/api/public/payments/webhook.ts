@@ -128,9 +128,6 @@ async function upsertSubscription(sub: Stripe.Subscription, environment: StripeE
     console.log("[payments/webhook] skipping update for grandfathered org", orgId);
     return;
   }
-    console.log("[payments/webhook] skipping update for grandfathered org", orgId);
-    return;
-  }
 
   const update = {
     organization_id: orgId,
