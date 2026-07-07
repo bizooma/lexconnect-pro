@@ -139,7 +139,7 @@ function CheckoutPage() {
     );
   }
 
-  if (subscription?.status === "grandfathered") {
+  if (subscription?.status === "grandfathered" && validPrice !== "test_monthly") {
     return (
       <Shell>
         <h1 className="font-serif text-2xl font-semibold text-foreground">All set</h1>
