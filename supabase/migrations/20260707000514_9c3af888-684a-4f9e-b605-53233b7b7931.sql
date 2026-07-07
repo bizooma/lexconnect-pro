@@ -1,0 +1,1 @@
+ALTER TABLE public.ce_lessons ALTER COLUMN youtube_url DROP NOT NULL, ALTER COLUMN youtube_video_id DROP NOT NULL;
