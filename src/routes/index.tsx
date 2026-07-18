@@ -425,7 +425,7 @@ function Landing() {
               {
                 img: addonWebsiteBuilder,
                 alt: "Website Builder — drag-and-drop editor for legal organizations",
-                badge: "Coming soon",
+                badge: null,
                 title: "Website Builder",
                 desc: "Create a beautiful, professional website for your bar association or legal organization with our drag-and-drop editor. No coding required.",
                 features: ["Drag-and-drop page editor", "Custom domains & SSL", "Lead capture forms", "Organization branding"],
@@ -441,7 +441,7 @@ function Landing() {
               {
                 img: addonCleLms,
                 alt: "CLE Learning Management System — continuing legal education courses",
-                badge: "Coming soon",
+                badge: null,
                 title: "CLE & Learning Management",
                 desc: "Deliver Continuing Legal Education courses, certification tracks, and professional development through an integrated learning platform.",
                 features: ["Course creation & hosting", "Progress tracking", "Certificates & credits", "Member enrollment"],

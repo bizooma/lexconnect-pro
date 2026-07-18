@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { INTERESTS, PRACTICE_AREAS } from "@/lib/mock-data";
+import { PRACTICE_AREAS } from "@/lib/mock-data";
 import { Avatar } from "@/components/avatar";
 import { PushNotificationsCard } from "@/components/push-notifications-card";
 import { toast } from "sonner";
@@ -300,7 +300,7 @@ function Settings() {
         </div>
       </div>
 
-      {INTERESTS.length === 0 && null /* keep import used */}
+      
     </div>
   );
 }
