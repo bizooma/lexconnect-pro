@@ -4,7 +4,19 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 export const Route = createFileRoute("/api/public/hooks/auto-publish")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        // Auth: dedicated cron secret (never the public anon key).
+        const provided =
+          request.headers.get("x-cron-secret") ??
+          (request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "");
+        const expected = process.env.AUTO_PUBLISH_CRON_SECRET ?? "";
+        if (!expected || !provided || provided !== expected) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
         const nowIso = new Date().toISOString();
         const { data: due, error } = await supabaseAdmin
           .from("website_pages")

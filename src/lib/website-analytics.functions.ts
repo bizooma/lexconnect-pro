@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const trackPageView = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
@@ -16,6 +18,31 @@ export const trackPageView = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    // Per-IP rate limit — noisy analytics flood protection.
+    let ip = "unknown";
+    try {
+      ip =
+        getHeader("cf-connecting-ip") ||
+        getHeader("x-real-ip") ||
+        (getHeader("x-forwarded-for") || "").split(",")[0].trim() ||
+        "unknown";
+    } catch {
+      // ignore — SSR context may not have headers
+    }
+    const rl = rateLimit(`pv:${ip}:${data.pageId}`, { limit: 30, windowMs: 60_000 });
+    if (!rl.allowed) return { ok: false, throttled: true };
+
+    // Verify the page is published and belongs to the claimed org before inserting.
+    const { data: page, error: pageErr } = await supabaseAdmin
+      .from("website_pages")
+      .select("id, status, organization_id")
+      .eq("id", data.pageId)
+      .maybeSingle();
+    if (pageErr) throw new Error(pageErr.message);
+    if (!page || page.status !== "published" || page.organization_id !== data.organizationId) {
+      return { ok: false, ignored: true };
+    }
+
     const { error } = await supabaseAdmin.from("website_page_views").insert({
       organization_id: data.organizationId,
       page_id: data.pageId,
