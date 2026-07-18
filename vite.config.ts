@@ -22,6 +22,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [mcpPlugin()],
     resolve: {
       alias: {
         // Force entities v4.5.0 resolution — @react-email depends on this version
