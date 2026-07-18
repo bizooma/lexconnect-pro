@@ -101,6 +101,7 @@ function Onboarding() {
         bar_admissions: bars,
         headline: headline || null,
         practice_areas: practiceAreas,
+        interests,
         communication_prefs: comm,
         meeting_cadence: cadence,
         bio: bio || null,
