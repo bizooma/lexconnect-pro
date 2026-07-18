@@ -72,6 +72,7 @@ import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -406,6 +407,11 @@ const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   path: '/api/public/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
   id: '/pages/',
   path: '/pages/',
@@ -532,6 +538,7 @@ export interface FileRoutesByFullPath {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
@@ -610,6 +617,7 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join': typeof JoinIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
@@ -693,6 +701,7 @@ export interface FileRoutesById {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
   '/join/': typeof JoinIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
@@ -778,6 +787,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join/'
+    | '/.lovable/oauth/consent'
     | '/api/public/contact'
     | '/api/public/website-form'
     | '/app/admin/orgs'
@@ -856,6 +866,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join'
+    | '/.lovable/oauth/consent'
     | '/api/public/contact'
     | '/api/public/website-form'
     | '/app/admin/orgs'
@@ -938,6 +949,7 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/join/$code'
     | '/join/'
+    | '/.lovable/oauth/consent'
     | '/api/public/contact'
     | '/api/public/website-form'
     | '/app/admin/orgs'
@@ -1010,6 +1022,7 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   JoinCodeRoute: typeof JoinCodeRoute
   JoinIndexRoute: typeof JoinIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
   ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -1468,6 +1481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/website/pages/': {
       id: '/app/website/pages/'
       path: '/pages'
@@ -1814,6 +1834,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   JoinCodeRoute: JoinCodeRoute,
   JoinIndexRoute: JoinIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
   ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
