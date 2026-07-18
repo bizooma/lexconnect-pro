@@ -281,10 +281,10 @@ export function PublicSectionRenderer({
         </section>
       );
     case "custom_html": {
-      const html = str(c.html);
+      const safeHtml = useMemo(() => sanitizeCustomHtml(str(c.html)), [c.html]);
       return (
         <section className="px-6 py-12">
-          <div className="mx-auto max-w-5xl prose prose-neutral dark:prose-invert" dangerouslySetInnerHTML={{ __html: html }} />
+          <div className="mx-auto max-w-5xl prose prose-neutral dark:prose-invert" dangerouslySetInnerHTML={{ __html: safeHtml }} />
         </section>
       );
     }
