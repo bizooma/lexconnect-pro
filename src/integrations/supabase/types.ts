@@ -2175,6 +2175,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      redeem_invite: { Args: { _token: string }; Returns: string }
       redeem_invite_code: { Args: { _code: string }; Returns: string }
     }
     Enums: {

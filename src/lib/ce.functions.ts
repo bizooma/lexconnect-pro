@@ -516,10 +516,15 @@ export const startEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { courseId: string }) => d)
   .handler(async ({ data, context }) => {
-    const { data: existing } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: access } = await supabaseAdmin.rpc("ce_user_can_access_course", {
+      _course_id: data.courseId, _user_id: context.userId,
+    });
+    if (!access) throw new Error("Forbidden");
+    const { data: existing } = await supabaseAdmin
       .from("ce_enrollments").select("id").eq("course_id", data.courseId).eq("user_id", context.userId).maybeSingle();
     if (existing) return { id: existing.id };
-    const { data: row, error } = await context.supabase
+    const { data: row, error } = await supabaseAdmin
       .from("ce_enrollments").insert({ course_id: data.courseId, user_id: context.userId }).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id };
@@ -563,31 +568,46 @@ export const markVideoWatched = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { lessonId: string; courseId: string }) => d)
   .handler(async ({ data, context }) => {
-    let { data: enrollment } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: access } = await supabaseAdmin.rpc("ce_user_can_access_course", {
+      _course_id: data.courseId, _user_id: context.userId,
+    });
+    if (!access) throw new Error("Forbidden");
+    // Verify lesson belongs to course
+    const { data: lesson } = await supabaseAdmin.from("ce_lessons")
+      .select("id, course_id").eq("id", data.lessonId).maybeSingle();
+    if (!lesson || lesson.course_id !== data.courseId) throw new Error("Lesson not found");
+
+    let { data: enrollment } = await supabaseAdmin
       .from("ce_enrollments").select("id").eq("course_id", data.courseId).eq("user_id", context.userId).maybeSingle();
     if (!enrollment) {
-      const { data: row, error } = await context.supabase.from("ce_enrollments")
+      const { data: row, error } = await supabaseAdmin.from("ce_enrollments")
         .insert({ course_id: data.courseId, user_id: context.userId }).select("id").single();
       if (error) throw new Error(error.message);
       enrollment = row;
     }
-    const { error } = await context.supabase.from("ce_lesson_progress").upsert({
+    const { error } = await supabaseAdmin.from("ce_lesson_progress").upsert({
       enrollment_id: enrollment!.id,
       lesson_id: data.lessonId,
       video_watched_at: new Date().toISOString(),
     }, { onConflict: "enrollment_id,lesson_id" });
     if (error) throw new Error(error.message);
-    await maybeCompleteCourse(context, enrollment!.id, data.courseId);
+    await maybeCompleteCourse({ supabase: supabaseAdmin }, enrollment!.id, data.courseId);
     return { ok: true };
   });
 
 async function maybeCompleteCourse(context: any, enrollmentId: string, courseId: string) {
   const { data: lessons } = await context.supabase
     .from("ce_lessons").select("id, required, has_quiz").eq("course_id", courseId);
+  const list = (lessons ?? []) as any[];
+  const required = list.filter((l) => l.required);
+  // Guard: never auto-complete when there are no required lessons (also catches
+  // the RLS-filtered empty-list case). A real course must have at least one.
+  if (required.length === 0) return;
   const { data: progress } = await context.supabase
     .from("ce_lesson_progress").select("lesson_id, video_watched_at, passed_at").eq("enrollment_id", enrollmentId);
   const pmap = new Map<string, any>((progress ?? []).map((p: any) => [p.lesson_id, p]));
-  const allDone = (lessons ?? []).filter((l: any) => l.required).every((l: any) => {
+  const allDone = required.every((l) => {
     const p = pmap.get(l.id);
     if (!p) return false;
     if (l.has_quiz) return !!p.passed_at;
@@ -599,6 +619,7 @@ async function maybeCompleteCourse(context: any, enrollmentId: string, courseId:
       .eq("id", enrollmentId).is("completed_at", null);
   }
 }
+
 
 export const submitQuizAttempt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

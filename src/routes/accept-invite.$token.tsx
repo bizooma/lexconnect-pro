@@ -50,24 +50,12 @@ function AcceptInvitePage() {
   const accept = async () => {
     if (!invite || !user) return;
     setWorking(true);
-    const { error: memberErr } = await supabase.from("organization_members").insert({
-      organization_id: invite.organization_id,
-      user_id: user.id,
-      org_role: invite.org_role,
-      status: "active",
-      joined_at: new Date().toISOString(),
-      invited_email: invite.email,
-    });
-    if (memberErr && !memberErr.message.toLowerCase().includes("duplicate")) {
+    const { error: rpcErr } = await supabase.rpc("redeem_invite", { _token: token });
+    if (rpcErr) {
       setWorking(false);
-      toast.error("Could not join", { description: memberErr.message });
+      toast.error("Could not join", { description: rpcErr.message });
       return;
     }
-    await supabase
-      .from("organization_invites")
-      .update({ accepted_at: new Date().toISOString() })
-      .eq("id", invite.id);
-
     if (typeof window !== "undefined") {
       window.localStorage.setItem("lexguild.currentOrgId", invite.organization_id);
     }
