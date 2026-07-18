@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getHeader } from "@tanstack/react-start/server";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -22,9 +22,9 @@ export const trackPageView = createServerFn({ method: "POST" })
     let ip = "unknown";
     try {
       ip =
-        getHeader("cf-connecting-ip") ||
-        getHeader("x-real-ip") ||
-        (getHeader("x-forwarded-for") || "").split(",")[0].trim() ||
+        getRequestHeader("cf-connecting-ip") ||
+        getRequestHeader("x-real-ip") ||
+        (getRequestHeader("x-forwarded-for") || "").split(",")[0].trim() ||
         "unknown";
     } catch {
       // ignore — SSR context may not have headers
