@@ -12,7 +12,7 @@
   "mcp": {
     "server": {
       "name": "lexguild-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "LexGuild"
     },
     "tools": [
@@ -198,6 +198,273 @@
           "required": [
             "postId",
             "body"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_conversations",
+        "title": "List my conversations",
+        "description": "List direct-message conversations the signed-in user participates in, ordered by most recent activity. Includes other participants' user IDs and the last-message timestamp.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "description": "Max conversations to return, 1-50. Default 20."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_conversation",
+        "title": "Get conversation messages",
+        "description": "Fetch messages in a conversation the signed-in user participates in. Returns messages newest-first up to `limit` (default 50, max 200). Voice-note messages include an `audio_url` (signed URL not resolved here — treat as opaque storage path).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Conversation ID (from list_conversations)."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max messages, 1-200. Default 50."
+            }
+          },
+          "required": [
+            "conversationId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "send_message",
+        "title": "Send a message",
+        "description": "Send a text message in a conversation the signed-in user participates in. RLS enforces participation; other members will receive an in-app notification via existing triggers.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Conversation ID."
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Message text."
+            }
+          },
+          "required": [
+            "conversationId",
+            "body"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_mentorships",
+        "title": "List my mentorships",
+        "description": "List mentorship relationships the signed-in user is part of (as mentor or mentee), optionally filtered by status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Optional org filter."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "active",
+                "declined",
+                "ended"
+              ],
+              "description": "Optional status filter."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "request_mentorship",
+        "title": "Request mentorship",
+        "description": "Send a mentorship request to another org member. The signed-in user becomes the mentee and the target user becomes the mentor. The other party will receive an in-app notification and must accept before the mentorship becomes active.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Organization the mentorship is in."
+            },
+            "mentorUserId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "User ID of the desired mentor."
+            },
+            "introMessage": {
+              "type": "string",
+              "description": "Optional message to introduce yourself."
+            }
+          },
+          "required": [
+            "organizationId",
+            "mentorUserId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_ce_courses",
+        "title": "List CE courses",
+        "description": "List published Continuing Education courses in an organization that the signed-in user has access to (self-enroll or assigned). Includes credit hours and lesson counts.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Organization ID."
+            }
+          },
+          "required": [
+            "organizationId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_ce_course",
+        "title": "Get CE course with progress",
+        "description": "Fetch a Continuing Education course by ID including its lessons in order and the signed-in user's enrollment status and per-lesson progress.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "courseId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Course ID."
+            }
+          },
+          "required": [
+            "courseId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_website_pages",
+        "title": "List website pages",
+        "description": "List website builder pages in an organization the signed-in user belongs to. Includes drafts, scheduled, published, and archived pages.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Organization ID."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "scheduled",
+                "archived"
+              ],
+              "description": "Optional status filter."
+            }
+          },
+          "required": [
+            "organizationId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_website_page",
+        "title": "Get website page",
+        "description": "Fetch a website builder page's full metadata plus its ordered sections (section_type, settings, content, visibility). Useful for reviewing or auditing a page's structure.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Page ID (from list_website_pages)."
+            }
+          },
+          "required": [
+            "pageId"
           ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
