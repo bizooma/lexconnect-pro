@@ -97,10 +97,13 @@ export const Route = createFileRoute('/api/public/hooks/qa-digest')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Auth: apikey header must match the project anon key (canonical pg_cron pattern)
-        const apikey = request.headers.get('apikey') ?? ''
-        const expectedAnon = process.env.SUPABASE_PUBLISHABLE_KEY ?? ''
-        if (!apikey || !expectedAnon || apikey !== expectedAnon) {
+        // Auth: dedicated server-only secret (not the public anon key). Accept via
+        // `x-cron-secret` header or `Authorization: Bearer <secret>`.
+        const provided =
+          request.headers.get('x-cron-secret') ??
+          (request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? '')
+        const expected = process.env.QA_DIGEST_CRON_SECRET ?? ''
+        if (!expected || !provided || provided !== expected) {
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 

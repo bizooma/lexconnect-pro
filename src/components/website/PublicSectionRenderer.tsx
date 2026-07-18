@@ -1,5 +1,16 @@
 import { useState } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import type { WebsiteSectionType } from "@/lib/website";
+
+export function sanitizeCustomHtml(input: string): string {
+  if (!input) return "";
+  return DOMPurify.sanitize(input, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form", "input", "button", "link", "meta", "base"],
+    FORBID_ATTR: ["style", "srcdoc", "formaction", "xlink:href"],
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+  });
+}
 
 type SectionLike = {
   id: string;
@@ -270,10 +281,10 @@ export function PublicSectionRenderer({
         </section>
       );
     case "custom_html": {
-      const html = str(c.html);
+      const safeHtml = sanitizeCustomHtml(str(c.html));
       return (
         <section className="px-6 py-12">
-          <div className="mx-auto max-w-5xl prose prose-neutral dark:prose-invert" dangerouslySetInnerHTML={{ __html: html }} />
+          <div className="mx-auto max-w-5xl prose prose-neutral dark:prose-invert" dangerouslySetInnerHTML={{ __html: safeHtml }} />
         </section>
       );
     }

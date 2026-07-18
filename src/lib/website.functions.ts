@@ -263,6 +263,14 @@ export const upsertSection = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    // Sanitize custom_html on save to defense-in-depth against stored XSS.
+    if (data.section_type === "custom_html") {
+      const { sanitizeCustomHtml } = await import("@/components/website/PublicSectionRenderer");
+      const raw = (data.content_json as Record<string, unknown>).html;
+      if (typeof raw === "string") {
+        (data.content_json as Record<string, unknown>).html = sanitizeCustomHtml(raw);
+      }
+    }
     const { supabase } = context;
     if (data.sectionId) {
       const { error } = await (supabase.from("website_sections") as any).update({
