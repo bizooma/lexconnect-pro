@@ -506,12 +506,14 @@ function Landing() {
               LexGuild was designed and built by Bizooma Creative Agency. For questions about the platform, partnerships, or building something similar for your organization, get in touch with Joe directly.
             </p>
             <div className="mt-8 flex items-center gap-5 rounded-2xl border border-border bg-card p-5 shadow-card">
-              <img
-                src={bizoomaLogo}
-                alt="Bizooma Creative Agency"
-                className="h-16 w-auto shrink-0"
-                loading="lazy"
-              />
+              <a href="https://bizooma.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Bizooma Creative Agency">
+                <img
+                  src={bizoomaLogo}
+                  alt="Bizooma Creative Agency"
+                  className="h-16 w-auto shrink-0"
+                  loading="lazy"
+                />
+              </a>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground">Bizooma Creative Agency</p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
