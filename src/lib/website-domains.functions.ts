@@ -158,7 +158,7 @@ export const verifyCustomDomain = createServerFn({ method: "POST" })
 // header to an org + default page slug.
 export const resolveDomain = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
-    z.object({ host: z.string().min(3).max(253).toLowerCase() }).parse(input),
+    z.object({ host: domainSchema }).parse(input),
   )
   .handler(async ({ data }) => {
     const host = data.host.replace(/^www\./, "");
