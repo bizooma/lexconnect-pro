@@ -215,7 +215,7 @@ function SignupOrg() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-5 py-5">
         <Logo />
-        <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground">Sign in</Link>
+        <Link to="/login" search={{ next: undefined }} className="text-sm text-muted-foreground hover:text-foreground">Sign in</Link>
       </header>
       <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-12">
         <div className="mb-6 flex items-center gap-1.5">
