@@ -158,7 +158,7 @@ export const verifyCustomDomain = createServerFn({ method: "POST" })
 // header to an org + default page slug.
 export const resolveDomain = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
-    z.object({ host: z.string().min(3).max(253).toLowerCase() }).parse(input),
+    z.object({ host: domainSchema }).parse(input),
   )
   .handler(async ({ data }) => {
     const host = data.host.replace(/^www\./, "");
@@ -198,11 +198,16 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
     return { redirectTo: null };
   }
-  const bare = host.replace(/^www\./, "");
+  // Validate the raw Host with the strict domain schema before it enters a
+  // PostgREST .or() filter — prevents commas/parens from perturbing the query.
+  const hostParse = domainSchema.safeParse(host);
+  if (!hostParse.success) return { redirectTo: null };
+  const safeHost = hostParse.data;
+  const bare = safeHost.replace(/^www\./, "");
   const { data: row } = await supabaseAdmin
     .from("website_custom_domains")
     .select("organization_id, default_page_slug")
-    .or(`domain.eq.${host},domain.eq.${bare},domain.eq.www.${bare}`)
+    .or(`domain.eq.${safeHost},domain.eq.${bare},domain.eq.www.${bare}`)
     .not("verified_at", "is", null)
     .maybeSingle();
   if (!row) return { redirectTo: null };

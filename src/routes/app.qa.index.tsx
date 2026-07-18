@@ -15,6 +15,9 @@ import {
 } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/qa/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    category: typeof s.category === "string" ? s.category : undefined,
+  }),
   component: QaFeed,
 });
 
@@ -26,7 +29,11 @@ function QaFeed() {
   const [tab, setTab] = useState<FeedTab>("recent");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const { category: categoryParam } = Route.useSearch();
+  const [categoryId, setCategoryId] = useState<string>(categoryParam ?? "");
+  useEffect(() => {
+    setCategoryId(categoryParam ?? "");
+  }, [categoryParam]);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "resolved">("all");
   const [categories, setCategories] = useState<QaCategory[]>([]);
   const [posts, setPosts] = useState<QaPost[]>([]);

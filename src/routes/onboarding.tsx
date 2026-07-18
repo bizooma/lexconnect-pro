@@ -65,6 +65,7 @@ function Onboarding() {
         setBarAdmissions((data.bar_admissions ?? []).join(", "));
         setHeadline(data.headline ?? "");
         setPracticeAreas(data.practice_areas ?? []);
+        setInterests((data as { interests?: string[] }).interests ?? []);
         setComm(data.communication_prefs ?? []);
         setCadence(data.meeting_cadence ?? "Bi-weekly");
         setBio(data.bio ?? "");
@@ -101,6 +102,7 @@ function Onboarding() {
         bar_admissions: bars,
         headline: headline || null,
         practice_areas: practiceAreas,
+        interests,
         communication_prefs: comm,
         meeting_cadence: cadence,
         bio: bio || null,
