@@ -1026,6 +1026,7 @@ export type Database = {
           full_name: string | null
           headline: string | null
           id: string
+          interests: string[]
           is_mentee: boolean
           is_mentor: boolean
           linkedin_url: string | null
@@ -1050,6 +1051,7 @@ export type Database = {
           full_name?: string | null
           headline?: string | null
           id?: string
+          interests?: string[]
           is_mentee?: boolean
           is_mentor?: boolean
           linkedin_url?: string | null
@@ -1074,6 +1076,7 @@ export type Database = {
           full_name?: string | null
           headline?: string | null
           id?: string
+          interests?: string[]
           is_mentee?: boolean
           is_mentor?: boolean
           linkedin_url?: string | null
