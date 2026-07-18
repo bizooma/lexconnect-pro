@@ -11,15 +11,32 @@ export const Route = createFileRoute("/login")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   component: Login,
 });
 
+// Only allow same-origin relative paths so an attacker can't smuggle in an
+// external URL through ?next=.
+function safeNext(next: string | undefined): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 function Login() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const nextPath = safeNext(next);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const goAfterAuth = () => {
+    if (nextPath) window.location.href = nextPath;
+    else navigate({ to: "/app/dashboard" });
+  };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +53,7 @@ function Login() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: emailValue, password: passwordValue });
       if (error) throw error;
-      navigate({ to: "/app/dashboard" });
+      goAfterAuth();
     } catch (err: any) {
       setError(err.message ?? "Could not sign in.");
     } finally {
@@ -45,9 +62,12 @@ function Login() {
   };
 
   const google = async () => {
+    const redirectTo = nextPath
+      ? `${window.location.origin}${nextPath}`
+      : `${window.location.origin}/app/dashboard`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/app/dashboard` },
+      options: { redirectTo },
     });
   };
 

@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://cinrbhapzhbrolzczkrn.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "lexguild-mcp",
+      "version": "0.1.0",
+      "title": "LexGuild"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Who am I",
+        "description": "Return the LexGuild profile of the signed-in user (name, email, bar info).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_organizations",
+        "title": "List my organizations",
+        "description": "List the LexGuild organizations (bar associations / law firms) the signed-in user belongs to.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_qa_posts",
+        "title": "List Q&A posts",
+        "description": "List recent Q&A posts (questions/discussions) in a LexGuild organization the user belongs to. Ordered by most recent activity. Returns at most `limit` posts (default 20, max 50).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Organization ID (from list_my_organizations)."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max posts to return, 1-50. Default 20."
+            },
+            "search": {
+              "type": "string",
+              "description": "Optional full-text search term (matches title/body/tags)."
+            }
+          },
+          "required": [
+            "organizationId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_qa_post",
+        "title": "Get Q&A post with replies",
+        "description": "Fetch a single Q&A post and its replies. Only returns posts in organizations the signed-in user belongs to.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "postId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Q&A post ID."
+            }
+          },
+          "required": [
+            "postId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_qa_post",
+        "title": "Create Q&A post",
+        "description": "Post a new question or discussion in a LexGuild organization the signed-in user belongs to. Returns the created post ID.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Organization ID to post in."
+            },
+            "title": {
+              "type": "string",
+              "description": "Short question title."
+            },
+            "body": {
+              "type": "string",
+              "description": "Full question body (markdown supported)."
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Optional list of tags."
+            },
+            "isUrgent": {
+              "type": "boolean",
+              "description": "Mark the question as urgent."
+            },
+            "isAnonymous": {
+              "type": "boolean",
+              "description": "Post anonymously (author hidden to other members)."
+            },
+            "categoryId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Optional Q&A category ID."
+            }
+          },
+          "required": [
+            "organizationId",
+            "title",
+            "body"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "reply_to_qa_post",
+        "title": "Reply to a Q&A post",
+        "description": "Add a reply to an existing Q&A post. Requires the signed-in user to be a member of the post's organization.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "postId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Q&A post to reply to."
+            },
+            "body": {
+              "type": "string",
+              "description": "Reply body (markdown supported)."
+            },
+            "isPrivate": {
+              "type": "boolean",
+              "description": "Private reply visible only to the post author (if the post allows it)."
+            },
+            "parentReplyId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "If replying inside a thread, the parent reply ID."
+            }
+          },
+          "required": [
+            "postId",
+            "body"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
