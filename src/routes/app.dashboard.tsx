@@ -37,6 +37,8 @@ function Dashboard() {
   const { profile, loading: profileLoading } = useMyProfile();
   const { profiles: directory, loading: dirLoading } = useDirectory();
   const { currentOrgId } = useCurrentOrg();
+  const { portal } = usePortalTheme();
+
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [meetings, setMeetings] = useState<MeetingRow[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
