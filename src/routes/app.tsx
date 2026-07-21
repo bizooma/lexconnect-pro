@@ -284,7 +284,7 @@ function AppLayout() {
                 showing. Upgrade to restore full white-label branding.
               </span>
               <Link
-                to="/app/settings/billing"
+                to="/app/settings"
                 className="rounded-md bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700"
               >
                 Upgrade plan
