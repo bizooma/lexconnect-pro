@@ -877,6 +877,44 @@ export type Database = {
           },
         ]
       }
+      org_join_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          organization_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          organization_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          organization_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_join_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_invites: {
         Row: {
           accepted_at: string | null
@@ -971,6 +1009,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          join_policy: string
           kind: Database["public"]["Enums"]["org_kind"]
           logo_url: string | null
           name: string
@@ -986,6 +1025,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
           logo_url?: string | null
           name: string
@@ -1001,6 +1041,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
           logo_url?: string | null
           name?: string
@@ -2114,6 +2155,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_join_request: { Args: { _request_id: string }; Returns: string }
       can_edit_website: {
         Args: { _org: string; _user: string }
         Returns: boolean
@@ -2138,6 +2180,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      deny_join_request: { Args: { _request_id: string }; Returns: undefined }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
