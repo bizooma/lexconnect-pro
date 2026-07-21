@@ -72,6 +72,7 @@ export const updateCustomDomain = createServerFn({ method: "POST" })
         id: z.string().uuid(),
         defaultPageSlug: z.string().min(1).max(120).optional().nullable(),
         isPrimary: z.boolean().optional(),
+        mode: modeSchema.optional(),
       })
       .parse(input),
   )
@@ -90,9 +91,10 @@ export const updateCustomDomain = createServerFn({ method: "POST" })
           .eq("organization_id", target.organization_id);
       }
     }
-    const patch: { default_page_slug?: string | null; is_primary?: boolean } = {};
+    const patch: { default_page_slug?: string | null; is_primary?: boolean; mode?: "site" | "portal" } = {};
     if (data.defaultPageSlug !== undefined) patch.default_page_slug = data.defaultPageSlug;
     if (data.isPrimary !== undefined) patch.is_primary = data.isPrimary;
+    if (data.mode !== undefined) patch.mode = data.mode;
     const { data: row, error } = await context.supabase
       .from("website_custom_domains")
       .update(patch)
