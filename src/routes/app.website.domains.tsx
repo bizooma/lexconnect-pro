@@ -143,14 +143,20 @@ function DomainsPage() {
             placeholder="www.yourfirm.com"
             className="min-w-[220px] flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
-          <select
-            value={newMode}
-            onChange={(e) => setNewMode(e.target.value as DomainMode)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="site">Site (public website)</option>
-            <option value="portal">Portal (member app)</option>
-          </select>
+          {hasWhiteLabel ? (
+            <select
+              value={newMode}
+              onChange={(e) => setNewMode(e.target.value as DomainMode)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="site">Site (public website)</option>
+              <option value="portal">Portal (member app)</option>
+            </select>
+          ) : (
+            <div className="rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+              Site (public website)
+            </div>
+          )}
           <button
             onClick={onAdd}
             disabled={busy === "add" || !newDomain.trim()}
@@ -159,6 +165,12 @@ function DomainsPage() {
             {busy === "add" ? "Adding…" : "Add domain"}
           </button>
         </div>
+        {!hasWhiteLabel && (
+          <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
+            <span className="font-medium">Portal mode is a white-label feature.</span> Upgrade to the Firm plan to serve the member app on your own domain with your branding.{" "}
+            <a href="/app/settings" className="underline underline-offset-2">Upgrade plan</a>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-card">
