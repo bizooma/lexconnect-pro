@@ -13,14 +13,9 @@ const domainSchema = z
   .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/);
 
 async function resolvePortalOrgFromHost(): Promise<{ id: string; join_policy: string } | null> {
-  let host = "";
-  try {
-    host = (getRequestHost() || "").toLowerCase();
-  } catch {
-    return null;
-  }
+  const host = getEffectiveHost();
   if (!host) return null;
-  host = host.replace(/:\d+$/, "");
+
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) return null;
   const parsed = domainSchema.safeParse(host);
   if (!parsed.success) return null;
