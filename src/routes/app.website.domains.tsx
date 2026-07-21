@@ -224,9 +224,16 @@ function DomainsPage() {
                           className="ml-1 rounded-md border border-input bg-background px-2 py-1 text-xs"
                         >
                           <option value="site">Site (public website)</option>
-                          <option value="portal">Portal (member app)</option>
+                          {(hasWhiteLabel || d.mode === "portal") && (
+                            <option value="portal">Portal (member app)</option>
+                          )}
                         </select>
                       </label>
+                      {!hasWhiteLabel && d.mode !== "portal" && (
+                        <span className="ml-2 text-[11px] text-muted-foreground">
+                          (Portal requires the Firm plan — <a href="/app/settings" className="underline">upgrade</a>)
+                        </span>
+                      )}
                     </div>
                     {!d.verified_at && (
                       <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-xs">
