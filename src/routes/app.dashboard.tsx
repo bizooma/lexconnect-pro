@@ -150,8 +150,11 @@ function Dashboard() {
           {profileLoading ? "Welcome back." : `Welcome back, ${firstName || "Counselor"}.`}
         </h1>
         <p className="mt-1.5 text-sm text-white/70">
-          {profile?.headline || "Complete your profile so members can find and connect with you."}
+          {portal?.welcome_message
+            || profile?.headline
+            || "Complete your profile so members can find and connect with you."}
         </p>
+
 
         <div className="mt-5 grid grid-cols-3 gap-3">
           <Stat v={String(active.length)} l="Active" />
