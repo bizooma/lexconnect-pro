@@ -40,8 +40,7 @@ function DomainsPage() {
   const verify = useServerFn(verifyCustomDomain);
   const update = useServerFn(updateCustomDomain);
 
-  const verify = useServerFn(verifyCustomDomain);
-  const update = useServerFn(updateCustomDomain);
+
 
   const [domains, setDomains] = useState<DomainRow[]>([]);
   const [loading, setLoading] = useState(true);
