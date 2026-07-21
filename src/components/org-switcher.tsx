@@ -1,10 +1,15 @@
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { usePortalTheme } from "@/components/portal-theme-provider";
 import { Link } from "@tanstack/react-router";
 
 export function OrgSwitcher() {
   const { memberships, currentOrgId, switchOrg, currentOrg, role, subscription, isOrgAdmin } = useCurrentOrg();
+  const { portal } = usePortalTheme();
+  const isPortal = Boolean(portal);
 
   if (!currentOrg) {
+    // On portal hosts we never surface the LexGuild onboarding / create-org flow.
+    if (isPortal) return null;
     return (
       <Link to="/onboarding" className="block rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground hover:bg-accent">
         Create or join an organization
@@ -23,9 +28,14 @@ export function OrgSwitcher() {
     ? "bg-destructive/10 text-destructive"
     : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
 
+  // Portal hosts are locked to a single organization — no switcher, no
+  // billing surface, and no signal that other orgs exist.
+  const canSwitch = !isPortal && memberships.length > 1;
+  const showBillingStatus = !isPortal;
+
   return (
     <div className="space-y-2 px-1">
-      {memberships.length > 1 ? (
+      {canSwitch ? (
         <select
           value={currentOrgId ?? ""}
           onChange={(e) => switchOrg(e.target.value)}
@@ -41,9 +51,11 @@ export function OrgSwitcher() {
         <p className="truncate text-sm font-medium text-foreground">{currentOrg.name}</p>
       )}
       <div className="flex items-center gap-2">
-        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${statusTone}`}>
-          {statusLabel}
-        </span>
+        {showBillingStatus && (
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${statusTone}`}>
+            {statusLabel}
+          </span>
+        )}
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{role}</span>
       </div>
       <div className="flex flex-col gap-0.5 pt-1 text-xs">
@@ -53,9 +65,12 @@ export function OrgSwitcher() {
           <Link to="/app/org/matching" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Matching</Link>
         )}
         <Link to="/app/org/members" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Members</Link>
-        <Link to="/app/org/billing" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Billing & seats</Link>
+        {!isPortal && (
+          <Link to="/app/org/billing" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Billing & seats</Link>
+        )}
         <Link to="/app/org/settings" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Org settings</Link>
       </div>
     </div>
   );
 }
+
