@@ -181,6 +181,30 @@ function DomainsPage() {
                           Primary
                         </span>
                       )}
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs " +
+                          (d.mode === "portal"
+                            ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                            : "bg-muted text-muted-foreground")
+                        }
+                      >
+                        {d.mode === "portal" ? "Portal" : "Site"}
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <label className="text-xs text-muted-foreground">
+                        Mode:{" "}
+                        <select
+                          value={d.mode}
+                          onChange={(e) => onChangeMode(d.id, e.target.value as DomainMode)}
+                          disabled={busy === d.id}
+                          className="ml-1 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                        >
+                          <option value="site">Site (public website)</option>
+                          <option value="portal">Portal (member app)</option>
+                        </select>
+                      </label>
                     </div>
                     {!d.verified_at && (
                       <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-xs">
