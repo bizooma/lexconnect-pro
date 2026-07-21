@@ -131,13 +131,18 @@ function slugify(s: string) {
 }
 
 function SignupOrg() {
-  const navigate = useNavigate();
   const { portal, loading: portalLoading } = usePortalContext();
   if (portalLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Loading…</div>;
   }
   if (portal) return <PortalSignup portal={portal} />;
+  return <StandardSignup />;
+}
+
+function StandardSignup() {
+  const navigate = useNavigate();
   const { plan: planParam, billing: billingParam } = Route.useSearch();
+
 
   const initialPlanIdx = planParam === "starter" ? 0 : planParam === "enterprise" ? 2 : planParam === "professional" ? 1 : 1;
   const tierWasPreselected = Boolean(planParam);
