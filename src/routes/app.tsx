@@ -237,7 +237,16 @@ function AppLayout() {
             onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
             className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
           >Sign out</button>
+          {portal && showPoweredBy && (
+            <a
+              href="https://lexguild.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 block text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground"
+            >Powered by LexGuild</a>
+          )}
         </div>
+
       </aside>
 
       {/* Mobile top bar */}
