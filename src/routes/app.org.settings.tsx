@@ -141,6 +141,13 @@ function OrgSettingsPage() {
         <p className="mt-1 text-sm text-muted-foreground">{currentOrg?.name}</p>
       </header>
 
+      {isOrgAdmin && (
+        <div className="mb-4">
+          <a href="/app/org/join-requests" className="text-sm font-medium text-primary hover:underline">Review join requests →</a>
+        </div>
+      )}
+
+
       {!isOrgAdmin && (
         <div className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           You're viewing organization settings in read-only mode. Only organization admins can make changes.
