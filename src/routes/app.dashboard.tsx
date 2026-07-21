@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { scoreMatches, buildActiveLoadMap, type ExistingPair } from "@/lib/matching";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { usePortalTheme } from "@/components/portal-theme-provider";
+
 import { timeAgo, type QaPost } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/dashboard")({
