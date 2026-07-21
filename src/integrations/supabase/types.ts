@@ -1749,6 +1749,7 @@ export type Database = {
           domain: string
           id: string
           is_primary: boolean
+          mode: string
           organization_id: string
           updated_at: string
           verification_token: string
@@ -1761,6 +1762,7 @@ export type Database = {
           domain: string
           id?: string
           is_primary?: boolean
+          mode?: string
           organization_id: string
           updated_at?: string
           verification_token?: string
@@ -1773,6 +1775,7 @@ export type Database = {
           domain?: string
           id?: string
           is_primary?: boolean
+          mode?: string
           organization_id?: string
           updated_at?: string
           verification_token?: string

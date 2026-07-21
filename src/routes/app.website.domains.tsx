@@ -15,6 +15,8 @@ export const Route = createFileRoute("/app/website/domains")({
   component: DomainsPage,
 });
 
+type DomainMode = "site" | "portal";
+
 type DomainRow = {
   id: string;
   domain: string;
@@ -22,6 +24,7 @@ type DomainRow = {
   verified_at: string | null;
   is_primary: boolean;
   default_page_slug: string | null;
+  mode: DomainMode;
 };
 
 function DomainsPage() {
@@ -35,6 +38,7 @@ function DomainsPage() {
   const [domains, setDomains] = useState<DomainRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [newDomain, setNewDomain] = useState("");
+  const [newMode, setNewMode] = useState<DomainMode>("site");
   const [busy, setBusy] = useState<string | null>(null);
 
   const refresh = () => {
@@ -56,12 +60,25 @@ function DomainsPage() {
     if (!value) return;
     setBusy("add");
     try {
-      await add({ data: { organizationId: currentOrgId, domain: value } });
+      await add({ data: { organizationId: currentOrgId, domain: value, mode: newMode } });
       setNewDomain("");
+      setNewMode("site");
       toast.success("Domain added — verify ownership next.");
       refresh();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Failed to add domain");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onChangeMode = async (id: string, mode: DomainMode) => {
+    setBusy(id);
+    try {
+      await update({ data: { id, mode } });
+      refresh();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to update mode");
     } finally {
       setBusy(null);
     }
@@ -108,14 +125,22 @@ function DomainsPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Connect your own domain (e.g. <code className="rounded bg-muted px-1">www.yourfirm.com</code>) to your published website.
         </p>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <input
             type="text"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
             placeholder="www.yourfirm.com"
-            className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            className="min-w-[220px] flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
+          <select
+            value={newMode}
+            onChange={(e) => setNewMode(e.target.value as DomainMode)}
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="site">Site (public website)</option>
+            <option value="portal">Portal (member app)</option>
+          </select>
           <button
             onClick={onAdd}
             disabled={busy === "add" || !newDomain.trim()}
@@ -156,6 +181,30 @@ function DomainsPage() {
                           Primary
                         </span>
                       )}
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs " +
+                          (d.mode === "portal"
+                            ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                            : "bg-muted text-muted-foreground")
+                        }
+                      >
+                        {d.mode === "portal" ? "Portal" : "Site"}
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <label className="text-xs text-muted-foreground">
+                        Mode:{" "}
+                        <select
+                          value={d.mode}
+                          onChange={(e) => onChangeMode(d.id, e.target.value as DomainMode)}
+                          disabled={busy === d.id}
+                          className="ml-1 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                        >
+                          <option value="site">Site (public website)</option>
+                          <option value="portal">Portal (member app)</option>
+                        </select>
+                      </label>
                     </div>
                     {!d.verified_at && (
                       <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-xs">
