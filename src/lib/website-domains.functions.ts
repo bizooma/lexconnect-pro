@@ -19,6 +19,8 @@ const domainSchema = z
   .toLowerCase()
   .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, "Invalid domain");
 
+const modeSchema = z.enum(["site", "portal"]);
+
 export const listCustomDomains = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
