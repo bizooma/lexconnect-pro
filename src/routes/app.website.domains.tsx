@@ -125,14 +125,22 @@ function DomainsPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Connect your own domain (e.g. <code className="rounded bg-muted px-1">www.yourfirm.com</code>) to your published website.
         </p>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <input
             type="text"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
             placeholder="www.yourfirm.com"
-            className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            className="min-w-[220px] flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
+          <select
+            value={newMode}
+            onChange={(e) => setNewMode(e.target.value as DomainMode)}
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="site">Site (public website)</option>
+            <option value="portal">Portal (member app)</option>
+          </select>
           <button
             onClick={onAdd}
             disabled={busy === "add" || !newDomain.trim()}
