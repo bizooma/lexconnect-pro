@@ -85,7 +85,7 @@ function OrgSettingsPage() {
     if (!currentOrgId) return;
     supabase
       .from("organizations")
-      .select("name,slug,kind,website,logo_url,accent_color,welcome_message")
+      .select("name,slug,kind,website,logo_url,accent_color,welcome_message,join_policy")
       .eq("id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => {
@@ -97,8 +97,11 @@ function OrgSettingsPage() {
         setLogoUrl(data.logo_url ?? "");
         setAccentColor((data as any).accent_color ?? "#1f3a5f");
         setWelcomeMessage((data as any).welcome_message ?? "");
+        const jp = (data as any).join_policy;
+        setJoinPolicy(jp === "approval" ? "approval" : "invite_only");
       });
   }, [currentOrgId]);
+
 
   if (!currentOrgId) {
     return <div className="p-8 text-sm text-muted-foreground">No organization selected.</div>;
