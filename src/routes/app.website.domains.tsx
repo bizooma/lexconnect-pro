@@ -38,6 +38,7 @@ function DomainsPage() {
   const [domains, setDomains] = useState<DomainRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [newDomain, setNewDomain] = useState("");
+  const [newMode, setNewMode] = useState<DomainMode>("site");
   const [busy, setBusy] = useState<string | null>(null);
 
   const refresh = () => {
