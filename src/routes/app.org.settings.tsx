@@ -162,6 +162,17 @@ function OrgSettingsPage() {
           </Select>
         </div>
         <Field label="Website" value={website} onChange={setWebsite} placeholder="https://" disabled={!isOrgAdmin} />
+        <div>
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Join policy</p>
+          <Select value={joinPolicy} onValueChange={(v) => setJoinPolicy(v as "invite_only" | "approval")} disabled={!isOrgAdmin}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="invite_only">Invite only — members join with an invite token</SelectItem>
+              <SelectItem value="approval">Approval — users can request access and admins approve</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs text-muted-foreground">Applies to your custom portal domain. Invite-only requires an invite token; approval lets users request access for admins to review.</p>
+        </div>
       </section>
 
       <section className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card">
