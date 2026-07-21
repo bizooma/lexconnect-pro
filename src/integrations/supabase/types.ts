@@ -1008,6 +1008,7 @@ export type Database = {
           accent_color: string | null
           created_at: string
           created_by: string | null
+          favicon_url: string | null
           id: string
           join_policy: string
           kind: Database["public"]["Enums"]["org_kind"]
@@ -1015,6 +1016,7 @@ export type Database = {
           name: string
           paused: boolean
           paused_at: string | null
+          portal_name: string | null
           slug: string
           updated_at: string
           website: string | null
@@ -1024,6 +1026,7 @@ export type Database = {
           accent_color?: string | null
           created_at?: string
           created_by?: string | null
+          favicon_url?: string | null
           id?: string
           join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
@@ -1031,6 +1034,7 @@ export type Database = {
           name: string
           paused?: boolean
           paused_at?: string | null
+          portal_name?: string | null
           slug: string
           updated_at?: string
           website?: string | null
@@ -1040,6 +1044,7 @@ export type Database = {
           accent_color?: string | null
           created_at?: string
           created_by?: string | null
+          favicon_url?: string | null
           id?: string
           join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
@@ -1047,6 +1052,7 @@ export type Database = {
           name?: string
           paused?: boolean
           paused_at?: string | null
+          portal_name?: string | null
           slug?: string
           updated_at?: string
           website?: string | null
