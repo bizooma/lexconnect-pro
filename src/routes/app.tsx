@@ -254,18 +254,19 @@ function AppLayout() {
         className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 pb-3 backdrop-blur lg:hidden"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
       >
-        {currentOrg?.logo_url ? (
+        {brandLogo ? (
           <Link to="/app/dashboard" className="flex items-center gap-2 min-w-0">
             <img
-              src={currentOrg.logo_url}
-              alt={`${currentOrg.name} logo`}
+              src={brandLogo}
+              alt={`${brandName ?? "Organization"} logo`}
               className="h-9 w-9 shrink-0 rounded-lg border border-border bg-background object-contain p-0.5"
             />
-            <span className="truncate font-serif text-sm font-semibold text-foreground">{currentOrg.name}</span>
+            <span className="truncate font-serif text-sm font-semibold text-foreground">{brandName}</span>
           </Link>
         ) : (
           <Logo />
         )}
+
         <div className="flex items-center gap-1">
           <NotificationsBell />
           <Link to="/app/settings">
