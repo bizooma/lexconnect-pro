@@ -93,7 +93,7 @@ function AcceptInvitePage() {
                   <p className="text-sm text-muted-foreground">Sign in or create an account to accept.</p>
                   <Button
                     className="w-full"
-                    onClick={() => navigate({ to: "/login" })}
+                    onClick={() => navigate({ to: "/login", search: {} })}
                   >Sign in to continue</Button>
                 </div>
               ) : (
