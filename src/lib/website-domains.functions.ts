@@ -1,8 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHost } from "@tanstack/react-start/server";
+import { getRequestHost, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+// Returns the effective inbound host, preferring x-forwarded-host (the
+// hosting proxy rewrites Host in production). Lowercased, port-stripped.
+export function getEffectiveHost(): string {
+  let xfh = "";
+  try {
+    xfh = getRequestHeader("x-forwarded-host") ?? "";
+  } catch {
+    xfh = "";
+  }
+  let host = "";
+  if (xfh) {
+    host = xfh.split(",")[0]?.trim() ?? "";
+  }
+  if (!host) {
+    try {
+      host = getRequestHost() || "";
+    } catch {
+      host = "";
+    }
+  }
+  host = host.toLowerCase().replace(/:\d+$/, "");
+  return host;
+}
 
 // Hosts that should NEVER be treated as a tenant custom domain.
 const RESERVED_HOST_SUFFIXES = [
