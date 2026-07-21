@@ -267,6 +267,7 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
       welcome_message: string | null;
       join_policy: "invite_only" | "approval";
       plan: "starter" | "pro" | "firm";
+      entitled: boolean;
       show_powered_by: boolean;
     } };
   }
@@ -294,16 +295,23 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
   if (!org) return { portal: null };
   const { data: sub } = await supabaseAdmin
     .from("subscriptions")
-    .select("plan")
+    .select("plan, status, trial_end")
     .eq("organization_id", row.organization_id)
     .maybeSingle();
-  const rawPlan = (sub as { plan?: string } | null)?.plan;
+  const s = sub as { plan?: string; status?: string; trial_end?: string | null } | null;
+  const rawPlan = s?.plan;
   const plan = (rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter") as
     | "starter"
     | "pro"
     | "firm";
-  // Server-authoritative: hide the "Powered by LexGuild" mark only on the top tier.
-  const show_powered_by = plan !== "firm";
+  const status = s?.status ?? null;
+  const trialActive =
+    status === "trialing" && (!s?.trial_end || new Date(s.trial_end) > new Date());
+  const statusOk = status === "active" || status === "grandfathered" || trialActive;
+  // Server-authoritative: entitlement = top-tier plan AND current subscription.
+  const entitled = plan === "firm" && statusOk;
+  // If entitlement lapses (downgrade or non-current sub), show the LexGuild mark.
+  const show_powered_by = !entitled;
   const jp = org.join_policy;
   return {
     portal: {
@@ -317,10 +325,12 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
       welcome_message: org.welcome_message ?? null,
       join_policy: (jp === "approval" ? "approval" : "invite_only") as "invite_only" | "approval",
       plan,
+      entitled,
       show_powered_by,
     },
   };
 });
+
 
 
 
