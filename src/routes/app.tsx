@@ -50,7 +50,7 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
   const { isPlatformAdmin } = useIsPlatformAdmin();
-  const { currentOrg, canEditWebsite } = useCurrentOrg();
+  const { currentOrg, canEditWebsite, isOrgAdmin } = useCurrentOrg();
   const { portal, displayName: portalName, showPoweredBy } = usePortalTheme();
   const brandLogo = portal?.logo_url ?? currentOrg?.logo_url ?? null;
   const brandName = portalName ?? currentOrg?.name ?? null;
