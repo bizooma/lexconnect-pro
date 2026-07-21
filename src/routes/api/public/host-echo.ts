@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getEffectiveHost } from "@/lib/website-domains.functions";
+import { getEffectiveHost } from "@/lib/website-host.server";
 
 export const Route = createFileRoute("/api/public/host-echo")({
   server: {
