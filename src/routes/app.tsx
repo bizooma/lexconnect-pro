@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import { OrgSwitcher } from "@/components/org-switcher";
-import { PortalThemeProvider, usePortalTheme } from "@/components/portal-theme-provider";
+import { usePortalTheme } from "@/components/portal-theme-provider";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -19,13 +19,12 @@ export const Route = createFileRoute("/app")({
     }
   },
   component: () => (
-    <PortalThemeProvider>
-      <CurrentOrgProvider>
-        <AppLayout />
-      </CurrentOrgProvider>
-    </PortalThemeProvider>
+    <CurrentOrgProvider>
+      <AppLayout />
+    </CurrentOrgProvider>
   ),
 });
+
 
 
 type NavItem = {
