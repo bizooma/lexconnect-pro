@@ -75,6 +75,7 @@ import { Route as AppCeCourseIdRouteImport } from './routes/app.ce.$courseId'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
+import { Route as ApiPublicHostEchoRouteImport } from './routes/api/public/host-echo'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -429,6 +430,11 @@ const ApiPublicWebsiteFormRoute = ApiPublicWebsiteFormRouteImport.update({
   path: '/api/public/website-form',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHostEchoRoute = ApiPublicHostEchoRouteImport.update({
+  id: '/api/public/host-echo',
+  path: '/api/public/host-echo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   id: '/api/public/contact',
   path: '/api/public/contact',
@@ -577,6 +583,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
@@ -661,6 +668,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
@@ -750,6 +758,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
@@ -841,6 +850,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
@@ -925,6 +935,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
@@ -1013,6 +1024,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/orgs'
     | '/app/admin/users'
@@ -1091,6 +1103,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
+  ApiPublicHostEchoRoute: typeof ApiPublicHostEchoRoute
   ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   POrgSlugSlugRoute: typeof POrgSlugSlugRoute
@@ -1569,6 +1582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebsiteFormRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/host-echo': {
+      id: '/api/public/host-echo'
+      path: '/api/public/host-echo'
+      fullPath: '/api/public/host-echo'
+      preLoaderRoute: typeof ApiPublicHostEchoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/contact': {
       id: '/api/public/contact'
       path: '/api/public/contact'
@@ -1945,6 +1965,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
+  ApiPublicHostEchoRoute: ApiPublicHostEchoRoute,
   ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   POrgSlugSlugRoute: POrgSlugSlugRoute,
