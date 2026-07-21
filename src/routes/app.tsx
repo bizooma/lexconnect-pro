@@ -275,8 +275,26 @@ function AppLayout() {
       </header>
 
       <main className="flex-1 pb-24 lg:pb-0">
+        {portal && !portal.entitled && isOrgAdmin && (
+          <div className="border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-900 dark:text-amber-200">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
+              <span>
+                <strong>White-label add-on inactive.</strong> Your branded portal
+                is still live for members, but the “Powered by LexGuild” mark is
+                showing. Upgrade to restore full white-label branding.
+              </span>
+              <Link
+                to="/app/settings/billing"
+                className="rounded-md bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700"
+              >
+                Upgrade plan
+              </Link>
+            </div>
+          </div>
+        )}
         <Outlet />
       </main>
+
 
       {/* Mobile bottom nav */}
       <nav
