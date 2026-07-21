@@ -12,7 +12,9 @@ export type PortalContext = {
   welcome_message: string | null;
   join_policy: "invite_only" | "approval";
   plan: "starter" | "pro" | "firm";
+  entitled: boolean;
   show_powered_by: boolean;
+
 };
 
 export function usePortalContext() {

@@ -58,7 +58,7 @@ function CheckoutPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate({ to: "/login" });
+      navigate({ to: "/login", search: {} });
     }
   }, [authLoading, user, navigate]);
 

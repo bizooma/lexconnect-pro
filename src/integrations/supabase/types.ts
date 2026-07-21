@@ -2199,6 +2199,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_white_label: { Args: { _org: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }
         Returns: boolean

@@ -187,7 +187,7 @@ function StandardSignup() {
         const { error: pwErr } = await supabase.auth.signInWithPassword({ email, password });
         if (pwErr) {
           toast.success("Check your email to confirm, then sign in to finish setting up your organization.");
-          navigate({ to: "/login" });
+          navigate({ to: "/login", search: {} });
           return;
         }
       }

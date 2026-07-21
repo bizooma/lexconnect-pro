@@ -50,7 +50,7 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
   const { isPlatformAdmin } = useIsPlatformAdmin();
-  const { currentOrg, canEditWebsite } = useCurrentOrg();
+  const { currentOrg, canEditWebsite, isOrgAdmin } = useCurrentOrg();
   const { portal, displayName: portalName, showPoweredBy } = usePortalTheme();
   const brandLogo = portal?.logo_url ?? currentOrg?.logo_url ?? null;
   const brandName = portalName ?? currentOrg?.name ?? null;
@@ -87,7 +87,7 @@ function AppLayout() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
+    if (!loading && !user) navigate({ to: "/login", search: {} });
   }, [user, loading, navigate]);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ function AppLayout() {
       if (!hasUnpaused) {
         toast.error("Your organization is paused. Please contact your administrator.");
         await signOut();
-        navigate({ to: "/login" });
+        navigate({ to: "/login", search: {} });
       }
     })();
     return () => { cancelled = true; };
@@ -233,7 +233,7 @@ function AppLayout() {
             </div>
           </Link>
           <button
-            onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
+            onClick={async () => { await signOut(); navigate({ to: "/login", search: {} }); }}
             className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
           >Sign out</button>
           {portal && showPoweredBy && (
@@ -275,8 +275,26 @@ function AppLayout() {
       </header>
 
       <main className="flex-1 pb-24 lg:pb-0">
+        {portal && !portal.entitled && isOrgAdmin && (
+          <div className="border-b border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-900 dark:text-amber-200">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
+              <span>
+                <strong>White-label add-on inactive.</strong> Your branded portal
+                is still live for members, but the “Powered by LexGuild” mark is
+                showing. Upgrade to restore full white-label branding.
+              </span>
+              <Link
+                to="/app/settings"
+                className="rounded-md bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700"
+              >
+                Upgrade plan
+              </Link>
+            </div>
+          </div>
+        )}
         <Outlet />
       </main>
+
 
       {/* Mobile bottom nav */}
       <nav

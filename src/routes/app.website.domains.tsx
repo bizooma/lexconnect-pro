@@ -28,12 +28,19 @@ type DomainRow = {
 };
 
 function DomainsPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, subscription } = useCurrentOrg();
+  const hasWhiteLabel =
+    subscription?.plan === "firm" &&
+    (subscription.status === "active" ||
+      subscription.status === "grandfathered" ||
+      subscription.status === "trialing");
   const list = useServerFn(listCustomDomains);
   const add = useServerFn(addCustomDomain);
   const remove = useServerFn(removeCustomDomain);
   const verify = useServerFn(verifyCustomDomain);
   const update = useServerFn(updateCustomDomain);
+
+
 
   const [domains, setDomains] = useState<DomainRow[]>([]);
   const [loading, setLoading] = useState(true);
