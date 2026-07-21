@@ -199,24 +199,25 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
     return { redirectTo: null as string | null };
   }
   if (!host) return { redirectTo: null };
-  // Strip port
   host = host.replace(/:\d+$/, "");
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
     return { redirectTo: null };
   }
-  // Validate the raw Host with the strict domain schema before it enters a
-  // PostgREST .or() filter — prevents commas/parens from perturbing the query.
   const hostParse = domainSchema.safeParse(host);
   if (!hostParse.success) return { redirectTo: null };
   const safeHost = hostParse.data;
   const bare = safeHost.replace(/^www\./, "");
   const { data: row } = await supabaseAdmin
     .from("website_custom_domains")
-    .select("organization_id, default_page_slug")
+    .select("organization_id, default_page_slug, mode")
     .or(`domain.eq.${safeHost},domain.eq.${bare},domain.eq.www.${bare}`)
     .not("verified_at", "is", null)
     .maybeSingle();
   if (!row) return { redirectTo: null };
+  if (row.mode === "portal") {
+    // Portal mode: land on the app; /app gate bounces to /login if unauthenticated.
+    return { redirectTo: "/app/dashboard" };
+  }
   const { data: org } = await supabaseAdmin
     .from("organizations")
     .select("slug")
@@ -224,4 +225,55 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
     .single();
   if (!org) return { redirectTo: null };
   return { redirectTo: `/p/${org.slug}/${row.default_page_slug || "home"}` };
+});
+
+// Resolves the current Host header to portal-mode branding context for the
+// tenant, or null if the host isn't a verified portal-mode custom domain.
+// Reads only branding fields via the admin client — no other org data.
+export const getPortalContext = createServerFn({ method: "GET" }).handler(async () => {
+  let host = "";
+  try {
+    host = (getRequestHost() || "").toLowerCase();
+  } catch {
+    return { portal: null as null | {
+      organizationId: string;
+      orgSlug: string;
+      name: string;
+      logo_url: string | null;
+      accent_color: string | null;
+      welcome_message: string | null;
+    } };
+  }
+  if (!host) return { portal: null };
+  host = host.replace(/:\d+$/, "");
+  if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
+    return { portal: null };
+  }
+  const hostParse = domainSchema.safeParse(host);
+  if (!hostParse.success) return { portal: null };
+  const safeHost = hostParse.data;
+  const bare = safeHost.replace(/^www\./, "");
+  const { data: row } = await supabaseAdmin
+    .from("website_custom_domains")
+    .select("organization_id, mode")
+    .or(`domain.eq.${safeHost},domain.eq.${bare},domain.eq.www.${bare}`)
+    .not("verified_at", "is", null)
+    .maybeSingle();
+  if (!row || row.mode !== "portal") return { portal: null };
+  const { data: org } = await supabaseAdmin
+    .from("organizations")
+    .select("id, slug, name, logo_url, accent_color, welcome_message")
+    .eq("id", row.organization_id)
+    .single();
+  if (!org) return { portal: null };
+  return {
+    portal: {
+      organizationId: org.id,
+      orgSlug: org.slug,
+      name: org.name,
+      logo_url: org.logo_url ?? null,
+      accent_color: (org as { accent_color?: string | null }).accent_color ?? null,
+      welcome_message: (org as { welcome_message?: string | null }).welcome_message ?? null,
+    },
+  };
 });
