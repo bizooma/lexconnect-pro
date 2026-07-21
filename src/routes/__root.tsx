@@ -232,9 +232,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <VideoAskWidget />
+        <PortalThemeProvider>
+          <Outlet />
+          <VideoAskWidget />
+        </PortalThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
 }
+
