@@ -87,7 +87,7 @@ function AppLayout() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
+    if (!loading && !user) navigate({ to: "/login", search: {} });
   }, [user, loading, navigate]);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ function AppLayout() {
       if (!hasUnpaused) {
         toast.error("Your organization is paused. Please contact your administrator.");
         await signOut();
-        navigate({ to: "/login" });
+        navigate({ to: "/login", search: {} });
       }
     })();
     return () => { cancelled = true; };
@@ -233,7 +233,7 @@ function AppLayout() {
             </div>
           </Link>
           <button
-            onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
+            onClick={async () => { await signOut(); navigate({ to: "/login", search: {} }); }}
             className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
           >Sign out</button>
           {portal && showPoweredBy && (

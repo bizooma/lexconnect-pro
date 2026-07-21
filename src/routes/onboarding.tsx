@@ -44,7 +44,7 @@ function Onboarding() {
 
   // Redirect if not signed in
   useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
+    if (!authLoading && !user) navigate({ to: "/login", search: {} });
   }, [authLoading, user, navigate]);
 
   // Hydrate existing profile
