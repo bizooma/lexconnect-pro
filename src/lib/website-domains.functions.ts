@@ -49,13 +49,24 @@ export const addCustomDomain = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    const mode = data.mode ?? "site";
+    if (mode === "portal") {
+      const { data: entitled, error: entErr } = await context.supabase
+        .rpc("has_white_label", { _org: data.organizationId });
+      if (entErr) throw new Error(entErr.message);
+      if (!entitled) {
+        throw new Error(
+          "Portal-mode domains require the white-label add-on. Upgrade your plan to enable branded member portals.",
+        );
+      }
+    }
     const { data: row, error } = await context.supabase
       .from("website_custom_domains")
       .insert({
         organization_id: data.organizationId,
         domain: data.domain,
         default_page_slug: data.defaultPageSlug ?? null,
-        mode: data.mode ?? "site",
+        mode,
         created_by: context.userId,
       })
       .select()
@@ -63,6 +74,7 @@ export const addCustomDomain = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { domain: row };
   });
+
 
 export const updateCustomDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
