@@ -52,6 +52,10 @@ function AppLayout() {
   const { isAdmin } = useIsAdmin();
   const { isPlatformAdmin } = useIsPlatformAdmin();
   const { currentOrg, canEditWebsite } = useCurrentOrg();
+  const { portal, displayName: portalName, showPoweredBy } = usePortalTheme();
+  const brandLogo = portal?.logo_url ?? currentOrg?.logo_url ?? null;
+  const brandName = portalName ?? currentOrg?.name ?? null;
+
 
   const coreNav: NavItem[] = CORE_NAV_DEF.map((i) => ({ ...i, enabled: true }));
   const addonNav: NavItem[] = [
