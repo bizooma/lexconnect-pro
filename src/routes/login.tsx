@@ -199,7 +199,7 @@ function NotAMember({ portal }: { portal: PortalContext }) {
     setError(null);
     setSubmitting(true);
     try {
-      await requestJoin({ data: { organizationId: portal.organizationId } });
+      await requestJoin();
       setRequested(true);
     } catch (err: any) {
       setError(err.message ?? "Could not submit request.");
