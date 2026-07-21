@@ -123,8 +123,10 @@ function OrgSettingsPage() {
         logo_url: logoUrl || null,
         accent_color: accentColor,
         welcome_message: welcomeMessage || null,
-      })
+        join_policy: joinPolicy,
+      } as any)
       .eq("id", currentOrgId);
+
     setSaving(false);
     if (error) return toast.error("Could not save", { description: error.message });
     toast.success("Organization updated");
