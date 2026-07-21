@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { scoreMatches, buildActiveLoadMap, type ExistingPair } from "@/lib/matching";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { usePortalTheme } from "@/components/portal-theme-provider";
+
 import { timeAgo, type QaPost } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/dashboard")({
@@ -35,6 +37,8 @@ function Dashboard() {
   const { profile, loading: profileLoading } = useMyProfile();
   const { profiles: directory, loading: dirLoading } = useDirectory();
   const { currentOrgId } = useCurrentOrg();
+  const { portal } = usePortalTheme();
+
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [meetings, setMeetings] = useState<MeetingRow[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, { full_name: string | null; avatar_url: string | null }>>({});
@@ -146,8 +150,11 @@ function Dashboard() {
           {profileLoading ? "Welcome back." : `Welcome back, ${firstName || "Counselor"}.`}
         </h1>
         <p className="mt-1.5 text-sm text-white/70">
-          {profile?.headline || "Complete your profile so members can find and connect with you."}
+          {portal?.welcome_message
+            || profile?.headline
+            || "Complete your profile so members can find and connect with you."}
         </p>
+
 
         <div className="mt-5 grid grid-cols-3 gap-3">
           <Stat v={String(active.length)} l="Active" />

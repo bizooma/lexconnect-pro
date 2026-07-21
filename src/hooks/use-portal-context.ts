@@ -5,10 +5,14 @@ export type PortalContext = {
   organizationId: string;
   orgSlug: string;
   name: string;
+  portal_name: string | null;
   logo_url: string | null;
+  favicon_url: string | null;
   accent_color: string | null;
   welcome_message: string | null;
   join_policy: "invite_only" | "approval";
+  plan: "starter" | "pro" | "firm";
+  show_powered_by: boolean;
 };
 
 export function usePortalContext() {
@@ -20,7 +24,7 @@ export function usePortalContext() {
     (async () => {
       try {
         const res = await getPortalContext();
-        if (!cancelled) setPortal(res.portal ?? null);
+        if (!cancelled) setPortal((res.portal ?? null) as PortalContext | null);
       } catch {
         if (!cancelled) setPortal(null);
       } finally {

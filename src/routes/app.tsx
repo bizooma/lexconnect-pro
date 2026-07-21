@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import { OrgSwitcher } from "@/components/org-switcher";
+import { PortalThemeProvider, usePortalTheme } from "@/components/portal-theme-provider";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -18,11 +19,14 @@ export const Route = createFileRoute("/app")({
     }
   },
   component: () => (
-    <CurrentOrgProvider>
-      <AppLayout />
-    </CurrentOrgProvider>
+    <PortalThemeProvider>
+      <CurrentOrgProvider>
+        <AppLayout />
+      </CurrentOrgProvider>
+    </PortalThemeProvider>
   ),
 });
+
 
 type NavItem = {
   to: string;
@@ -48,6 +52,10 @@ function AppLayout() {
   const { isAdmin } = useIsAdmin();
   const { isPlatformAdmin } = useIsPlatformAdmin();
   const { currentOrg, canEditWebsite } = useCurrentOrg();
+  const { portal, displayName: portalName, showPoweredBy } = usePortalTheme();
+  const brandLogo = portal?.logo_url ?? currentOrg?.logo_url ?? null;
+  const brandName = portalName ?? currentOrg?.name ?? null;
+
 
   const coreNav: NavItem[] = CORE_NAV_DEF.map((i) => ({ ...i, enabled: true }));
   const addonNav: NavItem[] = [
@@ -184,19 +192,20 @@ function AppLayout() {
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="px-5 py-5">
-          {currentOrg?.logo_url ? (
+          {brandLogo ? (
             <Link to="/app/dashboard" className="flex items-center gap-3">
               <img
-                src={currentOrg.logo_url}
-                alt={`${currentOrg.name} logo`}
+                src={brandLogo}
+                alt={`${brandName ?? "Organization"} logo`}
                 className="h-14 w-14 shrink-0 rounded-lg border border-border bg-background object-contain p-1"
               />
-              <span className="truncate font-serif text-base font-semibold text-foreground">{currentOrg.name}</span>
+              <span className="truncate font-serif text-base font-semibold text-foreground">{brandName}</span>
             </Link>
           ) : (
             <Logo />
           )}
         </div>
+
         <nav className="flex-1 overflow-y-auto px-3 pb-3">
           <SectionLabel>Mentorship & Community</SectionLabel>
           <div className="space-y-1">{coreNav.map(renderDesktopItem)}</div>
@@ -228,7 +237,16 @@ function AppLayout() {
             onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
             className="mt-1 w-full rounded-lg px-2 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
           >Sign out</button>
+          {portal && showPoweredBy && (
+            <a
+              href="https://lexguild.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 block text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground"
+            >Powered by LexGuild</a>
+          )}
         </div>
+
       </aside>
 
       {/* Mobile top bar */}
@@ -236,18 +254,19 @@ function AppLayout() {
         className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 pb-3 backdrop-blur lg:hidden"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
       >
-        {currentOrg?.logo_url ? (
+        {brandLogo ? (
           <Link to="/app/dashboard" className="flex items-center gap-2 min-w-0">
             <img
-              src={currentOrg.logo_url}
-              alt={`${currentOrg.name} logo`}
+              src={brandLogo}
+              alt={`${brandName ?? "Organization"} logo`}
               className="h-9 w-9 shrink-0 rounded-lg border border-border bg-background object-contain p-0.5"
             />
-            <span className="truncate font-serif text-sm font-semibold text-foreground">{currentOrg.name}</span>
+            <span className="truncate font-serif text-sm font-semibold text-foreground">{brandName}</span>
           </Link>
         ) : (
           <Logo />
         )}
+
         <div className="flex items-center gap-1">
           <NotificationsBell />
           <Link to="/app/settings">

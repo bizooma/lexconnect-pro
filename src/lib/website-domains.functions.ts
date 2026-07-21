@@ -239,10 +239,14 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
       organizationId: string;
       orgSlug: string;
       name: string;
+      portal_name: string | null;
       logo_url: string | null;
+      favicon_url: string | null;
       accent_color: string | null;
       welcome_message: string | null;
       join_policy: "invite_only" | "approval";
+      plan: "starter" | "pro" | "firm";
+      show_powered_by: boolean;
     } };
   }
   if (!host) return { portal: null };
@@ -263,21 +267,39 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
   if (!row || row.mode !== "portal") return { portal: null };
   const { data: org } = await supabaseAdmin
     .from("organizations")
-    .select("id, slug, name, logo_url, accent_color, welcome_message, join_policy")
+    .select("id, slug, name, portal_name, logo_url, favicon_url, accent_color, welcome_message, join_policy")
     .eq("id", row.organization_id)
     .single();
   if (!org) return { portal: null };
-  const jp = (org as { join_policy?: string }).join_policy;
+  const { data: sub } = await supabaseAdmin
+    .from("subscriptions")
+    .select("plan")
+    .eq("organization_id", row.organization_id)
+    .maybeSingle();
+  const rawPlan = (sub as { plan?: string } | null)?.plan;
+  const plan = (rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter") as
+    | "starter"
+    | "pro"
+    | "firm";
+  // Server-authoritative: hide the "Powered by LexGuild" mark only on the top tier.
+  const show_powered_by = plan !== "firm";
+  const jp = org.join_policy;
   return {
     portal: {
       organizationId: org.id,
       orgSlug: org.slug,
       name: org.name,
+      portal_name: org.portal_name ?? null,
       logo_url: org.logo_url ?? null,
-      accent_color: (org as { accent_color?: string | null }).accent_color ?? null,
-      welcome_message: (org as { welcome_message?: string | null }).welcome_message ?? null,
+      favicon_url: org.favicon_url ?? null,
+      accent_color: org.accent_color ?? null,
+      welcome_message: org.welcome_message ?? null,
       join_policy: (jp === "approval" ? "approval" : "invite_only") as "invite_only" | "approval",
+      plan,
+      show_powered_by,
     },
   };
 });
+
+
 
