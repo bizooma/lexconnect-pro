@@ -13,13 +13,13 @@ import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
+    let redirectTo: string | null = null;
     try {
-      const { redirectTo } = await resolveCurrentHost();
-      if (redirectTo) throw redirect({ to: redirectTo });
-    } catch (e) {
-      if (e && typeof e === "object" && "isRedirect" in e) throw e;
+      ({ redirectTo } = await resolveCurrentHost());
+    } catch {
       // Swallow lookup failures — fall through to marketing site.
     }
+    if (redirectTo) throw redirect({ to: redirectTo });
   },
   head: () => ({
     meta: [
