@@ -89,24 +89,33 @@ export const updateCustomDomain = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    if (data.isPrimary) {
-      // Unset primary on siblings first
-      const { data: target } = await context.supabase
-        .from("website_custom_domains")
-        .select("organization_id")
-        .eq("id", data.id)
-        .single();
-      if (target) {
-        await context.supabase
-          .from("website_custom_domains")
-          .update({ is_primary: false })
-          .eq("organization_id", target.organization_id);
+    // Load org for entitlement + primary reset
+    const { data: target } = await context.supabase
+      .from("website_custom_domains")
+      .select("organization_id")
+      .eq("id", data.id)
+      .single();
+    if (data.mode === "portal" && target) {
+      const { data: entitled, error: entErr } = await context.supabase
+        .rpc("has_white_label", { _org: target.organization_id });
+      if (entErr) throw new Error(entErr.message);
+      if (!entitled) {
+        throw new Error(
+          "Portal-mode domains require the white-label add-on. Upgrade your plan to switch this domain to Portal mode.",
+        );
       }
+    }
+    if (data.isPrimary && target) {
+      await context.supabase
+        .from("website_custom_domains")
+        .update({ is_primary: false })
+        .eq("organization_id", target.organization_id);
     }
     const patch: { default_page_slug?: string | null; is_primary?: boolean; mode?: "site" | "portal" } = {};
     if (data.defaultPageSlug !== undefined) patch.default_page_slug = data.defaultPageSlug;
     if (data.isPrimary !== undefined) patch.is_primary = data.isPrimary;
     if (data.mode !== undefined) patch.mode = data.mode;
+
     const { data: row, error } = await context.supabase
       .from("website_custom_domains")
       .update(patch)
