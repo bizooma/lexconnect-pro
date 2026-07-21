@@ -60,12 +60,25 @@ function DomainsPage() {
     if (!value) return;
     setBusy("add");
     try {
-      await add({ data: { organizationId: currentOrgId, domain: value } });
+      await add({ data: { organizationId: currentOrgId, domain: value, mode: newMode } });
       setNewDomain("");
+      setNewMode("site");
       toast.success("Domain added — verify ownership next.");
       refresh();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Failed to add domain");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onChangeMode = async (id: string, mode: DomainMode) => {
+    setBusy(id);
+    try {
+      await update({ data: { id, mode } });
+      refresh();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to update mode");
     } finally {
       setBusy(null);
     }
