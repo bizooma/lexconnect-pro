@@ -270,29 +270,24 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
 // tenant, or null if the host isn't a verified portal-mode custom domain.
 // Reads only branding fields via the admin client — no other org data.
 export const getPortalContext = createServerFn({ method: "GET" }).handler(async () => {
-  let host = "";
-  try {
-    host = (getRequestHost() || "").toLowerCase();
-  } catch {
-    return { portal: null as null | {
-      organizationId: string;
-      orgSlug: string;
-      name: string;
-      portal_name: string | null;
-      logo_url: string | null;
-      favicon_url: string | null;
-      accent_color: string | null;
-      welcome_message: string | null;
-      join_policy: "invite_only" | "approval";
-      plan: "starter" | "pro" | "firm";
-      entitled: boolean;
-      show_powered_by: boolean;
-    } };
-  }
-  if (!host) return { portal: null };
-  host = host.replace(/:\d+$/, "");
+  const host = getEffectiveHost();
+  type PortalPayload = {
+    organizationId: string;
+    orgSlug: string;
+    name: string;
+    portal_name: string | null;
+    logo_url: string | null;
+    favicon_url: string | null;
+    accent_color: string | null;
+    welcome_message: string | null;
+    join_policy: "invite_only" | "approval";
+    plan: "starter" | "pro" | "firm";
+    entitled: boolean;
+    show_powered_by: boolean;
+  };
+  if (!host) return { portal: null as PortalPayload | null };
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
-    return { portal: null };
+    return { portal: null as PortalPayload | null };
   }
   const hostParse = domainSchema.safeParse(host);
   if (!hostParse.success) return { portal: null };
