@@ -1,8 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHost } from "@tanstack/react-start/server";
+import { getRequestHost, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+// Returns the effective inbound host, preferring x-forwarded-host (the
+// hosting proxy rewrites Host in production). Lowercased, port-stripped.
+export function getEffectiveHost(): string {
+  let xfh = "";
+  try {
+    xfh = getRequestHeader("x-forwarded-host") ?? "";
+  } catch {
+    xfh = "";
+  }
+  let host = "";
+  if (xfh) {
+    host = xfh.split(",")[0]?.trim() ?? "";
+  }
+  if (!host) {
+    try {
+      host = getRequestHost() || "";
+    } catch {
+      host = "";
+    }
+  }
+  host = host.toLowerCase().replace(/:\d+$/, "");
+  return host;
+}
 
 // Hosts that should NEVER be treated as a tenant custom domain.
 const RESERVED_HOST_SUFFIXES = [
@@ -213,14 +237,8 @@ export const resolveDomain = createServerFn({ method: "GET" })
 // Server-only: reads the incoming Host header and returns a redirect target
 // if it's a verified tenant domain. Returns null otherwise.
 export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(async () => {
-  let host = "";
-  try {
-    host = (getRequestHost() || "").toLowerCase();
-  } catch {
-    return { redirectTo: null as string | null };
-  }
-  if (!host) return { redirectTo: null };
-  host = host.replace(/:\d+$/, "");
+  const host = getEffectiveHost();
+  if (!host) return { redirectTo: null as string | null };
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
     return { redirectTo: null };
   }
@@ -252,29 +270,24 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
 // tenant, or null if the host isn't a verified portal-mode custom domain.
 // Reads only branding fields via the admin client — no other org data.
 export const getPortalContext = createServerFn({ method: "GET" }).handler(async () => {
-  let host = "";
-  try {
-    host = (getRequestHost() || "").toLowerCase();
-  } catch {
-    return { portal: null as null | {
-      organizationId: string;
-      orgSlug: string;
-      name: string;
-      portal_name: string | null;
-      logo_url: string | null;
-      favicon_url: string | null;
-      accent_color: string | null;
-      welcome_message: string | null;
-      join_policy: "invite_only" | "approval";
-      plan: "starter" | "pro" | "firm";
-      entitled: boolean;
-      show_powered_by: boolean;
-    } };
-  }
-  if (!host) return { portal: null };
-  host = host.replace(/:\d+$/, "");
+  const host = getEffectiveHost();
+  type PortalPayload = {
+    organizationId: string;
+    orgSlug: string;
+    name: string;
+    portal_name: string | null;
+    logo_url: string | null;
+    favicon_url: string | null;
+    accent_color: string | null;
+    welcome_message: string | null;
+    join_policy: "invite_only" | "approval";
+    plan: "starter" | "pro" | "firm";
+    entitled: boolean;
+    show_powered_by: boolean;
+  };
+  if (!host) return { portal: null as PortalPayload | null };
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
-    return { portal: null };
+    return { portal: null as PortalPayload | null };
   }
   const hostParse = domainSchema.safeParse(host);
   if (!hostParse.success) return { portal: null };
