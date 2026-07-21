@@ -29,11 +29,14 @@ type DomainRow = {
 
 function DomainsPage() {
   const { currentOrgId, subscription } = useCurrentOrg();
+  const trialActive =
+    subscription?.status === "trialing" &&
+    (!subscription.trial_end || new Date(subscription.trial_end) > new Date());
   const hasWhiteLabel =
     subscription?.plan === "firm" &&
     (subscription.status === "active" ||
       subscription.status === "grandfathered" ||
-      subscription.status === "trialing");
+      trialActive);
   const list = useServerFn(listCustomDomains);
   const add = useServerFn(addCustomDomain);
   const remove = useServerFn(removeCustomDomain);
