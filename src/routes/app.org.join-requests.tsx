@@ -84,7 +84,7 @@ function JoinRequestsPage() {
               <ul className="divide-y divide-border">
                 {pending.map((r) => (
                   <li key={r.id} className="flex items-center gap-3 py-3">
-                    <Avatar src={r.profile?.avatar_url ?? undefined} name={r.profile?.full_name ?? "User"} size={40} />
+                    <Avatar src={r.profile?.avatar_url ?? undefined} initials={(r.profile?.full_name ?? "U").slice(0,1).toUpperCase()} size={40} />
                     <div className="flex-1">
                       <div className="text-sm font-medium">{r.profile?.full_name ?? "Unknown user"}</div>
                       <div className="text-xs text-muted-foreground">Requested {new Date(r.created_at).toLocaleString()}</div>
@@ -103,7 +103,7 @@ function JoinRequestsPage() {
               <ul className="divide-y divide-border">
                 {decided.map((r) => (
                   <li key={r.id} className="flex items-center gap-3 py-3 text-sm">
-                    <Avatar src={r.profile?.avatar_url ?? undefined} name={r.profile?.full_name ?? "User"} size={32} />
+                    <Avatar src={r.profile?.avatar_url ?? undefined} initials={(r.profile?.full_name ?? "U").slice(0,1).toUpperCase()} size={32} />
                     <div className="flex-1">
                       <div className="font-medium">{r.profile?.full_name ?? "Unknown user"}</div>
                       <div className="text-xs text-muted-foreground">
