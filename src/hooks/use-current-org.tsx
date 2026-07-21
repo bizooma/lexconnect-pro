@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { usePortalTheme } from "@/components/portal-theme-provider";
 
 export type OrgMembership = {
   organization_id: string;
@@ -20,6 +21,7 @@ export type OrgSubscription = {
   plan: "starter" | "pro" | "firm";
   seats_purchased: number;
   current_period_end: string | null;
+  trial_end: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
 };
@@ -43,16 +45,19 @@ const LS_KEY = "lexguild.currentOrgId";
 
 export function CurrentOrgProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { portal, loading: portalLoading } = usePortalTheme();
   const [memberships, setMemberships] = useState<OrgMembership[]>([]);
   const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
   const [subscription, setSubscription] = useState<OrgSubscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [membershipsLoaded, setMembershipsLoaded] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!user) {
       setMemberships([]);
       setCurrentOrgId(null);
       setSubscription(null);
+      setMembershipsLoaded(true);
       setLoading(false);
       return;
     }
@@ -93,32 +98,48 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
     }
 
     setMemberships(list);
-    const initial =
-      list.find((m) => m.organization_id === stored)?.organization_id ??
-      list[0]?.organization_id ??
-      null;
-    setCurrentOrgId(initial);
+    setMembershipsLoaded(true);
     setLoading(false);
   }, [user]);
 
   useEffect(() => { void refresh(); }, [refresh]);
+
+  // Finalize the current org selection. On portal hosts, force the portal org
+  // (never persist, never fall back to a different org). Off-portal, use the
+  // stored preference or the first membership.
+  useEffect(() => {
+    if (!membershipsLoaded || portalLoading) return;
+    if (portal) {
+      const belongs = memberships.some((m) => m.organization_id === portal.organizationId);
+      setCurrentOrgId(belongs ? portal.organizationId : null);
+      return;
+    }
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : null;
+    const initial =
+      memberships.find((m) => m.organization_id === stored)?.organization_id ??
+      memberships[0]?.organization_id ??
+      null;
+    setCurrentOrgId(initial);
+  }, [membershipsLoaded, portalLoading, portal, memberships]);
 
   // Load subscription when org changes
   useEffect(() => {
     if (!currentOrgId) { setSubscription(null); return; }
     supabase
       .from("subscriptions")
-      .select("status, plan, seats_purchased, current_period_end, stripe_customer_id, stripe_subscription_id")
+      .select("status, plan, seats_purchased, current_period_end, trial_end, stripe_customer_id, stripe_subscription_id")
       .eq("organization_id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => setSubscription((data as OrgSubscription | null) ?? null));
   }, [currentOrgId]);
 
   const switchOrg = useCallback((orgId: string) => {
+    // On portal hosts, org is locked — switching is a no-op.
+    if (portal) return;
     if (typeof window !== "undefined") window.localStorage.setItem(LS_KEY, orgId);
     setCurrentOrgId(orgId);
     void refresh();
-  }, [refresh]);
+  }, [portal, refresh]);
 
   const value = useMemo<Ctx>(() => {
     const membership = memberships.find((m) => m.organization_id === currentOrgId) ?? null;

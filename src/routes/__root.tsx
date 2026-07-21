@@ -234,10 +234,16 @@ function RootComponent() {
       <AuthProvider>
         <PortalThemeProvider>
           <Outlet />
-          <VideoAskWidget />
+          <PortalAwareVideoAsk />
         </PortalThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function PortalAwareVideoAsk() {
+  const { portal, loading } = usePortalTheme();
+  if (loading || portal) return null;
+  return <VideoAskWidget />;
 }
 
