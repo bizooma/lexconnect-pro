@@ -20,6 +20,7 @@ export type OrgSubscription = {
   plan: "starter" | "pro" | "firm";
   seats_purchased: number;
   current_period_end: string | null;
+  trial_end: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
 };
