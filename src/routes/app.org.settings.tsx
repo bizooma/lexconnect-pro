@@ -26,6 +26,8 @@ function OrgSettingsPage() {
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#1f3a5f");
   const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [joinPolicy, setJoinPolicy] = useState<"invite_only" | "approval">("invite_only");
+
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +85,7 @@ function OrgSettingsPage() {
     if (!currentOrgId) return;
     supabase
       .from("organizations")
-      .select("name,slug,kind,website,logo_url,accent_color,welcome_message")
+      .select("name,slug,kind,website,logo_url,accent_color,welcome_message,join_policy")
       .eq("id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => {
@@ -95,8 +97,11 @@ function OrgSettingsPage() {
         setLogoUrl(data.logo_url ?? "");
         setAccentColor((data as any).accent_color ?? "#1f3a5f");
         setWelcomeMessage((data as any).welcome_message ?? "");
+        const jp = (data as any).join_policy;
+        setJoinPolicy(jp === "approval" ? "approval" : "invite_only");
       });
   }, [currentOrgId]);
+
 
   if (!currentOrgId) {
     return <div className="p-8 text-sm text-muted-foreground">No organization selected.</div>;
@@ -118,8 +123,10 @@ function OrgSettingsPage() {
         logo_url: logoUrl || null,
         accent_color: accentColor,
         welcome_message: welcomeMessage || null,
-      })
+        join_policy: joinPolicy,
+      } as any)
       .eq("id", currentOrgId);
+
     setSaving(false);
     if (error) return toast.error("Could not save", { description: error.message });
     toast.success("Organization updated");
@@ -133,6 +140,13 @@ function OrgSettingsPage() {
         <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">{currentOrg?.name}</p>
       </header>
+
+      {isOrgAdmin && (
+        <div className="mb-4">
+          <a href="/app/org/join-requests" className="text-sm font-medium text-primary hover:underline">Review join requests →</a>
+        </div>
+      )}
+
 
       {!isOrgAdmin && (
         <div className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
@@ -155,6 +169,17 @@ function OrgSettingsPage() {
           </Select>
         </div>
         <Field label="Website" value={website} onChange={setWebsite} placeholder="https://" disabled={!isOrgAdmin} />
+        <div>
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Join policy</p>
+          <Select value={joinPolicy} onValueChange={(v) => setJoinPolicy(v as "invite_only" | "approval")} disabled={!isOrgAdmin}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="invite_only">Invite only — members join with an invite token</SelectItem>
+              <SelectItem value="approval">Approval — users can request access and admins approve</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="mt-1.5 text-xs text-muted-foreground">Applies to your custom portal domain. Invite-only requires an invite token; approval lets users request access for admins to review.</p>
+        </div>
       </section>
 
       <section className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card">

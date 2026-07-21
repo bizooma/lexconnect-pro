@@ -4,6 +4,8 @@ import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
+import { usePortalContext, type PortalContext } from "@/hooks/use-portal-context";
+
 
 type PlanId = "starter" | "professional" | "enterprise" | "test";
 type SignupSearch = { plan?: PlanId; billing?: "monthly" | "annual" };
@@ -130,7 +132,13 @@ function slugify(s: string) {
 
 function SignupOrg() {
   const navigate = useNavigate();
+  const { portal, loading: portalLoading } = usePortalContext();
+  if (portalLoading) {
+    return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Loading…</div>;
+  }
+  if (portal) return <PortalSignup portal={portal} />;
   const { plan: planParam, billing: billingParam } = Route.useSearch();
+
   const initialPlanIdx = planParam === "starter" ? 0 : planParam === "enterprise" ? 2 : planParam === "professional" ? 1 : 1;
   const tierWasPreselected = Boolean(planParam);
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -370,6 +378,85 @@ function Footer({ onBack, onNext, backLabel = "Back", nextLabel = "Continue", di
         className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90 disabled:opacity-50">
         {nextLabel}
       </button>
+    </div>
+  );
+}
+
+function PortalSignup({ portal }: { portal: PortalContext }) {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const accent = portal.accent_color || undefined;
+
+  const submit = async () => {
+    setError(null);
+    if (!fullName.trim() || !email.trim() || password.length < 6) {
+      setError("Please complete all fields (password 6+ characters).");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { data, error: signErr } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+          data: { full_name: fullName },
+        },
+      });
+      if (signErr) throw signErr;
+      // Portal signup ONLY creates the auth account.
+      // No org creation, no direct organization_members insert.
+      if (!data.session) {
+        toast.success("Check your email to confirm, then sign in.");
+      } else {
+        toast.success("Account created. Sign in to request access.");
+        await supabase.auth.signOut();
+      }
+      window.location.href = "/login";
+    } catch (err: any) {
+      setError(err.message ?? "Could not create your account.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="px-5 py-5">
+        {portal.logo_url ? (
+          <img src={portal.logo_url} alt={portal.name} className="h-10 w-auto max-w-[180px] object-contain" />
+        ) : (
+          <Logo />
+        )}
+      </header>
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-12">
+        <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">
+          Create your {portal.name} account
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {portal.join_policy === "invite_only"
+            ? "After creating your account, sign in and enter your invite token to join."
+            : "After creating your account, sign in and request access from an administrator."}
+        </p>
+        <div className="mt-6 space-y-4">
+          <Field label="Full name" placeholder="Jane Doe, Esq." value={fullName} onChange={setFullName} />
+          <Field label="Email" placeholder="you@firm.com" value={email} onChange={setEmail} type="email" />
+          <Field label="Password" placeholder="At least 6 characters" value={password} onChange={setPassword} type="password" />
+        </div>
+        {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
+        <button
+          onClick={submit}
+          disabled={submitting}
+          style={accent ? { backgroundColor: accent } : undefined}
+          className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant transition hover:opacity-90 disabled:opacity-60"
+        >{submitting ? "Creating…" : "Create account"}</button>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Already have an account? <Link to="/login" search={{ next: undefined }} className="font-medium text-primary hover:underline">Sign in</Link>
+        </p>
+      </main>
     </div>
   );
 }

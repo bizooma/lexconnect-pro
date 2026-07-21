@@ -65,6 +65,7 @@ import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
 import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
+import { Route as AppOrgJoinRequestsRouteImport } from './routes/app.org.join-requests'
 import { Route as AppOrgInsightsRouteImport } from './routes/app.org.insights'
 import { Route as AppOrgBillingRouteImport } from './routes/app.org.billing'
 import { Route as AppMessagesIdRouteImport } from './routes/app.messages.$id'
@@ -378,6 +379,11 @@ const AppOrgMatchingRoute = AppOrgMatchingRouteImport.update({
   path: '/org/matching',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrgJoinRequestsRoute = AppOrgJoinRequestsRouteImport.update({
+  id: '/org/join-requests',
+  path: '/org/join-requests',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgInsightsRoute = AppOrgInsightsRouteImport.update({
   id: '/org/insights',
   path: '/org/insights',
@@ -580,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
@@ -662,6 +669,7 @@ export interface FileRoutesByTo {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
@@ -751,6 +759,7 @@ export interface FileRoutesById {
   '/app/messages/$id': typeof AppMessagesIdRoute
   '/app/org/billing': typeof AppOrgBillingRoute
   '/app/org/insights': typeof AppOrgInsightsRoute
+  '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
@@ -841,6 +850,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/resources'
@@ -923,6 +933,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/resources'
@@ -1011,6 +1022,7 @@ export interface FileRouteTypes {
     | '/app/messages/$id'
     | '/app/org/billing'
     | '/app/org/insights'
+    | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
     | '/app/org/resources'
@@ -1487,6 +1499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgMatchingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/org/join-requests': {
+      id: '/app/org/join-requests'
+      path: '/org/join-requests'
+      fullPath: '/app/org/join-requests'
+      preLoaderRoute: typeof AppOrgJoinRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/insights': {
       id: '/app/org/insights'
       path: '/org/insights'
@@ -1859,6 +1878,7 @@ interface AppRouteChildren {
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
+  AppOrgJoinRequestsRoute: typeof AppOrgJoinRequestsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
@@ -1880,6 +1900,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
+  AppOrgJoinRequestsRoute: AppOrgJoinRequestsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
