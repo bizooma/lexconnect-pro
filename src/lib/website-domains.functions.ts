@@ -237,14 +237,8 @@ export const resolveDomain = createServerFn({ method: "GET" })
 // Server-only: reads the incoming Host header and returns a redirect target
 // if it's a verified tenant domain. Returns null otherwise.
 export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(async () => {
-  let host = "";
-  try {
-    host = (getRequestHost() || "").toLowerCase();
-  } catch {
-    return { redirectTo: null as string | null };
-  }
-  if (!host) return { redirectTo: null };
-  host = host.replace(/:\d+$/, "");
+  const host = getEffectiveHost();
+  if (!host) return { redirectTo: null as string | null };
   if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
     return { redirectTo: null };
   }
