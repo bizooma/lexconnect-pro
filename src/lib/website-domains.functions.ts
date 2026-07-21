@@ -44,6 +44,7 @@ export const addCustomDomain = createServerFn({ method: "POST" })
         organizationId: z.string().uuid(),
         domain: domainSchema,
         defaultPageSlug: z.string().min(1).max(120).optional().nullable(),
+        mode: modeSchema.optional(),
       })
       .parse(input),
   )
@@ -54,6 +55,7 @@ export const addCustomDomain = createServerFn({ method: "POST" })
         organization_id: data.organizationId,
         domain: data.domain,
         default_page_slug: data.defaultPageSlug ?? null,
+        mode: data.mode ?? "site",
         created_by: context.userId,
       })
       .select()
