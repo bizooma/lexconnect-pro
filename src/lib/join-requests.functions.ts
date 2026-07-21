@@ -1,31 +1,65 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHost } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-// Requests membership under approval-mode. Insert path is guarded by RLS
-// (user_id = auth.uid() AND status = 'pending'). No admin client used.
+const RESERVED_HOST_SUFFIXES = ["lexguild.com", "lovable.app", "lovable.dev", "localhost"];
+const domainSchema = z
+  .string()
+  .min(3)
+  .max(253)
+  .toLowerCase()
+  .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/);
+
+async function resolvePortalOrgFromHost(): Promise<{ id: string; join_policy: string } | null> {
+  let host = "";
+  try {
+    host = (getRequestHost() || "").toLowerCase();
+  } catch {
+    return null;
+  }
+  if (!host) return null;
+  host = host.replace(/:\d+$/, "");
+  if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) return null;
+  const parsed = domainSchema.safeParse(host);
+  if (!parsed.success) return null;
+  const safeHost = parsed.data;
+  const bare = safeHost.replace(/^www\./, "");
+  const { data: row } = await supabaseAdmin
+    .from("website_custom_domains")
+    .select("organization_id, mode")
+    .or(`domain.eq.${safeHost},domain.eq.${bare},domain.eq.www.${bare}`)
+    .not("verified_at", "is", null)
+    .maybeSingle();
+  if (!row || row.mode !== "portal") return null;
+  const { data: org } = await supabaseAdmin
+    .from("organizations")
+    .select("id, join_policy")
+    .eq("id", row.organization_id)
+    .single();
+  if (!org) return null;
+  return { id: org.id, join_policy: (org as { join_policy?: string }).join_policy ?? "invite_only" };
+}
+
+// Requests membership under approval-mode. Org is resolved server-side from
+// the portal-mode Host header — never trusted from the client. Insert path is
+// guarded by RLS (user_id = auth.uid() AND status = 'pending').
 export const requestJoin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ organizationId: z.string().uuid() }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    // Only allow if org actually uses approval policy — defense in depth.
-    const { data: org, error: orgErr } = await context.supabase
-      .from("organizations")
-      .select("id, join_policy")
-      .eq("id", data.organizationId)
-      .maybeSingle();
-    if (orgErr || !org) throw new Error("Organization not found");
-    if ((org as { join_policy?: string }).join_policy !== "approval") {
+  .handler(async ({ context }) => {
+    const org = await resolvePortalOrgFromHost();
+    if (!org) throw new Error("This site is not accepting join requests");
+    if (org.join_policy !== "approval") {
       throw new Error("This organization is invite-only");
     }
+    const organizationId = org.id;
 
     // If already an active member, no-op.
     const { data: existingMember } = await context.supabase
       .from("organization_members")
       .select("id, status")
-      .eq("organization_id", data.organizationId)
+      .eq("organization_id", organizationId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (existingMember && (existingMember as { status?: string }).status === "active") {
@@ -36,20 +70,21 @@ export const requestJoin = createServerFn({ method: "POST" })
     const { data: existing } = await context.supabase
       .from("org_join_requests")
       .select("id, status")
-      .eq("organization_id", data.organizationId)
+      .eq("organization_id", organizationId)
       .eq("user_id", context.userId)
       .eq("status", "pending")
       .maybeSingle();
     if (existing) return { ok: true, already: "requested" as const };
 
     const { error } = await context.supabase.from("org_join_requests").insert({
-      organization_id: data.organizationId,
+      organization_id: organizationId,
       user_id: context.userId,
       status: "pending",
     });
     if (error) throw new Error(error.message);
     return { ok: true, already: null };
   });
+
 
 export const listOrgJoinRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
