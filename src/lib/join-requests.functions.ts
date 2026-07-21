@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHost } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getEffectiveHost } from "@/lib/website-domains.functions";
 
 const RESERVED_HOST_SUFFIXES = ["lexguild.com", "lovable.app", "lovable.dev", "localhost"];
 const domainSchema = z
