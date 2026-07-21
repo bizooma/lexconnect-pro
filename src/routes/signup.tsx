@@ -4,6 +4,8 @@ import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
+import { usePortalContext, type PortalContext } from "@/hooks/use-portal-context";
+
 
 type PlanId = "starter" | "professional" | "enterprise" | "test";
 type SignupSearch = { plan?: PlanId; billing?: "monthly" | "annual" };
