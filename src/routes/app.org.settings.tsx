@@ -26,6 +26,8 @@ function OrgSettingsPage() {
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#1f3a5f");
   const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [joinPolicy, setJoinPolicy] = useState<"invite_only" | "approval">("invite_only");
+
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
