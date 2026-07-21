@@ -15,6 +15,8 @@ export const Route = createFileRoute("/app/website/domains")({
   component: DomainsPage,
 });
 
+type DomainMode = "site" | "portal";
+
 type DomainRow = {
   id: string;
   domain: string;
@@ -22,6 +24,7 @@ type DomainRow = {
   verified_at: string | null;
   is_primary: boolean;
   default_page_slug: string | null;
+  mode: DomainMode;
 };
 
 function DomainsPage() {
