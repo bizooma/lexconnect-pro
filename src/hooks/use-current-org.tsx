@@ -109,7 +109,7 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
     if (!currentOrgId) { setSubscription(null); return; }
     supabase
       .from("subscriptions")
-      .select("status, plan, seats_purchased, current_period_end, stripe_customer_id, stripe_subscription_id")
+      .select("status, plan, seats_purchased, current_period_end, trial_end, stripe_customer_id, stripe_subscription_id")
       .eq("organization_id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => setSubscription((data as OrgSubscription | null) ?? null));
