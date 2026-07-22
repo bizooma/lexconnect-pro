@@ -23,10 +23,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "LexGuild — Modern attorney mentorship" },
-      { name: "description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
-      { property: "og:title", content: "LexGuild — Modern attorney mentorship" },
-      { property: "og:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { title: "LexGuild — The member engagement platform for bar associations" },
+      { name: "description", content: "A branded member portal for bar associations and legal organizations — mentorship, CLE, and member engagement on your own domain." },
+      { property: "og:title", content: "LexGuild — The member engagement platform for bar associations" },
+      { property: "og:description", content: "A branded member portal for bar associations and legal organizations — mentorship, CLE, and member engagement on your own domain." },
       { property: "og:url", content: "https://lexguild.com/" },
       { property: "og:image", content: "https://lexguild.com/og-image.png" },
     ],
