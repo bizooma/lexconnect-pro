@@ -456,15 +456,11 @@ export const updateFollowUpStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertOrgAdmin(supabase, userId, data.organizationId);
-    const patch: Record<string, unknown> = { status: data.status };
-    if (data.status === "done" || data.status === "dismissed") {
-      patch.completed_at = new Date().toISOString();
-    } else {
-      patch.completed_at = null;
-    }
+    const completed_at =
+      data.status === "open" ? null : new Date().toISOString();
     const { error } = await supabase
       .from("org_follow_ups")
-      .update(patch)
+      .update({ status: data.status, completed_at })
       .eq("id", data.followUpId)
       .eq("organization_id", data.organizationId);
     if (error) throw new Error(error.message);
