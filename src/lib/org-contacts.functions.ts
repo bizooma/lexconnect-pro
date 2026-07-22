@@ -745,12 +745,12 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
 
       // Render the invite email server-side; the queue processor expects
       // pre-rendered html/text/subject/from, not template_name lookups.
-      const [{ render }, React, { EMAIL_TEMPLATES }] = await Promise.all([
+      const [{ render }, React, { TEMPLATES }] = await Promise.all([
         import("@react-email/components"),
         import("react"),
         import("@/lib/email-templates/registry"),
       ]);
-      const template = EMAIL_TEMPLATES.invite;
+      const template = TEMPLATES.invite;
       const templateData = {
         siteName: data.siteName,
         siteUrl: data.siteUrl,
