@@ -575,3 +575,203 @@ export const getMemberEngagement = createServerFn({ method: "POST" })
       messaging: { conversations: convCount, lastActivityAt: convLast },
     };
   });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LINK (backfill user_id via SQL helper)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const linkOrgContacts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ organizationId: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: n, error } = await supabase.rpc("link_org_contacts", {
+      _org: data.organizationId,
+    });
+    if (error) throw new Error(error.message);
+    return { linked: Number(n ?? 0) };
+  });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CSV IMPORT (batch)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const importRowSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(255),
+  full_name: z.string().trim().max(120).optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  external_ref: z.string().trim().max(120).optional().nullable(),
+});
+
+const importSchema = z.object({
+  organizationId: uuid,
+  rows: z.array(z.record(z.string(), z.any())).max(100),
+});
+
+export const importContactsBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => importSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertOrgAdmin(supabase, userId, data.organizationId);
+
+    let invalid = 0;
+    const parsed: z.infer<typeof importRowSchema>[] = [];
+    for (const raw of data.rows) {
+      const r = importRowSchema.safeParse(raw);
+      if (r.success) parsed.push(r.data);
+      else invalid++;
+    }
+    if (parsed.length === 0) {
+      return { imported: 0, skippedDuplicates: 0, invalid };
+    }
+
+    const emails = Array.from(new Set(parsed.map((r) => r.email)));
+    const { data: existing, error: exErr } = await supabase
+      .from("org_contacts")
+      .select("email")
+      .eq("organization_id", data.organizationId)
+      .in("email", emails);
+    if (exErr) throw new Error(exErr.message);
+    const existingSet = new Set(
+      ((existing ?? []) as { email: string }[]).map((r) => r.email.toLowerCase()),
+    );
+
+    const toInsert: any[] = [];
+    const seen = new Set<string>();
+    let skippedDuplicates = 0;
+    for (const r of parsed) {
+      if (existingSet.has(r.email) || seen.has(r.email)) {
+        skippedDuplicates++;
+        continue;
+      }
+      seen.add(r.email);
+      toInsert.push({
+        organization_id: data.organizationId,
+        email: r.email,
+        full_name: r.full_name || null,
+        phone: r.phone || null,
+        external_ref: r.external_ref || null,
+        created_by: userId,
+      });
+    }
+
+    let imported = 0;
+    if (toInsert.length > 0) {
+      const { data: ins, error: insErr } = await supabase
+        .from("org_contacts")
+        .insert(toInsert)
+        .select("id");
+      if (insErr) throw new Error(insErr.message);
+      imported = (ins ?? []).length;
+    }
+
+    return { imported, skippedDuplicates, invalid };
+  });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BULK INVITE (uses existing organization_invites + email queue)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const bulkInviteSchema = z.object({
+  organizationId: uuid,
+  contactIds: z.array(uuid).min(1).max(200),
+  org_role: z.enum(["member", "content_editor", "admin"]).optional().default("member"),
+  siteUrl: z.string().url().max(500),
+  siteName: z.string().trim().max(120).optional().default("the organization"),
+});
+
+export const bulkInviteContacts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => bulkInviteSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertOrgAdmin(supabase, userId, data.organizationId);
+
+    const { data: contacts, error: cErr } = await supabase
+      .from("org_contacts")
+      .select("id,email,user_id,invited_at")
+      .eq("organization_id", data.organizationId)
+      .in("id", data.contactIds);
+    if (cErr) throw new Error(cErr.message);
+
+    const eligible = ((contacts ?? []) as any[]).filter(
+      (c) => c.email && !c.user_id,
+    );
+
+    // Skip contacts that already have a pending invite for this org.
+    const emails = eligible.map((c) => c.email.toLowerCase());
+    let alreadyInvitedSet = new Set<string>();
+    if (emails.length > 0) {
+      const { data: existing } = await supabase
+        .from("organization_invites")
+        .select("email")
+        .eq("organization_id", data.organizationId)
+        .is("accepted_at", null)
+        .in("email", emails);
+      alreadyInvitedSet = new Set(
+        ((existing ?? []) as { email: string }[]).map((r) => r.email.toLowerCase()),
+      );
+    }
+
+    let invited = 0;
+    let skipped = 0;
+    let queued = 0;
+    let queueFailed = 0;
+
+    for (const c of eligible) {
+      const email = String(c.email).toLowerCase();
+      if (alreadyInvitedSet.has(email)) {
+        skipped++;
+        continue;
+      }
+      const token = (globalThis.crypto?.randomUUID?.() ?? "").replace(/-/g, "")
+        || Array.from({ length: 32 }, () =>
+             Math.floor(Math.random() * 16).toString(16)).join("");
+      const { error: invErr } = await supabase.from("organization_invites").insert({
+        organization_id: data.organizationId,
+        email,
+        org_role: data.org_role,
+        token,
+        invited_by: userId,
+      });
+      if (invErr) {
+        skipped++;
+        continue;
+      }
+      invited++;
+
+      const confirmationUrl = `${data.siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
+      const { error: qErr } = await supabase.rpc("enqueue_email", {
+        queue_name: "transactional_emails",
+        payload: {
+          message_id: (globalThis.crypto?.randomUUID?.() ?? token),
+          to: email,
+          template_name: "invite",
+          template_data: {
+            siteName: data.siteName,
+            siteUrl: data.siteUrl,
+            confirmationUrl,
+          },
+          purpose: "transactional",
+          label: "invite",
+          queued_at: new Date().toISOString(),
+        },
+      });
+      if (qErr) queueFailed++;
+      else queued++;
+
+      await supabase
+        .from("org_contacts")
+        .update({ invited_at: new Date().toISOString() })
+        .eq("id", c.id)
+        .eq("organization_id", data.organizationId);
+    }
+
+    return {
+      invited,
+      queued,
+      skipped: skipped + (contacts?.length ?? 0) - eligible.length,
+      queueFailed,
+    };
+  });
