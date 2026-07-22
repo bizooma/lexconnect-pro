@@ -237,7 +237,7 @@ function Landing() {
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              Install LexGuild on your phone
+              Your portal, on their phones
             </span>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
               Why install LexGuild on your phone?
