@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   listContacts,
   addContact,
@@ -27,7 +28,9 @@ import {
   addContactInteraction,
   addFollowUp,
   updateFollowUpStatus,
+  getMemberEngagement,
   type ContactRow,
+  type MemberEngagement,
 } from "@/lib/org-contacts.functions";
 
 export const Route = createFileRoute("/app/org/clients")({
