@@ -577,6 +577,171 @@ export const getMemberEngagement = createServerFn({ method: "POST" })
   });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SEGMENTS (saved quick-filters)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type SegmentKey =
+  | "not_invited"
+  | "invited_stale"
+  | "inactive_30"
+  | "ce_incomplete"
+  | "no_mentorship";
+
+export type SegmentContactRow = ContactRow;
+
+export const getContactSegments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ organizationId: uuid }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertOrgAdmin(supabase, userId, data.organizationId);
+    const orgId = data.organizationId;
+
+    const { data: contacts, error } = await supabase
+      .from("org_contacts")
+      .select("id,email,full_name,phone,external_ref,user_id,invited_at,created_at,updated_at")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(5000);
+    if (error) throw new Error(error.message);
+    const rows = (contacts ?? []) as any[];
+    const contactIds = rows.map((r) => r.id);
+    const linkedUserIds = rows.map((r) => r.user_id).filter(Boolean) as string[];
+
+    const [tagsRes, notesRes, membersRes] = await Promise.all([
+      contactIds.length
+        ? supabase.from("org_contact_tags").select("contact_id,tag").in("contact_id", contactIds)
+        : Promise.resolve({ data: [], error: null } as any),
+      contactIds.length
+        ? supabase
+            .from("org_contact_notes")
+            .select("contact_id,created_at")
+            .in("contact_id", contactIds)
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [], error: null } as any),
+      supabase
+        .from("organization_members")
+        .select("user_id")
+        .eq("organization_id", orgId)
+        .eq("status", "active"),
+    ]);
+
+    const tagMap = new Map<string, string[]>();
+    ((tagsRes.data ?? []) as any[]).forEach((t) => {
+      const a = tagMap.get(t.contact_id) ?? [];
+      a.push(t.tag);
+      tagMap.set(t.contact_id, a);
+    });
+    const lastNoteMap = new Map<string, string>();
+    ((notesRes.data ?? []) as any[]).forEach((n) => {
+      if (!lastNoteMap.has(n.contact_id)) lastNoteMap.set(n.contact_id, n.created_at);
+    });
+    const activeMemberIds = new Set(
+      ((membersRes.data ?? []) as any[]).map((m) => m.user_id).filter(Boolean) as string[],
+    );
+
+    // CE enrollments / completions in this org's courses
+    const ceEnrolled = new Set<string>();
+    const ceCompleted = new Set<string>();
+    // Mentorships in this org
+    const mentorSet = new Set<string>();
+
+    if (linkedUserIds.length) {
+      const [ceRes, mRes] = await Promise.all([
+        supabase
+          .from("ce_enrollments")
+          .select("user_id,status,ce_courses!inner(organization_id)")
+          .eq("ce_courses.organization_id", orgId)
+          .in("user_id", linkedUserIds),
+        supabase
+          .from("mentorships")
+          .select("mentor_id,mentee_id")
+          .eq("organization_id", orgId),
+      ]);
+      ((ceRes.data ?? []) as any[]).forEach((e) => {
+        ceEnrolled.add(e.user_id);
+        if (e.status === "completed") ceCompleted.add(e.user_id);
+      });
+      ((mRes.data ?? []) as any[]).forEach((m) => {
+        if (m.mentor_id) mentorSet.add(m.mentor_id);
+        if (m.mentee_id) mentorSet.add(m.mentee_id);
+      });
+    }
+
+    // Last sign-in for active members only (via admin, capped)
+    const lastSignInMap = new Map<string, string | null>();
+    const activeLinked = linkedUserIds.filter((id) => activeMemberIds.has(id));
+    if (activeLinked.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const capped = activeLinked.slice(0, 500);
+      await Promise.all(
+        capped.map(async (id) => {
+          try {
+            const { data: u } = await supabaseAdmin.auth.admin.getUserById(id);
+            lastSignInMap.set(id, (u?.user as any)?.last_sign_in_at ?? null);
+          } catch {
+            lastSignInMap.set(id, null);
+          }
+        }),
+      );
+    }
+
+    const now = Date.now();
+    const DAY = 86_400_000;
+
+    const built: SegmentContactRow[] = rows.map((r) => {
+      const isMember = r.user_id && activeMemberIds.has(r.user_id);
+      const status: ContactRow["status"] = isMember
+        ? "member"
+        : r.invited_at
+        ? "invited"
+        : "contact";
+      return {
+        ...r,
+        tags: (tagMap.get(r.id) ?? []).sort(),
+        last_note_at: lastNoteMap.get(r.id) ?? null,
+        status,
+      } as SegmentContactRow;
+    });
+
+    const segments: Record<SegmentKey, SegmentContactRow[]> = {
+      not_invited: [],
+      invited_stale: [],
+      inactive_30: [],
+      ce_incomplete: [],
+      no_mentorship: [],
+    };
+
+    for (const r of built) {
+      if (r.status === "contact") segments.not_invited.push(r);
+      if (
+        r.status === "invited" &&
+        r.invited_at &&
+        now - new Date(r.invited_at).getTime() > 14 * DAY
+      )
+        segments.invited_stale.push(r);
+      if (r.status === "member" && r.user_id) {
+        const lsi = lastSignInMap.get(r.user_id);
+        if (!lsi || now - new Date(lsi).getTime() > 30 * DAY) segments.inactive_30.push(r);
+        if (ceEnrolled.has(r.user_id) && !ceCompleted.has(r.user_id))
+          segments.ce_incomplete.push(r);
+        if (!mentorSet.has(r.user_id)) segments.no_mentorship.push(r);
+      }
+    }
+
+    return {
+      segments,
+      counts: {
+        not_invited: segments.not_invited.length,
+        invited_stale: segments.invited_stale.length,
+        inactive_30: segments.inactive_30.length,
+        ce_incomplete: segments.ce_incomplete.length,
+        no_mentorship: segments.no_mentorship.length,
+      },
+    };
+  });
+
+// ─────────────────────────────────────────────────────────────────────────────
 // LINK (backfill user_id via SQL helper)
 // ─────────────────────────────────────────────────────────────────────────────
 
