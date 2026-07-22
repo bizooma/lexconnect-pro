@@ -692,10 +692,10 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
     let siteUrl = "https://lexguild.com";
     const { data: domainRow } = await supabase
       .from("website_custom_domains")
-      .select("domain")
+      .select("domain,verified_at")
       .eq("organization_id", data.organizationId)
       .eq("mode", "portal")
-      .eq("verified", true)
+      .not("verified_at", "is", null)
       .limit(1)
       .maybeSingle();
     if (domainRow?.domain) {
