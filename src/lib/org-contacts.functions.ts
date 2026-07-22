@@ -466,3 +466,137 @@ export const updateFollowUpStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENGAGEMENT (linked members only) — metadata-only, org-scoped
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MemberEngagement = {
+  linked: boolean;
+  lastSignInAt: string | null;
+  mentorship: { active: number; completed: number; lastActivityAt: string | null };
+  ce: {
+    enrollments: { courseTitle: string; status: string; creditHours: number; completedAt: string | null }[];
+    totalCredits: number;
+  };
+  qa: { posts: number; replies: number };
+  messaging: { conversations: number; lastActivityAt: string | null };
+};
+
+export const getMemberEngagement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ organizationId: uuid, contactId: uuid }).parse(d),
+  )
+  .handler(async ({ data, context }): Promise<MemberEngagement> => {
+    const { supabase, userId } = context;
+    await assertOrgAdmin(supabase, userId, data.organizationId);
+
+    // Resolve contact → linked user, scoped to this org.
+    const { data: contact, error: cErr } = await supabase
+      .from("org_contacts")
+      .select("user_id")
+      .eq("id", data.contactId)
+      .eq("organization_id", data.organizationId)
+      .single();
+    if (cErr) throw new Error(cErr.message);
+    const linkedUserId = (contact as any)?.user_id as string | null;
+    if (!linkedUserId) {
+      return {
+        linked: false,
+        lastSignInAt: null,
+        mentorship: { active: 0, completed: 0, lastActivityAt: null },
+        ce: { enrollments: [], totalCredits: 0 },
+        qa: { posts: 0, replies: 0 },
+        messaging: { conversations: 0, lastActivityAt: null },
+      };
+    }
+
+    const orgId = data.organizationId;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Last sign-in from auth admin
+    let lastSignInAt: string | null = null;
+    try {
+      const { data: u } = await supabaseAdmin.auth.admin.getUserById(linkedUserId);
+      lastSignInAt = (u?.user as any)?.last_sign_in_at ?? null;
+    } catch {
+      /* noop */
+    }
+
+    // Mentorship — org-scoped
+    const { data: mentorships } = await supabase
+      .from("mentorships")
+      .select("status,updated_at")
+      .eq("organization_id", orgId)
+      .or(`mentor_id.eq.${linkedUserId},mentee_id.eq.${linkedUserId}`);
+    const mRows = (mentorships ?? []) as { status: string; updated_at: string }[];
+    const mActive = mRows.filter((r) => r.status === "active").length;
+    const mCompleted = mRows.filter((r) => r.status === "completed").length;
+    const mLast = mRows.reduce<string | null>(
+      (acc, r) => (!acc || r.updated_at > acc ? r.updated_at : acc),
+      null,
+    );
+
+    // CE — enrollments joined to org's courses
+    const { data: enrollments } = await supabase
+      .from("ce_enrollments")
+      .select("status,completed_at,ce_courses!inner(title,credit_hours,organization_id)")
+      .eq("user_id", linkedUserId)
+      .eq("ce_courses.organization_id", orgId);
+    const eRows = ((enrollments ?? []) as any[]).map((e) => ({
+      courseTitle: e.ce_courses?.title ?? "Course",
+      status: e.status as string,
+      creditHours: Number(e.ce_courses?.credit_hours ?? 0),
+      completedAt: (e.completed_at as string | null) ?? null,
+    }));
+    const totalCredits = eRows
+      .filter((e) => e.status === "completed")
+      .reduce((s, e) => s + e.creditHours, 0);
+
+    // Q&A — org-scoped counts
+    const [{ count: postCount }, { count: replyCount }] = await Promise.all([
+      supabase
+        .from("qa_posts")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("author_id", linkedUserId),
+      supabase
+        .from("qa_replies")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", orgId)
+        .eq("author_id", linkedUserId),
+    ]);
+
+    // Messaging — count + last activity only, org-scoped, via admin to bypass
+    // participant-scoped RLS. Never returns titles, bodies, or participants.
+    let convCount = 0;
+    let convLast: string | null = null;
+    try {
+      const { data: parts } = await supabaseAdmin
+        .from("conversation_participants")
+        .select("conversation_id, conversations!inner(organization_id,last_message_at)")
+        .eq("user_id", linkedUserId)
+        .eq("conversations.organization_id", orgId);
+      const rows = (parts ?? []) as any[];
+      convCount = rows.length;
+      convLast = rows.reduce<string | null>(
+        (acc, r) => {
+          const ts = r.conversations?.last_message_at ?? null;
+          return !acc || (ts && ts > acc) ? ts : acc;
+        },
+        null,
+      );
+    } catch {
+      /* noop */
+    }
+
+    return {
+      linked: true,
+      lastSignInAt,
+      mentorship: { active: mActive, completed: mCompleted, lastActivityAt: mLast },
+      ce: { enrollments: eRows, totalCredits },
+      qa: { posts: postCount ?? 0, replies: replyCount ?? 0 },
+      messaging: { conversations: convCount, lastActivityAt: convLast },
+    };
+  });
