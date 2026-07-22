@@ -108,6 +108,13 @@ function ClientsPage() {
     refresh();
   }, [refresh]);
 
+  // Fire-and-forget: backfill contact→member links on page load.
+  useEffect(() => {
+    if (!currentOrgId) return;
+    linkFn({ data: { organizationId: currentOrgId } }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrgId]);
+
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!isOrgAdmin) return <Navigate to="/app/dashboard" />;
 
