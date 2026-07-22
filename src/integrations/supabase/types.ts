@@ -2446,6 +2446,7 @@ export type Database = {
       }
       is_org_admin: { Args: { _org: string; _user: string }; Returns: boolean }
       is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
+      link_org_contacts: { Args: { _org: string }; Returns: number }
       lookup_invite_code: {
         Args: { _code: string }
         Returns: {
