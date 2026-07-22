@@ -829,7 +829,6 @@ function ImportContactsDialog({
           organizationId,
           contactIds: capped,
           org_role: "member",
-          siteUrl: window.location.origin,
           siteName: document.title || "the organization",
         },
       });

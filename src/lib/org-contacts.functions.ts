@@ -677,7 +677,6 @@ const bulkInviteSchema = z.object({
   organizationId: uuid,
   contactIds: z.array(uuid).min(1).max(200),
   org_role: z.enum(["member", "content_editor", "admin"]).optional().default("member"),
-  siteUrl: z.string().url().max(500),
   siteName: z.string().trim().max(120).optional().default("the organization"),
 });
 
@@ -687,6 +686,21 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertOrgAdmin(supabase, userId, data.organizationId);
+
+    // Derive the invite base URL server-side. Never trust a caller-supplied
+    // URL — it becomes the button link in emails we send.
+    let siteUrl = "https://lexguild.com";
+    const { data: domainRow } = await supabase
+      .from("website_custom_domains")
+      .select("domain,verified_at")
+      .eq("organization_id", data.organizationId)
+      .eq("mode", "portal")
+      .not("verified_at", "is", null)
+      .limit(1)
+      .maybeSingle();
+    if (domainRow?.domain) {
+      siteUrl = `https://${domainRow.domain}`;
+    }
 
     const { data: contacts, error: cErr } = await supabase
       .from("org_contacts")
@@ -741,7 +755,7 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
       }
       invited++;
 
-      const confirmationUrl = `${data.siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
+      const confirmationUrl = `${siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
 
       // Render the invite email server-side; the queue processor expects
       // pre-rendered html/text/subject/from, not template_name lookups.
@@ -753,7 +767,7 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
       const template = TEMPLATES.invite;
       const templateData = {
         siteName: data.siteName,
-        siteUrl: data.siteUrl,
+        siteUrl,
         confirmationUrl,
       };
       const element = React.createElement(template.component as any, templateData);
