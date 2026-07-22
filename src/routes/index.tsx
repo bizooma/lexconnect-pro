@@ -87,7 +87,8 @@ function Landing() {
             </span>
             <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
               Your brand.<br />
-              Your bar. <span className="text-primary">Your member portal.</span>
+              Your bar.<br />
+              <span className="text-primary">Your member portal.</span>
             </h1>
             <p data-speakable className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               LexGuild gives bar associations and legal organizations a branded member portal on their own domain — mentorship, CLE, member Q&amp;A, and real engagement tools that work alongside the AMS you already have.
