@@ -20,9 +20,15 @@ export interface TemplateEntry {
 import { template as contactConfirmation } from './contact-confirmation'
 import { template as contactNotification } from './contact-notification'
 import { template as qaDigest } from './qa-digest'
+import { InviteEmail } from './invite'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'contact-confirmation': contactConfirmation,
   'contact-notification': contactNotification,
   'qa-digest': qaDigest,
+  'invite': {
+    component: InviteEmail,
+    subject: (d) => `You've been invited to join ${d.siteName ?? 'the organization'}`,
+    displayName: 'Organization invitation',
+  },
 }

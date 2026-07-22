@@ -29,9 +29,13 @@ import {
   addFollowUp,
   updateFollowUpStatus,
   getMemberEngagement,
+  linkOrgContacts,
+  importContactsBatch,
+  bulkInviteContacts,
   type ContactRow,
   type MemberEngagement,
 } from "@/lib/org-contacts.functions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/app/org/clients")({
   component: ClientsPage,
@@ -56,6 +60,9 @@ function ClientsPage() {
 
   const list = useServerFn(listContacts);
   const create = useServerFn(addContact);
+  const linkFn = useServerFn(linkOrgContacts);
+  const importFn = useServerFn(importContactsBatch);
+  const inviteFn = useServerFn(bulkInviteContacts);
 
   const [rows, setRows] = useState<ContactRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -68,6 +75,7 @@ function ClientsPage() {
   const [busy, setBusy] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const refresh = useMemo(
     () => async () => {
@@ -100,6 +108,13 @@ function ClientsPage() {
     refresh();
   }, [refresh]);
 
+  // Fire-and-forget: backfill contact→member links on page load.
+  useEffect(() => {
+    if (!currentOrgId) return;
+    linkFn({ data: { organizationId: currentOrgId } }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrgId]);
+
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!isOrgAdmin) return <Navigate to="/app/dashboard" />;
 
@@ -114,24 +129,46 @@ function ClientsPage() {
             Track {singular}s, tag and note them, log interactions, and set follow-ups.
           </p>
         </div>
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger asChild>
-            <Button>Add {singular}</Button>
-          </DialogTrigger>
-          <AddContactDialog
-            onCreated={async (payload) => {
-              if (!currentOrgId) return;
-              try {
-                await create({ data: { organizationId: currentOrgId, ...payload } });
-                toast.success(`${label.slice(0, -1)} added`);
-                setAddOpen(false);
-                refresh();
-              } catch (e: any) {
-                toast.error(e.message ?? "Failed to add");
-              }
-            }}
-          />
-        </Dialog>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => exportRowsToCsv(rows, label)}>
+            Export CSV
+          </Button>
+          <Dialog open={importOpen} onOpenChange={setImportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Import from your AMS</Button>
+            </DialogTrigger>
+            {importOpen && currentOrgId && (
+              <ImportContactsDialog
+                organizationId={currentOrgId}
+                importFn={importFn}
+                inviteFn={inviteFn}
+                linkFn={linkFn}
+                onDone={() => {
+                  setImportOpen(false);
+                  refresh();
+                }}
+              />
+            )}
+          </Dialog>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button>Add {singular}</Button>
+            </DialogTrigger>
+            <AddContactDialog
+              onCreated={async (payload) => {
+                if (!currentOrgId) return;
+                try {
+                  await create({ data: { organizationId: currentOrgId, ...payload } });
+                  toast.success(`${label.slice(0, -1)} added`);
+                  setAddOpen(false);
+                  refresh();
+                } catch (e: any) {
+                  toast.error(e.message ?? "Failed to add");
+                }
+              }}
+            />
+          </Dialog>
+        </div>
       </header>
 
       <section className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
@@ -591,5 +628,350 @@ function Stat({ label, value }: { label: string; value: string | number }) {
       <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="text-sm font-medium">{value}</p>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CSV EXPORT
+// ─────────────────────────────────────────────────────────────────────────────
+function csvCell(v: unknown): string {
+  const s = v == null ? "" : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+function exportRowsToCsv(rows: ContactRow[], label: string) {
+  const header = [
+    "email", "full_name", "phone", "external_ref",
+    "status", "tags", "invited_at", "created_at", "last_note_at",
+  ];
+  const lines = [header.join(",")];
+  for (const r of rows) {
+    lines.push([
+      r.email, r.full_name ?? "", r.phone ?? "", r.external_ref ?? "",
+      r.status, r.tags.join("; "),
+      r.invited_at ?? "", r.created_at, r.last_note_at ?? "",
+    ].map(csvCell).join(","));
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${label.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CSV IMPORT DIALOG
+// ─────────────────────────────────────────────────────────────────────────────
+const IMPORT_MAX_ROWS = 5000;
+const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
+const MAPPING_FIELDS = ["email", "full_name", "phone", "external_ref"] as const;
+type MappingField = (typeof MAPPING_FIELDS)[number];
+
+function parseCsv(text: string): string[][] {
+  // Minimal RFC-4180-ish parser: quoted cells with "" escape; \n or \r\n rows.
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let i = 0;
+  let inQuotes = false;
+  while (i < text.length) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      cell += ch; i++; continue;
+    }
+    if (ch === '"') { inQuotes = true; i++; continue; }
+    if (ch === ",") { row.push(cell); cell = ""; i++; continue; }
+    if (ch === "\r") { i++; continue; }
+    if (ch === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; i++; continue; }
+    cell += ch; i++;
+  }
+  if (cell.length > 0 || row.length > 0) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim().length > 0));
+}
+
+function ImportContactsDialog({
+  organizationId,
+  importFn,
+  inviteFn,
+  linkFn,
+  onDone,
+}: {
+  organizationId: string;
+  importFn: (a: { data: { organizationId: string; rows: Record<string, any>[] } }) => Promise<any>;
+  inviteFn: (a: { data: any }) => Promise<any>;
+  linkFn: (a: { data: { organizationId: string } }) => Promise<any>;
+  onDone: () => void;
+}) {
+  const [step, setStep] = useState<"upload" | "map" | "importing" | "done">("upload");
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [dataRows, setDataRows] = useState<string[][]>([]);
+  const [mapping, setMapping] = useState<Record<MappingField, string>>({
+    email: "", full_name: "", phone: "", external_ref: "",
+  });
+  const [result, setResult] = useState<{ imported: number; skippedDuplicates: number; invalid: number } | null>(null);
+  const [invitePrompt, setInvitePrompt] = useState(false);
+  const [importedIds, setImportedIds] = useState<string[]>([]);
+  const [inviteBusy, setInviteBusy] = useState(false);
+
+  const onFile = async (file: File) => {
+    if (file.size > IMPORT_MAX_BYTES) {
+      toast.error("File too large — max 2MB");
+      return;
+    }
+    const text = await file.text();
+    const rows = parseCsv(text);
+    if (rows.length === 0) {
+      toast.error("No rows found in file");
+      return;
+    }
+    if (rows.length - 1 > IMPORT_MAX_ROWS) {
+      toast.error(`Too many rows — max ${IMPORT_MAX_ROWS.toLocaleString()}`);
+      return;
+    }
+    const hdrs = rows[0].map((h) => h.trim());
+    setHeaders(hdrs);
+    setDataRows(rows.slice(1));
+
+    // Autodetect common column names.
+    const auto = (names: string[]) =>
+      hdrs.find((h) => names.some((n) => h.toLowerCase().replace(/[^a-z0-9]/g, "") === n)) ?? "";
+    setMapping({
+      email: auto(["email", "emailaddress", "e-mail"]),
+      full_name: auto(["fullname", "name", "displayname"]),
+      phone: auto(["phone", "phonenumber", "mobile", "cell"]),
+      external_ref: auto(["id", "memberid", "externalid", "amsid", "ref"]),
+    });
+    setStep("map");
+  };
+
+  const previewObjects = useMemo(() => {
+    if (!mapping.email) return [];
+    const idx = (col: string) => (col ? headers.indexOf(col) : -1);
+    const eIdx = idx(mapping.email);
+    const nIdx = idx(mapping.full_name);
+    const pIdx = idx(mapping.phone);
+    const rIdx = idx(mapping.external_ref);
+    return dataRows.slice(0, 10).map((r) => ({
+      email: eIdx >= 0 ? (r[eIdx] ?? "").trim() : "",
+      full_name: nIdx >= 0 ? (r[nIdx] ?? "").trim() : "",
+      phone: pIdx >= 0 ? (r[pIdx] ?? "").trim() : "",
+      external_ref: rIdx >= 0 ? (r[rIdx] ?? "").trim() : "",
+    }));
+  }, [mapping, headers, dataRows]);
+
+  const runImport = async () => {
+    if (!mapping.email) {
+      toast.error("Map the email column");
+      return;
+    }
+    setStep("importing");
+    const eIdx = headers.indexOf(mapping.email);
+    const nIdx = mapping.full_name ? headers.indexOf(mapping.full_name) : -1;
+    const pIdx = mapping.phone ? headers.indexOf(mapping.phone) : -1;
+    const rIdx = mapping.external_ref ? headers.indexOf(mapping.external_ref) : -1;
+    const objects = dataRows.map((r) => ({
+      email: eIdx >= 0 ? (r[eIdx] ?? "").trim() : "",
+      full_name: nIdx >= 0 ? (r[nIdx] ?? "").trim() || null : null,
+      phone: pIdx >= 0 ? (r[pIdx] ?? "").trim() || null : null,
+      external_ref: rIdx >= 0 ? (r[rIdx] ?? "").trim() || null : null,
+    }));
+
+    let imported = 0, skippedDuplicates = 0, invalid = 0;
+    for (let i = 0; i < objects.length; i += 100) {
+      const batch = objects.slice(i, i + 100);
+      try {
+        const r = await importFn({ data: { organizationId, rows: batch } });
+        imported += r.imported;
+        skippedDuplicates += r.skippedDuplicates;
+        invalid += r.invalid;
+      } catch (e: any) {
+        toast.error(e.message ?? "Batch failed");
+      }
+    }
+    setResult({ imported, skippedDuplicates, invalid });
+
+    // Backfill links after import.
+    try { await linkFn({ data: { organizationId } }); } catch { /* noop */ }
+
+    // For the optional invite step, look up the IDs of freshly imported rows by email.
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const emails = Array.from(new Set(objects.map((o) => o.email.toLowerCase()).filter(Boolean)));
+      const idAcc: string[] = [];
+      for (let i = 0; i < emails.length; i += 200) {
+        const chunk = emails.slice(i, i + 200);
+        const { data } = await supabase
+          .from("org_contacts")
+          .select("id,user_id")
+          .eq("organization_id", organizationId)
+          .in("email", chunk);
+        (data ?? []).forEach((r: any) => { if (!r.user_id) idAcc.push(r.id); });
+      }
+      setImportedIds(idAcc);
+    } catch { /* noop */ }
+
+    setStep("done");
+  };
+
+  const sendInvites = async () => {
+    setInviteBusy(true);
+    try {
+      const capped = importedIds.slice(0, 200);
+      const r = await inviteFn({
+        data: {
+          organizationId,
+          contactIds: capped,
+          org_role: "member",
+          siteUrl: window.location.origin,
+          siteName: document.title || "the organization",
+        },
+      });
+      toast.success(`${r.invited} invite${r.invited === 1 ? "" : "s"} sent • ${r.queued} queued`);
+      onDone();
+    } catch (e: any) {
+      toast.error(e.message ?? "Invite failed");
+    } finally {
+      setInviteBusy(false);
+    }
+  };
+
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader><DialogTitle>Import contacts from your AMS</DialogTitle></DialogHeader>
+
+      {step === "upload" && (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Upload a CSV export from your association management system.
+            Max {IMPORT_MAX_ROWS.toLocaleString()} rows, 2MB. Duplicates by email are skipped.
+          </p>
+          <Input
+            type="file"
+            accept=".csv,text/csv"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void onFile(f);
+            }}
+          />
+        </div>
+      )}
+
+      {step === "map" && (
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Map your CSV columns. Email is required.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {MAPPING_FIELDS.map((f) => (
+              <div key={f}>
+                <Label className="capitalize">{f.replace("_", " ")}{f === "email" ? " *" : ""}</Label>
+                <Select
+                  value={mapping[f] || "__none__"}
+                  onValueChange={(v) => setMapping((m) => ({ ...m, [f]: v === "__none__" ? "" : v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">— none —</SelectItem>
+                    {headers.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Preview (first 10 rows)
+            </p>
+            <div className="max-h-60 overflow-auto rounded border border-border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40">
+                  <tr>
+                    {MAPPING_FIELDS.map((f) => (
+                      <th key={f} className="px-2 py-1 text-left font-medium capitalize">{f.replace("_", " ")}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewObjects.map((r, i) => (
+                    <tr key={i} className="border-t border-border">
+                      <td className="px-2 py-1">{r.email || "—"}</td>
+                      <td className="px-2 py-1">{r.full_name || "—"}</td>
+                      <td className="px-2 py-1">{r.phone || "—"}</td>
+                      <td className="px-2 py-1">{r.external_ref || "—"}</td>
+                    </tr>
+                  ))}
+                  {previewObjects.length === 0 && (
+                    <tr><td colSpan={4} className="p-3 text-center text-muted-foreground">Map the email column to preview.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {dataRows.length.toLocaleString()} total row{dataRows.length === 1 ? "" : "s"} to import.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setStep("upload")}>Back</Button>
+            <Button disabled={!mapping.email} onClick={runImport}>Import</Button>
+          </DialogFooter>
+        </div>
+      )}
+
+      {step === "importing" && (
+        <p className="p-6 text-center text-sm text-muted-foreground">Importing…</p>
+      )}
+
+      {step === "done" && result && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-2 text-center text-sm">
+            <div className="rounded border border-border p-3">
+              <div className="text-lg font-semibold">{result.imported}</div>
+              <div className="text-xs text-muted-foreground">Imported</div>
+            </div>
+            <div className="rounded border border-border p-3">
+              <div className="text-lg font-semibold">{result.skippedDuplicates}</div>
+              <div className="text-xs text-muted-foreground">Duplicates</div>
+            </div>
+            <div className="rounded border border-border p-3">
+              <div className="text-lg font-semibold">{result.invalid}</div>
+              <div className="text-xs text-muted-foreground">Invalid</div>
+            </div>
+          </div>
+
+          {importedIds.length > 0 && (
+            <div className="rounded-lg border border-border bg-card p-3">
+              <label className="flex items-start gap-2 text-sm">
+                <Checkbox
+                  checked={invitePrompt}
+                  onCheckedChange={(v) => setInvitePrompt(!!v)}
+                />
+                <span>
+                  Send invitation emails to the {Math.min(importedIds.length, 200)} imported contact
+                  {importedIds.length === 1 ? "" : "s"} (capped at 200 per run, throttled via the email queue).
+                </span>
+              </label>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={onDone}>Close</Button>
+            {invitePrompt && (
+              <Button disabled={inviteBusy || importedIds.length === 0} onClick={sendInvites}>
+                {inviteBusy ? "Sending…" : "Send invites"}
+              </Button>
+            )}
+          </DialogFooter>
+        </div>
+      )}
+    </DialogContent>
   );
 }
