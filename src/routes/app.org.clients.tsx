@@ -129,24 +129,46 @@ function ClientsPage() {
             Track {singular}s, tag and note them, log interactions, and set follow-ups.
           </p>
         </div>
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger asChild>
-            <Button>Add {singular}</Button>
-          </DialogTrigger>
-          <AddContactDialog
-            onCreated={async (payload) => {
-              if (!currentOrgId) return;
-              try {
-                await create({ data: { organizationId: currentOrgId, ...payload } });
-                toast.success(`${label.slice(0, -1)} added`);
-                setAddOpen(false);
-                refresh();
-              } catch (e: any) {
-                toast.error(e.message ?? "Failed to add");
-              }
-            }}
-          />
-        </Dialog>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => exportRowsToCsv(rows, label)}>
+            Export CSV
+          </Button>
+          <Dialog open={importOpen} onOpenChange={setImportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Import from your AMS</Button>
+            </DialogTrigger>
+            {importOpen && currentOrgId && (
+              <ImportContactsDialog
+                organizationId={currentOrgId}
+                importFn={importFn}
+                inviteFn={inviteFn}
+                linkFn={linkFn}
+                onDone={() => {
+                  setImportOpen(false);
+                  refresh();
+                }}
+              />
+            )}
+          </Dialog>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button>Add {singular}</Button>
+            </DialogTrigger>
+            <AddContactDialog
+              onCreated={async (payload) => {
+                if (!currentOrgId) return;
+                try {
+                  await create({ data: { organizationId: currentOrgId, ...payload } });
+                  toast.success(`${label.slice(0, -1)} added`);
+                  setAddOpen(false);
+                  refresh();
+                } catch (e: any) {
+                  toast.error(e.message ?? "Failed to add");
+                }
+              }}
+            />
+          </Dialog>
+        </div>
       </header>
 
       <section className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
