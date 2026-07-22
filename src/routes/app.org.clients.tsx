@@ -289,6 +289,9 @@ function ContactDrawer({
   const [fuTitle, setFuTitle] = useState("");
   const [fuDue, setFuDue] = useState("");
   const [fuAssignee, setFuAssignee] = useState<string>("__unassigned__");
+  const [engagement, setEngagement] = useState<MemberEngagement | null>(null);
+  const [engLoading, setEngLoading] = useState(false);
+  const loadEngagement = useServerFn(getMemberEngagement);
 
   const load = async () => {
     if (!contactId) return;
