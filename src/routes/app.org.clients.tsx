@@ -32,8 +32,10 @@ import {
   linkOrgContacts,
   importContactsBatch,
   bulkInviteContacts,
+  getContactSegments,
   type ContactRow,
   type MemberEngagement,
+  type SegmentKey,
 } from "@/lib/org-contacts.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 
