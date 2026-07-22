@@ -156,8 +156,8 @@ function ClientsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => exportRowsToCsv(rows, label)}>
-            Export CSV
+          <Button variant="outline" onClick={() => exportRowsToCsv(visibleRows, label)}>
+            {activeSegment ? "Export segment" : "Export CSV"}
           </Button>
           <Dialog open={importOpen} onOpenChange={setImportOpen}>
             <DialogTrigger asChild>
