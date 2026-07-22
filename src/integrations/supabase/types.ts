@@ -877,6 +877,242 @@ export type Database = {
           },
         ]
       }
+      org_contact_interactions: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          note: string | null
+          occurred_at: string
+          organization_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: string
+          note?: string | null
+          occurred_at?: string
+          organization_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          occurred_at?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "org_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_contact_interactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_contact_notes: {
+        Row: {
+          author_id: string
+          body: string
+          contact_id: string
+          created_at: string
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_contact_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "org_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_contact_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_contact_tags: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          tag: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          tag: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_contact_tags_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "org_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_contact_tags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_contacts: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string
+          external_ref: string | null
+          full_name: string | null
+          id: string
+          invited_at: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email: string
+          external_ref?: string | null
+          full_name?: string | null
+          id?: string
+          invited_at?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string
+          external_ref?: string | null
+          full_name?: string | null
+          id?: string
+          invited_at?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_follow_ups: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          contact_id: string
+          created_at: string
+          created_by: string
+          due_at: string | null
+          id: string
+          organization_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_id: string
+          created_at?: string
+          created_by: string
+          due_at?: string | null
+          id?: string
+          organization_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string
+          due_at?: string | null
+          id?: string
+          organization_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_follow_ups_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "org_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_follow_ups_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_join_requests: {
         Row: {
           created_at: string
@@ -2170,6 +2406,10 @@ export type Database = {
       ce_org_of_lesson: { Args: { _lesson_id: string }; Returns: string }
       ce_user_can_access_course: {
         Args: { _course_id: string; _user_id: string }
+        Returns: boolean
+      }
+      contact_in_org: {
+        Args: { _contact_id: string; _org_id: string }
         Returns: boolean
       }
       create_organization_with_owner: {
