@@ -1,13 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 const httpsUrl = z
   .string()
   .trim()
+  .max(2048)
   .url()
-  .refine((v) => v.startsWith("https://"), "Must be an https:// URL")
-  .max(2048);
+  .refine((v) => v.startsWith("https://"), "Must be an https:// URL");
 
 const brandingSchema = z.object({
   organizationId: z.string().uuid(),
@@ -23,7 +25,7 @@ const brandingSchema = z.object({
 });
 
 async function assertOrgAdmin(
-  supabase: Awaited<ReturnType<typeof requireSupabaseAuth.server>>["context"]["supabase"],
+  supabase: SupabaseClient<Database>,
   userId: string,
   organizationId: string,
 ) {
@@ -36,7 +38,7 @@ async function assertOrgAdmin(
   if (error) throw new Error(error.message);
   const row = data as { org_role?: string; status?: string } | null;
   if (!row || row.status !== "active" || (row.org_role !== "owner" && row.org_role !== "admin")) {
-    throw new Error("Only organization admins can update portal branding");
+    throw new Error("Only organization admins can update portal settings");
   }
 }
 
@@ -44,7 +46,11 @@ export const updatePortalBranding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => brandingSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertOrgAdmin(context.supabase, context.userId, data.organizationId);
+    await assertOrgAdmin(
+      context.supabase as unknown as SupabaseClient<Database>,
+      context.userId,
+      data.organizationId,
+    );
     const { error } = await context.supabase
       .from("organizations")
       .update({
@@ -70,7 +76,11 @@ export const updateJoinPolicy = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertOrgAdmin(context.supabase, context.userId, data.organizationId);
+    await assertOrgAdmin(
+      context.supabase as unknown as SupabaseClient<Database>,
+      context.userId,
+      data.organizationId,
+    );
     const { error } = await context.supabase
       .from("organizations")
       .update({ join_policy: data.join_policy })
