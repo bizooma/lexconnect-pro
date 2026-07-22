@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   listContacts,
   addContact,
@@ -27,7 +28,9 @@ import {
   addContactInteraction,
   addFollowUp,
   updateFollowUpStatus,
+  getMemberEngagement,
   type ContactRow,
+  type MemberEngagement,
 } from "@/lib/org-contacts.functions";
 
 export const Route = createFileRoute("/app/org/clients")({
@@ -286,6 +289,9 @@ function ContactDrawer({
   const [fuTitle, setFuTitle] = useState("");
   const [fuDue, setFuDue] = useState("");
   const [fuAssignee, setFuAssignee] = useState<string>("__unassigned__");
+  const [engagement, setEngagement] = useState<MemberEngagement | null>(null);
+  const [engLoading, setEngLoading] = useState(false);
+  const loadEngagement = useServerFn(getMemberEngagement);
 
   const load = async () => {
     if (!contactId) return;
@@ -313,7 +319,31 @@ function ContactDrawer({
         {!detail ? (
           <p className="mt-8 text-sm text-muted-foreground">Loading…</p>
         ) : (
-          <div className="mt-4 space-y-6 text-sm">
+          <Tabs
+            defaultValue="details"
+            className="mt-4"
+            onValueChange={async (v) => {
+              if (v !== "engagement" || engagement || engLoading || !detail?.contact?.user_id) return;
+              setEngLoading(true);
+              try {
+                const e = await loadEngagement({ data: { organizationId, contactId: detail.contact.id } });
+                setEngagement(e);
+              } catch (err: any) {
+                toast.error(err.message ?? "Failed to load engagement");
+              } finally {
+                setEngLoading(false);
+              }
+            }}
+          >
+            <TabsList>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="engagement" disabled={!detail?.contact?.user_id}>
+                Engagement
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="mt-4 space-y-6 text-sm">
+          <div className="space-y-6">
+
             <section className="rounded-lg border border-border bg-card p-3">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Contact</p>
               <p className="mt-1">{detail.contact.email}</p>
@@ -481,8 +511,85 @@ function ContactDrawer({
               </ul>
             </section>
           </div>
+            </TabsContent>
+            <TabsContent value="engagement" className="mt-4 text-sm">
+              {!detail?.contact?.user_id ? (
+                <p className="text-muted-foreground">This contact has not been linked to a member account yet.</p>
+              ) : engLoading || !engagement ? (
+                <p className="text-muted-foreground">Loading engagement…</p>
+              ) : (
+                <EngagementView data={engagement} />
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+function EngagementView({ data }: { data: MemberEngagement }) {
+  const fmt = (s: string | null) => (s ? new Date(s).toLocaleString() : "—");
+  return (
+    <div className="space-y-4">
+      <section className="rounded-lg border border-border bg-card p-3">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Last sign-in</p>
+        <p className="mt-1">{fmt(data.lastSignInAt)}</p>
+      </section>
+
+      <section className="rounded-lg border border-border bg-card p-3">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Mentorship</p>
+        <div className="mt-1 grid grid-cols-3 gap-2">
+          <Stat label="Active" value={data.mentorship.active} />
+          <Stat label="Completed" value={data.mentorship.completed} />
+          <Stat label="Last activity" value={fmt(data.mentorship.lastActivityAt)} />
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-border bg-card p-3">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          Continuing Education — {data.ce.totalCredits} credit{data.ce.totalCredits === 1 ? "" : "s"} earned
+        </p>
+        {data.ce.enrollments.length === 0 ? (
+          <p className="mt-1 text-muted-foreground">No enrollments.</p>
+        ) : (
+          <ul className="mt-2 space-y-1">
+            {data.ce.enrollments.map((e, i) => (
+              <li key={i} className="flex items-center justify-between gap-2">
+                <span>{e.courseTitle}</span>
+                <span className="text-xs text-muted-foreground">
+                  {e.status}{e.completedAt ? ` • ${new Date(e.completedAt).toLocaleDateString()}` : ""} • {e.creditHours}h
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="rounded-lg border border-border bg-card p-3">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Q&amp;A</p>
+        <div className="mt-1 grid grid-cols-2 gap-2">
+          <Stat label="Posts" value={data.qa.posts} />
+          <Stat label="Replies" value={data.qa.replies} />
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-border bg-card p-3">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Messaging (metadata only)</p>
+        <div className="mt-1 grid grid-cols-2 gap-2">
+          <Stat label="Conversations" value={data.messaging.conversations} />
+          <Stat label="Last activity" value={fmt(data.messaging.lastActivityAt)} />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium">{value}</p>
+    </div>
   );
 }
