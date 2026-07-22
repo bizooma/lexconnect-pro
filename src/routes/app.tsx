@@ -78,6 +78,13 @@ function AppLayout() {
       icon: GraduationIcon,
       enabled: true,
     },
+    {
+      to: "/app/org/portal",
+      label: "Client Portal",
+      icon: PortalIcon,
+      enabled: isOrgAdmin,
+      locked: !isOrgAdmin,
+    },
   ];
   const platformNav: NavItem[] = isAdmin
     ? [{ to: "/app/admin", label: "Admin", icon: ShieldIcon, enabled: true }]
