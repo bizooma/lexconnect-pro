@@ -65,6 +65,9 @@ export function OrgSwitcher() {
           <Link to="/app/org/matching" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Matching</Link>
         )}
         <Link to="/app/org/members" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Members</Link>
+        {isOrgAdmin && (
+          <Link to="/app/org/portal" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Client Portal</Link>
+        )}
         {!isPortal && (
           <Link to="/app/org/billing" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Billing & seats</Link>
         )}

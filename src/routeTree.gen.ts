@@ -63,6 +63,7 @@ import { Route as AppQaAdminRouteImport } from './routes/app.qa.admin'
 import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
+import { Route as AppOrgPortalRouteImport } from './routes/app.org.portal'
 import { Route as AppOrgMembersRouteImport } from './routes/app.org.members'
 import { Route as AppOrgMatchingRouteImport } from './routes/app.org.matching'
 import { Route as AppOrgJoinRequestsRouteImport } from './routes/app.org.join-requests'
@@ -370,6 +371,11 @@ const AppOrgResourcesRoute = AppOrgResourcesRouteImport.update({
   path: '/org/resources',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrgPortalRoute = AppOrgPortalRouteImport.update({
+  id: '/org/portal',
+  path: '/org/portal',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgMembersRoute = AppOrgMembersRouteImport.update({
   id: '/org/members',
   path: '/org/members',
@@ -596,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
@@ -680,6 +687,7 @@ export interface FileRoutesByTo {
   '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
@@ -771,6 +779,7 @@ export interface FileRoutesById {
   '/app/org/join-requests': typeof AppOrgJoinRequestsRoute
   '/app/org/matching': typeof AppOrgMatchingRoute
   '/app/org/members': typeof AppOrgMembersRoute
+  '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
@@ -863,6 +872,7 @@ export interface FileRouteTypes {
     | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
     | '/app/qa/$postId'
@@ -947,6 +957,7 @@ export interface FileRouteTypes {
     | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
     | '/app/qa/$postId'
@@ -1037,6 +1048,7 @@ export interface FileRouteTypes {
     | '/app/org/join-requests'
     | '/app/org/matching'
     | '/app/org/members'
+    | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
     | '/app/qa/$postId'
@@ -1498,6 +1510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgResourcesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/org/portal': {
+      id: '/app/org/portal'
+      path: '/org/portal'
+      fullPath: '/app/org/portal'
+      preLoaderRoute: typeof AppOrgPortalRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/members': {
       id: '/app/org/members'
       path: '/org/members'
@@ -1901,6 +1920,7 @@ interface AppRouteChildren {
   AppOrgJoinRequestsRoute: typeof AppOrgJoinRequestsRoute
   AppOrgMatchingRoute: typeof AppOrgMatchingRoute
   AppOrgMembersRoute: typeof AppOrgMembersRoute
+  AppOrgPortalRoute: typeof AppOrgPortalRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
@@ -1923,6 +1943,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgJoinRequestsRoute: AppOrgJoinRequestsRoute,
   AppOrgMatchingRoute: AppOrgMatchingRoute,
   AppOrgMembersRoute: AppOrgMembersRoute,
+  AppOrgPortalRoute: AppOrgPortalRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
