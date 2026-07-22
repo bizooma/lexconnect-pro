@@ -755,7 +755,7 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
       }
       invited++;
 
-      const confirmationUrl = `${data.siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
+      const confirmationUrl = `${siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
 
       // Render the invite email server-side; the queue processor expects
       // pre-rendered html/text/subject/from, not template_name lookups.
@@ -767,7 +767,7 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
       const template = TEMPLATES.invite;
       const templateData = {
         siteName: data.siteName,
-        siteUrl: data.siteUrl,
+        siteUrl,
         confirmationUrl,
       };
       const element = React.createElement(template.component as any, templateData);
