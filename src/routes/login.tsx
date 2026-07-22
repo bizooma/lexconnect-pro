@@ -112,7 +112,7 @@ function Login() {
       </header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-12">
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">
-          {portal ? `Sign in to ${portal.name}` : "Welcome back"}
+          {portal ? `Sign in to ${portal.portal_name || portal.name}` : "Welcome back"}
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
           {portal?.welcome_message || "Sign in to your legal community."}
