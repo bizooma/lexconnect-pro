@@ -319,7 +319,31 @@ function ContactDrawer({
         {!detail ? (
           <p className="mt-8 text-sm text-muted-foreground">Loading…</p>
         ) : (
-          <div className="mt-4 space-y-6 text-sm">
+          <Tabs
+            defaultValue="details"
+            className="mt-4"
+            onValueChange={async (v) => {
+              if (v !== "engagement" || engagement || engLoading || !detail?.contact?.user_id) return;
+              setEngLoading(true);
+              try {
+                const e = await loadEngagement({ data: { organizationId, contactId: detail.contact.id } });
+                setEngagement(e);
+              } catch (err: any) {
+                toast.error(err.message ?? "Failed to load engagement");
+              } finally {
+                setEngLoading(false);
+              }
+            }}
+          >
+            <TabsList>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="engagement" disabled={!detail?.contact?.user_id}>
+                Engagement
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="mt-4 space-y-6 text-sm">
+          <div className="space-y-6">
+
             <section className="rounded-lg border border-border bg-card p-3">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Contact</p>
               <p className="mt-1">{detail.contact.email}</p>
