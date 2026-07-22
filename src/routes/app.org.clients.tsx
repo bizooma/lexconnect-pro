@@ -65,6 +65,7 @@ function ClientsPage() {
   const linkFn = useServerFn(linkOrgContacts);
   const importFn = useServerFn(importContactsBatch);
   const inviteFn = useServerFn(bulkInviteContacts);
+  const segmentsFn = useServerFn(getContactSegments);
 
   const [rows, setRows] = useState<ContactRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -78,6 +79,9 @@ function ClientsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [segments, setSegments] = useState<Record<SegmentKey, ContactRow[]> | null>(null);
+  const [segCounts, setSegCounts] = useState<Record<SegmentKey, number> | null>(null);
+  const [activeSegment, setActiveSegment] = useState<SegmentKey | null>(null);
 
   const refresh = useMemo(
     () => async () => {
