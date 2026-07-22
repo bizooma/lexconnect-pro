@@ -55,6 +55,14 @@ const STATUS_TONE: Record<ContactRow["status"], string> = {
   contact: "bg-muted text-muted-foreground",
 };
 
+const SEGMENT_DEFS: { key: SegmentKey; label: string; description: string }[] = [
+  { key: "not_invited", label: "Not yet invited", description: "Contacts with no invite sent" },
+  { key: "invited_stale", label: "Invited, hasn't joined", description: "Invited more than 14 days ago" },
+  { key: "inactive_30", label: "Members inactive 30+ days", description: "Linked members with no sign-in in 30 days" },
+  { key: "ce_incomplete", label: "CE incomplete", description: "Enrolled in a course but not completed" },
+  { key: "no_mentorship", label: "No mentorship activity", description: "Linked members with zero matches" },
+];
+
 function ClientsPage() {
   const { currentOrgId, currentOrg, isOrgAdmin, loading } = useCurrentOrg();
   const label = currentOrg?.kind === "firm" ? "Clients" : "Members";
