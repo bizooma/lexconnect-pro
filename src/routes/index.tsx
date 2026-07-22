@@ -712,7 +712,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">
-          <p>© 2026 LexGuild.com | The Professional Mentorship Platform for Modern Legal Organizations</p>
+          <p>© 2026 LexGuild.com | The Member Engagement Platform for Modern Legal Organizations</p>
           <nav className="flex items-center gap-5">
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground">Terms</Link>
