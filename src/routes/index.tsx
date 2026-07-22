@@ -86,7 +86,7 @@ function Landing() {
               The member engagement platform for bar associations
             </span>
             <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
-              Your bar. Your brand.<br />
+              Your brand. Your bar.<br />
               <span className="text-primary">Your member portal.</span>
             </h1>
             <p data-speakable className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
