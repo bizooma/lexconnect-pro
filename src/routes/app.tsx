@@ -220,8 +220,16 @@ function AppLayout() {
           <SectionLabel>Mentorship & Community</SectionLabel>
           <div className="space-y-1">{coreNav.map(renderDesktopItem)}</div>
 
+          {orgNav.length > 0 && (
+            <>
+              <SectionLabel>Organization</SectionLabel>
+              <div className="space-y-1">{orgNav.map(renderDesktopItem)}</div>
+            </>
+          )}
+
           <SectionLabel>Add-ons</SectionLabel>
           <div className="space-y-1">{addonNav.map(renderDesktopItem)}</div>
+
 
           {platformNav.length > 0 && (
             <>
