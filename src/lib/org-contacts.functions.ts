@@ -742,17 +742,39 @@ export const bulkInviteContacts = createServerFn({ method: "POST" })
       invited++;
 
       const confirmationUrl = `${data.siteUrl.replace(/\/$/, "")}/accept-invite/${token}`;
+
+      // Render the invite email server-side; the queue processor expects
+      // pre-rendered html/text/subject/from, not template_name lookups.
+      const [{ render }, React, { EMAIL_TEMPLATES }] = await Promise.all([
+        import("@react-email/components"),
+        import("react"),
+        import("@/lib/email-templates/registry"),
+      ]);
+      const template = EMAIL_TEMPLATES.invite;
+      const templateData = {
+        siteName: data.siteName,
+        siteUrl: data.siteUrl,
+        confirmationUrl,
+      };
+      const element = React.createElement(template.component as any, templateData);
+      const html = await render(element);
+      const text = await render(element, { plainText: true });
+      const subject =
+        typeof template.subject === "function"
+          ? template.subject(templateData)
+          : template.subject;
+      const senderDomain = process.env.EMAIL_SENDER_DOMAIN || "lexguild.com";
+
       const { error: qErr } = await supabase.rpc("enqueue_email", {
         queue_name: "transactional_emails",
         payload: {
           message_id: (globalThis.crypto?.randomUUID?.() ?? token),
           to: email,
-          template_name: "invite",
-          template_data: {
-            siteName: data.siteName,
-            siteUrl: data.siteUrl,
-            confirmationUrl,
-          },
+          from: `${data.siteName} <noreply@${senderDomain}>`,
+          sender_domain: senderDomain,
+          subject,
+          html,
+          text,
           purpose: "transactional",
           label: "invite",
           queued_at: new Date().toISOString(),
