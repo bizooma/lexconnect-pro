@@ -474,16 +474,30 @@ export const getMemberEngagement = createServerFn({ method: "POST" })
     }
 
     const orgId = data.organizationId;
+
+    // Only fetch lastSignInAt when the linked user is an ACTIVE member of this org.
+    const { data: membership } = await supabase
+      .from("organization_members")
+      .select("user_id")
+      .eq("organization_id", orgId)
+      .eq("user_id", linkedUserId)
+      .eq("status", "active")
+      .maybeSingle();
+    const isActiveMember = !!membership;
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Last sign-in from auth admin
+    // Last sign-in from auth admin — ACTIVE-member gated.
     let lastSignInAt: string | null = null;
-    try {
-      const { data: u } = await supabaseAdmin.auth.admin.getUserById(linkedUserId);
-      lastSignInAt = (u?.user as any)?.last_sign_in_at ?? null;
-    } catch {
-      /* noop */
+    if (isActiveMember) {
+      try {
+        const { data: u } = await supabaseAdmin.auth.admin.getUserById(linkedUserId);
+        lastSignInAt = (u?.user as any)?.last_sign_in_at ?? null;
+      } catch {
+        /* noop */
+      }
     }
+
 
     // Mentorship — org-scoped
     const { data: mentorships } = await supabase
