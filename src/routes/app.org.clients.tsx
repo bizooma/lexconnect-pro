@@ -231,6 +231,39 @@ function ClientsPage() {
         </span>
       </section>
 
+      <section className="flex flex-wrap items-center gap-2">
+        {SEGMENT_DEFS.map((s) => {
+          const count = segCounts?.[s.key] ?? 0;
+          const isActive = activeSegment === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => setActiveSegment(isActive ? null : s.key)}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition ${
+                isActive
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card hover:bg-accent"
+              }`}
+              title={s.description}
+            >
+              <span>{s.label}</span>
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${isActive ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+        {activeSegment && (
+          <button
+            onClick={() => setActiveSegment(null)}
+            className="text-xs text-muted-foreground underline"
+          >
+            Clear segment
+          </button>
+        )}
+      </section>
+
+
       <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="grid grid-cols-[1.5fr_1.5fr_100px_1.5fr_120px] gap-3 border-b border-border bg-muted/40 px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           <span>Name</span>
