@@ -269,7 +269,7 @@ function Landing() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
               <h3 className="font-serif text-xl font-semibold text-foreground">Instant access to your legal community</h3>
               <p className="mt-3 text-sm text-muted-foreground">
-                Once installed, LexGuild appears directly on your home screen like a native mobile app. No searching through browser tabs or email threads — simply tap the LexGuild icon to instantly access your mentorship network.
+                Once installed, your portal appears directly on their home screen like a native mobile app. No searching through browser tabs or email threads — members simply tap the icon to instantly access your community.
               </p>
             </div>
 
