@@ -23,10 +23,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "LexGuild — Modern attorney mentorship" },
-      { name: "description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
-      { property: "og:title", content: "LexGuild — Modern attorney mentorship" },
-      { property: "og:description", content: "A modern, mobile-first mentorship platform for attorneys, bar associations, and legal organizations." },
+      { title: "LexGuild — The member engagement platform for bar associations" },
+      { name: "description", content: "A branded member portal for bar associations and legal organizations — mentorship, CLE, and member engagement on your own domain." },
+      { property: "og:title", content: "LexGuild — The member engagement platform for bar associations" },
+      { property: "og:description", content: "A branded member portal for bar associations and legal organizations — mentorship, CLE, and member engagement on your own domain." },
       { property: "og:url", content: "https://lexguild.com/" },
       { property: "og:image", content: "https://lexguild.com/og-image.png" },
     ],
@@ -83,14 +83,14 @@ function Landing() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              An invitation-only network for the legal profession
+              The member engagement platform for bar associations
             </span>
             <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
-              Modern Mentorship<br />
-              <span className="text-primary">for the Legal Profession</span>
+              Your bar. Your brand.<br />
+              <span className="text-primary">Your member portal.</span>
             </h1>
             <p data-speakable className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              LexGuild helps bar associations, law firms, and legal organizations build stronger attorney mentorship programs through structured communication, professional development, and meaningful member engagement.
+              LexGuild gives bar associations and legal organizations a branded member portal on their own domain — mentorship, CLE, member Q&amp;A, and real engagement tools that work alongside the AMS you already have.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
@@ -124,17 +124,24 @@ function Landing() {
         </div>
       </section>
 
+      {/* Positioning strip */}
+      <section aria-label="How LexGuild fits with your AMS" className="border-t border-border bg-card">
+        <div className="mx-auto max-w-5xl px-5 py-6 text-center text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <span className="font-medium text-foreground">Keep your AMS.</span> It's good at dues and events. LexGuild runs everything it can't: mentorship, CLE delivery, member engagement, and the portal your members actually log into.
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" aria-labelledby="features-heading" className="bg-gradient-navy">
         <h2 id="features-heading" className="sr-only">Features</h2>
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
+            { t: "A portal on your domain", d: "portal.yourbar.org — your logo, your colors, your name on the login page. Members sign in to your bar, not to someone else's software." },
             { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
-            { t: "Voice notes built in", d: "Busy attorneys talk faster than they type. Send 30-second voice notes inside any conversation." },
-            { t: "Lightweight scheduling", d: "Suggest times, attach Zoom or Meet links, and get gentle reminders the day before." },
-            { t: "Guided conversations", d: "Optional prompts keep mentorships meaningful — even during the busiest filing weeks." },
-            { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
-            { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
+            { t: "CLE that lives where your members are", d: "Publish courses, track completions and credit hours, and see who's finished — inside the same portal they use every day." },
+            { t: "Member management built for associations", d: "Import your roster from your AMS in one CSV. Tag members, log calls and meetings, set follow-ups — the working file your staff actually keeps." },
+            { t: "Engagement you can finally see", d: "Every member's mentorship activity, CLE progress, Q&A participation, and last sign-in on one timeline. Your AMS knows who paid dues; LexGuild knows who's engaged." },
+            { t: "Lists that drive action", d: "One click: members who finished CLE but never tried mentorship. Invited but never joined. Inactive 30+ days. Export the list, make the calls." },
           ].map((f) => (
             <div key={f.t} className="rounded-2xl border border-white/15 bg-white/10 p-6 shadow-elegant backdrop-blur-xl backdrop-saturate-150 ring-1 ring-inset ring-white/10 transition hover:bg-white/15 hover:border-white/25">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/15 text-gold ring-1 ring-gold/30">
@@ -147,13 +154,90 @@ function Landing() {
         </div>
       </section>
 
+      {/* Client Portal */}
+      <section id="portal" className="border-t border-border bg-background">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              White-label client portal
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              A branded portal your members will actually use
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Your members shouldn't need to learn another vendor's software. With LexGuild's white-label portal, they visit your domain, see your brand, and get everything your association runs — mentorship, CLE, Q&amp;A, messaging, and their member directory — in one place.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              { t: "Your domain, your brand", d: "Custom domain with SSL, your logo and colors, your welcome message. \u201CPowered by LexGuild\u201D is optional — and invisible on the white-label plan." },
+              { t: "You control the door", d: "Invite-only with tokens, or open requests with admin approval. Your staff reviews every join request from one queue." },
+              { t: "Staff see everything, members see their community", d: "Admins manage the roster, branding, and access from a single Client Portal dashboard." },
+            ].map((c) => (
+              <div key={c.t} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+                <h3 className="font-serif text-lg font-semibold text-foreground">{c.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.d}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+            >
+              See a live portal →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Member Management */}
+      <section id="member-management" className="border-t border-border bg-gradient-slate">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/80 shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              Member management
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Your AMS knows who paid. LexGuild knows who's engaged.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-white/80">
+              Bring your member list over in one CSV import — LexGuild automatically links records as members join your portal. From there, your staff gets what an AMS was never built for: engagement.
+            </p>
+          </div>
+
+          <ul className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
+            {[
+              "Tags, notes, and interaction logs on every member — calls, emails, meetings, events",
+              "Follow-up tasks with due dates and owners, so renewals and outreach don't slip",
+              "A per-member engagement timeline: mentorship, CLE credits, Q&A activity, last sign-in",
+              "Smart segments with one-click CSV export — hand your membership committee a call list, not a hunch",
+            ].map((b) => (
+              <li key={b} className="flex items-start gap-3 rounded-2xl border border-white/15 bg-white/10 p-5 text-sm leading-relaxed text-white shadow-card backdrop-blur-xl">
+                <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-white/60">
+            LexGuild complements your AMS — dues, invoicing, and event registration stay right where they are.
+          </p>
+        </div>
+      </section>
+
+
       {/* Install the app */}
       <section id="install" className="border-t border-border">
         <div className="mx-auto max-w-6xl px-5 py-16">
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              Install LexGuild on your phone
+              Your portal, on their phones
             </span>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
               Why install LexGuild on your phone?
@@ -185,7 +269,7 @@ function Landing() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
               <h3 className="font-serif text-xl font-semibold text-foreground">Instant access to your legal community</h3>
               <p className="mt-3 text-sm text-muted-foreground">
-                Once installed, LexGuild appears directly on your home screen like a native mobile app. No searching through browser tabs or email threads — simply tap the LexGuild icon to instantly access your mentorship network.
+                Once installed, your portal appears directly on their home screen like a native mobile app. No searching through browser tabs or email threads — members simply tap the icon to instantly access your community.
               </p>
             </div>
 
@@ -304,8 +388,7 @@ function Landing() {
                   "Up to 25 members",
                   "1 organization admin",
                   "Invite links & codes",
-                  "Messaging",
-                  "Mentorship matching",
+                  "Messaging & mentorship matching",
                   "Meeting scheduling",
                   "Mobile PWA access",
                   "Basic analytics",
@@ -325,8 +408,8 @@ function Landing() {
                   "Admin matching controls",
                   "Voice notes",
                   "Organization branding",
-                  "Mentorship reporting",
-                  "Enhanced analytics",
+                  "Member management: roster import, tags, notes & follow-ups",
+                  "Mentorship reporting & enhanced analytics",
                   "Priority support",
                 ],
                 cta: "Start your organization",
@@ -340,13 +423,13 @@ function Landing() {
                 blurb: "For state bar associations, multi-location firms, and law school systems.",
                 features: [
                   "250+ members",
-                  "Custom branding",
+                  "White-label client portal on your own domain",
+                  "Custom branding down to the login page",
+                  "Engagement timelines & smart segments",
                   "Advanced reporting",
-                  "Custom onboarding",
-                  "Dedicated success manager",
+                  "Custom onboarding & dedicated success manager",
                   "SSO (roadmap)",
                   "API access (roadmap)",
-                  "White-label (roadmap)",
                 ],
                 cta: "Contact sales",
                 href: "#contact",
@@ -628,7 +711,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground sm:flex-row">
-          <p>© 2026 LexGuild.com | The Professional Mentorship Platform for Modern Legal Organizations</p>
+          <p>© 2026 LexGuild.com | The Member Engagement Platform for Modern Legal Organizations</p>
           <nav className="flex items-center gap-5">
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground">Terms</Link>
@@ -643,7 +726,7 @@ function Landing() {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "What is LexGuild?",
-    a: "LexGuild is an invitation-only mentorship and member engagement platform built for the legal profession. Bar associations, law firms, and legal organizations use it to run structured attorney mentorship programs with curated matching, secure messaging, voice notes, and lightweight scheduling.",
+    a: "LexGuild is a member engagement platform built for the legal profession. Bar associations and legal organizations use it to run a branded member portal on their own domain — with attorney mentorship, CLE delivery, member Q&A, secure messaging, and staff-side member management.",
   },
   {
     q: "Who is LexGuild for?",
@@ -654,8 +737,16 @@ const FAQS: { q: string; a: string }[] = [
     a: "Administrators invite members, who complete a short profile covering practice area, jurisdiction, and career stage. LexGuild suggests curated mentor and mentee matches, then participants connect through in-app messaging, voice notes, and scheduled meetings — all in one secure environment.",
   },
   {
+    q: "Does LexGuild replace our existing bar association software?",
+    a: "No, and it isn't trying to. Your AMS is good at dues, invoicing, and event registration — keep it. LexGuild runs the programs your AMS can't: mentorship, CLE delivery, engagement tracking, and the branded portal your members log into. Import your roster from your AMS in minutes, and export anything back out.",
+  },
+  {
+    q: "Can we use our own domain and branding?",
+    a: "Yes. On the white-label plan, your portal lives at your own domain (like portal.yourbar.org) with your logo, colors, and welcome message on the login page. Setup takes two DNS records, and we activate your domain within one business day.",
+  },
+  {
     q: "How much does LexGuild cost?",
-    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free.",
+    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free. The white-label portal with your own custom domain is included with Enterprise.",
   },
   {
     q: "Is LexGuild secure and confidential?",
@@ -668,10 +759,6 @@ const FAQS: { q: string; a: string }[] = [
   {
     q: "How long does it take to launch a LexGuild organization?",
     a: "Most organizations are up and running in under a week. You can create your organization, customize branding, import or invite members, and start matching mentors and mentees the same day you sign up.",
-  },
-  {
-    q: "Does LexGuild replace our existing bar association software?",
-    a: "LexGuild is purpose-built for mentorship and member engagement, not membership billing or CLE tracking. It complements existing AMS or LMS tools by giving your members a modern, easy-to-use space to build relationships and grow their careers.",
   },
 ];
 
