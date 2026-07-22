@@ -280,10 +280,10 @@ function ClientsPage() {
           <span>Tags</span>
           <span>Last note</span>
         </div>
-        {rows.length === 0 && !busy && (
+        {visibleRows.length === 0 && !busy && (
           <p className="p-8 text-center text-sm text-muted-foreground">No {label.toLowerCase()} yet.</p>
         )}
-        {rows.map((r) => (
+        {visibleRows.map((r) => (
           <button
             key={r.id}
             onClick={() => setOpenId(r.id)}
@@ -309,7 +309,7 @@ function ClientsPage() {
         ))}
       </div>
 
-      {pages > 1 && (
+      {pages > 1 && !activeSegment && (
         <div className="flex items-center justify-between text-sm">
           <Button variant="ghost" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Previous</Button>
           <span className="text-muted-foreground">Page {page + 1} of {pages}</span>
