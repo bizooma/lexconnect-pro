@@ -32,8 +32,10 @@ import {
   linkOrgContacts,
   importContactsBatch,
   bulkInviteContacts,
+  getContactSegments,
   type ContactRow,
   type MemberEngagement,
+  type SegmentKey,
 } from "@/lib/org-contacts.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -53,6 +55,14 @@ const STATUS_TONE: Record<ContactRow["status"], string> = {
   contact: "bg-muted text-muted-foreground",
 };
 
+const SEGMENT_DEFS: { key: SegmentKey; label: string; description: string }[] = [
+  { key: "not_invited", label: "Not yet invited", description: "Contacts with no invite sent" },
+  { key: "invited_stale", label: "Invited, hasn't joined", description: "Invited more than 14 days ago" },
+  { key: "inactive_30", label: "Members inactive 30+ days", description: "Linked members with no sign-in in 30 days" },
+  { key: "ce_incomplete", label: "CE incomplete", description: "Enrolled in a course but not completed" },
+  { key: "no_mentorship", label: "No mentorship activity", description: "Linked members with zero matches" },
+];
+
 function ClientsPage() {
   const { currentOrgId, currentOrg, isOrgAdmin, loading } = useCurrentOrg();
   const label = currentOrg?.kind === "firm" ? "Clients" : "Members";
@@ -63,6 +73,7 @@ function ClientsPage() {
   const linkFn = useServerFn(linkOrgContacts);
   const importFn = useServerFn(importContactsBatch);
   const inviteFn = useServerFn(bulkInviteContacts);
+  const segmentsFn = useServerFn(getContactSegments);
 
   const [rows, setRows] = useState<ContactRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -76,6 +87,9 @@ function ClientsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [segments, setSegments] = useState<Record<SegmentKey, ContactRow[]> | null>(null);
+  const [segCounts, setSegCounts] = useState<Record<SegmentKey, number> | null>(null);
+  const [activeSegment, setActiveSegment] = useState<SegmentKey | null>(null);
 
   const refresh = useMemo(
     () => async () => {
@@ -115,6 +129,26 @@ function ClientsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrgId]);
 
+  const loadSegments = useMemo(
+    () => async () => {
+      if (!currentOrgId) return;
+      try {
+        const s = await segmentsFn({ data: { organizationId: currentOrgId } });
+        setSegments(s.segments);
+        setSegCounts(s.counts);
+      } catch {
+        /* noop */
+      }
+    },
+    [currentOrgId, segmentsFn],
+  );
+
+  useEffect(() => {
+    loadSegments();
+  }, [loadSegments]);
+
+  const visibleRows = activeSegment && segments ? segments[activeSegment] : rows;
+
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!isOrgAdmin) return <Navigate to="/app/dashboard" />;
 
@@ -130,8 +164,8 @@ function ClientsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => exportRowsToCsv(rows, label)}>
-            Export CSV
+          <Button variant="outline" onClick={() => exportRowsToCsv(visibleRows, label)}>
+            {activeSegment ? "Export segment" : "Export CSV"}
           </Button>
           <Dialog open={importOpen} onOpenChange={setImportOpen}>
             <DialogTrigger asChild>
@@ -205,6 +239,39 @@ function ClientsPage() {
         </span>
       </section>
 
+      <section className="flex flex-wrap items-center gap-2">
+        {SEGMENT_DEFS.map((s) => {
+          const count = segCounts?.[s.key] ?? 0;
+          const isActive = activeSegment === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => setActiveSegment(isActive ? null : s.key)}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition ${
+                isActive
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card hover:bg-accent"
+              }`}
+              title={s.description}
+            >
+              <span>{s.label}</span>
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${isActive ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+        {activeSegment && (
+          <button
+            onClick={() => setActiveSegment(null)}
+            className="text-xs text-muted-foreground underline"
+          >
+            Clear segment
+          </button>
+        )}
+      </section>
+
+
       <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="grid grid-cols-[1.5fr_1.5fr_100px_1.5fr_120px] gap-3 border-b border-border bg-muted/40 px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           <span>Name</span>
@@ -213,10 +280,10 @@ function ClientsPage() {
           <span>Tags</span>
           <span>Last note</span>
         </div>
-        {rows.length === 0 && !busy && (
+        {visibleRows.length === 0 && !busy && (
           <p className="p-8 text-center text-sm text-muted-foreground">No {label.toLowerCase()} yet.</p>
         )}
-        {rows.map((r) => (
+        {visibleRows.map((r) => (
           <button
             key={r.id}
             onClick={() => setOpenId(r.id)}
@@ -242,7 +309,7 @@ function ClientsPage() {
         ))}
       </div>
 
-      {pages > 1 && (
+      {pages > 1 && !activeSegment && (
         <div className="flex items-center justify-between text-sm">
           <Button variant="ghost" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Previous</Button>
           <span className="text-muted-foreground">Page {page + 1} of {pages}</span>
