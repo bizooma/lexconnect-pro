@@ -255,9 +255,8 @@ function AddContactDialog({
   );
 }
 
-type Detail = Awaited<ReturnType<Awaited<ReturnType<typeof getContactDetail>>>> extends never
-  ? never
-  : any;
+type Detail = any;
+
 
 function ContactDrawer({
   organizationId,
