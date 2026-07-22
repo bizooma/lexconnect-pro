@@ -726,7 +726,7 @@ function Landing() {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "What is LexGuild?",
-    a: "LexGuild is an invitation-only mentorship and member engagement platform built for the legal profession. Bar associations, law firms, and legal organizations use it to run structured attorney mentorship programs with curated matching, secure messaging, voice notes, and lightweight scheduling.",
+    a: "LexGuild is a member engagement platform built for the legal profession. Bar associations and legal organizations use it to run a branded member portal on their own domain — with attorney mentorship, CLE delivery, member Q&A, secure messaging, and staff-side member management.",
   },
   {
     q: "Who is LexGuild for?",
@@ -737,8 +737,16 @@ const FAQS: { q: string; a: string }[] = [
     a: "Administrators invite members, who complete a short profile covering practice area, jurisdiction, and career stage. LexGuild suggests curated mentor and mentee matches, then participants connect through in-app messaging, voice notes, and scheduled meetings — all in one secure environment.",
   },
   {
+    q: "Does LexGuild replace our existing bar association software?",
+    a: "No, and it isn't trying to. Your AMS is good at dues, invoicing, and event registration — keep it. LexGuild runs the programs your AMS can't: mentorship, CLE delivery, engagement tracking, and the branded portal your members log into. Import your roster from your AMS in minutes, and export anything back out.",
+  },
+  {
+    q: "Can we use our own domain and branding?",
+    a: "Yes. On the white-label plan, your portal lives at your own domain (like portal.yourbar.org) with your logo, colors, and welcome message on the login page. Setup takes two DNS records, and we activate your domain within one business day.",
+  },
+  {
     q: "How much does LexGuild cost?",
-    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free.",
+    a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free. The white-label portal with your own custom domain is included with Enterprise.",
   },
   {
     q: "Is LexGuild secure and confidential?",
@@ -751,10 +759,6 @@ const FAQS: { q: string; a: string }[] = [
   {
     q: "How long does it take to launch a LexGuild organization?",
     a: "Most organizations are up and running in under a week. You can create your organization, customize branding, import or invite members, and start matching mentors and mentees the same day you sign up.",
-  },
-  {
-    q: "Does LexGuild replace our existing bar association software?",
-    a: "LexGuild is purpose-built for mentorship and member engagement, not membership billing or CLE tracking. It complements existing AMS or LMS tools by giving your members a modern, easy-to-use space to build relationships and grow their careers.",
   },
 ];
 
