@@ -29,9 +29,13 @@ import {
   addFollowUp,
   updateFollowUpStatus,
   getMemberEngagement,
+  linkOrgContacts,
+  importContactsBatch,
+  bulkInviteContacts,
   type ContactRow,
   type MemberEngagement,
 } from "@/lib/org-contacts.functions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/app/org/clients")({
   component: ClientsPage,
