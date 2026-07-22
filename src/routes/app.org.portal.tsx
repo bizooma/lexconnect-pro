@@ -539,6 +539,20 @@ function PortalPage() {
               )}
             </Link>
           </div>
+          <div className="mt-4 flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">Client / member roster</p>
+              <p className="text-xs text-muted-foreground">
+                Track everyone your organization works with, whether or not they've joined yet.
+              </p>
+            </div>
+            <Link
+              to="/app/org/clients"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium hover:border-primary/40"
+            >
+              Open roster
+            </Link>
+          </div>
         </div>
       </section>
     </div>
