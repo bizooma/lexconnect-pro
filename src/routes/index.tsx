@@ -124,17 +124,24 @@ function Landing() {
         </div>
       </section>
 
+      {/* Positioning strip */}
+      <section aria-label="How LexGuild fits with your AMS" className="border-t border-border bg-card">
+        <div className="mx-auto max-w-5xl px-5 py-6 text-center text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <span className="font-medium text-foreground">Keep your AMS.</span> It's good at dues and events. LexGuild runs everything it can't: mentorship, CLE delivery, member engagement, and the portal your members actually log into.
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" aria-labelledby="features-heading" className="bg-gradient-navy">
         <h2 id="features-heading" className="sr-only">Features</h2>
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:grid-cols-2 lg:grid-cols-3">
           {[
+            { t: "A portal on your domain", d: "portal.yourbar.org — your logo, your colors, your name on the login page. Members sign in to your bar, not to someone else's software." },
             { t: "Curated mentor matching", d: "Pair mentors and mentees by practice area, jurisdiction, and career stage — no random listserv assignments." },
-            { t: "Voice notes built in", d: "Busy attorneys talk faster than they type. Send 30-second voice notes inside any conversation." },
-            { t: "Lightweight scheduling", d: "Suggest times, attach Zoom or Meet links, and get gentle reminders the day before." },
-            { t: "Guided conversations", d: "Optional prompts keep mentorships meaningful — even during the busiest filing weeks." },
-            { t: "Community insights", d: "Bar associations see active mentorships, engagement, and most-active practice areas at a glance." },
-            { t: "Built to scale", d: "Foundation for CLE, leadership groups, and practice-area communities as your network grows." },
+            { t: "CLE that lives where your members are", d: "Publish courses, track completions and credit hours, and see who's finished — inside the same portal they use every day." },
+            { t: "Member management built for associations", d: "Import your roster from your AMS in one CSV. Tag members, log calls and meetings, set follow-ups — the working file your staff actually keeps." },
+            { t: "Engagement you can finally see", d: "Every member's mentorship activity, CLE progress, Q&A participation, and last sign-in on one timeline. Your AMS knows who paid dues; LexGuild knows who's engaged." },
+            { t: "Lists that drive action", d: "One click: members who finished CLE but never tried mentorship. Invited but never joined. Inactive 30+ days. Export the list, make the calls." },
           ].map((f) => (
             <div key={f.t} className="rounded-2xl border border-white/15 bg-white/10 p-6 shadow-elegant backdrop-blur-xl backdrop-saturate-150 ring-1 ring-inset ring-white/10 transition hover:bg-white/15 hover:border-white/25">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/15 text-gold ring-1 ring-gold/30">
@@ -146,6 +153,83 @@ function Landing() {
           ))}
         </div>
       </section>
+
+      {/* Client Portal */}
+      <section id="portal" className="border-t border-border bg-background">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              White-label client portal
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              A branded portal your members will actually use
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Your members shouldn't need to learn another vendor's software. With LexGuild's white-label portal, they visit your domain, see your brand, and get everything your association runs — mentorship, CLE, Q&amp;A, messaging, and their member directory — in one place.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              { t: "Your domain, your brand", d: "Custom domain with SSL, your logo and colors, your welcome message. \u201CPowered by LexGuild\u201D is optional — and invisible on the white-label plan." },
+              { t: "You control the door", d: "Invite-only with tokens, or open requests with admin approval. Your staff reviews every join request from one queue." },
+              { t: "Staff see everything, members see their community", d: "Admins manage the roster, branding, and access from a single Client Portal dashboard." },
+            ].map((c) => (
+              <div key={c.t} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+                <h3 className="font-serif text-lg font-semibold text-foreground">{c.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.d}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:bg-primary/90"
+            >
+              See a live portal →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Member Management */}
+      <section id="member-management" className="border-t border-border bg-gradient-slate">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/80 shadow-card">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              Member management
+            </span>
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Your AMS knows who paid. LexGuild knows who's engaged.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-white/80">
+              Bring your member list over in one CSV import — LexGuild automatically links records as members join your portal. From there, your staff gets what an AMS was never built for: engagement.
+            </p>
+          </div>
+
+          <ul className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
+            {[
+              "Tags, notes, and interaction logs on every member — calls, emails, meetings, events",
+              "Follow-up tasks with due dates and owners, so renewals and outreach don't slip",
+              "A per-member engagement timeline: mentorship, CLE credits, Q&A activity, last sign-in",
+              "Smart segments with one-click CSV export — hand your membership committee a call list, not a hunch",
+            ].map((b) => (
+              <li key={b} className="flex items-start gap-3 rounded-2xl border border-white/15 bg-white/10 p-5 text-sm leading-relaxed text-white shadow-card backdrop-blur-xl">
+                <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-white/60">
+            LexGuild complements your AMS — dues, invoicing, and event registration stay right where they are.
+          </p>
+        </div>
+      </section>
+
 
       {/* Install the app */}
       <section id="install" className="border-t border-border">
