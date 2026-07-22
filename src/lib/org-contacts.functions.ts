@@ -102,49 +102,10 @@ export const listContacts = createServerFn({ method: "POST" })
       ((membersRes.data ?? []) as { user_id: string | null }[]).map((m) => m.user_id).filter(Boolean) as string[],
     );
 
-    // AUTO-LINK: contacts without user_id whose email matches an active member.
-    // Use admin client to look up user emails; row is already org-scoped + admin-guarded.
-    const unlinked = rows.filter((r) => !r.user_id);
-    if (unlinked.length > 0 && activeMemberIds.size > 0) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const memberList = Array.from(activeMemberIds);
-      const emailToUserId = new Map<string, string>();
-      await Promise.all(
-        memberList.map(async (uid) => {
-          try {
-            const { data: u } = await supabaseAdmin.auth.admin.getUserById(uid);
-            const em = u?.user?.email?.toLowerCase();
-            if (em) emailToUserId.set(em, uid);
-          } catch {
-            /* noop */
-          }
-        }),
-      );
-      const patches: { id: string; user_id: string }[] = [];
-      for (const c of unlinked) {
-        const match = emailToUserId.get(String(c.email ?? "").toLowerCase());
-        if (match) {
-          patches.push({ id: c.id, user_id: match });
-        }
-      }
-      if (patches.length > 0) {
-        await Promise.all(
-          patches.map((p) =>
-            supabaseAdmin
-              .from("org_contacts")
-              .update({ user_id: p.user_id })
-              .eq("id", p.id)
-              .eq("organization_id", data.organizationId),
-          ),
-        );
-        // reflect in local rows
-        const patchMap = new Map(patches.map((p) => [p.id, p.user_id]));
-        for (const r of rows) {
-          const linked = patchMap.get(r.id);
-          if (linked) r.user_id = linked;
-        }
-      }
-    }
+    // AUTO-LINK: rely on the SQL helper (single statement, admin-guarded).
+    // Fire-and-forget from the caller side; here we just skip the loop.
+    // The route also calls linkOrgContacts() on load and after imports.
+
 
     const result: ContactRow[] = rows.map((r) => {
       const tags = (tagMap.get(r.id) ?? []).sort();
