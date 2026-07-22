@@ -121,6 +121,26 @@ function ClientsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrgId]);
 
+  const loadSegments = useMemo(
+    () => async () => {
+      if (!currentOrgId) return;
+      try {
+        const s = await segmentsFn({ data: { organizationId: currentOrgId } });
+        setSegments(s.segments);
+        setSegCounts(s.counts);
+      } catch {
+        /* noop */
+      }
+    },
+    [currentOrgId, segmentsFn],
+  );
+
+  useEffect(() => {
+    loadSegments();
+  }, [loadSegments]);
+
+  const visibleRows = activeSegment && segments ? segments[activeSegment] : rows;
+
   if (loading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!isOrgAdmin) return <Navigate to="/app/dashboard" />;
 
