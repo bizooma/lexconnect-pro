@@ -77,7 +77,7 @@ function PagePreview() {
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-2 text-xs">
         <span className="text-muted-foreground">
-          Preview — <span className="font-medium text-foreground">{page.title}</span> ({page.status})
+          Preview — <span className="font-medium text-foreground">{page.title}</span> — this page is not published
         </span>
         <Link
           to="/app/website/pages/$pageId"
