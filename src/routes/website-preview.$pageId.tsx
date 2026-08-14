@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getWebsitePage, getBrandSettings } from "@/lib/website.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
-import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import type { WebsitePage, WebsiteSection, WebsiteBrandSettings } from "@/lib/website";
 
 export const Route = createFileRoute("/website-preview/$pageId")({
@@ -14,20 +13,11 @@ export const Route = createFileRoute("/website-preview/$pageId")({
       { name: "description", content: "Admin-only preview of an unpublished website page." },
     ],
   }),
-  component: PagePreviewRoute,
+  component: PagePreview,
 });
-
-function PagePreviewRoute() {
-  return (
-    <CurrentOrgProvider>
-      <PagePreview />
-    </CurrentOrgProvider>
-  );
-}
 
 function PagePreview() {
   const { pageId } = Route.useParams();
-  const { canEditWebsite, loading: orgLoading } = useCurrentOrg();
   const get = useServerFn(getWebsitePage);
   const getBrand = useServerFn(getBrandSettings);
   const [page, setPage] = useState<WebsitePage | null>(null);
@@ -37,14 +27,13 @@ function PagePreview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (orgLoading || !canEditWebsite) return;
     let cancelled = false;
     setLoading(true);
     (async () => {
       try {
         const res = await get({ data: { pageId } });
         if (cancelled) return;
-        if (!res.page) throw new Error("Page not found");
+        if (!res?.page) throw new Error("Page not found or you do not have permission to preview it");
         const previewPage = res.page as unknown as WebsitePage;
         setPage(previewPage);
         setSections((res.sections ?? []) as unknown as WebsiteSection[]);
@@ -57,19 +46,8 @@ function PagePreview() {
       }
     })();
     return () => { cancelled = true; };
-  }, [pageId, canEditWebsite, orgLoading, get, getBrand]);
+  }, [pageId, get, getBrand]);
 
-  if (orgLoading) return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
-  if (!canEditWebsite) {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold text-foreground">Not available</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          You need website editing permission to preview draft pages.
-        </p>
-      </div>
-    );
-  }
   if (loading) return <div className="p-8 text-sm text-muted-foreground">Loading preview…</div>;
   if (error || !page) return <div className="p-8 text-sm text-destructive">{error ?? "Page not found"}</div>;
 
