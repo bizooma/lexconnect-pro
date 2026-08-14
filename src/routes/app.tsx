@@ -136,6 +136,9 @@ function AppLayout() {
       });
   }, [user]);
 
+  const matches = useMatches();
+  const isPreviewRoute = matches.some((m) => m.routeId === "/app/website/pages/$pageId/preview");
+
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
@@ -144,8 +147,6 @@ function AppLayout() {
     );
   }
 
-  const matches = useMatches();
-  const isPreviewRoute = matches.some((m) => m.routeId === "/app/website/pages/$pageId/preview");
   if (isPreviewRoute) return <Outlet />;
 
   const initials = (profileName || user.email || "?")
