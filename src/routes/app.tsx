@@ -144,6 +144,10 @@ function AppLayout() {
     );
   }
 
+  const matches = useMatches();
+  const isPreviewRoute = matches.some((m) => m.routeId === "/app/website/pages/$pageId/preview");
+  if (isPreviewRoute) return <Outlet />;
+
   const initials = (profileName || user.email || "?")
     .split(/[\s@]/)
     .filter(Boolean)
