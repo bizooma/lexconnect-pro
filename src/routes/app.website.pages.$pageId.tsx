@@ -737,6 +737,7 @@ function ContentFields({
       {getItemSchema(section.section_type) && (
         <ItemListEditor
           sectionType={section.section_type}
+          organizationId={section.organization_id}
           items={Array.isArray(c.items) ? (c.items as Array<Record<string, unknown>>) : []}
           onChange={(items) => onChange({ ...c, items })}
         />
