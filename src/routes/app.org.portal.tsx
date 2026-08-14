@@ -11,6 +11,7 @@ import { listOrgJoinRequests } from "@/lib/join-requests.functions";
 import { updatePortalBranding, updateJoinPolicy } from "@/lib/org-portal.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ImageUploader } from "@/components/website/ImageUploader";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -386,28 +387,24 @@ function PortalPage() {
                 className="mt-1.5 block w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm shadow-card outline-none ring-ring/30 focus:ring-2"
               />
             </label>
-            <label className="block">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Logo URL (https)
-              </span>
-              <Input
-                className="mt-1.5"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://…/logo.png"
-              />
-            </label>
-            <label className="block">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Favicon URL (https)
-              </span>
-              <Input
-                className="mt-1.5"
-                value={faviconUrl}
-                onChange={(e) => setFaviconUrl(e.target.value)}
-                placeholder="https://…/favicon.ico"
-              />
-            </label>
+            <ImageUploader
+              organizationId={currentOrgId}
+              bucket="org-logos"
+              value={logoUrl}
+              onChange={(url) => setLogoUrl(url ?? "")}
+              label="Logo"
+              aspect="square"
+              hint="PNG, JPG or SVG up to 8MB"
+            />
+            <ImageUploader
+              organizationId={currentOrgId}
+              bucket="org-logos"
+              value={faviconUrl}
+              onChange={(url) => setFaviconUrl(url ?? "")}
+              label="Favicon"
+              aspect="square"
+              hint="Square PNG works best"
+            />
             <div>
               <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Accent color
