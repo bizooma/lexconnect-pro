@@ -1,6 +1,12 @@
 import type { WebsiteSectionType } from "@/lib/website";
+import { ImageUploader } from "@/components/website/ImageUploader";
 
-type FieldDef = { key: string; label: string; type: "text" | "textarea" | "list" };
+type FieldDef = {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "list" | "image";
+  aspect?: "square" | "video" | "wide";
+};
 
 const SCHEMAS: Partial<Record<WebsiteSectionType, FieldDef[]>> = {
   feature_grid: [
@@ -20,6 +26,7 @@ const SCHEMAS: Partial<Record<WebsiteSectionType, FieldDef[]>> = {
     { key: "quote", label: "Quote", type: "textarea" },
     { key: "author", label: "Author", type: "text" },
     { key: "role", label: "Role / company", type: "text" },
+    { key: "avatar_url", label: "Avatar", type: "image", aspect: "square" },
   ],
   pricing_tiers: [
     { key: "tier", label: "Tier name", type: "text" },
@@ -35,19 +42,19 @@ const SCHEMAS: Partial<Record<WebsiteSectionType, FieldDef[]>> = {
   ],
   sponsor_grid: [
     { key: "name", label: "Sponsor name", type: "text" },
-    { key: "logo_url", label: "Logo URL", type: "text" },
+    { key: "logo_url", label: "Logo", type: "image", aspect: "video" },
     { key: "href", label: "Link", type: "text" },
   ],
   speaker_cards: [
     { key: "name", label: "Name", type: "text" },
     { key: "role", label: "Role / title", type: "text" },
     { key: "bio", label: "Bio", type: "textarea" },
-    { key: "image_url", label: "Photo URL", type: "text" },
+    { key: "image_url", label: "Photo", type: "image", aspect: "square" },
   ],
   committee_cards: [
     { key: "name", label: "Name", type: "text" },
     { key: "role", label: "Role", type: "text" },
-    { key: "image_url", label: "Photo URL", type: "text" },
+    { key: "image_url", label: "Photo", type: "image", aspect: "square" },
   ],
   resource_cards: [
     { key: "title", label: "Title", type: "text" },
@@ -57,7 +64,7 @@ const SCHEMAS: Partial<Record<WebsiteSectionType, FieldDef[]>> = {
   member_directory: [
     { key: "name", label: "Name", type: "text" },
     { key: "role", label: "Role / firm", type: "text" },
-    { key: "image_url", label: "Photo URL", type: "text" },
+    { key: "image_url", label: "Photo", type: "image", aspect: "square" },
   ],
   timeline: [
     { key: "date", label: "Date", type: "text" },
@@ -76,10 +83,12 @@ export function ItemListEditor({
   sectionType,
   items,
   onChange,
+  organizationId,
 }: {
   sectionType: WebsiteSectionType;
   items: Item[];
   onChange: (next: Item[]) => void;
+  organizationId: string;
 }) {
   const schema = getItemSchema(sectionType);
   if (!schema) return null;
@@ -136,6 +145,18 @@ export function ItemListEditor({
                     className="mt-1 w-full rounded border border-border bg-background px-2 py-1 text-foreground"
                   />
                 </label>
+              );
+            }
+            if (f.type === "image") {
+              return (
+                <ImageUploader
+                  key={f.key}
+                  organizationId={organizationId}
+                  value={typeof v === "string" ? v : ""}
+                  onChange={(url) => update(i, f.key, url ?? "")}
+                  label={f.label}
+                  aspect={f.aspect ?? "square"}
+                />
               );
             }
             if (f.type === "list") {

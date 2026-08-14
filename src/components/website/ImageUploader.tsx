@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const BUCKET = "website-media";
+const DEFAULT_BUCKET = "website-media";
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
@@ -13,6 +13,7 @@ type Props = {
   label?: string;
   hint?: string;
   aspect?: "video" | "square" | "wide";
+  bucket?: string;
 };
 
 export function ImageUploader({
@@ -22,9 +23,12 @@ export function ImageUploader({
   label = "Image",
   hint,
   aspect = "video",
+  bucket = DEFAULT_BUCKET,
 }: Props) {
+  const BUCKET = bucket;
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [showUrl, setShowUrl] = useState(false);
   const aspectClass =
     aspect === "square" ? "aspect-square" : aspect === "wide" ? "aspect-[1200/630]" : "aspect-video";
 
@@ -107,12 +111,22 @@ export function ImageUploader({
         }}
         className="hidden"
       />
-      <input
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || null)}
-        placeholder="Or paste an image URL"
-        className="w-full rounded border border-border bg-background px-2 py-1.5 text-[11px] text-foreground"
-      />
+      {showUrl ? (
+        <input
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value || null)}
+          placeholder="Paste an image URL"
+          className="w-full rounded border border-border bg-background px-2 py-1.5 text-[11px] text-foreground"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowUrl(true)}
+          className="text-[11px] text-muted-foreground hover:text-primary hover:underline"
+        >
+          or paste an image URL
+        </button>
+      )}
     </div>
   );
 }
