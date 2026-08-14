@@ -353,6 +353,15 @@ function PageEditorPage() {
           >
             Save draft
           </button>
+          <Link
+            to="/app/website/pages/$pageId/preview"
+            params={{ pageId }}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+          >
+            Preview
+          </Link>
           <button
             onClick={() => publish("ready_for_review")}
             className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
