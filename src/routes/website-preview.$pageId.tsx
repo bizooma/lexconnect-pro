@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getWebsitePage, getBrandSettings } from "@/lib/website.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
-import { useCurrentOrg } from "@/hooks/use-current-org";
 import type { WebsitePage, WebsiteSection, WebsiteBrandSettings } from "@/lib/website";
 
 export const Route = createFileRoute("/website-preview/$pageId")({
@@ -19,7 +18,6 @@ export const Route = createFileRoute("/website-preview/$pageId")({
 
 function PagePreview() {
   const { pageId } = Route.useParams();
-  const { currentOrgId, canEditWebsite, loading: orgLoading } = useCurrentOrg();
   const get = useServerFn(getWebsitePage);
   const getBrand = useServerFn(getBrandSettings);
   const [page, setPage] = useState<WebsitePage | null>(null);
@@ -29,19 +27,17 @@ function PagePreview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (orgLoading || !canEditWebsite) return;
     let cancelled = false;
     setLoading(true);
     (async () => {
       try {
         const res = await get({ data: { pageId } });
         if (cancelled) return;
-        setPage(res.page as unknown as WebsitePage);
+        const previewPage = res.page as unknown as WebsitePage;
+        setPage(previewPage);
         setSections((res.sections ?? []) as unknown as WebsiteSection[]);
-        if (currentOrgId) {
-          const b = await getBrand({ data: { organizationId: currentOrgId } });
-          if (!cancelled) setBrand((b.brand as unknown as WebsiteBrandSettings) ?? null);
-        }
+        const b = await getBrand({ data: { organizationId: previewPage.organization_id } });
+        if (!cancelled) setBrand((b.brand as unknown as WebsiteBrandSettings) ?? null);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load preview");
       } finally {
@@ -49,19 +45,8 @@ function PagePreview() {
       }
     })();
     return () => { cancelled = true; };
-  }, [pageId, currentOrgId, canEditWebsite, orgLoading, get, getBrand]);
+  }, [pageId, get, getBrand]);
 
-  if (orgLoading) return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
-  if (!canEditWebsite) {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold text-foreground">Not available</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          You need website editing permission to preview draft pages.
-        </p>
-      </div>
-    );
-  }
   if (loading) return <div className="p-8 text-sm text-muted-foreground">Loading preview…</div>;
   if (error || !page) return <div className="p-8 text-sm text-destructive">{error ?? "Page not found"}</div>;
 
