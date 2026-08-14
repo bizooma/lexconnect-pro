@@ -15,7 +15,7 @@ import {
 } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/qa/")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { category?: string } => ({
     category: typeof s.category === "string" ? s.category : undefined,
   }),
   component: QaFeed,
