@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getWebsitePage, getBrandSettings } from "@/lib/website.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
+import { useAuth } from "@/hooks/use-auth";
 import type { WebsitePage, WebsiteSection, WebsiteBrandSettings } from "@/lib/website";
 
 export const Route = createFileRoute("/website-preview/$pageId")({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/website-preview/$pageId")({
 
 function PagePreview() {
   const { pageId } = Route.useParams();
+  const { user, loading: authLoading } = useAuth();
   const get = useServerFn(getWebsitePage);
   const getBrand = useServerFn(getBrandSettings);
   const [page, setPage] = useState<WebsitePage | null>(null);
@@ -27,6 +29,7 @@ function PagePreview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     let cancelled = false;
     setLoading(true);
     (async () => {
@@ -46,8 +49,22 @@ function PagePreview() {
       }
     })();
     return () => { cancelled = true; };
-  }, [pageId, get, getBrand]);
+  }, [pageId, user, authLoading, get, getBrand]);
 
+  if (authLoading) return <div className="p-8 text-sm text-muted-foreground">Loading preview…</div>;
+  if (!user) {
+    return (
+      <div className="grid min-h-screen place-items-center px-6 text-center">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Sign in required</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Draft previews are available only to authorized website editors.</p>
+          <Link to="/login" search={{ next: `/website-preview/${pageId}` }} className="mt-5 inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+            Sign in
+          </Link>
+        </div>
+      </div>
+    );
+  }
   if (loading) return <div className="p-8 text-sm text-muted-foreground">Loading preview…</div>;
   if (error || !page) return <div className="p-8 text-sm text-destructive">{error ?? "Page not found"}</div>;
 
