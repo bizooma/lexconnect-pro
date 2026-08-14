@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useMatches } from "@tanstack/react-router";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useIsPlatformAdmin } from "@/hooks/use-is-platform-admin";
 
