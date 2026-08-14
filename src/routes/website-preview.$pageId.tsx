@@ -37,7 +37,7 @@ function PagePreview() {
         const previewPage = res.page as unknown as WebsitePage;
         setPage(previewPage);
         setSections((res.sections ?? []) as unknown as WebsiteSection[]);
-        const b = await getBrand({ data: { organizationId: previewPage.organization_id } });
+        const b = await getBrand({ data: { organizationId: res.organizationId } });
         if (!cancelled) setBrand((b.brand as unknown as WebsiteBrandSettings) ?? null);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load preview");
