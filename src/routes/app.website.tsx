@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation, useMatches } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useIsPlatformAdmin } from "@/hooks/use-is-platform-admin";
 
@@ -22,8 +22,6 @@ function WebsiteLayout() {
   const { pathname } = useLocation();
   const { currentOrg, loading } = useCurrentOrg();
   const { isPlatformAdmin, checking } = useIsPlatformAdmin();
-  const matches = useMatches();
-  const isPreviewRoute = matches.some((m) => m.routeId === "/app/website/pages/$pageId/preview");
 
   if (loading || checking) {
     return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
@@ -38,8 +36,6 @@ function WebsiteLayout() {
       </div>
     );
   }
-  if (isPreviewRoute) return <Outlet />;
-
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-card">

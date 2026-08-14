@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation, useMatches, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate, redirect } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
@@ -136,8 +136,6 @@ function AppLayout() {
       });
   }, [user]);
 
-  const matches = useMatches();
-  const isPreviewRoute = matches.some((m) => m.routeId === "/app/website/pages/$pageId/preview");
 
   if (loading || !user) {
     return (
@@ -146,8 +144,6 @@ function AppLayout() {
       </div>
     );
   }
-
-  if (isPreviewRoute) return <Outlet />;
 
   const initials = (profileName || user.email || "?")
     .split(/[\s@]/)
