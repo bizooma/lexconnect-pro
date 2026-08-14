@@ -62,7 +62,7 @@ export const getWebsitePage = createServerFn({ method: "POST" })
       .eq("page_id", data.pageId)
       .order("display_order", { ascending: true });
     if (sErr) throw new Error(sErr.message);
-    return { page, sections: sections ?? [] };
+    return { page, sections: sections ?? [], organizationId: page.organization_id };
   });
 
 export const createWebsitePage = createServerFn({ method: "POST" })
