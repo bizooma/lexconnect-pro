@@ -111,12 +111,22 @@ export function ImageUploader({
         }}
         className="hidden"
       />
-      <input
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || null)}
-        placeholder="Or paste an image URL"
-        className="w-full rounded border border-border bg-background px-2 py-1.5 text-[11px] text-foreground"
-      />
+      {showUrl ? (
+        <input
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value || null)}
+          placeholder="Paste an image URL"
+          className="w-full rounded border border-border bg-background px-2 py-1.5 text-[11px] text-foreground"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowUrl(true)}
+          className="text-[11px] text-muted-foreground hover:text-primary hover:underline"
+        >
+          or paste an image URL
+        </button>
+      )}
     </div>
   );
 }
