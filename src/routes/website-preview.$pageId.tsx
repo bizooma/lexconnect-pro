@@ -6,7 +6,7 @@ import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSe
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import type { WebsitePage, WebsiteSection, WebsiteBrandSettings } from "@/lib/website";
 
-export const Route = createFileRoute("/app/website/pages/$pageId/preview")({
+export const Route = createFileRoute("/website-preview/$pageId")({
   head: () => ({
     meta: [
       { title: "Page preview — Website Builder" },

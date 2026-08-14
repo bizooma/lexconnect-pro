@@ -354,7 +354,7 @@ function PageEditorPage() {
             Save draft
           </button>
           <Link
-            to="/app/website/pages/$pageId/preview"
+            to="/website-preview/$pageId"
             params={{ pageId }}
             target="_blank"
             rel="noreferrer"

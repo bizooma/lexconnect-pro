@@ -22,6 +22,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JoinIndexRouteImport } from './routes/join.index'
+import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-preview.$pageId'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -97,7 +98,6 @@ import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/p
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksQaDigestRouteImport } from './routes/api/public/hooks/qa-digest'
 import { Route as ApiPublicHooksAutoPublishRouteImport } from './routes/api/public/hooks/auto-publish'
-import { Route as AppWebsitePagesPageIdPreviewRouteImport } from './routes/app.website.pages.$pageId.preview'
 import { Route as AppWebsitePagesPageIdHistoryRouteImport } from './routes/app.website.pages.$pageId.history'
 import { Route as AppCeAdminCourseCourseIdRouteImport } from './routes/app.ce.admin.course.$courseId'
 
@@ -164,6 +164,11 @@ const IndexRoute = IndexRouteImport.update({
 const JoinIndexRoute = JoinIndexRouteImport.update({
   id: '/join/',
   path: '/join/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebsitePreviewPageIdRoute = WebsitePreviewPageIdRouteImport.update({
+  id: '/website-preview/$pageId',
+  path: '/website-preview/$pageId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinCodeRoute = JoinCodeRouteImport.update({
@@ -549,12 +554,6 @@ const ApiPublicHooksAutoPublishRoute =
     path: '/api/public/hooks/auto-publish',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AppWebsitePagesPageIdPreviewRoute =
-  AppWebsitePagesPageIdPreviewRouteImport.update({
-    id: '/preview',
-    path: '/preview',
-    getParentRoute: () => AppWebsitePagesPageIdRoute,
-  } as any)
 const AppWebsitePagesPageIdHistoryRoute =
   AppWebsitePagesPageIdHistoryRouteImport.update({
     id: '/history',
@@ -598,6 +597,7 @@ export interface FileRoutesByFullPath {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -659,7 +659,6 @@ export interface FileRoutesByFullPath {
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
-  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -686,6 +685,7 @@ export interface FileRoutesByTo {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join': typeof JoinIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -746,7 +746,6 @@ export interface FileRoutesByTo {
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
-  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -779,6 +778,7 @@ export interface FileRoutesById {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -840,7 +840,6 @@ export interface FileRoutesById {
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
-  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -874,6 +873,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/website-preview/$pageId'
     | '/join/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -935,7 +935,6 @@ export interface FileRouteTypes {
     | '/app/website/pages/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
-    | '/app/website/pages/$pageId/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -962,6 +961,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/website-preview/$pageId'
     | '/join'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1022,7 +1022,6 @@ export interface FileRouteTypes {
     | '/app/website/pages'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
-    | '/app/website/pages/$pageId/preview'
   id:
     | '__root__'
     | '/'
@@ -1054,6 +1053,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/website-preview/$pageId'
     | '/join/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1115,7 +1115,6 @@ export interface FileRouteTypes {
     | '/app/website/pages/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
-    | '/app/website/pages/$pageId/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1136,6 +1135,7 @@ export interface RootRouteChildren {
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   JoinCodeRoute: typeof JoinCodeRoute
+  WebsitePreviewPageIdRoute: typeof WebsitePreviewPageIdRoute
   JoinIndexRoute: typeof JoinIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1246,6 +1246,13 @@ declare module '@tanstack/react-router' {
       path: '/join'
       fullPath: '/join/'
       preLoaderRoute: typeof JoinIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/website-preview/$pageId': {
+      id: '/website-preview/$pageId'
+      path: '/website-preview/$pageId'
+      fullPath: '/website-preview/$pageId'
+      preLoaderRoute: typeof WebsitePreviewPageIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join/$code': {
@@ -1773,13 +1780,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/website/pages/$pageId/preview': {
-      id: '/app/website/pages/$pageId/preview'
-      path: '/preview'
-      fullPath: '/app/website/pages/$pageId/preview'
-      preLoaderRoute: typeof AppWebsitePagesPageIdPreviewRouteImport
-      parentRoute: typeof AppWebsitePagesPageIdRoute
-    }
     '/app/website/pages/$pageId/history': {
       id: '/app/website/pages/$pageId/history'
       path: '/history'
@@ -1897,12 +1897,10 @@ const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsitePagesPageIdRouteChildren {
   AppWebsitePagesPageIdHistoryRoute: typeof AppWebsitePagesPageIdHistoryRoute
-  AppWebsitePagesPageIdPreviewRoute: typeof AppWebsitePagesPageIdPreviewRoute
 }
 
 const AppWebsitePagesPageIdRouteChildren: AppWebsitePagesPageIdRouteChildren = {
   AppWebsitePagesPageIdHistoryRoute: AppWebsitePagesPageIdHistoryRoute,
-  AppWebsitePagesPageIdPreviewRoute: AppWebsitePagesPageIdPreviewRoute,
 }
 
 const AppWebsitePagesPageIdRouteWithChildren =
@@ -2025,6 +2023,7 @@ const rootRouteChildren: RootRouteChildren = {
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   JoinCodeRoute: JoinCodeRoute,
+  WebsitePreviewPageIdRoute: WebsitePreviewPageIdRoute,
   JoinIndexRoute: JoinIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
