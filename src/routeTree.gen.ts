@@ -97,6 +97,7 @@ import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/p
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksQaDigestRouteImport } from './routes/api/public/hooks/qa-digest'
 import { Route as ApiPublicHooksAutoPublishRouteImport } from './routes/api/public/hooks/auto-publish'
+import { Route as AppWebsitePagesPageIdPreviewRouteImport } from './routes/app.website.pages.$pageId.preview'
 import { Route as AppWebsitePagesPageIdHistoryRouteImport } from './routes/app.website.pages.$pageId.history'
 import { Route as AppCeAdminCourseCourseIdRouteImport } from './routes/app.ce.admin.course.$courseId'
 
@@ -548,6 +549,12 @@ const ApiPublicHooksAutoPublishRoute =
     path: '/api/public/hooks/auto-publish',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppWebsitePagesPageIdPreviewRoute =
+  AppWebsitePagesPageIdPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => AppWebsitePagesPageIdRoute,
+  } as any)
 const AppWebsitePagesPageIdHistoryRoute =
   AppWebsitePagesPageIdHistoryRouteImport.update({
     id: '/history',
@@ -652,6 +659,7 @@ export interface FileRoutesByFullPath {
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
+  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -738,6 +746,7 @@ export interface FileRoutesByTo {
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
+  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -831,6 +840,7 @@ export interface FileRoutesById {
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
+  '/app/website/pages/$pageId/preview': typeof AppWebsitePagesPageIdPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -925,6 +935,7 @@ export interface FileRouteTypes {
     | '/app/website/pages/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
+    | '/app/website/pages/$pageId/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1011,6 +1022,7 @@ export interface FileRouteTypes {
     | '/app/website/pages'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
+    | '/app/website/pages/$pageId/preview'
   id:
     | '__root__'
     | '/'
@@ -1103,6 +1115,7 @@ export interface FileRouteTypes {
     | '/app/website/pages/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
+    | '/app/website/pages/$pageId/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1760,6 +1773,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/website/pages/$pageId/preview': {
+      id: '/app/website/pages/$pageId/preview'
+      path: '/preview'
+      fullPath: '/app/website/pages/$pageId/preview'
+      preLoaderRoute: typeof AppWebsitePagesPageIdPreviewRouteImport
+      parentRoute: typeof AppWebsitePagesPageIdRoute
+    }
     '/app/website/pages/$pageId/history': {
       id: '/app/website/pages/$pageId/history'
       path: '/history'
@@ -1877,10 +1897,12 @@ const AppQaRouteWithChildren = AppQaRoute._addFileChildren(AppQaRouteChildren)
 
 interface AppWebsitePagesPageIdRouteChildren {
   AppWebsitePagesPageIdHistoryRoute: typeof AppWebsitePagesPageIdHistoryRoute
+  AppWebsitePagesPageIdPreviewRoute: typeof AppWebsitePagesPageIdPreviewRoute
 }
 
 const AppWebsitePagesPageIdRouteChildren: AppWebsitePagesPageIdRouteChildren = {
   AppWebsitePagesPageIdHistoryRoute: AppWebsitePagesPageIdHistoryRoute,
+  AppWebsitePagesPageIdPreviewRoute: AppWebsitePagesPageIdPreviewRoute,
 }
 
 const AppWebsitePagesPageIdRouteWithChildren =
