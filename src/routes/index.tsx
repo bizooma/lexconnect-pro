@@ -780,6 +780,10 @@ const FAQS: { q: string; a: string }[] = [
     a: "Yes. LexGuild is a mobile-first progressive web app, so members can install it on iPhone or Android directly from the browser and get a native-feeling experience without an app store download.",
   },
   {
+    q: "Does LexGuild support attorney well-being programs?",
+    a: "A dedicated Well-Being add-on is coming soon: a member-facing wellness resource hub featuring your Lawyer Assistance Program, wellness CLE tracking for state requirements, and anonymous member pulse surveys your wellness committee sees only in aggregate — never tied to an individual member. Contact us for early access.",
+  },
+  {
     q: "How long does it take to launch a LexGuild organization?",
     a: "Most organizations are up and running in under a week. You can create your organization, customize branding, import or invite members, and start matching mentors and mentees the same day you sign up.",
   },
