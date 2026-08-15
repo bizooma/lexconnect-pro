@@ -568,7 +568,7 @@ function Landing() {
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="font-serif text-xl font-semibold text-foreground">{card.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
                   <ul className="mt-4 space-y-1.5">
                     {card.features.map((f) => (
                       <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
