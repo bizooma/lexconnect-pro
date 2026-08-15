@@ -62,6 +62,23 @@ export const updatePortalBranding = createServerFn({ method: "POST" })
       })
       .eq("id", data.organizationId);
     if (error) throw new Error(error.message);
+
+    if (data.wellness_enabled) {
+      const { data: existing } = await context.supabase
+        .from("qa_categories")
+        .select("id")
+        .eq("organization_id", data.organizationId)
+        .eq("name", "Well-Being")
+        .maybeSingle();
+      if (!existing) {
+        await context.supabase.from("qa_categories").insert({
+          organization_id: data.organizationId,
+          name: "Well-Being",
+          slug: "well-being",
+          sort_order: 100,
+        });
+      }
+    }
     return { ok: true };
   });
 
@@ -86,6 +103,23 @@ export const updateJoinPolicy = createServerFn({ method: "POST" })
       .update({ join_policy: data.join_policy })
       .eq("id", data.organizationId);
     if (error) throw new Error(error.message);
+
+    if (data.wellness_enabled) {
+      const { data: existing } = await context.supabase
+        .from("qa_categories")
+        .select("id")
+        .eq("organization_id", data.organizationId)
+        .eq("name", "Well-Being")
+        .maybeSingle();
+      if (!existing) {
+        await context.supabase.from("qa_categories").insert({
+          organization_id: data.organizationId,
+          name: "Well-Being",
+          slug: "well-being",
+          sort_order: 100,
+        });
+      }
+    }
     return { ok: true };
   });
 
@@ -120,5 +154,22 @@ export const updateWellnessSettings = createServerFn({ method: "POST" })
       })
       .eq("id", data.organizationId);
     if (error) throw new Error(error.message);
+
+    if (data.wellness_enabled) {
+      const { data: existing } = await context.supabase
+        .from("qa_categories")
+        .select("id")
+        .eq("organization_id", data.organizationId)
+        .eq("name", "Well-Being")
+        .maybeSingle();
+      if (!existing) {
+        await context.supabase.from("qa_categories").insert({
+          organization_id: data.organizationId,
+          name: "Well-Being",
+          slug: "well-being",
+          sort_order: 100,
+        });
+      }
+    }
     return { ok: true };
   });

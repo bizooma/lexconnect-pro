@@ -11,6 +11,7 @@ import { NotificationsBell } from "@/components/notifications-bell";
 import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { usePortalTheme } from "@/components/portal-theme-provider";
+import { useOrgWellness } from "@/hooks/use-org-wellness";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
@@ -52,11 +53,17 @@ function AppLayout() {
   const { isPlatformAdmin } = useIsPlatformAdmin();
   const { currentOrg, canEditWebsite, isOrgAdmin } = useCurrentOrg();
   const { portal, displayName: portalName, showPoweredBy } = usePortalTheme();
+  const { enabled: wellnessEnabled } = useOrgWellness();
   const brandLogo = portal?.logo_url ?? currentOrg?.logo_url ?? null;
   const brandName = portalName ?? currentOrg?.name ?? null;
 
 
-  const coreNav: NavItem[] = CORE_NAV_DEF.map((i) => ({ ...i, enabled: true }));
+  const coreNav: NavItem[] = [
+    ...CORE_NAV_DEF.map((i) => ({ ...i, enabled: true })),
+    ...(wellnessEnabled
+      ? [{ to: "/app/wellness", label: "Well-Being", icon: HeartIcon, enabled: true }]
+      : []),
+  ];
   const addonNav: NavItem[] = [
     {
       to: "/app/website",
@@ -441,4 +448,5 @@ function GraduationIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" st
 function LockIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>; }
 function UsersIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>; }
 function MoreIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>; }
+function HeartIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20.8 6.6a5 5 0 0 0-7.1 0L12 8.3l-1.7-1.7a5 5 0 1 0-7.1 7.1l8.8 8.8 8.8-8.8a5 5 0 0 0 0-7.1z"/></svg>; }
 function PortalIcon(p: any) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 21h18"/><path d="M4 21V10l8-6 8 6v11"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>; }
