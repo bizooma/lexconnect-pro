@@ -26,6 +26,7 @@ import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-previ
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AppWellnessRouteImport } from './routes/app.wellness'
 import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQaRouteImport } from './routes/app.qa'
@@ -186,6 +187,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/return',
   path: '/return',
   getParentRoute: () => CheckoutRoute,
+} as any)
+const AppWellnessRoute = AppWellnessRouteImport.update({
+  id: '/wellness',
+  path: '/wellness',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppWebsiteRoute = AppWebsiteRouteImport.update({
   id: '/website',
@@ -600,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
+  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -689,6 +696,7 @@ export interface FileRoutesByTo {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -783,6 +791,7 @@ export interface FileRoutesById {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
+  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -879,6 +888,7 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
+    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -968,6 +978,7 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/settings'
+    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1061,6 +1072,7 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
+    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1287,6 +1299,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/checkout/return'
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
+    }
+    '/app/wellness': {
+      id: '/app/wellness'
+      path: '/wellness'
+      fullPath: '/app/wellness'
+      preLoaderRoute: typeof AppWellnessRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/website': {
       id: '/app/website'
@@ -1973,6 +1992,7 @@ interface AppRouteChildren {
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
+  AppWellnessRoute: typeof AppWellnessRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgClientsRoute: typeof AppOrgClientsRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
@@ -1998,6 +2018,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
+  AppWellnessRoute: AppWellnessRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgClientsRoute: AppOrgClientsRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
