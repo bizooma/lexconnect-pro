@@ -226,6 +226,28 @@ function PortalPage() {
     }
   };
 
+  const onSaveWellness = async () => {
+    if (lapUrl.trim() && !validateHttps("LAP website", lapUrl.trim())) return;
+    setSavingWellness(true);
+    try {
+      await saveWellness({
+        data: {
+          organizationId: currentOrgId,
+          wellness_enabled: wellnessEnabled,
+          lap_name: lapName.trim() || null,
+          lap_phone: lapPhone.trim() || null,
+          lap_url: lapUrl.trim() || null,
+        },
+      });
+      toast.success("Well-being settings saved");
+      void refresh();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSavingWellness(false);
+    }
+  };
+
   const onSavePolicy = async (v: "invite_only" | "approval") => {
     setJoinPolicy(v);
     setSavingPolicy(true);
