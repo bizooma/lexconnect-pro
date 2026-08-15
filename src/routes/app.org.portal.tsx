@@ -76,6 +76,11 @@ function PortalPage() {
   const [joinPolicy, setJoinPolicy] = useState<"invite_only" | "approval">("invite_only");
   const [savingBrand, setSavingBrand] = useState(false);
   const [savingPolicy, setSavingPolicy] = useState(false);
+  const [wellnessEnabled, setWellnessEnabled] = useState(false);
+  const [lapName, setLapName] = useState("");
+  const [lapPhone, setLapPhone] = useState("");
+  const [lapUrl, setLapUrl] = useState("");
+  const [savingWellness, setSavingWellness] = useState(false);
 
   const refreshDomains = () => {
     if (!currentOrgId) return;
