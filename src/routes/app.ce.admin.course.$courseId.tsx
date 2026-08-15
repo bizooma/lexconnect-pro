@@ -74,7 +74,38 @@ function CourseEditor() {
               <option value="false">Assigned only</option>
               <option value="true">Any member can enroll</option>
             </select>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
+            <input
+              type="checkbox"
+              defaultChecked={!!course.is_wellness}
+              onChange={(e) => saveMeta({ is_wellness: e.target.checked })}
+              className="h-4 w-4"
+            />
+            <span>
+              <span className="font-medium text-foreground">Wellness course</span>
+              <span className="block text-xs text-muted-foreground">
+                Counts toward attorney well-being programming.
+              </span>
+            </span>
+          </label>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Wellness credit note
+            </label>
+            <input
+              defaultValue={course.wellness_credit_note ?? ""}
+              maxLength={120}
+              placeholder="FL Mental Health &amp; Wellness — 1.0 hr"
+              onBlur={(e) =>
+                e.target.value !== (course.wellness_credit_note ?? "") &&
+                saveMeta({ wellness_credit_note: e.target.value || null })
+              }
+              className="mt-1 block w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
           </div>
+        </div>
         </div>
       </div>
 
