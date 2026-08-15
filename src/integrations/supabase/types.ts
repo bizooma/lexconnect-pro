@@ -82,11 +82,13 @@ export type Database = {
           credit_hours: number
           description: string | null
           id: string
+          is_wellness: boolean
           organization_id: string
           slug: string
           status: Database["public"]["Enums"]["ce_course_status"]
           title: string
           updated_at: string
+          wellness_credit_note: string | null
         }
         Insert: {
           allow_self_enroll?: boolean
@@ -96,11 +98,13 @@ export type Database = {
           credit_hours?: number
           description?: string | null
           id?: string
+          is_wellness?: boolean
           organization_id: string
           slug: string
           status?: Database["public"]["Enums"]["ce_course_status"]
           title: string
           updated_at?: string
+          wellness_credit_note?: string | null
         }
         Update: {
           allow_self_enroll?: boolean
@@ -110,11 +114,13 @@ export type Database = {
           credit_hours?: number
           description?: string | null
           id?: string
+          is_wellness?: boolean
           organization_id?: string
           slug?: string
           status?: Database["public"]["Enums"]["ce_course_status"]
           title?: string
           updated_at?: string
+          wellness_credit_note?: string | null
         }
         Relationships: [
           {
@@ -1151,6 +1157,59 @@ export type Database = {
           },
         ]
       }
+      org_wellness_resources: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          display_order: number
+          event_date: string | null
+          id: string
+          kind: string
+          organization_id: string
+          phone: string | null
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          display_order?: number
+          event_date?: string | null
+          id?: string
+          kind?: string
+          organization_id: string
+          phone?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          display_order?: number
+          event_date?: string | null
+          id?: string
+          kind?: string
+          organization_id?: string
+          phone?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_wellness_resources_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_invites: {
         Row: {
           accepted_at: string | null
@@ -1248,6 +1307,9 @@ export type Database = {
           id: string
           join_policy: string
           kind: Database["public"]["Enums"]["org_kind"]
+          lap_name: string | null
+          lap_phone: string | null
+          lap_url: string | null
           logo_url: string | null
           name: string
           paused: boolean
@@ -1257,6 +1319,7 @@ export type Database = {
           updated_at: string
           website: string | null
           welcome_message: string | null
+          wellness_enabled: boolean
         }
         Insert: {
           accent_color?: string | null
@@ -1266,6 +1329,9 @@ export type Database = {
           id?: string
           join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
+          lap_name?: string | null
+          lap_phone?: string | null
+          lap_url?: string | null
           logo_url?: string | null
           name: string
           paused?: boolean
@@ -1275,6 +1341,7 @@ export type Database = {
           updated_at?: string
           website?: string | null
           welcome_message?: string | null
+          wellness_enabled?: boolean
         }
         Update: {
           accent_color?: string | null
@@ -1284,6 +1351,9 @@ export type Database = {
           id?: string
           join_policy?: string
           kind?: Database["public"]["Enums"]["org_kind"]
+          lap_name?: string | null
+          lap_phone?: string | null
+          lap_url?: string | null
           logo_url?: string | null
           name?: string
           paused?: boolean
@@ -1293,6 +1363,7 @@ export type Database = {
           updated_at?: string
           website?: string | null
           welcome_message?: string | null
+          wellness_enabled?: boolean
         }
         Relationships: []
       }
