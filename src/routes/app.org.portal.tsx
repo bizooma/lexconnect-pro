@@ -8,7 +8,11 @@ import {
   verifyCustomDomain,
 } from "@/lib/website-domains.functions";
 import { listOrgJoinRequests } from "@/lib/join-requests.functions";
-import { updatePortalBranding, updateJoinPolicy } from "@/lib/org-portal.functions";
+import {
+  updatePortalBranding,
+  updateJoinPolicy,
+  updateWellnessSettings,
+} from "@/lib/org-portal.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/website/ImageUploader";
@@ -59,6 +63,7 @@ function PortalPage() {
   const verify = useServerFn(verifyCustomDomain);
   const saveBranding = useServerFn(updatePortalBranding);
   const savePolicy = useServerFn(updateJoinPolicy);
+  const saveWellness = useServerFn(updateWellnessSettings);
   const listRequests = useServerFn(listOrgJoinRequests);
 
   const [domains, setDomains] = useState<DomainRow[]>([]);
