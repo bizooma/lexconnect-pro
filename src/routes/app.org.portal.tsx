@@ -552,6 +552,81 @@ function PortalPage() {
           </div>
         </div>
       </section>
+
+      {/* WELL-BEING */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being Program</h2>
+          <Link
+            to="/app/org/wellness"
+            className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium hover:border-primary/40"
+          >
+            Manage resources
+          </Link>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your Lawyer Assistance Program — shown to members on every wellness page.
+        </p>
+
+        <label className="mt-5 flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
+          <span>
+            <span className="block text-sm font-medium text-foreground">
+              Enable the Well-Being Program
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Show well-being resources and programming to your members.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            className="h-5 w-5 accent-[var(--color-primary)]"
+            checked={wellnessEnabled}
+            onChange={(e) => setWellnessEnabled(e.target.checked)}
+          />
+        </label>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP name
+            </span>
+            <Input
+              className="mt-1.5"
+              maxLength={120}
+              value={lapName}
+              onChange={(e) => setLapName(e.target.value)}
+              placeholder="Florida Lawyers Assistance"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP phone
+            </span>
+            <Input
+              className="mt-1.5"
+              maxLength={40}
+              value={lapPhone}
+              onChange={(e) => setLapPhone(e.target.value)}
+              placeholder="833-351-9355"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP website
+            </span>
+            <Input
+              className="mt-1.5"
+              value={lapUrl}
+              onChange={(e) => setLapUrl(e.target.value)}
+              placeholder="https://"
+            />
+          </label>
+        </div>
+
+        <Button className="mt-5" onClick={onSaveWellness} disabled={savingWellness}>
+          {savingWellness ? "Saving…" : "Save well-being settings"}
+        </Button>
+      </section>
     </div>
   );
 }
