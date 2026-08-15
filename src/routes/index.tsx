@@ -9,6 +9,7 @@ import installAndroid from "@/assets/install-android.png";
 import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
 import addonCleLms from "@/assets/addon-cle-lms.jpg";
+import addonWellBeing from "@/assets/addon-well-being.jpg";
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
@@ -504,12 +505,12 @@ function Landing() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 lg:grid-cols-4 md:grid-cols-2">
             {[
               {
                 img: addonWebsiteBuilder,
                 alt: "Website Builder — drag-and-drop editor for legal organizations",
-                badge: null,
+                badge: "Coming soon",
                 title: "Website Builder",
                 desc: "Create a beautiful, professional website for your bar association or legal organization with our drag-and-drop editor. No coding required.",
                 features: ["Drag-and-drop page editor", "Custom domains & SSL", "Lead capture forms", "Organization branding"],
@@ -525,10 +526,24 @@ function Landing() {
               {
                 img: addonCleLms,
                 alt: "CLE Learning Management System — continuing legal education courses",
-                badge: null,
+                badge: "Coming soon",
                 title: "CLE & Learning Management",
                 desc: "Deliver Continuing Legal Education courses, certification tracks, and professional development through an integrated learning platform.",
                 features: ["Course creation & hosting", "Progress tracking", "Certificates & credits", "Member enrollment"],
+              },
+              {
+                img: addonWellBeing,
+                alt: "Attorney Well-Being Program — wellness resources and pulse surveys for legal organizations",
+                badge: "Coming soon",
+                title: "Attorney Well-Being Program",
+                desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
+                features: [
+                  "Well-being resource hub with your LAP and crisis contacts",
+                  "Wellness CLE tracking for state requirements",
+                  "Anonymous member pulse surveys with aggregate-only results",
+                  "Well-Being Week events and programming",
+                ],
+                cta: "Talk to us about early access",
               },
             ].map((card) => (
               <div
@@ -565,6 +580,13 @@ function Landing() {
                       </li>
                     ))}
                   </ul>
+                  {card.cta && (
+                    <div className="mt-4">
+                      <a href="#contact" className="text-sm font-medium text-primary hover:underline">
+                        {card.cta}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -756,6 +778,10 @@ const FAQS: { q: string; a: string }[] = [
   {
     q: "Can I use LexGuild on my phone?",
     a: "Yes. LexGuild is a mobile-first progressive web app, so members can install it on iPhone or Android directly from the browser and get a native-feeling experience without an app store download.",
+  },
+  {
+    q: "Does LexGuild support attorney well-being programs?",
+    a: "A dedicated Well-Being add-on is coming soon: a member-facing wellness resource hub featuring your Lawyer Assistance Program, wellness CLE tracking for state requirements, and anonymous member pulse surveys your wellness committee sees only in aggregate — never tied to an individual member. Contact us for early access.",
   },
   {
     q: "How long does it take to launch a LexGuild organization?",
