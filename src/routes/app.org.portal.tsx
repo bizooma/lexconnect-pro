@@ -98,7 +98,9 @@ function PortalPage() {
       .catch(() => setPendingCount(0));
     supabase
       .from("organizations")
-      .select("portal_name, welcome_message, logo_url, favicon_url, accent_color, join_policy")
+      .select(
+        "portal_name, welcome_message, logo_url, favicon_url, accent_color, join_policy, wellness_enabled, lap_name, lap_phone, lap_url",
+      )
       .eq("id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => {
@@ -109,6 +111,10 @@ function PortalPage() {
           favicon_url: string | null;
           accent_color: string | null;
           join_policy: string | null;
+          wellness_enabled: boolean | null;
+          lap_name: string | null;
+          lap_phone: string | null;
+          lap_url: string | null;
         } | null;
         if (!r) return;
         setPortalName(r.portal_name ?? "");
@@ -117,6 +123,10 @@ function PortalPage() {
         setFaviconUrl(r.favicon_url ?? "");
         setAccent(r.accent_color ?? "#1f3a5f");
         setJoinPolicy(r.join_policy === "approval" ? "approval" : "invite_only");
+        setWellnessEnabled(!!r.wellness_enabled);
+        setLapName(r.lap_name ?? "");
+        setLapPhone(r.lap_phone ?? "");
+        setLapUrl(r.lap_url ?? "");
       });
   }, [currentOrgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
