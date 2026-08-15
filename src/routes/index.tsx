@@ -88,7 +88,7 @@ function Landing() {
               The platform for modern bar associations
             </span>
             <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.75rem]">
-              The modern Bar Association runs on LexGuild.
+              The modern bar association runs on LexGuild.
             </h1>
             <p data-speakable className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               A branded portal for your members. Real tools for your staff. Mentorship, CLE, engagement, and your public website, all on your own domain, alongside the AMS you keep.
