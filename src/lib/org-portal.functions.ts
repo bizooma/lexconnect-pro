@@ -88,3 +88,37 @@ export const updateJoinPolicy = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
+
+export const updateWellnessSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        wellness_enabled: z.boolean(),
+        lap_name: z.preprocess(emptyToNull, z.string().trim().max(120).nullable()),
+        lap_phone: z.preprocess(emptyToNull, z.string().trim().max(40).nullable()),
+        lap_url: z.preprocess(emptyToNull, httpsUrl.nullable()),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertOrgAdmin(
+      context.supabase as unknown as SupabaseClient<Database>,
+      context.userId,
+      data.organizationId,
+    );
+    const { error } = await context.supabase
+      .from("organizations")
+      .update({
+        wellness_enabled: data.wellness_enabled,
+        lap_name: data.lap_name,
+        lap_phone: data.lap_phone,
+        lap_url: data.lap_url,
+      })
+      .eq("id", data.organizationId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

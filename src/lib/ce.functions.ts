@@ -93,6 +93,8 @@ export const updateCourse = createServerFn({ method: "POST" })
     credit_hours?: number;
     allow_self_enroll?: boolean;
     status?: "draft" | "published" | "archived";
+    is_wellness?: boolean;
+    wellness_credit_note?: string | null;
   }) => d)
   .handler(async ({ data, context }) => {
     const org = await orgOfCourse(context, data.courseId);

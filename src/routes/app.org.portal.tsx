@@ -8,7 +8,11 @@ import {
   verifyCustomDomain,
 } from "@/lib/website-domains.functions";
 import { listOrgJoinRequests } from "@/lib/join-requests.functions";
-import { updatePortalBranding, updateJoinPolicy } from "@/lib/org-portal.functions";
+import {
+  updatePortalBranding,
+  updateJoinPolicy,
+  updateWellnessSettings,
+} from "@/lib/org-portal.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/website/ImageUploader";
@@ -59,6 +63,7 @@ function PortalPage() {
   const verify = useServerFn(verifyCustomDomain);
   const saveBranding = useServerFn(updatePortalBranding);
   const savePolicy = useServerFn(updateJoinPolicy);
+  const saveWellness = useServerFn(updateWellnessSettings);
   const listRequests = useServerFn(listOrgJoinRequests);
 
   const [domains, setDomains] = useState<DomainRow[]>([]);
@@ -76,6 +81,11 @@ function PortalPage() {
   const [joinPolicy, setJoinPolicy] = useState<"invite_only" | "approval">("invite_only");
   const [savingBrand, setSavingBrand] = useState(false);
   const [savingPolicy, setSavingPolicy] = useState(false);
+  const [wellnessEnabled, setWellnessEnabled] = useState(false);
+  const [lapName, setLapName] = useState("");
+  const [lapPhone, setLapPhone] = useState("");
+  const [lapUrl, setLapUrl] = useState("");
+  const [savingWellness, setSavingWellness] = useState(false);
 
   const refreshDomains = () => {
     if (!currentOrgId) return;
@@ -93,7 +103,9 @@ function PortalPage() {
       .catch(() => setPendingCount(0));
     supabase
       .from("organizations")
-      .select("portal_name, welcome_message, logo_url, favicon_url, accent_color, join_policy")
+      .select(
+        "portal_name, welcome_message, logo_url, favicon_url, accent_color, join_policy, wellness_enabled, lap_name, lap_phone, lap_url",
+      )
       .eq("id", currentOrgId)
       .maybeSingle()
       .then(({ data }) => {
@@ -104,6 +116,10 @@ function PortalPage() {
           favicon_url: string | null;
           accent_color: string | null;
           join_policy: string | null;
+          wellness_enabled: boolean | null;
+          lap_name: string | null;
+          lap_phone: string | null;
+          lap_url: string | null;
         } | null;
         if (!r) return;
         setPortalName(r.portal_name ?? "");
@@ -112,6 +128,10 @@ function PortalPage() {
         setFaviconUrl(r.favicon_url ?? "");
         setAccent(r.accent_color ?? "#1f3a5f");
         setJoinPolicy(r.join_policy === "approval" ? "approval" : "invite_only");
+        setWellnessEnabled(!!r.wellness_enabled);
+        setLapName(r.lap_name ?? "");
+        setLapPhone(r.lap_phone ?? "");
+        setLapUrl(r.lap_url ?? "");
       });
   }, [currentOrgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -208,6 +228,28 @@ function PortalPage() {
       toast.error(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSavingBrand(false);
+    }
+  };
+
+  const onSaveWellness = async () => {
+    if (lapUrl.trim() && !validateHttps("LAP website", lapUrl.trim())) return;
+    setSavingWellness(true);
+    try {
+      await saveWellness({
+        data: {
+          organizationId: currentOrgId,
+          wellness_enabled: wellnessEnabled,
+          lap_name: lapName.trim() || null,
+          lap_phone: lapPhone.trim() || null,
+          lap_url: lapUrl.trim() || null,
+        },
+      });
+      toast.success("Well-being settings saved");
+      void refresh();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSavingWellness(false);
     }
   };
 
@@ -551,6 +593,81 @@ function PortalPage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* WELL-BEING */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being Program</h2>
+          <Link
+            to="/app/org/wellness"
+            className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium hover:border-primary/40"
+          >
+            Manage resources
+          </Link>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your Lawyer Assistance Program — shown to members on every wellness page.
+        </p>
+
+        <label className="mt-5 flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
+          <span>
+            <span className="block text-sm font-medium text-foreground">
+              Enable the Well-Being Program
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Show well-being resources and programming to your members.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            className="h-5 w-5 accent-[var(--color-primary)]"
+            checked={wellnessEnabled}
+            onChange={(e) => setWellnessEnabled(e.target.checked)}
+          />
+        </label>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP name
+            </span>
+            <Input
+              className="mt-1.5"
+              maxLength={120}
+              value={lapName}
+              onChange={(e) => setLapName(e.target.value)}
+              placeholder="Florida Lawyers Assistance"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP phone
+            </span>
+            <Input
+              className="mt-1.5"
+              maxLength={40}
+              value={lapPhone}
+              onChange={(e) => setLapPhone(e.target.value)}
+              placeholder="833-351-9355"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              LAP website
+            </span>
+            <Input
+              className="mt-1.5"
+              value={lapUrl}
+              onChange={(e) => setLapUrl(e.target.value)}
+              placeholder="https://"
+            />
+          </label>
+        </div>
+
+        <Button className="mt-5" onClick={onSaveWellness} disabled={savingWellness}>
+          {savingWellness ? "Saving…" : "Save well-being settings"}
+        </Button>
       </section>
     </div>
   );

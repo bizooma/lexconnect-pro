@@ -62,6 +62,7 @@ import { Route as AppQaCategoriesRouteImport } from './routes/app.qa.categories'
 import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
 import { Route as AppQaAdminRouteImport } from './routes/app.qa.admin'
 import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
+import { Route as AppOrgWellnessRouteImport } from './routes/app.org.wellness'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgPortalRouteImport } from './routes/app.org.portal'
@@ -368,6 +369,11 @@ const AppQaPostIdRoute = AppQaPostIdRouteImport.update({
   path: '/$postId',
   getParentRoute: () => AppQaRoute,
 } as any)
+const AppOrgWellnessRoute = AppOrgWellnessRouteImport.update({
+  id: '/org/wellness',
+  path: '/org/wellness',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   id: '/org/settings',
   path: '/org/settings',
@@ -619,6 +625,7 @@ export interface FileRoutesByFullPath {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
@@ -706,6 +713,7 @@ export interface FileRoutesByTo {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
@@ -800,6 +808,7 @@ export interface FileRoutesById {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
   '/app/qa/ask': typeof AppQaAskRoute
@@ -895,6 +904,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
@@ -982,6 +992,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
@@ -1075,6 +1086,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
     | '/app/qa/ask'
@@ -1528,6 +1540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQaPostIdRouteImport
       parentRoute: typeof AppQaRoute
     }
+    '/app/org/wellness': {
+      id: '/app/org/wellness'
+      path: '/org/wellness'
+      fullPath: '/app/org/wellness'
+      preLoaderRoute: typeof AppOrgWellnessRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/settings': {
       id: '/app/org/settings'
       path: '/org/settings'
@@ -1963,6 +1982,7 @@ interface AppRouteChildren {
   AppOrgPortalRoute: typeof AppOrgPortalRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
+  AppOrgWellnessRoute: typeof AppOrgWellnessRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
 
@@ -1987,6 +2007,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgPortalRoute: AppOrgPortalRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
+  AppOrgWellnessRoute: AppOrgWellnessRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
 }
 
