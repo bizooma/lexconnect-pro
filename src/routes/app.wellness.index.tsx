@@ -39,6 +39,38 @@ type Resource = {
   event_date: string | null;
 };
 
+const STARTER: Array<Pick<Resource, "kind" | "title" | "description" | "url" | "phone">> = [
+  {
+    kind: "resource",
+    title: "Florida Lawyers Helpline",
+    description:
+      "Confidential help for lawyers, paralegals, and law students — up to five free counseling sessions per year.",
+    phone: "833-351-9355",
+    url: "",
+  },
+  {
+    kind: "resource",
+    title: "988 Suicide & Crisis Lifeline",
+    description: "Free, confidential crisis support 24/7. Call or text 988.",
+    phone: "988",
+    url: "",
+  },
+  {
+    kind: "resource",
+    title: "Institute for Well-Being in Law",
+    description: "Research, programming, and Well-Being Week in Law resources.",
+    phone: "",
+    url: "https://lawyerwellbeing.net",
+  },
+  {
+    kind: "resource",
+    title: "ABA Lawyer Assistance Programs",
+    description: "Directory of lawyer assistance programs by state.",
+    phone: "",
+    url: "https://www.americanbar.org/groups/lawyer_assistance/",
+  },
+];
+
 type WellnessCourse = {
   id: string;
   title: string;
