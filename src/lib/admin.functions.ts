@@ -354,20 +354,20 @@ export const createUserAndAssignOrgSafe = createServerFn({ method: "POST" })
       }
       if (!userId) throw new Error("Could not resolve user id after creation");
 
-      // Ensure profile exists and is on the target org
+      // Ensure a profile exists. Profiles are global identities: only seed the
+      // legacy home-org hint when it has never been set; never move a profile.
       const { data: existingProfile } = await supabaseAdmin
         .from("profiles")
-        .select("id")
+        .select("id,organization_id")
         .eq("user_id", userId)
         .maybeSingle();
       if (existingProfile) {
-        await supabaseAdmin
-          .from("profiles")
-          .update({
-            organization_id: data.organizationId,
-            ...(data.fullName ? { full_name: data.fullName } : {}),
-          })
-          .eq("user_id", userId);
+        const patch: { organization_id?: string; full_name?: string } = {};
+        if (existingProfile.organization_id == null) patch.organization_id = data.organizationId;
+        if (data.fullName) patch.full_name = data.fullName;
+        if (Object.keys(patch).length > 0) {
+          await supabaseAdmin.from("profiles").update(patch).eq("user_id", userId);
+        }
       } else {
         await supabaseAdmin.from("profiles").insert({
           user_id: userId,
