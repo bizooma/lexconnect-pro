@@ -2463,6 +2463,105 @@ export type Database = {
         }
         Relationships: []
       }
+      wellness_survey_answers: {
+        Row: {
+          answers: Json
+          id: string
+          organization_id: string
+          submitted_on: string
+          survey_id: string
+        }
+        Insert: {
+          answers: Json
+          id?: string
+          organization_id: string
+          submitted_on?: string
+          survey_id: string
+        }
+        Update: {
+          answers?: Json
+          id?: string
+          organization_id?: string
+          submitted_on?: string
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_survey_answers_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_survey_participation: {
+        Row: {
+          created_at: string
+          survey_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          survey_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          survey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_survey_participation_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_surveys: {
+        Row: {
+          closes_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          opens_at: string
+          organization_id: string
+          questions: Json
+          title: string
+        }
+        Insert: {
+          closes_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          opens_at?: string
+          organization_id: string
+          questions: Json
+          title: string
+        }
+        Update: {
+          closes_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          opens_at?: string
+          organization_id?: string
+          questions?: Json
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_surveys_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -2503,6 +2602,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_wellness_results: { Args: { _survey_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2548,6 +2648,10 @@ export type Database = {
       }
       redeem_invite: { Args: { _token: string }; Returns: string }
       redeem_invite_code: { Args: { _code: string }; Returns: string }
+      submit_wellness_response: {
+        Args: { _answers: Json; _survey_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "member"
