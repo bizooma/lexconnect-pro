@@ -253,7 +253,28 @@ function WellnessAdminPage() {
         </p>
       </header>
 
+      <div className="flex gap-2 border-b border-border">
+        {(["resources", "surveys"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+              tab === t
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t === "resources" ? "Resources" : "Pulse surveys"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "surveys" && <PulseSurveys orgId={currentOrgId} />}
+
+      {tab === "resources" && (
+        <>
       <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-serif text-lg font-semibold text-foreground">Items</h2>
           <div className="flex gap-2">
