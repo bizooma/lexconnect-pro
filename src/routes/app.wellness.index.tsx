@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
+import { useWellnessCategory } from "@/hooks/use-wellness-category";
 
 export const Route = createFileRoute("/app/wellness/")({
   head: () => ({
