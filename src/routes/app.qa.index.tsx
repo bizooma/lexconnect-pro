@@ -94,7 +94,8 @@ function QaFeed() {
       .eq("organization_id", currentOrgId);
 
     if (categoryId) q = q.eq("category_id", categoryId);
-    else if (wellnessCategoryId) q = q.neq("category_id", wellnessCategoryId);
+    else if (wellnessCategoryId)
+      q = q.or(`category_id.is.null,category_id.neq.${wellnessCategoryId}`);
     if (statusFilter !== "all") q = q.eq("status", statusFilter);
     if (search.trim()) {
       const safe = sanitizeQaSearch(search);
