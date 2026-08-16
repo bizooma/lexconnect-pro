@@ -48,13 +48,12 @@ function WellnessPage() {
   const { wellness, enabled, loading: wellnessLoading } = useOrgWellness();
   const [resources, setResources] = useState<Resource[] | null>(null);
   const [courses, setCourses] = useState<WellnessCourse[]>([]);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentOrgId || !enabled) return;
     let cancelled = false;
     (async () => {
-      const [{ data: res }, { data: crs }, { data: cat }] = await Promise.all([
+      const [{ data: res }, { data: crs }] = await Promise.all([
         supabase
           .from("org_wellness_resources")
           .select("id, kind, title, description, phone, url, event_date")
@@ -68,17 +67,10 @@ function WellnessPage() {
           .eq("status", "published")
           .eq("is_wellness", true)
           .order("title"),
-        supabase
-          .from("qa_categories")
-          .select("id")
-          .eq("organization_id", currentOrgId)
-          .eq("name", "Well-Being")
-          .maybeSingle(),
       ]);
       if (cancelled) return;
       setResources((res as Resource[] | null) ?? []);
       setCourses((crs as WellnessCourse[] | null) ?? []);
-      setCategoryId((cat as { id: string } | null)?.id ?? null);
     })();
     return () => {
       cancelled = true;
