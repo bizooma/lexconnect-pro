@@ -155,6 +155,15 @@ function WellnessDiscussions() {
           <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
             <p className="text-sm font-medium text-foreground">No discussions yet</p>
             <p className="mt-1 text-xs text-muted-foreground">Be the first to start a well-being conversation.</p>
+            {categoryId && (
+              <Link
+                to="/app/qa/ask"
+                search={askSearch}
+                className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+              >
+                Start a discussion
+              </Link>
+            )}
           </div>
         ) : (
           posts.map((p) => (

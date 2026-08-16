@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
+import { useWellnessCategory } from "@/hooks/use-wellness-category";
 
 export const Route = createFileRoute("/app/wellness/")({
   head: () => ({
@@ -35,6 +39,38 @@ type Resource = {
   event_date: string | null;
 };
 
+const STARTER: Array<Pick<Resource, "kind" | "title" | "description" | "url" | "phone">> = [
+  {
+    kind: "resource",
+    title: "Florida Lawyers Helpline",
+    description:
+      "Confidential help for lawyers, paralegals, and law students — up to five free counseling sessions per year.",
+    phone: "833-351-9355",
+    url: "",
+  },
+  {
+    kind: "resource",
+    title: "988 Suicide & Crisis Lifeline",
+    description: "Free, confidential crisis support 24/7. Call or text 988.",
+    phone: "988",
+    url: "",
+  },
+  {
+    kind: "resource",
+    title: "Institute for Well-Being in Law",
+    description: "Research, programming, and Well-Being Week in Law resources.",
+    phone: "",
+    url: "https://lawyerwellbeing.net",
+  },
+  {
+    kind: "resource",
+    title: "ABA Lawyer Assistance Programs",
+    description: "Directory of lawyer assistance programs by state.",
+    phone: "",
+    url: "https://www.americanbar.org/groups/lawyer_assistance/",
+  },
+];
+
 type WellnessCourse = {
   id: string;
   title: string;
@@ -44,38 +80,69 @@ type WellnessCourse = {
 };
 
 function WellnessPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { user } = useAuth();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const { wellness, enabled, loading: wellnessLoading } = useOrgWellness();
+  const { categoryId } = useWellnessCategory();
   const [resources, setResources] = useState<Resource[] | null>(null);
   const [courses, setCourses] = useState<WellnessCourse[]>([]);
+  const [seeding, setSeeding] = useState(false);
+
+  const load = async () => {
+    if (!currentOrgId || !enabled) return;
+    const [{ data: res }, { data: crs }] = await Promise.all([
+      supabase
+        .from("org_wellness_resources")
+        .select("id, kind, title, description, phone, url, event_date")
+        .eq("organization_id", currentOrgId)
+        .order("display_order")
+        .order("created_at"),
+      supabase
+        .from("ce_courses")
+        .select("id, title, description, credit_hours, wellness_credit_note")
+        .eq("organization_id", currentOrgId)
+        .eq("status", "published")
+        .eq("is_wellness", true)
+        .order("title"),
+    ]);
+    setResources((res as Resource[] | null) ?? []);
+    setCourses((crs as WellnessCourse[] | null) ?? []);
+  };
 
   useEffect(() => {
     if (!currentOrgId || !enabled) return;
     let cancelled = false;
     (async () => {
-      const [{ data: res }, { data: crs }] = await Promise.all([
-        supabase
-          .from("org_wellness_resources")
-          .select("id, kind, title, description, phone, url, event_date")
-          .eq("organization_id", currentOrgId)
-          .order("display_order")
-          .order("created_at"),
-        supabase
-          .from("ce_courses")
-          .select("id, title, description, credit_hours, wellness_credit_note")
-          .eq("organization_id", currentOrgId)
-          .eq("status", "published")
-          .eq("is_wellness", true)
-          .order("title"),
-      ]);
-      if (cancelled) return;
-      setResources((res as Resource[] | null) ?? []);
-      setCourses((crs as WellnessCourse[] | null) ?? []);
+      await load();
     })();
     return () => {
       cancelled = true;
     };
   }, [currentOrgId, enabled]);
+
+  const addStarter = async () => {
+    if (!currentOrgId || !user) return;
+    setSeeding(true);
+    const { error } = await supabase.from("org_wellness_resources").insert(
+      STARTER.map((s, i) => ({
+        organization_id: currentOrgId,
+        created_by: user.id,
+        kind: s.kind,
+        title: s.title,
+        description: s.description,
+        url: s.url || null,
+        phone: s.phone || null,
+        display_order: i,
+      })),
+    );
+    setSeeding(false);
+    if (error) {
+      toast.error("Could not add starter resources", { description: error.message });
+      return;
+    }
+    toast.success("Starter resources added");
+    await load();
+  };
 
   if (wellnessLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
   if (!enabled) {
@@ -137,11 +204,42 @@ function WellnessPage() {
 
       {/* Resources */}
       <section className="mt-8">
-        <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">Resources</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Resources</h2>
+          {isOrgAdmin && staticResources.length > 0 && (
+            <Link
+              to="/app/org/wellness"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              Manage
+            </Link>
+          )}
+        </div>
         {resources === null ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : staticResources.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No resources published yet.</p>
+          isOrgAdmin ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6">
+              <p className="text-sm text-muted-foreground">
+                No resources published yet. Add a starter set or manage them from the admin area.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button onClick={() => void addStarter()} disabled={seeding} size="sm">
+                  {seeding ? "Adding…" : "Add starter resources"}
+                </Button>
+                <Link
+                  to="/app/org/wellness"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Manage resources
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Your organization hasn’t published resources yet. Check back soon.
+            </p>
+          )
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {staticResources.map((r) => (
@@ -245,16 +343,29 @@ function WellnessPage() {
       )}
 
       {/* Q&A link */}
-      <section className="mt-8">
-        <Link
-          to="/app/wellness/discussions"
-          className="block rounded-2xl border border-border bg-card p-5 shadow-card transition hover:border-primary/40"
-        >
-          <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being discussions</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Talk with colleagues about balance, stress, and practice health in the community Q&amp;A.
-          </p>
-        </Link>
+      <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being discussions</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A quieter space to talk with colleagues about balance, stress, and practice health — separate from the main
+          Q&amp;A feed.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {categoryId && (
+            <Link
+              to="/app/qa/ask"
+              search={{ category: categoryId }}
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+            >
+              Start a discussion
+            </Link>
+          )}
+          <Link
+            to="/app/wellness/discussions"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:border-primary/40"
+          >
+            Browse discussions
+          </Link>
+        </div>
       </section>
 
       <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
