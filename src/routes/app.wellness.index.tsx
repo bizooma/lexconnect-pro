@@ -80,38 +80,69 @@ type WellnessCourse = {
 };
 
 function WellnessPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { user } = useAuth();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const { wellness, enabled, loading: wellnessLoading } = useOrgWellness();
+  const { categoryId } = useWellnessCategory();
   const [resources, setResources] = useState<Resource[] | null>(null);
   const [courses, setCourses] = useState<WellnessCourse[]>([]);
+  const [seeding, setSeeding] = useState(false);
+
+  const load = async () => {
+    if (!currentOrgId || !enabled) return;
+    const [{ data: res }, { data: crs }] = await Promise.all([
+      supabase
+        .from("org_wellness_resources")
+        .select("id, kind, title, description, phone, url, event_date")
+        .eq("organization_id", currentOrgId)
+        .order("display_order")
+        .order("created_at"),
+      supabase
+        .from("ce_courses")
+        .select("id, title, description, credit_hours, wellness_credit_note")
+        .eq("organization_id", currentOrgId)
+        .eq("status", "published")
+        .eq("is_wellness", true)
+        .order("title"),
+    ]);
+    setResources((res as Resource[] | null) ?? []);
+    setCourses((crs as WellnessCourse[] | null) ?? []);
+  };
 
   useEffect(() => {
     if (!currentOrgId || !enabled) return;
     let cancelled = false;
     (async () => {
-      const [{ data: res }, { data: crs }] = await Promise.all([
-        supabase
-          .from("org_wellness_resources")
-          .select("id, kind, title, description, phone, url, event_date")
-          .eq("organization_id", currentOrgId)
-          .order("display_order")
-          .order("created_at"),
-        supabase
-          .from("ce_courses")
-          .select("id, title, description, credit_hours, wellness_credit_note")
-          .eq("organization_id", currentOrgId)
-          .eq("status", "published")
-          .eq("is_wellness", true)
-          .order("title"),
-      ]);
-      if (cancelled) return;
-      setResources((res as Resource[] | null) ?? []);
-      setCourses((crs as WellnessCourse[] | null) ?? []);
+      await load();
     })();
     return () => {
       cancelled = true;
     };
   }, [currentOrgId, enabled]);
+
+  const addStarter = async () => {
+    if (!currentOrgId || !user) return;
+    setSeeding(true);
+    const { error } = await supabase.from("org_wellness_resources").insert(
+      STARTER.map((s, i) => ({
+        organization_id: currentOrgId,
+        created_by: user.id,
+        kind: s.kind,
+        title: s.title,
+        description: s.description,
+        url: s.url || null,
+        phone: s.phone || null,
+        display_order: i,
+      })),
+    );
+    setSeeding(false);
+    if (error) {
+      toast.error("Could not add starter resources", { description: error.message });
+      return;
+    }
+    toast.success("Starter resources added");
+    await load();
+  };
 
   if (wellnessLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
   if (!enabled) {
