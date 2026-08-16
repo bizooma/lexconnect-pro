@@ -50,7 +50,7 @@ async function logAdminAction(entry: AuditEntry): Promise<void> {
       action: entry.action,
       target_user_id: entry.targetUserId ?? null,
       target_organization_id: entry.targetOrganizationId ?? null,
-      details: entry.details ?? {},
+      details: (entry.details ?? {}) as never,
       result: entry.result,
       error_message: entry.errorMessage ?? null,
     });
