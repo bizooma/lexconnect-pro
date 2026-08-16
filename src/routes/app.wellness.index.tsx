@@ -255,8 +255,7 @@ function WellnessPage() {
       {/* Q&A link */}
       <section className="mt-8">
         <Link
-          to="/app/qa"
-          search={categoryId ? { category: categoryId } : {}}
+          to="/app/wellness/discussions"
           className="block rounded-2xl border border-border bg-card p-5 shadow-card transition hover:border-primary/40"
         >
           <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being discussions</h2>
