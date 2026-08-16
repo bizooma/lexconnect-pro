@@ -13,6 +13,7 @@ import {
   type QaCategory,
   type QaPost,
 } from "@/lib/qa";
+import { WELLNESS_CATEGORY_SLUG, useWellnessCategory } from "@/hooks/use-wellness-category";
 
 export const Route = createFileRoute("/app/qa/")({
   validateSearch: (s: Record<string, unknown>): { category?: string } => ({
@@ -42,7 +43,9 @@ function QaFeed() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  // Categories
+  const { categoryId: wellnessCategoryId } = useWellnessCategory();
+
+  // Categories (Well-Being lives in its own space)
   useEffect(() => {
     if (!currentOrgId) return;
     supabase
@@ -51,7 +54,13 @@ function QaFeed() {
       .eq("organization_id", currentOrgId)
       .eq("archived", false)
       .order("sort_order")
-      .then(({ data }) => setCategories((data as QaCategory[]) ?? []));
+      .then(({ data }) =>
+        setCategories(
+          ((data as QaCategory[]) ?? []).filter(
+            (c) => c.slug !== WELLNESS_CATEGORY_SLUG && c.name !== "Well-Being",
+          ),
+        ),
+      );
   }, [currentOrgId]);
 
   // Followed + saved posts
