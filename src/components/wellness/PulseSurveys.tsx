@@ -161,15 +161,15 @@ export function PulseSurveys({ orgId }: { orgId: string }) {
 
     setBusy(true);
     if (draft.id) {
-      const patch: Record<string, unknown> = {
+      const patch = {
         title,
         closes_at: draft.closes_at ? new Date(draft.closes_at).toISOString() : null,
+        ...(draft.locked
+          ? {}
+          : { questions, opens_at: new Date(draft.opens_at).toISOString() }),
       };
-      if (!draft.locked) {
-        patch["questions"] = questions;
-        patch["opens_at"] = new Date(draft.opens_at).toISOString();
-      }
       const { error } = await supabase.from("wellness_surveys").update(patch).eq("id", draft.id);
+
       setBusy(false);
       if (error) return toast.error("Save failed", { description: error.message });
     } else {
