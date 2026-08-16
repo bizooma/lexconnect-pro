@@ -2695,6 +2695,10 @@ export type Database = {
       }
       redeem_invite: { Args: { _token: string }; Returns: string }
       redeem_invite_code: { Args: { _code: string }; Returns: string }
+      shares_org_with: {
+        Args: { _other_user: string; _viewer: string }
+        Returns: boolean
+      }
       submit_wellness_response: {
         Args: { _answers: Json; _survey_id: string }
         Returns: undefined
