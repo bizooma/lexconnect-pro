@@ -343,16 +343,29 @@ function WellnessPage() {
       )}
 
       {/* Q&A link */}
-      <section className="mt-8">
-        <Link
-          to="/app/wellness/discussions"
-          className="block rounded-2xl border border-border bg-card p-5 shadow-card transition hover:border-primary/40"
-        >
-          <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being discussions</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Talk with colleagues about balance, stress, and practice health in the community Q&amp;A.
-          </p>
-        </Link>
+      <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-card">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Well-Being discussions</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A quieter space to talk with colleagues about balance, stress, and practice health — separate from the main
+          Q&amp;A feed.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {categoryId && (
+            <Link
+              to="/app/qa/ask"
+              search={{ category: categoryId }}
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+            >
+              Start a discussion
+            </Link>
+          )}
+          <Link
+            to="/app/wellness/discussions"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:border-primary/40"
+          >
+            Browse discussions
+          </Link>
+        </div>
       </section>
 
       <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
