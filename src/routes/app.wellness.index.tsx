@@ -204,11 +204,42 @@ function WellnessPage() {
 
       {/* Resources */}
       <section className="mt-8">
-        <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">Resources</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-serif text-lg font-semibold text-foreground">Resources</h2>
+          {isOrgAdmin && staticResources.length > 0 && (
+            <Link
+              to="/app/org/wellness"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              Manage
+            </Link>
+          )}
+        </div>
         {resources === null ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : staticResources.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No resources published yet.</p>
+          isOrgAdmin ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6">
+              <p className="text-sm text-muted-foreground">
+                No resources published yet. Add a starter set or manage them from the admin area.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button onClick={() => void addStarter()} disabled={seeding} size="sm">
+                  {seeding ? "Adding…" : "Add starter resources"}
+                </Button>
+                <Link
+                  to="/app/org/wellness"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Manage resources
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Your organization hasn’t published resources yet. Check back soon.
+            </p>
+          )
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {staticResources.map((r) => (
