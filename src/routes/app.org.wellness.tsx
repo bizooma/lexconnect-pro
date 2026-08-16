@@ -466,6 +466,9 @@ function WellnessAdminPage() {
           </div>
         </section>
       )}
+        </>
+      )}
     </div>
+
   );
 }
