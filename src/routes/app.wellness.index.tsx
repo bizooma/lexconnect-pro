@@ -87,6 +87,36 @@ function WellnessPage() {
   const [resources, setResources] = useState<Resource[] | null>(null);
   const [courses, setCourses] = useState<WellnessCourse[]>([]);
   const [seeding, setSeeding] = useState(false);
+  const [openSurvey, setOpenSurvey] = useState<{ id: string; title: string } | null>(null);
+  const [surveyDone, setSurveyDone] = useState(false);
+
+  useEffect(() => {
+    if (!currentOrgId || !enabled || !user) return;
+    let cancelled = false;
+    (async () => {
+      const nowIso = new Date().toISOString();
+      const { data: surveys } = await supabase
+        .from("wellness_surveys")
+        .select("id, title, opens_at, closes_at")
+        .eq("organization_id", currentOrgId)
+        .lte("opens_at", nowIso)
+        .order("opens_at", { ascending: false });
+      const open = (surveys ?? []).find((s) => !s.closes_at || s.closes_at >= nowIso);
+      if (cancelled || !open) return;
+      const { data: part } = await supabase
+        .from("wellness_survey_participation")
+        .select("survey_id")
+        .eq("survey_id", open.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (part) setSurveyDone(true);
+      else setOpenSurvey({ id: open.id as string, title: (open.title as string) ?? "Well-Being check-in" });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentOrgId, enabled, user]);
 
   const load = async () => {
     if (!currentOrgId || !enabled) return;
@@ -201,6 +231,23 @@ function WellnessPage() {
           </a>
         </p>
       </section>
+
+      {/* Pulse check-in */}
+      {openSurvey ? (
+        <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <h2 className="font-serif text-lg font-semibold text-foreground">{openSurvey.title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">≈2 minutes · Anonymous</p>
+          <Link
+            to="/app/wellness/pulse/$surveyId"
+            params={{ surveyId: openSurvey.id }}
+            className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:bg-primary/90"
+          >
+            Take the check-in
+          </Link>
+        </section>
+      ) : surveyDone ? (
+        <p className="mt-6 text-sm text-muted-foreground">Thanks — your anonymous response was recorded.</p>
+      ) : null}
 
       {/* Resources */}
       <section className="mt-8">

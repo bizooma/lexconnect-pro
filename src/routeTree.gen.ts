@@ -93,6 +93,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AppWellnessPulseSurveyIdRouteImport } from './routes/app.wellness.pulse.$surveyId'
 import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pages.new'
 import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
 import { Route as AppCeAdminResultsRouteImport } from './routes/app.ce.admin.results'
@@ -531,6 +532,12 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWellnessPulseSurveyIdRoute =
+  AppWellnessPulseSurveyIdRouteImport.update({
+    id: '/pulse/$surveyId',
+    path: '/pulse/$surveyId',
+    getParentRoute: () => AppWellnessRoute,
+  } as any)
 const AppWebsitePagesNewRoute = AppWebsitePagesNewRouteImport.update({
   id: '/pages/new',
   path: '/pages/new',
@@ -678,6 +685,7 @@ export interface FileRoutesByFullPath {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -768,6 +776,7 @@ export interface FileRoutesByTo {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -866,6 +875,7 @@ export interface FileRoutesById {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -965,6 +975,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1055,6 +1066,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1152,6 +1164,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1791,6 +1804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/wellness/pulse/$surveyId': {
+      id: '/app/wellness/pulse/$surveyId'
+      path: '/pulse/$surveyId'
+      fullPath: '/app/wellness/pulse/$surveyId'
+      preLoaderRoute: typeof AppWellnessPulseSurveyIdRouteImport
+      parentRoute: typeof AppWellnessRoute
+    }
     '/app/website/pages/new': {
       id: '/app/website/pages/new'
       path: '/pages/new'
@@ -2019,11 +2039,13 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
 interface AppWellnessRouteChildren {
   AppWellnessDiscussionsRoute: typeof AppWellnessDiscussionsRoute
   AppWellnessIndexRoute: typeof AppWellnessIndexRoute
+  AppWellnessPulseSurveyIdRoute: typeof AppWellnessPulseSurveyIdRoute
 }
 
 const AppWellnessRouteChildren: AppWellnessRouteChildren = {
   AppWellnessDiscussionsRoute: AppWellnessDiscussionsRoute,
   AppWellnessIndexRoute: AppWellnessIndexRoute,
+  AppWellnessPulseSurveyIdRoute: AppWellnessPulseSurveyIdRoute,
 }
 
 const AppWellnessRouteWithChildren = AppWellnessRoute._addFileChildren(
