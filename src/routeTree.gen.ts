@@ -26,6 +26,7 @@ import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-previ
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AppWellnessRouteImport } from './routes/app.wellness'
 import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQaRouteImport } from './routes/app.qa'
@@ -188,6 +189,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/return',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const AppWellnessRoute = AppWellnessRouteImport.update({
+  id: '/wellness',
+  path: '/wellness',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWebsiteRoute = AppWebsiteRouteImport.update({
   id: '/website',
   path: '/website',
@@ -261,9 +267,9 @@ const Char91DotmcpChar93ListToolsRoute =
     getParentRoute: () => rootRouteImport,
   } as any)
 const AppWellnessIndexRoute = AppWellnessIndexRouteImport.update({
-  id: '/wellness/',
-  path: '/wellness/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppWellnessRoute,
 } as any)
 const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
   id: '/',
@@ -606,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
+  '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -791,6 +798,7 @@ export interface FileRoutesById {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
+  '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -888,6 +896,7 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
+    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1072,6 +1081,7 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
+    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1300,6 +1310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/app/wellness': {
+      id: '/app/wellness'
+      path: '/wellness'
+      fullPath: '/app/wellness'
+      preLoaderRoute: typeof AppWellnessRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/website': {
       id: '/app/website'
       path: '/website'
@@ -1400,10 +1417,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/wellness/': {
       id: '/app/wellness/'
-      path: '/wellness'
+      path: '/'
       fullPath: '/app/wellness/'
       preLoaderRoute: typeof AppWellnessIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppWellnessRoute
     }
     '/app/website/': {
       id: '/app/website/'
@@ -1980,6 +1997,18 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
   AppWebsiteRouteChildren,
 )
 
+interface AppWellnessRouteChildren {
+  AppWellnessIndexRoute: typeof AppWellnessIndexRoute
+}
+
+const AppWellnessRouteChildren: AppWellnessRouteChildren = {
+  AppWellnessIndexRoute: AppWellnessIndexRoute,
+}
+
+const AppWellnessRouteWithChildren = AppWellnessRoute._addFileChildren(
+  AppWellnessRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -1992,6 +2021,7 @@ interface AppRouteChildren {
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
+  AppWellnessRoute: typeof AppWellnessRouteWithChildren
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgClientsRoute: typeof AppOrgClientsRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
@@ -2003,7 +2033,6 @@ interface AppRouteChildren {
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
   AppOrgWellnessRoute: typeof AppOrgWellnessRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
-  AppWellnessIndexRoute: typeof AppWellnessIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -2018,6 +2047,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
+  AppWellnessRoute: AppWellnessRouteWithChildren,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgClientsRoute: AppOrgClientsRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
@@ -2029,7 +2059,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgSettingsRoute: AppOrgSettingsRoute,
   AppOrgWellnessRoute: AppOrgWellnessRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
-  AppWellnessIndexRoute: AppWellnessIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
