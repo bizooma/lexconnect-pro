@@ -87,6 +87,36 @@ function WellnessPage() {
   const [resources, setResources] = useState<Resource[] | null>(null);
   const [courses, setCourses] = useState<WellnessCourse[]>([]);
   const [seeding, setSeeding] = useState(false);
+  const [openSurvey, setOpenSurvey] = useState<{ id: string; title: string } | null>(null);
+  const [surveyDone, setSurveyDone] = useState(false);
+
+  useEffect(() => {
+    if (!currentOrgId || !enabled || !user) return;
+    let cancelled = false;
+    (async () => {
+      const nowIso = new Date().toISOString();
+      const { data: surveys } = await supabase
+        .from("wellness_surveys")
+        .select("id, title, opens_at, closes_at")
+        .eq("organization_id", currentOrgId)
+        .lte("opens_at", nowIso)
+        .order("opens_at", { ascending: false });
+      const open = (surveys ?? []).find((s) => !s.closes_at || s.closes_at >= nowIso);
+      if (cancelled || !open) return;
+      const { data: part } = await supabase
+        .from("wellness_survey_participation")
+        .select("survey_id")
+        .eq("survey_id", open.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (part) setSurveyDone(true);
+      else setOpenSurvey({ id: open.id as string, title: (open.title as string) ?? "Well-Being check-in" });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentOrgId, enabled, user]);
 
   const load = async () => {
     if (!currentOrgId || !enabled) return;
