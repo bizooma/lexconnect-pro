@@ -26,7 +26,6 @@ import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-previ
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
-import { Route as AppWellnessRouteImport } from './routes/app.wellness'
 import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQaRouteImport } from './routes/app.qa'
@@ -41,6 +40,7 @@ import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AppWellnessIndexRouteImport } from './routes/app.wellness.index'
 import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
@@ -188,11 +188,6 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/return',
   getParentRoute: () => CheckoutRoute,
 } as any)
-const AppWellnessRoute = AppWellnessRouteImport.update({
-  id: '/wellness',
-  path: '/wellness',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppWebsiteRoute = AppWebsiteRouteImport.update({
   id: '/website',
   path: '/website',
@@ -265,6 +260,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppWellnessIndexRoute = AppWellnessIndexRouteImport.update({
+  id: '/wellness/',
+  path: '/wellness/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -606,7 +606,6 @@ export interface FileRoutesByFullPath {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
-  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -655,6 +654,7 @@ export interface FileRoutesByFullPath {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -696,7 +696,6 @@ export interface FileRoutesByTo {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -744,6 +743,7 @@ export interface FileRoutesByTo {
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
   '/app/website': typeof AppWebsiteIndexRoute
+  '/app/wellness': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -791,7 +791,6 @@ export interface FileRoutesById {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
-  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -840,6 +839,7 @@ export interface FileRoutesById {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -888,7 +888,6 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
-    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -937,6 +936,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -978,7 +978,6 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/settings'
-    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1026,6 +1025,7 @@ export interface FileRouteTypes {
     | '/app/org'
     | '/app/qa'
     | '/app/website'
+    | '/app/wellness'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -1072,7 +1072,6 @@ export interface FileRouteTypes {
     | '/app/qa'
     | '/app/settings'
     | '/app/website'
-    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1121,6 +1120,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -1300,13 +1300,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
     }
-    '/app/wellness': {
-      id: '/app/wellness'
-      path: '/wellness'
-      fullPath: '/app/wellness'
-      preLoaderRoute: typeof AppWellnessRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/website': {
       id: '/app/website'
       path: '/website'
@@ -1404,6 +1397,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.mcp/list-tools'
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/wellness/': {
+      id: '/app/wellness/'
+      path: '/wellness'
+      fullPath: '/app/wellness/'
+      preLoaderRoute: typeof AppWellnessIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/website/': {
       id: '/app/website/'
@@ -1992,7 +1992,6 @@ interface AppRouteChildren {
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
-  AppWellnessRoute: typeof AppWellnessRoute
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgClientsRoute: typeof AppOrgClientsRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
@@ -2004,6 +2003,7 @@ interface AppRouteChildren {
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
   AppOrgWellnessRoute: typeof AppOrgWellnessRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
+  AppWellnessIndexRoute: typeof AppWellnessIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -2018,7 +2018,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
-  AppWellnessRoute: AppWellnessRoute,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgClientsRoute: AppOrgClientsRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,
@@ -2030,6 +2029,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgSettingsRoute: AppOrgSettingsRoute,
   AppOrgWellnessRoute: AppOrgWellnessRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
+  AppWellnessIndexRoute: AppWellnessIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

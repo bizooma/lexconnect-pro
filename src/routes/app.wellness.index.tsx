@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
 
-export const Route = createFileRoute("/app/wellness")({
+export const Route = createFileRoute("/app/wellness/")({
   head: () => ({
     meta: [
       { title: "Well-Being — LexGuild" },
