@@ -50,6 +50,7 @@ import { Route as AppCeIndexRouteImport } from './routes/app.ce.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppWellnessDiscussionsRouteImport } from './routes/app.wellness.discussions'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
 import { Route as AppWebsiteSubmissionsRouteImport } from './routes/app.website.submissions'
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
@@ -310,6 +311,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWellnessDiscussionsRoute = AppWellnessDiscussionsRouteImport.update({
+  id: '/discussions',
+  path: '/discussions',
+  getParentRoute: () => AppWellnessRoute,
 } as any)
 const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
   id: '/templates',
@@ -653,6 +659,7 @@ export interface FileRoutesByFullPath {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -742,6 +749,7 @@ export interface FileRoutesByTo {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -839,6 +847,7 @@ export interface FileRoutesById {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -937,6 +946,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
@@ -1026,6 +1036,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin'
@@ -1122,6 +1133,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
@@ -1477,6 +1489,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/wellness/discussions': {
+      id: '/app/wellness/discussions'
+      path: '/discussions'
+      fullPath: '/app/wellness/discussions'
+      preLoaderRoute: typeof AppWellnessDiscussionsRouteImport
+      parentRoute: typeof AppWellnessRoute
     }
     '/app/website/templates': {
       id: '/app/website/templates'
@@ -1998,10 +2017,12 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
 )
 
 interface AppWellnessRouteChildren {
+  AppWellnessDiscussionsRoute: typeof AppWellnessDiscussionsRoute
   AppWellnessIndexRoute: typeof AppWellnessIndexRoute
 }
 
 const AppWellnessRouteChildren: AppWellnessRouteChildren = {
+  AppWellnessDiscussionsRoute: AppWellnessDiscussionsRoute,
   AppWellnessIndexRoute: AppWellnessIndexRoute,
 }
 
