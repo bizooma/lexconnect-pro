@@ -132,11 +132,13 @@ function QaFeed() {
       rows = rows.filter((p) => p.category_id && matchingCatIds.has(p.category_id));
     }
 
+    if (wellnessCategoryId) rows = rows.filter((p) => p.category_id !== wellnessCategoryId);
+
     setPosts(rows);
     const visibleAuthorIds = rows.filter((p) => !p.is_anonymous).map((p) => p.author_id);
     setAuthors(await fetchProfilesByIds(visibleAuthorIds));
     setLoading(false);
-  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories, myPracticeAreas]);
+  }, [currentOrgId, tab, categoryId, statusFilter, search, followedIds, savedIds, categories, myPracticeAreas, wellnessCategoryId]);
 
   useEffect(() => {
     void refresh();
