@@ -9,6 +9,9 @@ import { ResourceUploader } from "@/components/resources/resource-uploader";
 import type { ResourceRow } from "@/lib/resources";
 
 export const Route = createFileRoute("/app/qa/ask")({
+  validateSearch: (s: Record<string, unknown>): { category?: string } => ({
+    category: typeof s.category === "string" ? s.category : undefined,
+  }),
   component: AskPage,
 });
 
@@ -16,6 +19,7 @@ function AskPage() {
   const { user } = useAuth();
   const { currentOrgId, canWrite } = useCurrentOrg();
   const navigate = useNavigate();
+  const { category: presetCategory } = Route.useSearch();
   const [categories, setCategories] = useState<QaCategory[]>([]);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -39,9 +43,10 @@ function AskPage() {
       .then(({ data }) => {
         const list = (data as QaCategory[]) ?? [];
         setCategories(list);
-        if (list[0]) setCategoryId(list[0].id);
+        if (presetCategory && list.some((c) => c.id === presetCategory)) setCategoryId(presetCategory);
+        else if (list[0]) setCategoryId(list[0].id);
       });
-  }, [currentOrgId]);
+  }, [currentOrgId, presetCategory]);
 
   const addTag = () => {
     const v = tagInput.trim().toLowerCase().replace(/\s+/g, "-").slice(0, 40);

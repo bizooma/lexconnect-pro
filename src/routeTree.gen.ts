@@ -41,6 +41,7 @@ import { Route as AppActivityRouteImport } from './routes/app.activity'
 import { Route as AcceptInviteTokenRouteImport } from './routes/accept-invite.$token'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AppWellnessIndexRouteImport } from './routes/app.wellness.index'
 import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
@@ -49,6 +50,7 @@ import { Route as AppCeIndexRouteImport } from './routes/app.ce.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AppWellnessDiscussionsRouteImport } from './routes/app.wellness.discussions'
 import { Route as AppWebsiteTemplatesRouteImport } from './routes/app.website.templates'
 import { Route as AppWebsiteSubmissionsRouteImport } from './routes/app.website.submissions'
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
@@ -265,6 +267,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppWellnessIndexRoute = AppWellnessIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppWellnessRoute,
+} as any)
 const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -304,6 +311,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWellnessDiscussionsRoute = AppWellnessDiscussionsRouteImport.update({
+  id: '/discussions',
+  path: '/discussions',
+  getParentRoute: () => AppWellnessRoute,
 } as any)
 const AppWebsiteTemplatesRoute = AppWebsiteTemplatesRouteImport.update({
   id: '/templates',
@@ -606,7 +618,7 @@ export interface FileRoutesByFullPath {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
-  '/app/wellness': typeof AppWellnessRoute
+  '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -647,6 +659,7 @@ export interface FileRoutesByFullPath {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -655,6 +668,7 @@ export interface FileRoutesByFullPath {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -696,7 +710,6 @@ export interface FileRoutesByTo {
   '/app/discover': typeof AppDiscoverRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/wellness': typeof AppWellnessRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -736,6 +749,7 @@ export interface FileRoutesByTo {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin': typeof AppAdminIndexRoute
@@ -744,6 +758,7 @@ export interface FileRoutesByTo {
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
   '/app/website': typeof AppWebsiteIndexRoute
+  '/app/wellness': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -791,7 +806,7 @@ export interface FileRoutesById {
   '/app/qa': typeof AppQaRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
-  '/app/wellness': typeof AppWellnessRoute
+  '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
@@ -832,6 +847,7 @@ export interface FileRoutesById {
   '/app/website/settings': typeof AppWebsiteSettingsRoute
   '/app/website/submissions': typeof AppWebsiteSubmissionsRoute
   '/app/website/templates': typeof AppWebsiteTemplatesRoute
+  '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
   '/app/admin/': typeof AppAdminIndexRoute
@@ -840,6 +856,7 @@ export interface FileRoutesById {
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
+  '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
   '/api/public/hooks/qa-digest': typeof ApiPublicHooksQaDigestRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -929,6 +946,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
@@ -937,6 +955,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -978,7 +997,6 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/meetings'
     | '/app/settings'
-    | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
@@ -1018,6 +1036,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin'
@@ -1026,6 +1045,7 @@ export interface FileRouteTypes {
     | '/app/org'
     | '/app/qa'
     | '/app/website'
+    | '/app/wellness'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -1113,6 +1133,7 @@ export interface FileRouteTypes {
     | '/app/website/settings'
     | '/app/website/submissions'
     | '/app/website/templates'
+    | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
     | '/app/admin/'
@@ -1121,6 +1142,7 @@ export interface FileRouteTypes {
     | '/app/org/'
     | '/app/qa/'
     | '/app/website/'
+    | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
     | '/api/public/hooks/qa-digest'
     | '/api/public/payments/webhook'
@@ -1405,6 +1427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/wellness/': {
+      id: '/app/wellness/'
+      path: '/'
+      fullPath: '/app/wellness/'
+      preLoaderRoute: typeof AppWellnessIndexRouteImport
+      parentRoute: typeof AppWellnessRoute
+    }
     '/app/website/': {
       id: '/app/website/'
       path: '/'
@@ -1460,6 +1489,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/wellness/discussions': {
+      id: '/app/wellness/discussions'
+      path: '/discussions'
+      fullPath: '/app/wellness/discussions'
+      preLoaderRoute: typeof AppWellnessDiscussionsRouteImport
+      parentRoute: typeof AppWellnessRoute
     }
     '/app/website/templates': {
       id: '/app/website/templates'
@@ -1980,6 +2016,20 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
   AppWebsiteRouteChildren,
 )
 
+interface AppWellnessRouteChildren {
+  AppWellnessDiscussionsRoute: typeof AppWellnessDiscussionsRoute
+  AppWellnessIndexRoute: typeof AppWellnessIndexRoute
+}
+
+const AppWellnessRouteChildren: AppWellnessRouteChildren = {
+  AppWellnessDiscussionsRoute: AppWellnessDiscussionsRoute,
+  AppWellnessIndexRoute: AppWellnessIndexRoute,
+}
+
+const AppWellnessRouteWithChildren = AppWellnessRoute._addFileChildren(
+  AppWellnessRouteChildren,
+)
+
 interface AppRouteChildren {
   AppActivityRoute: typeof AppActivityRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
@@ -1992,7 +2042,7 @@ interface AppRouteChildren {
   AppQaRoute: typeof AppQaRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
-  AppWellnessRoute: typeof AppWellnessRoute
+  AppWellnessRoute: typeof AppWellnessRouteWithChildren
   AppOrgBillingRoute: typeof AppOrgBillingRoute
   AppOrgClientsRoute: typeof AppOrgClientsRoute
   AppOrgInsightsRoute: typeof AppOrgInsightsRoute
@@ -2018,7 +2068,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppQaRoute: AppQaRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
-  AppWellnessRoute: AppWellnessRoute,
+  AppWellnessRoute: AppWellnessRouteWithChildren,
   AppOrgBillingRoute: AppOrgBillingRoute,
   AppOrgClientsRoute: AppOrgClientsRoute,
   AppOrgInsightsRoute: AppOrgInsightsRoute,

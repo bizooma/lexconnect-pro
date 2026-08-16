@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { useWellnessCategory } from "@/hooks/use-wellness-category";
 import { fetchProfilesByIds, sanitizeQaSearch, timeAgo, type QaPost, type QaReply } from "@/lib/qa";
 
 export const Route = createFileRoute("/app/qa/search")({
@@ -12,6 +13,7 @@ type ReplyHit = QaReply & { post_title?: string };
 
 function QaSearch() {
   const { currentOrgId } = useCurrentOrg();
+  const { categoryId: wellnessCategoryId } = useWellnessCategory();
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [posts, setPosts] = useState<QaPost[]>([]);
@@ -74,6 +76,18 @@ function QaSearch() {
         replyList = replyList.map((r) => ({ ...r, post_title: postList.find((p) => p.id === r.post_id)?.title }));
       }
 
+      if (wellnessCategoryId) {
+        postList = postList.filter((p) => p.category_id !== wellnessCategoryId);
+        const excluded = new Set<string>();
+        const { data: wellnessPostIds } = await supabase
+          .from("qa_posts")
+          .select("id")
+          .eq("organization_id", currentOrgId)
+          .eq("category_id", wellnessCategoryId);
+        (wellnessPostIds ?? []).forEach((p: any) => excluded.add(p.id));
+        replyList = replyList.filter((r) => !excluded.has(r.post_id));
+      }
+
       setPosts(postList);
       setReplies(replyList);
       const ids = [
@@ -83,7 +97,7 @@ function QaSearch() {
       setAuthors(await fetchProfilesByIds(ids));
       setLoading(false);
     })();
-  }, [currentOrgId, submitted]);
+  }, [currentOrgId, submitted, wellnessCategoryId]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8 lg:py-10">

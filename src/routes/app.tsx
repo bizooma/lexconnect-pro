@@ -58,12 +58,10 @@ function AppLayout() {
   const brandName = portalName ?? currentOrg?.name ?? null;
 
 
-  const coreNav: NavItem[] = [
-    ...CORE_NAV_DEF.map((i) => ({ ...i, enabled: true })),
-    ...(wellnessEnabled
-      ? [{ to: "/app/wellness", label: "Well-Being", icon: HeartIcon, enabled: true }]
-      : []),
-  ];
+  const coreNav: NavItem[] = CORE_NAV_DEF.map((i) => ({ ...i, enabled: true }));
+  const supportNav: NavItem[] = wellnessEnabled
+    ? [{ to: "/app/wellness", label: "Well-Being", icon: HeartIcon, enabled: true }]
+    : [];
   const addonNav: NavItem[] = [
     {
       to: "/app/website",
@@ -227,6 +225,13 @@ function AppLayout() {
         <nav className="flex-1 overflow-y-auto px-3 pb-3">
           <SectionLabel>Mentorship & Community</SectionLabel>
           <div className="space-y-1">{coreNav.map(renderDesktopItem)}</div>
+
+          {supportNav.length > 0 && (
+            <>
+              <SectionLabel>Support</SectionLabel>
+              <div className="space-y-1">{supportNav.map(renderDesktopItem)}</div>
+            </>
+          )}
 
           {orgNav.length > 0 && (
             <>
