@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { PulseSurveys } from "@/components/wellness/PulseSurveys";
 
 export const Route = createFileRoute("/app/org/wellness")({
   head: () => ({
@@ -97,6 +98,7 @@ function WellnessAdminPage() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"resources" | "surveys">("resources");
 
   const load = useCallback(async () => {
     if (!currentOrgId) return;
