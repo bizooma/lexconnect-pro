@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { PulseSurveys } from "@/components/wellness/PulseSurveys";
 
 export const Route = createFileRoute("/app/org/wellness")({
   head: () => ({
@@ -97,6 +98,7 @@ function WellnessAdminPage() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"resources" | "surveys">("resources");
 
   const load = useCallback(async () => {
     if (!currentOrgId) return;
@@ -253,7 +255,28 @@ function WellnessAdminPage() {
         </p>
       </header>
 
+      <div className="flex gap-2 border-b border-border">
+        {(["resources", "surveys"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+              tab === t
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t === "resources" ? "Resources" : "Pulse surveys"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "surveys" && <PulseSurveys orgId={currentOrgId} />}
+
+      {tab === "resources" && (
+        <>
       <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-serif text-lg font-semibold text-foreground">Items</h2>
           <div className="flex gap-2">
@@ -445,6 +468,9 @@ function WellnessAdminPage() {
           </div>
         </section>
       )}
+        </>
+      )}
     </div>
+
   );
 }
