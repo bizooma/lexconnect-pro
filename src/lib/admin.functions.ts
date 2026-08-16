@@ -362,7 +362,7 @@ export const createUserAndAssignOrgSafe = createServerFn({ method: "POST" })
         .eq("user_id", userId)
         .maybeSingle();
       if (existingProfile) {
-        const patch: Record<string, unknown> = {};
+        const patch: { organization_id?: string; full_name?: string } = {};
         if (existingProfile.organization_id == null) patch.organization_id = data.organizationId;
         if (data.fullName) patch.full_name = data.fullName;
         if (Object.keys(patch).length > 0) {
