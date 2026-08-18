@@ -7,6 +7,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
 import { useWellnessCategory } from "@/hooks/use-wellness-category";
+import { FocusAreasCard } from "@/components/wellness/FocusAreasCard";
+import {
+  ChallengeCard,
+  type ChallengeStats,
+  type ChallengeSummary,
+} from "@/components/wellness/ChallengeCard";
 
 export const Route = createFileRoute("/app/wellness/")({
   head: () => ({
@@ -37,6 +43,7 @@ type Resource = {
   phone: string | null;
   url: string | null;
   event_date: string | null;
+  dimension: string | null;
 };
 
 const STARTER: Array<Pick<Resource, "kind" | "title" | "description" | "url" | "phone">> = [
@@ -89,6 +96,10 @@ function WellnessPage() {
   const [seeding, setSeeding] = useState(false);
   const [openSurvey, setOpenSurvey] = useState<{ id: string; title: string } | null>(null);
   const [surveyDone, setSurveyDone] = useState(false);
+  const [prefs, setPrefs] = useState<string[] | null>(null);
+  const [challenges, setChallenges] = useState<ChallengeSummary[]>([]);
+  const [statsMap, setStatsMap] = useState<Record<string, ChallengeStats>>({});
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentOrgId || !enabled || !user) return;
@@ -120,10 +131,11 @@ function WellnessPage() {
 
   const load = async () => {
     if (!currentOrgId || !enabled) return;
-    const [{ data: res }, { data: crs }] = await Promise.all([
+    const today = new Date().toISOString().slice(0, 10);
+    const [{ data: res }, { data: crs }, { data: chs }, prefRes] = await Promise.all([
       supabase
         .from("org_wellness_resources")
-        .select("id, kind, title, description, phone, url, event_date")
+        .select("id, kind, title, description, phone, url, event_date, dimension")
         .eq("organization_id", currentOrgId)
         .order("display_order")
         .order("created_at"),
@@ -134,9 +146,49 @@ function WellnessPage() {
         .eq("status", "published")
         .eq("is_wellness", true)
         .order("title"),
+      supabase
+        .from("wellness_challenges")
+        .select("id, title, description, dimensions, kind, goal_value, unit, starts_on, ends_on")
+        .eq("organization_id", currentOrgId)
+        .eq("status", "active")
+        .gte("ends_on", today)
+        .order("starts_on"),
+      user
+        ? supabase
+            .from("wellness_preferences")
+            .select("dimension")
+            .eq("organization_id", currentOrgId)
+            .eq("user_id", user.id)
+        : Promise.resolve({ data: [] as { dimension: string }[] }),
     ]);
     setResources((res as Resource[] | null) ?? []);
     setCourses((crs as WellnessCourse[] | null) ?? []);
+    setPrefs(((prefRes.data as { dimension: string }[] | null) ?? []).map((p) => p.dimension));
+
+    const list = (chs as ChallengeSummary[] | null) ?? [];
+    setChallenges(list);
+    const entries = await Promise.all(
+      list.map(async (c) => {
+        const { data } = await supabase.rpc("get_challenge_stats", { _challenge_id: c.id });
+        return [c.id, data as unknown as ChallengeStats] as const;
+      }),
+    );
+    setStatsMap(Object.fromEntries(entries.filter(([, s]) => Boolean(s))));
+  };
+
+  const joinChallenge = async (id: string) => {
+    if (!user || !currentOrgId) return;
+    setJoiningId(id);
+    const { error } = await supabase
+      .from("wellness_challenge_participants")
+      .insert({ challenge_id: id, user_id: user.id, organization_id: currentOrgId });
+    setJoiningId(null);
+    if (error) {
+      toast.error("Could not join", { description: error.message });
+      return;
+    }
+    toast.success("You’re in");
+    await load();
   };
 
   useEffect(() => {
@@ -148,7 +200,7 @@ function WellnessPage() {
     return () => {
       cancelled = true;
     };
-  }, [currentOrgId, enabled]);
+  }, [currentOrgId, enabled, user]);
 
   const addStarter = async () => {
     if (!currentOrgId || !user) return;
@@ -188,7 +240,19 @@ function WellnessPage() {
 
   const lapName = wellness?.lap_name || "your Lawyer Assistance Program";
   const now = new Date().toISOString();
-  const staticResources = (resources ?? []).filter((r) => r.kind === "resource");
+  const picks = prefs ?? [];
+  const personalized = picks.length > 0;
+  const allResources = (resources ?? []).filter((r) => r.kind === "resource");
+  const matchedResources = personalized
+    ? allResources.filter((r) => r.dimension && picks.includes(r.dimension))
+    : [];
+  const staticResources = personalized
+    ? [...matchedResources, ...allResources.filter((r) => !matchedResources.includes(r))]
+    : allResources;
+  const matchedChallenges = personalized
+    ? challenges.filter((c) => (c.dimensions ?? []).some((d) => picks.includes(d)))
+    : [];
+  const otherChallenges = challenges.filter((c) => !matchedChallenges.includes(c));
   const programs = (resources ?? [])
     .filter((r) => r.kind === "program" && r.event_date && r.event_date >= now)
     .sort((a, b) => (a.event_date! < b.event_date! ? -1 : 1));
@@ -248,6 +312,100 @@ function WellnessPage() {
       ) : surveyDone ? (
         <p className="mt-6 text-sm text-muted-foreground">Thanks — your anonymous response was recorded.</p>
       ) : null}
+
+      {/* Focus areas */}
+      {currentOrgId && (
+        <FocusAreasCard orgId={currentOrgId} selected={prefs} onChange={(next) => setPrefs(next)} />
+      )}
+
+      {/* My well-being plan */}
+      {personalized && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">My well-being plan</h2>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(picks.includes("professional_development") || picks.includes("career_satisfaction")) && (
+              <article className="rounded-2xl border border-border bg-card p-4 shadow-card">
+                <h3 className="font-serif text-base font-semibold text-foreground">Grow your practice</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Continuing education and mentorship connections that match your focus.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to="/app/ce/catalog"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Browse CLE catalog
+                  </Link>
+                  <Link
+                    to="/app/discover"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Find a mentor
+                  </Link>
+                </div>
+              </article>
+            )}
+            {picks.includes("social_connection") && (
+              <article className="rounded-2xl border border-border bg-card p-4 shadow-card">
+                <h3 className="font-serif text-base font-semibold text-foreground">Connect with colleagues</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Meet-5-style challenges, your member directory, and mentorship — small steps, real connection.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to="/app/directory"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Member directory
+                  </Link>
+                  <Link
+                    to="/app/discover"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Mentorship
+                  </Link>
+                </div>
+              </article>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Challenges */}
+      {challenges.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">
+            {matchedChallenges.length > 0 ? "Challenges for you" : "Challenges"}
+          </h2>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(matchedChallenges.length > 0 ? matchedChallenges : challenges).map((c) => (
+              <ChallengeCard
+                key={c.id}
+                challenge={c}
+                stats={statsMap[c.id]}
+                onJoin={joinChallenge}
+                joining={joiningId === c.id}
+              />
+            ))}
+          </div>
+          {matchedChallenges.length > 0 && otherChallenges.length > 0 && (
+            <>
+              <h3 className="mb-3 mt-6 text-sm font-semibold text-muted-foreground">All challenges</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {otherChallenges.map((c) => (
+                  <ChallengeCard
+                    key={c.id}
+                    challenge={c}
+                    stats={statsMap[c.id]}
+                    onJoin={joinChallenge}
+                    joining={joiningId === c.id}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )}
 
       {/* Resources */}
       <section className="mt-8">

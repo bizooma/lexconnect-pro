@@ -94,6 +94,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as AppWellnessPulseSurveyIdRouteImport } from './routes/app.wellness.pulse.$surveyId'
+import { Route as AppWellnessChallengesChallengeIdRouteImport } from './routes/app.wellness.challenges.$challengeId'
 import { Route as AppWebsitePagesNewRouteImport } from './routes/app.website.pages.new'
 import { Route as AppWebsitePagesPageIdRouteImport } from './routes/app.website.pages.$pageId'
 import { Route as AppCeAdminResultsRouteImport } from './routes/app.ce.admin.results'
@@ -538,6 +539,12 @@ const AppWellnessPulseSurveyIdRoute =
     path: '/pulse/$surveyId',
     getParentRoute: () => AppWellnessRoute,
   } as any)
+const AppWellnessChallengesChallengeIdRoute =
+  AppWellnessChallengesChallengeIdRouteImport.update({
+    id: '/challenges/$challengeId',
+    path: '/challenges/$challengeId',
+    getParentRoute: () => AppWellnessRoute,
+  } as any)
 const AppWebsitePagesNewRoute = AppWebsitePagesNewRouteImport.update({
   id: '/pages/new',
   path: '/pages/new',
@@ -685,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/challenges/$challengeId': typeof AppWellnessChallengesChallengeIdRoute
   '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -776,6 +784,7 @@ export interface FileRoutesByTo {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/challenges/$challengeId': typeof AppWellnessChallengesChallengeIdRoute
   '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -875,6 +884,7 @@ export interface FileRoutesById {
   '/app/ce/admin/results': typeof AppCeAdminResultsRoute
   '/app/website/pages/$pageId': typeof AppWebsitePagesPageIdRouteWithChildren
   '/app/website/pages/new': typeof AppWebsitePagesNewRoute
+  '/app/wellness/challenges/$challengeId': typeof AppWellnessChallengesChallengeIdRoute
   '/app/wellness/pulse/$surveyId': typeof AppWellnessPulseSurveyIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -975,6 +985,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/challenges/$challengeId'
     | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1066,6 +1077,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/challenges/$challengeId'
     | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1164,6 +1176,7 @@ export interface FileRouteTypes {
     | '/app/ce/admin/results'
     | '/app/website/pages/$pageId'
     | '/app/website/pages/new'
+    | '/app/wellness/challenges/$challengeId'
     | '/app/wellness/pulse/$surveyId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1811,6 +1824,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWellnessPulseSurveyIdRouteImport
       parentRoute: typeof AppWellnessRoute
     }
+    '/app/wellness/challenges/$challengeId': {
+      id: '/app/wellness/challenges/$challengeId'
+      path: '/challenges/$challengeId'
+      fullPath: '/app/wellness/challenges/$challengeId'
+      preLoaderRoute: typeof AppWellnessChallengesChallengeIdRouteImport
+      parentRoute: typeof AppWellnessRoute
+    }
     '/app/website/pages/new': {
       id: '/app/website/pages/new'
       path: '/pages/new'
@@ -2039,12 +2059,14 @@ const AppWebsiteRouteWithChildren = AppWebsiteRoute._addFileChildren(
 interface AppWellnessRouteChildren {
   AppWellnessDiscussionsRoute: typeof AppWellnessDiscussionsRoute
   AppWellnessIndexRoute: typeof AppWellnessIndexRoute
+  AppWellnessChallengesChallengeIdRoute: typeof AppWellnessChallengesChallengeIdRoute
   AppWellnessPulseSurveyIdRoute: typeof AppWellnessPulseSurveyIdRoute
 }
 
 const AppWellnessRouteChildren: AppWellnessRouteChildren = {
   AppWellnessDiscussionsRoute: AppWellnessDiscussionsRoute,
   AppWellnessIndexRoute: AppWellnessIndexRoute,
+  AppWellnessChallengesChallengeIdRoute: AppWellnessChallengesChallengeIdRoute,
   AppWellnessPulseSurveyIdRoute: AppWellnessPulseSurveyIdRoute,
 }
 
