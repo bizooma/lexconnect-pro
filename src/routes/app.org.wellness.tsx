@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PulseSurveys } from "@/components/wellness/PulseSurveys";
+import { ChallengesAdmin } from "@/components/wellness/ChallengesAdmin";
 
 export const Route = createFileRoute("/app/org/wellness")({
   head: () => ({
@@ -98,7 +99,7 @@ function WellnessAdminPage() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"resources" | "surveys">("resources");
+  const [tab, setTab] = useState<"resources" | "surveys" | "challenges">("resources");
 
   const load = useCallback(async () => {
     if (!currentOrgId) return;
@@ -256,7 +257,7 @@ function WellnessAdminPage() {
       </header>
 
       <div className="flex gap-2 border-b border-border">
-        {(["resources", "surveys"] as const).map((t) => (
+        {(["resources", "surveys", "challenges"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -266,12 +267,14 @@ function WellnessAdminPage() {
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t === "resources" ? "Resources" : "Pulse surveys"}
+            {t === "resources" ? "Resources" : t === "surveys" ? "Pulse surveys" : "Challenges"}
           </button>
         ))}
       </div>
 
       {tab === "surveys" && <PulseSurveys orgId={currentOrgId} />}
+      {tab === "challenges" && <ChallengesAdmin orgId={currentOrgId} />}
+
 
       {tab === "resources" && (
         <>
