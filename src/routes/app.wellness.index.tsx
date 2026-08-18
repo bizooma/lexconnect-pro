@@ -7,6 +7,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
 import { useWellnessCategory } from "@/hooks/use-wellness-category";
+import { FocusAreasCard } from "@/components/wellness/FocusAreasCard";
+import {
+  ChallengeCard,
+  type ChallengeStats,
+  type ChallengeSummary,
+} from "@/components/wellness/ChallengeCard";
 
 export const Route = createFileRoute("/app/wellness/")({
   head: () => ({
