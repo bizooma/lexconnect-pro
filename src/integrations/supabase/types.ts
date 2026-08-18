@@ -1162,6 +1162,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          dimension: string | null
           display_order: number
           event_date: string | null
           id: string
@@ -1176,6 +1177,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          dimension?: string | null
           display_order?: number
           event_date?: string | null
           id?: string
@@ -1190,6 +1192,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          dimension?: string | null
           display_order?: number
           event_date?: string | null
           id?: string
@@ -2510,6 +2513,159 @@ export type Database = {
         }
         Relationships: []
       }
+      wellness_challenge_checkins: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          occurred_on: string
+          organization_id: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          occurred_on?: string
+          organization_id: string
+          user_id: string
+          value?: number
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          occurred_on?: string
+          organization_id?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_challenge_checkins_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_challenge_participants: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          joined_at: string
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          joined_at?: string
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          joined_at?: string
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_challenges: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          dimensions: string[]
+          ends_on: string
+          goal_value: number | null
+          id: string
+          kind: string
+          organization_id: string
+          starts_on: string
+          status: string
+          template_key: string | null
+          title: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          dimensions?: string[]
+          ends_on: string
+          goal_value?: number | null
+          id?: string
+          kind: string
+          organization_id: string
+          starts_on: string
+          status?: string
+          template_key?: string | null
+          title: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          dimensions?: string[]
+          ends_on?: string
+          goal_value?: number | null
+          id?: string
+          kind?: string
+          organization_id?: string
+          starts_on?: string
+          status?: string
+          template_key?: string | null
+          title?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_challenges_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_preferences: {
+        Row: {
+          created_at: string
+          dimension: string
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dimension: string
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dimension?: string
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wellness_survey_answers: {
         Row: {
           answers: Json
@@ -2625,6 +2781,10 @@ export type Database = {
         Args: { _course_id: string; _user_id: string }
         Returns: boolean
       }
+      challenge_in_org: {
+        Args: { _challenge_id: string; _org_id: string }
+        Returns: boolean
+      }
       contact_in_org: {
         Args: { _contact_id: string; _org_id: string }
         Returns: boolean
@@ -2648,6 +2808,11 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
+      get_wellness_interest_aggregates: {
+        Args: { _org: string }
+        Returns: Json
       }
       get_wellness_results: { Args: { _survey_id: string }; Returns: Json }
       has_role: {
@@ -2703,6 +2868,7 @@ export type Database = {
         Args: { _answers: Json; _survey_id: string }
         Returns: undefined
       }
+      wellness_dimensions: { Args: never; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "member"
