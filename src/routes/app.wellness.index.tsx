@@ -131,10 +131,11 @@ function WellnessPage() {
 
   const load = async () => {
     if (!currentOrgId || !enabled) return;
-    const [{ data: res }, { data: crs }] = await Promise.all([
+    const today = new Date().toISOString().slice(0, 10);
+    const [{ data: res }, { data: crs }, { data: chs }, prefRes] = await Promise.all([
       supabase
         .from("org_wellness_resources")
-        .select("id, kind, title, description, phone, url, event_date")
+        .select("id, kind, title, description, phone, url, event_date, dimension")
         .eq("organization_id", currentOrgId)
         .order("display_order")
         .order("created_at"),
@@ -145,9 +146,49 @@ function WellnessPage() {
         .eq("status", "published")
         .eq("is_wellness", true)
         .order("title"),
+      supabase
+        .from("wellness_challenges")
+        .select("id, title, description, dimensions, kind, goal_value, unit, starts_on, ends_on")
+        .eq("organization_id", currentOrgId)
+        .eq("status", "active")
+        .gte("ends_on", today)
+        .order("starts_on"),
+      user
+        ? supabase
+            .from("wellness_preferences")
+            .select("dimension")
+            .eq("organization_id", currentOrgId)
+            .eq("user_id", user.id)
+        : Promise.resolve({ data: [] as { dimension: string }[] }),
     ]);
     setResources((res as Resource[] | null) ?? []);
     setCourses((crs as WellnessCourse[] | null) ?? []);
+    setPrefs(((prefRes.data as { dimension: string }[] | null) ?? []).map((p) => p.dimension));
+
+    const list = (chs as ChallengeSummary[] | null) ?? [];
+    setChallenges(list);
+    const entries = await Promise.all(
+      list.map(async (c) => {
+        const { data } = await supabase.rpc("get_challenge_stats", { _challenge_id: c.id });
+        return [c.id, data as unknown as ChallengeStats] as const;
+      }),
+    );
+    setStatsMap(Object.fromEntries(entries.filter(([, s]) => Boolean(s))));
+  };
+
+  const joinChallenge = async (id: string) => {
+    if (!user || !currentOrgId) return;
+    setJoiningId(id);
+    const { error } = await supabase
+      .from("wellness_challenge_participants")
+      .insert({ challenge_id: id, user_id: user.id, organization_id: currentOrgId });
+    setJoiningId(null);
+    if (error) {
+      toast.error("Could not join", { description: error.message });
+      return;
+    }
+    toast.success("You’re in");
+    await load();
   };
 
   useEffect(() => {
