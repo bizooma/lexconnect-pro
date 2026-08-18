@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PulseSurveys } from "@/components/wellness/PulseSurveys";
+import { ChallengesAdmin } from "@/components/wellness/ChallengesAdmin";
 
 export const Route = createFileRoute("/app/org/wellness")({
   head: () => ({
