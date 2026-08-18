@@ -43,6 +43,7 @@ type Resource = {
   phone: string | null;
   url: string | null;
   event_date: string | null;
+  dimension: string | null;
 };
 
 const STARTER: Array<Pick<Resource, "kind" | "title" | "description" | "url" | "phone">> = [
@@ -95,6 +96,10 @@ function WellnessPage() {
   const [seeding, setSeeding] = useState(false);
   const [openSurvey, setOpenSurvey] = useState<{ id: string; title: string } | null>(null);
   const [surveyDone, setSurveyDone] = useState(false);
+  const [prefs, setPrefs] = useState<string[] | null>(null);
+  const [challenges, setChallenges] = useState<ChallengeSummary[]>([]);
+  const [statsMap, setStatsMap] = useState<Record<string, ChallengeStats>>({});
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentOrgId || !enabled || !user) return;
