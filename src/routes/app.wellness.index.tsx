@@ -200,7 +200,7 @@ function WellnessPage() {
     return () => {
       cancelled = true;
     };
-  }, [currentOrgId, enabled]);
+  }, [currentOrgId, enabled, user]);
 
   const addStarter = async () => {
     if (!currentOrgId || !user) return;
@@ -240,7 +240,19 @@ function WellnessPage() {
 
   const lapName = wellness?.lap_name || "your Lawyer Assistance Program";
   const now = new Date().toISOString();
-  const staticResources = (resources ?? []).filter((r) => r.kind === "resource");
+  const picks = prefs ?? [];
+  const personalized = picks.length > 0;
+  const allResources = (resources ?? []).filter((r) => r.kind === "resource");
+  const matchedResources = personalized
+    ? allResources.filter((r) => r.dimension && picks.includes(r.dimension))
+    : [];
+  const staticResources = personalized
+    ? [...matchedResources, ...allResources.filter((r) => !matchedResources.includes(r))]
+    : allResources;
+  const matchedChallenges = personalized
+    ? challenges.filter((c) => (c.dimensions ?? []).some((d) => picks.includes(d)))
+    : [];
+  const otherChallenges = challenges.filter((c) => !matchedChallenges.includes(c));
   const programs = (resources ?? [])
     .filter((r) => r.kind === "program" && r.event_date && r.event_date >= now)
     .sort((a, b) => (a.event_date! < b.event_date! ? -1 : 1));
