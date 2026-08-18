@@ -313,6 +313,100 @@ function WellnessPage() {
         <p className="mt-6 text-sm text-muted-foreground">Thanks — your anonymous response was recorded.</p>
       ) : null}
 
+      {/* Focus areas */}
+      {currentOrgId && (
+        <FocusAreasCard orgId={currentOrgId} selected={prefs} onChange={(next) => setPrefs(next)} />
+      )}
+
+      {/* My well-being plan */}
+      {personalized && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">My well-being plan</h2>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(picks.includes("professional_development") || picks.includes("career_satisfaction")) && (
+              <article className="rounded-2xl border border-border bg-card p-4 shadow-card">
+                <h3 className="font-serif text-base font-semibold text-foreground">Grow your practice</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Continuing education and mentorship connections that match your focus.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to="/app/ce/catalog"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Browse CLE catalog
+                  </Link>
+                  <Link
+                    to="/app/discover"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Find a mentor
+                  </Link>
+                </div>
+              </article>
+            )}
+            {picks.includes("social_connection") && (
+              <article className="rounded-2xl border border-border bg-card p-4 shadow-card">
+                <h3 className="font-serif text-base font-semibold text-foreground">Connect with colleagues</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Meet-5-style challenges, your member directory, and mentorship — small steps, real connection.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to="/app/directory"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Member directory
+                  </Link>
+                  <Link
+                    to="/app/discover"
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary/40"
+                  >
+                    Mentorship
+                  </Link>
+                </div>
+              </article>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Challenges */}
+      {challenges.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">
+            {matchedChallenges.length > 0 ? "Challenges for you" : "Challenges"}
+          </h2>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(matchedChallenges.length > 0 ? matchedChallenges : challenges).map((c) => (
+              <ChallengeCard
+                key={c.id}
+                challenge={c}
+                stats={statsMap[c.id]}
+                onJoin={joinChallenge}
+                joining={joiningId === c.id}
+              />
+            ))}
+          </div>
+          {matchedChallenges.length > 0 && otherChallenges.length > 0 && (
+            <>
+              <h3 className="mb-3 mt-6 text-sm font-semibold text-muted-foreground">All challenges</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {otherChallenges.map((c) => (
+                  <ChallengeCard
+                    key={c.id}
+                    challenge={c}
+                    stats={statsMap[c.id]}
+                    onJoin={joinChallenge}
+                    joining={joiningId === c.id}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
       {/* Resources */}
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between gap-3">
