@@ -243,7 +243,17 @@ function RootComponent() {
 
 function PortalAwareVideoAsk() {
   const { portal, loading } = usePortalTheme();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
   if (loading || portal) return null;
+
+  const isPublicMarketingPage =
+    pathname === "/" ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/terms");
+
+  if (!isPublicMarketingPage) return null;
+
   return <VideoAskWidget />;
 }
 
