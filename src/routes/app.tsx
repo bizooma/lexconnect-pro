@@ -399,7 +399,27 @@ function MobileMoreMenu({
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Add-ons</p>
+            <>
+              <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Sponsors</p>
+              <div className="space-y-1">
+                {sponsorsNav.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname.startsWith(item.to);
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+            <p className="px-1 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Add-ons</p>
             <div className="space-y-1">
               {addonNav.map((item) => {
                 const Icon = item.icon;
