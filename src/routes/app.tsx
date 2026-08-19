@@ -369,11 +369,13 @@ function AppLayout() {
 }
 
 function MobileMoreMenu({
+  sponsorsNav,
   addonNav,
   platformNav,
   pathname,
   onLocked,
 }: {
+  sponsorsNav: NavItem[];
   addonNav: NavItem[];
   platformNav: NavItem[];
   pathname: string;
