@@ -125,6 +125,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           }
         }
 
+        // Sponsor directories for orgs that have at least one active sponsor
+        const { data: sponsorRows } = await supabaseAdmin
+          .from("org_sponsors")
+          .select("organization_id")
+          .eq("status", "active");
+        if (sponsorRows && orgsRes.data) {
+          const orgMap = new Map(orgsRes.data.map((o) => [o.id, o]));
+          for (const orgId of new Set(sponsorRows.map((r) => r.organization_id))) {
+            const org = orgMap.get(orgId);
+            if (!org || org.paused) continue;
+            entries.push({ loc: `${base}/p/${org.slug}/sponsors`, changefreq: "monthly", priority: "0.6" });
+          }
+        }
+
         return new Response(render(entries), {
           headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
         });
