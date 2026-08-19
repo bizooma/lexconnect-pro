@@ -44,7 +44,6 @@ const CORE_NAV_DEF = [
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
-  { to: "/app/sponsors", label: "Sponsors", icon: TagIcon },
 ] as const;
 
 function AppLayout() {
@@ -64,6 +63,15 @@ function AppLayout() {
   const supportNav: NavItem[] = wellnessEnabled
     ? [{ to: "/app/wellness", label: "Well-Being", icon: HeartIcon, enabled: true }]
     : [];
+  const sponsorsNav: NavItem[] = [
+    { to: "/app/sponsors", label: "Our Sponsors", icon: TagIcon, enabled: true },
+    {
+      to: "/app/org/sponsors",
+      label: "Manage Sponsors",
+      icon: TagIcon,
+      enabled: isOrgAdmin,
+    },
+  ];
   const addonNav: NavItem[] = [
     {
       to: "/app/website",
@@ -89,13 +97,6 @@ function AppLayout() {
       to: "/app/org/portal",
       label: "Client Portal",
       icon: PortalIcon,
-      enabled: isOrgAdmin,
-      locked: !isOrgAdmin,
-    },
-    {
-      to: "/app/org/sponsors",
-      label: "Sponsors",
-      icon: TagIcon,
       enabled: isOrgAdmin,
       locked: !isOrgAdmin,
     },
@@ -242,6 +243,13 @@ function AppLayout() {
             </>
           )}
 
+          {sponsorsNav.length > 0 && (
+            <>
+              <SectionLabel>Sponsors</SectionLabel>
+              <div className="space-y-1">{sponsorsNav.map(renderDesktopItem)}</div>
+            </>
+          )}
+
           {orgNav.length > 0 && (
             <>
               <SectionLabel>Organization</SectionLabel>
@@ -353,7 +361,7 @@ function AppLayout() {
               </Link>
             );
           })}
-          <MobileMoreMenu addonNav={addonNav} platformNav={platformNav} pathname={pathname} onLocked={handleLockedClick} />
+          <MobileMoreMenu sponsorsNav={sponsorsNav} addonNav={addonNav} platformNav={platformNav} pathname={pathname} onLocked={handleLockedClick} />
         </div>
       </nav>
     </div>
@@ -361,11 +369,13 @@ function AppLayout() {
 }
 
 function MobileMoreMenu({
+  sponsorsNav,
   addonNav,
   platformNav,
   pathname,
   onLocked,
 }: {
+  sponsorsNav: NavItem[];
   addonNav: NavItem[];
   platformNav: NavItem[];
   pathname: string;
@@ -389,7 +399,41 @@ function MobileMoreMenu({
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Add-ons</p>
+            <>
+              <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Sponsors</p>
+              <div className="space-y-1">
+                {sponsorsNav.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname.startsWith(item.to);
+                  if (!item.enabled) {
+                    return (
+                      <button
+                        key={item.to}
+                        type="button"
+                        onClick={() => { onLocked(); setOpen(false); }}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70"
+                      >
+                        <Icon className="h-4 w-4 opacity-60" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        <LockIcon className="h-3.5 w-3.5 opacity-70" />
+                      </button>
+                    );
+                  }
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+            <p className="px-1 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">Add-ons</p>
             <div className="space-y-1">
               {addonNav.map((item) => {
                 const Icon = item.icon;
