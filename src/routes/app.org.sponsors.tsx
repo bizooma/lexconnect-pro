@@ -17,6 +17,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import { ImageUploader } from "@/components/website/ImageUploader";
+import { TiersPanel, type SponsorTier } from "@/components/sponsors/TiersPanel";
 import { parseSponsorVideoUrl } from "@/lib/sponsors.functions";
 
 export const Route = createFileRoute("/app/org/sponsors")({
@@ -31,6 +32,7 @@ type Sponsor = {
   name: string;
   tier: string;
   tier_rank: number;
+  tier_id: string | null;
   category: string | null;
   blurb: string | null;
   offer: string | null;
@@ -44,6 +46,7 @@ type Sponsor = {
   ends_on: string | null;
   display_order: number;
 };
+
 
 type AdminRow = {
   sponsor_id: string;
