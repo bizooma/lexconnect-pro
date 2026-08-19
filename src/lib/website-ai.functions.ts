@@ -163,7 +163,7 @@ export const regenerateSection = createServerFn({ method: "POST" })
     await logGeneration(supabase, section.organization_id, userId, "section_rewrite", data.instruction, output, model);
 
     return {
-      content_json: merged as Record<string, unknown>,
+      content_json: merged as Record<string, string>,
       remaining: quota.remaining,
       limit: quota.limit,
     };
