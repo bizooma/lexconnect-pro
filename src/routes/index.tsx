@@ -535,7 +535,7 @@ function Landing() {
               {
                 img: addonWellBeing,
                 alt: "Attorney Well-Being Program — wellness resources and pulse surveys for legal organizations",
-                badge: "Coming soon",
+                badge: null,
                 title: "Attorney Well-Being Program",
                 desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
                 features: [
