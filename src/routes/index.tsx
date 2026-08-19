@@ -11,6 +11,7 @@ import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
 import addonCleLms from "@/assets/addon-cle-lms.jpg";
 import addonWellBeingAsset from "@/assets/attorney-wellbeing.jpg.asset.json";
+import addonSponsorProgram from "@/assets/addon-sponsor-program.jpg";
 
 const addonWellBeing = addonWellBeingAsset.url;
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
