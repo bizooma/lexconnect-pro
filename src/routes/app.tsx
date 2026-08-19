@@ -243,6 +243,13 @@ function AppLayout() {
             </>
           )}
 
+          {sponsorsNav.length > 0 && (
+            <>
+              <SectionLabel>Sponsors</SectionLabel>
+              <div className="space-y-1">{sponsorsNav.map(renderDesktopItem)}</div>
+            </>
+          )}
+
           {orgNav.length > 0 && (
             <>
               <SectionLabel>Organization</SectionLabel>
