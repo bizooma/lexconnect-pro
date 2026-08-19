@@ -10,7 +10,9 @@ import installAndroid from "@/assets/install-android.png";
 import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
 import addonCleLms from "@/assets/addon-cle-lms.jpg";
-import addonWellBeing from "@/assets/addon-well-being.jpg";
+import addonWellBeingAsset from "@/assets/attorney-wellbeing.jpg.asset.json";
+
+const addonWellBeing = addonWellBeingAsset.url;
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
 
 export const Route = createFileRoute("/")({
@@ -533,7 +535,7 @@ function Landing() {
               {
                 img: addonWellBeing,
                 alt: "Attorney Well-Being Program — wellness resources and pulse surveys for legal organizations",
-                badge: "Coming soon",
+                badge: null,
                 title: "Attorney Well-Being Program",
                 desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
                 features: [
@@ -558,13 +560,15 @@ function Landing() {
                     height={800}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                   />
-                  <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                    card.badge === "Available now"
-                      ? "bg-gold text-gold-foreground"
-                      : "bg-destructive text-destructive-foreground"
-                  }`}>
-                    {card.badge}
-                  </span>
+                  {card.badge && (
+                    <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                      card.badge === "Available now"
+                        ? "bg-gold text-gold-foreground"
+                        : "bg-destructive text-destructive-foreground"
+                    }`}>
+                      {card.badge}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="font-serif text-xl font-semibold text-foreground">{card.title}</h3>
