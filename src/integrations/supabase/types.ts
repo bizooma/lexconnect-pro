@@ -1157,6 +1157,162 @@ export type Database = {
           },
         ]
       }
+      org_sponsor_admin: {
+        Row: {
+          annual_amount_cents: number | null
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          notes: string | null
+          organization_id: string
+          pipeline: string
+          renewal_on: string | null
+          sponsor_id: string
+          updated_at: string
+        }
+        Insert: {
+          annual_amount_cents?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          notes?: string | null
+          organization_id: string
+          pipeline?: string
+          renewal_on?: string | null
+          sponsor_id: string
+          updated_at?: string
+        }
+        Update: {
+          annual_amount_cents?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          notes?: string | null
+          organization_id?: string
+          pipeline?: string
+          renewal_on?: string | null
+          sponsor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_sponsor_admin_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: true
+            referencedRelation: "org_sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_sponsor_metrics: {
+        Row: {
+          clicks: number
+          day: string
+          organization_id: string
+          sponsor_id: string
+          views: number
+        }
+        Insert: {
+          clicks?: number
+          day?: string
+          organization_id: string
+          sponsor_id: string
+          views?: number
+        }
+        Update: {
+          clicks?: number
+          day?: string
+          organization_id?: string
+          sponsor_id?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_sponsor_metrics_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "org_sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_sponsors: {
+        Row: {
+          blurb: string | null
+          category: string | null
+          created_at: string
+          created_by: string
+          display_order: number
+          ends_on: string | null
+          id: string
+          image_urls: string[]
+          logo_url: string | null
+          name: string
+          offer: string | null
+          organization_id: string
+          starts_on: string | null
+          status: string
+          tier: string
+          tier_rank: number
+          updated_at: string
+          video_id: string | null
+          video_provider: string | null
+          website_url: string | null
+        }
+        Insert: {
+          blurb?: string | null
+          category?: string | null
+          created_at?: string
+          created_by: string
+          display_order?: number
+          ends_on?: string | null
+          id?: string
+          image_urls?: string[]
+          logo_url?: string | null
+          name: string
+          offer?: string | null
+          organization_id: string
+          starts_on?: string | null
+          status?: string
+          tier?: string
+          tier_rank?: number
+          updated_at?: string
+          video_id?: string | null
+          video_provider?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          blurb?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          display_order?: number
+          ends_on?: string | null
+          id?: string
+          image_urls?: string[]
+          logo_url?: string | null
+          name?: string
+          offer?: string | null
+          organization_id?: string
+          starts_on?: string | null
+          status?: string
+          tier?: string
+          tier_rank?: number
+          updated_at?: string
+          video_id?: string | null
+          video_provider?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_sponsors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_wellness_resources: {
         Row: {
           created_at: string
@@ -2810,6 +2966,8 @@ export type Database = {
         Returns: number
       }
       get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
+      get_public_sponsors: { Args: { _org_slug: string }; Returns: Json }
+      get_sponsor_stats: { Args: { _sponsor_id: string }; Returns: Json }
       get_wellness_interest_aggregates: {
         Args: { _org: string }
         Returns: Json
@@ -2862,6 +3020,10 @@ export type Database = {
       redeem_invite_code: { Args: { _code: string }; Returns: string }
       shares_org_with: {
         Args: { _other_user: string; _viewer: string }
+        Returns: boolean
+      }
+      sponsor_in_org: {
+        Args: { _org_id: string; _sponsor_id: string }
         Returns: boolean
       }
       submit_wellness_response: {
