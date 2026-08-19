@@ -6,20 +6,25 @@ import { useAuth } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setOrgPausedSafe } from "@/lib/admin.functions";
+import { orgKindLabel } from "@/lib/org-kind";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/app/admin/orgs")({
   component: AdminOrgs,
 });
 
+import { type OrgKind } from "@/lib/org-kind";
+
 type Org = {
   id: string;
   name: string;
   slug: string;
-  kind: "firm" | "bar_association";
+  kind: OrgKind;
   created_at: string;
   paused: boolean;
 };
+
 
 type Sub = {
   organization_id: string;
@@ -164,8 +169,9 @@ function AdminOrgs() {
                     <p className="text-xs text-muted-foreground">/{o.slug}</p>
                   </td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {o.kind === "bar_association" ? "Bar Assoc." : "Firm"}
+                    {orgKindLabel(o.kind)}
                   </td>
+
                   <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                     {memberCounts[o.id] ?? 0}
                   </td>

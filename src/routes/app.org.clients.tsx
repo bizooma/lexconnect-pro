@@ -68,6 +68,8 @@ function ClientsPage() {
   const label = currentOrg?.kind === "firm" ? "Clients" : "Members";
   const singular = currentOrg?.kind === "firm" ? "client" : "member";
 
+
+
   const list = useServerFn(listContacts);
   const create = useServerFn(addContact);
   const linkFn = useServerFn(linkOrgContacts);

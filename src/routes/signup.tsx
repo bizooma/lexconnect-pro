@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 import { usePortalContext, type PortalContext } from "@/hooks/use-portal-context";
+import { type OrgKind, ORG_KIND_LABELS, ORG_KIND_VALUES } from "@/lib/org-kind";
+
 
 
 type PlanId = "starter" | "professional" | "enterprise" | "test";
@@ -28,14 +30,8 @@ export const Route = createFileRoute("/signup")({
   component: SignupOrg,
 });
 
-const ORG_KINDS = [
-  { value: "bar_association", label: "Bar Association" },
-  { value: "firm", label: "Law Firm" },
-  { value: "firm", label: "Legal Nonprofit" },
-  { value: "firm", label: "Law School" },
-  { value: "firm", label: "Attorney Group" },
-  { value: "firm", label: "Other" },
-] as const;
+const ORG_KINDS = ORG_KIND_VALUES.map((value) => ({ value, label: ORG_KIND_LABELS[value] }));
+
 
 type Plan = {
   id: PlanId;
@@ -149,7 +145,8 @@ function StandardSignup() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
   const [orgName, setOrgName] = useState("");
-  const [orgKindLabel, setOrgKindLabel] = useState<string>("Bar Association");
+  const [orgKindLabel, setOrgKindLabel] = useState<string>("Bar association");
+
   const [estSeats, setEstSeats] = useState(
     planParam === "professional" ? "100" : planParam === "enterprise" ? "250" : "25"
   );
@@ -164,7 +161,8 @@ function StandardSignup() {
   const [error, setError] = useState<string | null>(null);
 
   const slug = useMemo(() => slugify(orgName), [orgName]);
-  const orgKindValue = ORG_KINDS.find((k) => k.label === orgKindLabel)?.value ?? "firm";
+  const orgKindValue: OrgKind = ORG_KINDS.find((k) => k.label === orgKindLabel)?.value ?? "firm";
+
   const selectedPlan = isPlanId(planParam) ? PLANS_BY_ID[planParam] : PLANS[planIdx];
 
   const finish = async () => {
@@ -202,6 +200,8 @@ function StandardSignup() {
         _plan: planValue,
         _max_users: plan.seats,
       });
+
+
       if (rpcErr) throw rpcErr;
 
       if (typeof window !== "undefined" && orgId) {
