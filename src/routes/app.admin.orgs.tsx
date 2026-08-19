@@ -169,8 +169,9 @@ function AdminOrgs() {
                     <p className="text-xs text-muted-foreground">/{o.slug}</p>
                   </td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {o.kind === "bar_association" ? "Bar Assoc." : "Firm"}
+                    {orgKindLabel(o.kind)}
                   </td>
+
                   <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                     {memberCounts[o.id] ?? 0}
                   </td>
