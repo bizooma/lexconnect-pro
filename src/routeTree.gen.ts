@@ -43,6 +43,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AppWellnessIndexRouteImport } from './routes/app.wellness.index'
 import { Route as AppWebsiteIndexRouteImport } from './routes/app.website.index'
+import { Route as AppSponsorsIndexRouteImport } from './routes/app.sponsors.index'
 import { Route as AppQaIndexRouteImport } from './routes/app.qa.index'
 import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
@@ -279,6 +280,11 @@ const AppWebsiteIndexRoute = AppWebsiteIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppSponsorsIndexRoute = AppSponsorsIndexRouteImport.update({
+  id: '/sponsors/',
+  path: '/sponsors/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppQaIndexRoute = AppQaIndexRouteImport.update({
   id: '/',
@@ -688,6 +694,7 @@ export interface FileRoutesByFullPath {
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/sponsors/': typeof AppSponsorsIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
   '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
@@ -781,6 +788,7 @@ export interface FileRoutesByTo {
   '/app/messages': typeof AppMessagesIndexRoute
   '/app/org': typeof AppOrgIndexRoute
   '/app/qa': typeof AppQaIndexRoute
+  '/app/sponsors': typeof AppSponsorsIndexRoute
   '/app/website': typeof AppWebsiteIndexRoute
   '/app/wellness': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
@@ -882,6 +890,7 @@ export interface FileRoutesById {
   '/app/messages/': typeof AppMessagesIndexRoute
   '/app/org/': typeof AppOrgIndexRoute
   '/app/qa/': typeof AppQaIndexRoute
+  '/app/sponsors/': typeof AppSponsorsIndexRoute
   '/app/website/': typeof AppWebsiteIndexRoute
   '/app/wellness/': typeof AppWellnessIndexRoute
   '/api/public/hooks/auto-publish': typeof ApiPublicHooksAutoPublishRoute
@@ -984,6 +993,7 @@ export interface FileRouteTypes {
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/sponsors/'
     | '/app/website/'
     | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
@@ -1077,6 +1087,7 @@ export interface FileRouteTypes {
     | '/app/messages'
     | '/app/org'
     | '/app/qa'
+    | '/app/sponsors'
     | '/app/website'
     | '/app/wellness'
     | '/api/public/hooks/auto-publish'
@@ -1177,6 +1188,7 @@ export interface FileRouteTypes {
     | '/app/messages/'
     | '/app/org/'
     | '/app/qa/'
+    | '/app/sponsors/'
     | '/app/website/'
     | '/app/wellness/'
     | '/api/public/hooks/auto-publish'
@@ -1478,6 +1490,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/website/'
       preLoaderRoute: typeof AppWebsiteIndexRouteImport
       parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/sponsors/': {
+      id: '/app/sponsors/'
+      path: '/sponsors'
+      fullPath: '/app/sponsors/'
+      preLoaderRoute: typeof AppSponsorsIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/qa/': {
       id: '/app/qa/'
@@ -2118,6 +2137,7 @@ interface AppRouteChildren {
   AppOrgSponsorsRoute: typeof AppOrgSponsorsRoute
   AppOrgWellnessRoute: typeof AppOrgWellnessRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
+  AppSponsorsIndexRoute: typeof AppSponsorsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -2145,6 +2165,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgSponsorsRoute: AppOrgSponsorsRoute,
   AppOrgWellnessRoute: AppOrgWellnessRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
+  AppSponsorsIndexRoute: AppSponsorsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
