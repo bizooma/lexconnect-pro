@@ -102,6 +102,8 @@ function SponsorsPage() {
 
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [admins, setAdmins] = useState<Record<string, AdminRow>>({});
+  const [tiers, setTiers] = useState<SponsorTier[]>([]);
+
   const [stats, setStats] = useState<Record<string, Stats>>({});
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<Sponsor | null>(null);
