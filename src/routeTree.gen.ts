@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SponsorsIndexRouteImport } from './routes/sponsors.index'
 import { Route as JoinIndexRouteImport } from './routes/join.index'
 import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-preview.$pageId'
+import { Route as SponsorsSponsorIdRouteImport } from './routes/sponsors.$sponsorId'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -186,6 +187,11 @@ const JoinIndexRoute = JoinIndexRouteImport.update({
 const WebsitePreviewPageIdRoute = WebsitePreviewPageIdRouteImport.update({
   id: '/website-preview/$pageId',
   path: '/website-preview/$pageId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorsSponsorIdRoute = SponsorsSponsorIdRouteImport.update({
+  id: '/sponsors/$sponsorId',
+  path: '/sponsors/$sponsorId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinCodeRoute = JoinCodeRouteImport.update({
@@ -673,6 +679,7 @@ export interface FileRoutesByFullPath {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
   '/sponsors/': typeof SponsorsIndexRoute
@@ -772,6 +779,7 @@ export interface FileRoutesByTo {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join': typeof JoinIndexRoute
   '/sponsors': typeof SponsorsIndexRoute
@@ -877,6 +885,7 @@ export interface FileRoutesById {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
   '/sponsors/': typeof SponsorsIndexRoute
@@ -984,6 +993,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join/'
     | '/sponsors/'
@@ -1083,6 +1093,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join'
     | '/sponsors'
@@ -1187,6 +1198,7 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join/'
     | '/sponsors/'
@@ -1280,6 +1292,7 @@ export interface RootRouteChildren {
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   JoinCodeRoute: typeof JoinCodeRoute
+  SponsorsSponsorIdRoute: typeof SponsorsSponsorIdRoute
   WebsitePreviewPageIdRoute: typeof WebsitePreviewPageIdRoute
   JoinIndexRoute: typeof JoinIndexRoute
   SponsorsIndexRoute: typeof SponsorsIndexRoute
@@ -1408,6 +1421,13 @@ declare module '@tanstack/react-router' {
       path: '/website-preview/$pageId'
       fullPath: '/website-preview/$pageId'
       preLoaderRoute: typeof WebsitePreviewPageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsors/$sponsorId': {
+      id: '/sponsors/$sponsorId'
+      path: '/sponsors/$sponsorId'
+      fullPath: '/sponsors/$sponsorId'
+      preLoaderRoute: typeof SponsorsSponsorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join/$code': {
@@ -2283,6 +2303,7 @@ const rootRouteChildren: RootRouteChildren = {
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   JoinCodeRoute: JoinCodeRoute,
+  SponsorsSponsorIdRoute: SponsorsSponsorIdRoute,
   WebsitePreviewPageIdRoute: WebsitePreviewPageIdRoute,
   JoinIndexRoute: JoinIndexRoute,
   SponsorsIndexRoute: SponsorsIndexRoute,
