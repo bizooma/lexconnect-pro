@@ -1236,6 +1236,50 @@ export type Database = {
           },
         ]
       }
+      org_sponsor_tiers: {
+        Row: {
+          annual_price_cents: number | null
+          benefits: string[]
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          organization_id: string
+          rank: number
+          updated_at: string
+        }
+        Insert: {
+          annual_price_cents?: number | null
+          benefits?: string[]
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          organization_id: string
+          rank?: number
+          updated_at?: string
+        }
+        Update: {
+          annual_price_cents?: number | null
+          benefits?: string[]
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          rank?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_sponsor_tiers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_sponsors: {
         Row: {
           blurb: string | null
@@ -1253,6 +1297,7 @@ export type Database = {
           starts_on: string | null
           status: string
           tier: string
+          tier_id: string | null
           tier_rank: number
           updated_at: string
           video_id: string | null
@@ -1275,6 +1320,7 @@ export type Database = {
           starts_on?: string | null
           status?: string
           tier?: string
+          tier_id?: string | null
           tier_rank?: number
           updated_at?: string
           video_id?: string | null
@@ -1297,6 +1343,7 @@ export type Database = {
           starts_on?: string | null
           status?: string
           tier?: string
+          tier_id?: string | null
           tier_rank?: number
           updated_at?: string
           video_id?: string | null
@@ -1309,6 +1356,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_sponsors_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "org_sponsor_tiers"
             referencedColumns: ["id"]
           },
         ]

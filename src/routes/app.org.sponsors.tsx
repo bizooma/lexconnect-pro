@@ -17,6 +17,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import { ImageUploader } from "@/components/website/ImageUploader";
+import { TiersPanel, type SponsorTier } from "@/components/sponsors/TiersPanel";
 import { parseSponsorVideoUrl } from "@/lib/sponsors.functions";
 
 export const Route = createFileRoute("/app/org/sponsors")({
@@ -31,6 +32,7 @@ type Sponsor = {
   name: string;
   tier: string;
   tier_rank: number;
+  tier_id: string | null;
   category: string | null;
   blurb: string | null;
   offer: string | null;
@@ -44,6 +46,7 @@ type Sponsor = {
   ends_on: string | null;
   display_order: number;
 };
+
 
 type AdminRow = {
   sponsor_id: string;
@@ -69,6 +72,8 @@ const emptyForm = {
   name: "",
   tier: "standard",
   tier_rank: 100,
+  tier_id: null as string | null,
+
   category: "",
   blurb: "",
   offer: "",
@@ -97,6 +102,8 @@ function SponsorsPage() {
 
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [admins, setAdmins] = useState<Record<string, AdminRow>>({});
+  const [tiers, setTiers] = useState<SponsorTier[]>([]);
+
   const [stats, setStats] = useState<Record<string, Stats>>({});
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<Sponsor | null>(null);
@@ -133,6 +140,14 @@ function SponsorsPage() {
       for (const r of (adminRows ?? []) as unknown as AdminRow[]) map[r.sponsor_id] = r;
       setAdmins(map);
 
+      const { data: tierRows } = await supabase
+        .from("org_sponsor_tiers")
+        .select("id, organization_id, name, rank, annual_price_cents, benefits")
+        .eq("organization_id", currentOrgId)
+        .order("rank");
+      setTiers((tierRows ?? []) as SponsorTier[]);
+
+
       const entries = await Promise.all(
         list.map(async (s) => {
           const { data } = await supabase.rpc("get_sponsor_stats" as never, {
@@ -168,6 +183,8 @@ function SponsorsPage() {
       name: s.name,
       tier: s.tier,
       tier_rank: s.tier_rank,
+      tier_id: s.tier_id ?? null,
+
       category: s.category ?? "",
       blurb: s.blurb ?? "",
       offer: s.offer ?? "",
@@ -202,11 +219,15 @@ function SponsorsPage() {
         videoId = parsed.videoId;
       }
 
+      const selectedTier = tiers.find((t) => t.id === form.tier_id) ?? null;
+
       const payload = {
         organization_id: currentOrgId,
         name: form.name.trim(),
-        tier: form.tier.trim() || "standard",
-        tier_rank: Number(form.tier_rank) || 100,
+        tier_id: selectedTier?.id ?? null,
+        tier: selectedTier?.name ?? (form.tier.trim() || "standard"),
+        tier_rank: selectedTier?.rank ?? (Number(form.tier_rank) || 100),
+
         category: form.category.trim() || null,
         blurb: form.blurb.trim() || null,
         offer: form.offer.trim() || null,
@@ -295,7 +316,14 @@ function SponsorsPage() {
         <Button onClick={openNew}>Add sponsor</Button>
       </div>
 
+      {currentOrgId ? (
+        <div id="sponsor-tiers">
+          <TiersPanel organizationId={currentOrgId} tiers={tiers} onChanged={refresh} />
+        </div>
+      ) : null}
+
       {busy && <p className="text-sm text-muted-foreground">Loading…</p>}
+
 
       {grouped.map((group) => (
         <section key={group.key} className="space-y-3">
@@ -378,20 +406,46 @@ function SponsorsPage() {
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <Label>Tier</Label>
-                <Input value={form.tier} onChange={(e) => setForm({ ...form, tier: e.target.value })} />
+                <button
+                  type="button"
+                  className="text-xs underline text-muted-foreground"
+                  onClick={() => {
+                    setSheetOpen(false);
+                    document.getElementById("sponsor-tiers")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  Manage tiers
+                </button>
               </div>
-              <div className="space-y-2">
-                <Label>Tier rank (lower = more prominent)</Label>
-                <Input
-                  type="number"
-                  value={form.tier_rank}
-                  onChange={(e) => setForm({ ...form, tier_rank: Number(e.target.value) })}
-                />
-              </div>
+              <Select
+                value={form.tier_id ?? "none"}
+                onValueChange={(v) => setForm({ ...form, tier_id: v === "none" ? null : v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Select a tier" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No tier</SelectItem>
+                  {tiers.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!form.tier_id && editing?.tier ? (
+                <p className="text-xs text-muted-foreground">
+                  Currently showing legacy tier “{editing.tier}”. Pick a tier above to reassign.
+                </p>
+              ) : null}
+              {tiers.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  No tiers defined yet — add them from the Sponsorship tiers panel.
+                </p>
+              ) : null}
             </div>
+
 
             <div className="space-y-2">
               <Label>Category</Label>

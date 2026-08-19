@@ -52,12 +52,20 @@ function SponsorDetailPage() {
     (async () => {
       const { data } = await supabase
         .from("org_sponsors")
-        .select("id, name, tier, category, blurb, offer, logo_url, image_urls, website_url, video_provider, video_id")
+        .select(
+          "id, name, tier, category, blurb, offer, logo_url, image_urls, website_url, video_provider, video_id, org_sponsor_tiers(name)",
+        )
         .eq("id", sponsorId)
         .eq("status", "active")
         .maybeSingle();
       if (cancelled) return;
-      setSponsor((data as SponsorDetail | null) ?? null);
+      const row = data as any;
+      setSponsor(
+        row
+          ? ({ ...row, tier: row.org_sponsor_tiers?.name ?? row.tier } as SponsorDetail)
+          : null,
+      );
+
       setLoading(false);
     })();
     return () => {
