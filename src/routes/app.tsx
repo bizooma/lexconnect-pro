@@ -361,7 +361,7 @@ function AppLayout() {
               </Link>
             );
           })}
-          <MobileMoreMenu addonNav={addonNav} platformNav={platformNav} pathname={pathname} onLocked={handleLockedClick} />
+          <MobileMoreMenu sponsorsNav={sponsorsNav} addonNav={addonNav} platformNav={platformNav} pathname={pathname} onLocked={handleLockedClick} />
         </div>
       </nav>
     </div>
