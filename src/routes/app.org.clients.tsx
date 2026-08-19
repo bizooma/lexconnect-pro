@@ -65,8 +65,10 @@ const SEGMENT_DEFS: { key: SegmentKey; label: string; description: string }[] = 
 
 function ClientsPage() {
   const { currentOrgId, currentOrg, isOrgAdmin, loading } = useCurrentOrg();
-  const label = currentOrg?.kind === "firm" ? "Clients" : "Members";
-  const singular = currentOrg?.kind === "firm" ? "client" : "member";
+  const kind = currentOrg?.kind as string;
+  const label = kind === "firm" ? "Clients" : "Members";
+  const singular = kind === "firm" ? "client" : "member";
+
 
   const list = useServerFn(listContacts);
   const create = useServerFn(addContact);

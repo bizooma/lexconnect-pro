@@ -6,7 +6,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setOrgPausedSafe } from "@/lib/admin.functions";
+import { orgKindLabel } from "@/lib/org-kind";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/app/admin/orgs")({
   component: AdminOrgs,
