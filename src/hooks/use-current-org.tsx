@@ -13,9 +13,10 @@ export type OrgMembership = {
     id: string;
     name: string;
     slug: string;
-    kind: "firm" | "bar_association";
+    kind: OrgKind;
     logo_url: string | null;
   } | null;
+
 };
 
 export type OrgSubscription = {
