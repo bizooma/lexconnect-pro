@@ -399,20 +399,46 @@ function SponsorsPage() {
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <Label>Tier</Label>
-                <Input value={form.tier} onChange={(e) => setForm({ ...form, tier: e.target.value })} />
+                <button
+                  type="button"
+                  className="text-xs underline text-muted-foreground"
+                  onClick={() => {
+                    setSheetOpen(false);
+                    document.getElementById("sponsor-tiers")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  Manage tiers
+                </button>
               </div>
-              <div className="space-y-2">
-                <Label>Tier rank (lower = more prominent)</Label>
-                <Input
-                  type="number"
-                  value={form.tier_rank}
-                  onChange={(e) => setForm({ ...form, tier_rank: Number(e.target.value) })}
-                />
-              </div>
+              <Select
+                value={form.tier_id ?? "none"}
+                onValueChange={(v) => setForm({ ...form, tier_id: v === "none" ? null : v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Select a tier" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No tier</SelectItem>
+                  {tiers.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!form.tier_id && editing?.tier ? (
+                <p className="text-xs text-muted-foreground">
+                  Currently showing legacy tier “{editing.tier}”. Pick a tier above to reassign.
+                </p>
+              ) : null}
+              {tiers.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  No tiers defined yet — add them from the Sponsorship tiers panel.
+                </p>
+              ) : null}
             </div>
+
 
             <div className="space-y-2">
               <Label>Category</Label>
