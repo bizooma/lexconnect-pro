@@ -405,6 +405,20 @@ function MobileMoreMenu({
                 {sponsorsNav.map((item) => {
                   const Icon = item.icon;
                   const active = pathname.startsWith(item.to);
+                  if (!item.enabled) {
+                    return (
+                      <button
+                        key={item.to}
+                        type="button"
+                        onClick={() => { onLocked(); setOpen(false); }}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70"
+                      >
+                        <Icon className="h-4 w-4 opacity-60" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        <LockIcon className="h-3.5 w-3.5 opacity-70" />
+                      </button>
+                    );
+                  }
                   return (
                     <Link
                       key={item.to}
