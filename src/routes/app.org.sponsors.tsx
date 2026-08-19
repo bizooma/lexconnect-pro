@@ -316,7 +316,14 @@ function SponsorsPage() {
         <Button onClick={openNew}>Add sponsor</Button>
       </div>
 
+      {currentOrgId ? (
+        <div id="sponsor-tiers">
+          <TiersPanel organizationId={currentOrgId} tiers={tiers} onChanged={refresh} />
+        </div>
+      ) : null}
+
       {busy && <p className="text-sm text-muted-foreground">Loading…</p>}
+
 
       {grouped.map((group) => (
         <section key={group.key} className="space-y-3">
