@@ -531,7 +531,6 @@ function Landing() {
                 title: "Attorney Well-Being Program",
                 desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
                 features: ["Well-being resource hub with your LAP and crisis contacts", "Wellness CLE tracking for state requirements", "Anonymous member pulse surveys with aggregate-only results", "Well-Being Week events and programming"],
-                cta: "Talk to us about early access",
                 imageLeft: true,
               },
               {
