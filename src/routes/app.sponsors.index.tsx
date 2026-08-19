@@ -49,20 +49,40 @@ function SponsorsPage() {
     (async () => {
       const { data } = await supabase
         .from("org_sponsors")
-        .select("id, name, tier, tier_rank, category, blurb, offer, logo_url, display_order")
+        .select(
+          "id, name, tier, tier_rank, category, blurb, offer, logo_url, display_order, org_sponsor_tiers(name, rank)",
+        )
         .eq("organization_id", currentOrg.id)
-        .eq("status", "active")
-        .order("tier_rank", { ascending: true })
-        .order("display_order", { ascending: true })
-        .order("name", { ascending: true });
+        .eq("status", "active");
       if (cancelled) return;
-      setSponsors((data ?? []) as MemberSponsor[]);
+      const rows = ((data ?? []) as any[]).map((s) => {
+        const joined = s.org_sponsor_tiers as { name: string; rank: number } | null;
+        return {
+          id: s.id,
+          name: s.name,
+          tier: joined?.name ?? s.tier,
+          tier_rank: joined?.rank ?? s.tier_rank,
+          category: s.category,
+          blurb: s.blurb,
+          offer: s.offer,
+          logo_url: s.logo_url,
+          display_order: s.display_order,
+        } as MemberSponsor;
+      });
+      rows.sort(
+        (a, b) =>
+          a.tier_rank - b.tier_rank ||
+          a.display_order - b.display_order ||
+          a.name.localeCompare(b.name),
+      );
+      setSponsors(rows);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, [currentOrg?.id]);
+
 
   const categories = useMemo(
     () => Array.from(new Set(sponsors.map((s) => s.category).filter((c): c is string => !!c))).sort(),
