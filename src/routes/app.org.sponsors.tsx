@@ -72,6 +72,8 @@ const emptyForm = {
   name: "",
   tier: "standard",
   tier_rank: 100,
+  tier_id: null as string | null,
+
   category: "",
   blurb: "",
   offer: "",
