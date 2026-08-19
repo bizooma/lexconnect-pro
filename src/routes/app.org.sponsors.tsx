@@ -140,6 +140,14 @@ function SponsorsPage() {
       for (const r of (adminRows ?? []) as unknown as AdminRow[]) map[r.sponsor_id] = r;
       setAdmins(map);
 
+      const { data: tierRows } = await supabase
+        .from("org_sponsor_tiers")
+        .select("id, organization_id, name, rank, annual_price_cents, benefits")
+        .eq("organization_id", currentOrgId)
+        .order("rank");
+      setTiers((tierRows ?? []) as SponsorTier[]);
+
+
       const entries = await Promise.all(
         list.map(async (s) => {
           const { data } = await supabase.rpc("get_sponsor_stats" as never, {
