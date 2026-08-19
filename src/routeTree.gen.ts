@@ -92,6 +92,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as POrgSlugSponsorsIndexRouteImport } from './routes/p.$orgSlug.sponsors.index'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
+import { Route as POrgSlugSponsorsSponsorIdRouteImport } from './routes/p.$orgSlug.sponsors.$sponsorId'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -529,6 +530,12 @@ const AppCeAdminIndexRoute = AppCeAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppCeAdminRoute,
 } as any)
+const POrgSlugSponsorsSponsorIdRoute =
+  POrgSlugSponsorsSponsorIdRouteImport.update({
+    id: '/p/$orgSlug/sponsors/$sponsorId',
+    path: '/p/$orgSlug/sponsors/$sponsorId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -726,6 +733,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
@@ -822,6 +830,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin': typeof AppCeAdminIndexRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
   '/p/$orgSlug/sponsors': typeof POrgSlugSponsorsIndexRoute
@@ -926,6 +935,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
   '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
@@ -1031,6 +1041,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
     | '/p/$orgSlug/sponsors/'
@@ -1127,6 +1138,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin'
     | '/app/website/pages'
     | '/p/$orgSlug/sponsors'
@@ -1230,6 +1242,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
     | '/p/$orgSlug/sponsors/'
@@ -1273,6 +1286,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  POrgSlugSponsorsSponsorIdRoute: typeof POrgSlugSponsorsSponsorIdRoute
   POrgSlugSponsorsIndexRoute: typeof POrgSlugSponsorsIndexRoute
 }
 
@@ -1859,6 +1873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCeAdminIndexRouteImport
       parentRoute: typeof AppCeAdminRoute
     }
+    '/p/$orgSlug/sponsors/$sponsorId': {
+      id: '/p/$orgSlug/sponsors/$sponsorId'
+      path: '/p/$orgSlug/sponsors/$sponsorId'
+      fullPath: '/p/$orgSlug/sponsors/$sponsorId'
+      preLoaderRoute: typeof POrgSlugSponsorsSponsorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2260,6 +2281,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  POrgSlugSponsorsSponsorIdRoute: POrgSlugSponsorsSponsorIdRoute,
   POrgSlugSponsorsIndexRoute: POrgSlugSponsorsIndexRoute,
 }
 export const routeTree = rootRouteImport
