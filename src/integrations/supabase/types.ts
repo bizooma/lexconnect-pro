@@ -2685,11 +2685,13 @@ export type Database = {
           default_sections_json: Json
           description: string | null
           id: string
+          intake_questions: Json
           is_global: boolean
           name: string
           organization_id: string | null
           page_type: Database["public"]["Enums"]["website_page_type"]
           preview_image: string | null
+          starter_prompt: string | null
           suggested_copy_json: Json
           updated_at: string
         }
@@ -2699,11 +2701,13 @@ export type Database = {
           default_sections_json?: Json
           description?: string | null
           id?: string
+          intake_questions?: Json
           is_global?: boolean
           name: string
           organization_id?: string | null
           page_type?: Database["public"]["Enums"]["website_page_type"]
           preview_image?: string | null
+          starter_prompt?: string | null
           suggested_copy_json?: Json
           updated_at?: string
         }
@@ -2713,11 +2717,13 @@ export type Database = {
           default_sections_json?: Json
           description?: string | null
           id?: string
+          intake_questions?: Json
           is_global?: boolean
           name?: string
           organization_id?: string | null
           page_type?: Database["public"]["Enums"]["website_page_type"]
           preview_image?: string | null
+          starter_prompt?: string | null
           suggested_copy_json?: Json
           updated_at?: string
         }
