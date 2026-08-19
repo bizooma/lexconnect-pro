@@ -781,7 +781,7 @@ function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<vo
         onClick={() => setOpen(true)}
         className="w-full rounded-lg border border-dashed border-primary/50 bg-primary/5 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
       >
-        ✨ Rewrite with AI
+        ✨ Ask AI
       </button>
     );
   }
@@ -790,7 +790,7 @@ function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<vo
       <textarea
         value={instruction}
         onChange={(e) => setInstruction(e.target.value)}
-        placeholder="e.g. Make it more concise and add urgency"
+        placeholder="e.g. make this about our 130th anniversary"
         rows={2}
         className="w-full rounded border border-border bg-background px-2 py-1.5 text-xs text-foreground"
       />
@@ -806,7 +806,7 @@ function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<vo
           }}
           className="rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground disabled:opacity-50"
         >
-          {busy ? "Rewriting…" : "Run"}
+          {busy ? "Asking AI…" : "Run"}
         </button>
       </div>
     </div>
