@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   GUARDRAILS,
   PAGE_TYPES,
+  PLAN_AI_LIMITS,
   SECTION_SPECS,
   isAiSectionType,
   callGateway,
@@ -401,4 +402,32 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       remaining: quota.remaining,
       limit: quota.limit,
     };
+  });
+
+// ---------------- Monthly quota (read-only) ----------------
+
+export const getAiQuota = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ organizationId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("plan")
+      .eq("organization_id", data.organizationId)
+      .maybeSingle();
+    const rawPlan = (sub as { plan?: string } | null)?.plan;
+    const plan = rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter";
+    const limit = PLAN_AI_LIMITS[plan];
+    const now = new Date();
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+    const { count } = await supabase
+      .from("website_ai_generations")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", data.organizationId)
+      .gte("created_at", start);
+    const used = count ?? 0;
+    return { used, limit, remaining: Math.max(0, limit - used) };
   });

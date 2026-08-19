@@ -62,7 +62,7 @@ function PagesListPage() {
           to="/app/website/pages/new"
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
-          + New Page
+          ✨ Create page with AI
         </Link>
       </div>
 
