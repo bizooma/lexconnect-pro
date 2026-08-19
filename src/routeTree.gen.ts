@@ -89,6 +89,7 @@ import { Route as ApiPublicHostEchoRouteImport } from './routes/api/public/host-
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as POrgSlugSponsorsIndexRouteImport } from './routes/p.$orgSlug.sponsors.index'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -513,6 +514,11 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const POrgSlugSponsorsIndexRoute = POrgSlugSponsorsIndexRouteImport.update({
+  id: '/p/$orgSlug/sponsors/',
+  path: '/p/$orgSlug/sponsors/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
   id: '/pages/',
   path: '/pages/',
@@ -722,6 +728,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -817,6 +824,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/ce/admin': typeof AppCeAdminIndexRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -920,6 +928,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -1024,6 +1033,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesByTo: FileRoutesByTo
@@ -1119,6 +1129,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/app/ce/admin'
     | '/app/website/pages'
+    | '/p/$orgSlug/sponsors'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   id:
@@ -1221,6 +1232,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesById: FileRoutesById
@@ -1261,6 +1273,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  POrgSlugSponsorsIndexRoute: typeof POrgSlugSponsorsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1825,6 +1838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$orgSlug/sponsors/': {
+      id: '/p/$orgSlug/sponsors/'
+      path: '/p/$orgSlug/sponsors'
+      fullPath: '/p/$orgSlug/sponsors/'
+      preLoaderRoute: typeof POrgSlugSponsorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/website/pages/': {
       id: '/app/website/pages/'
       path: '/pages'
@@ -2240,6 +2260,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  POrgSlugSponsorsIndexRoute: POrgSlugSponsorsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
