@@ -23,7 +23,8 @@ function OrgSettingsPage() {
   const { currentOrgId, currentOrg, isOrgAdmin, refresh } = useCurrentOrg();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [kind, setKind] = useState<"firm" | "bar_association">("firm");
+  const [kind, setKind] = useState<OrgKind>("firm");
+
   const [website, setWebsite] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#1f3a5f");
@@ -94,13 +95,14 @@ function OrgSettingsPage() {
         if (!data) return;
         setName(data.name ?? "");
         setSlug(data.slug ?? "");
-        setKind((data.kind as any) ?? "firm");
+        setKind(isOrgKind(data.kind as string) ? (data.kind as OrgKind) : "firm");
         setWebsite(data.website ?? "");
         setLogoUrl(data.logo_url ?? "");
         setAccentColor((data as any).accent_color ?? "#1f3a5f");
         setWelcomeMessage((data as any).welcome_message ?? "");
         const jp = (data as any).join_policy;
         setJoinPolicy(jp === "approval" ? "approval" : "invite_only");
+
       });
   }, [currentOrgId]);
 
@@ -120,13 +122,14 @@ function OrgSettingsPage() {
       .update({
         name,
         slug,
-        kind,
+        kind: kind as any,
         website: website || null,
         logo_url: logoUrl || null,
         accent_color: accentColor,
         welcome_message: welcomeMessage || null,
         join_policy: joinPolicy,
       } as any)
+
       .eq("id", currentOrgId);
 
     setSaving(false);
@@ -162,13 +165,15 @@ function OrgSettingsPage() {
         <Field label="Slug" value={slug} onChange={setSlug} disabled={!isOrgAdmin} />
         <div>
           <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">Kind</p>
-          <Select value={kind} onValueChange={(v) => setKind(v as any)} disabled={!isOrgAdmin}>
+          <Select value={kind} onValueChange={(v) => setKind(isOrgKind(v) ? v : "firm")} disabled={!isOrgAdmin}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="firm">Law firm</SelectItem>
-              <SelectItem value="bar_association">Bar association</SelectItem>
+              {ORG_KIND_VALUES.map((k) => (
+                <SelectItem key={k} value={k}>{ORG_KIND_LABELS[k]}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
+
         </div>
         <Field label="Website" value={website} onChange={setWebsite} placeholder="https://" disabled={!isOrgAdmin} />
         <div>
