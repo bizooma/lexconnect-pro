@@ -63,6 +63,15 @@ function AppLayout() {
   const supportNav: NavItem[] = wellnessEnabled
     ? [{ to: "/app/wellness", label: "Well-Being", icon: HeartIcon, enabled: true }]
     : [];
+  const sponsorsNav: NavItem[] = [
+    { to: "/app/sponsors", label: "Our Sponsors", icon: TagIcon, enabled: true },
+    {
+      to: "/app/org/sponsors",
+      label: "Manage Sponsors",
+      icon: TagIcon,
+      enabled: isOrgAdmin,
+    },
+  ];
   const addonNav: NavItem[] = [
     {
       to: "/app/website",
@@ -88,13 +97,6 @@ function AppLayout() {
       to: "/app/org/portal",
       label: "Client Portal",
       icon: PortalIcon,
-      enabled: isOrgAdmin,
-      locked: !isOrgAdmin,
-    },
-    {
-      to: "/app/org/sponsors",
-      label: "Sponsors",
-      icon: TagIcon,
       enabled: isOrgAdmin,
       locked: !isOrgAdmin,
     },
