@@ -325,3 +325,30 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
 
 
 
+
+// Public — resolves the incoming Host header to a site-mode tenant org slug,
+// so host-aware paths like /sponsors can map onto that tenant's public site.
+export const resolveSiteHostOrg = createServerFn({ method: "GET" }).handler(async () => {
+  const host = getEffectiveHost();
+  if (!host) return { orgSlug: null as string | null };
+  if (RESERVED_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`))) {
+    return { orgSlug: null };
+  }
+  const parsed = domainSchema.safeParse(host);
+  if (!parsed.success) return { orgSlug: null };
+  const safeHost = parsed.data;
+  const bare = safeHost.replace(/^www\./, "");
+  const { data: row } = await supabaseAdmin
+    .from("website_custom_domains")
+    .select("organization_id, mode")
+    .or(`domain.eq.${safeHost},domain.eq.${bare},domain.eq.www.${bare}`)
+    .not("verified_at", "is", null)
+    .maybeSingle();
+  if (!row || row.mode !== "site") return { orgSlug: null };
+  const { data: org } = await supabaseAdmin
+    .from("organizations")
+    .select("slug")
+    .eq("id", row.organization_id)
+    .maybeSingle();
+  return { orgSlug: org?.slug ?? null };
+});

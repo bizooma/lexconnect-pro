@@ -469,7 +469,12 @@ function PageEditorPage() {
                 </button>
               ))}
             </div>
+            <div className="mt-3 rounded border border-dashed border-border p-2 text-[11px] leading-relaxed text-muted-foreground">
+              <span className="font-medium text-foreground">Sponsor directory:</span> link any nav item or CTA to{" "}
+              <code className="rounded bg-muted px-1">/sponsors</code> on your published site.
+            </div>
           </div>
+
         </aside>
 
         {/* Center: Preview */}

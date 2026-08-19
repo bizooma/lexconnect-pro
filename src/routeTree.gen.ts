@@ -21,8 +21,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SponsorsIndexRouteImport } from './routes/sponsors.index'
 import { Route as JoinIndexRouteImport } from './routes/join.index'
 import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-preview.$pageId'
+import { Route as SponsorsSponsorIdRouteImport } from './routes/sponsors.$sponsorId'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -89,8 +91,10 @@ import { Route as ApiPublicHostEchoRouteImport } from './routes/api/public/host-
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as POrgSlugSponsorsIndexRouteImport } from './routes/p.$orgSlug.sponsors.index'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
+import { Route as POrgSlugSponsorsSponsorIdRouteImport } from './routes/p.$orgSlug.sponsors.$sponsorId'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -170,6 +174,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SponsorsIndexRoute = SponsorsIndexRouteImport.update({
+  id: '/sponsors/',
+  path: '/sponsors/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JoinIndexRoute = JoinIndexRouteImport.update({
   id: '/join/',
   path: '/join/',
@@ -178,6 +187,11 @@ const JoinIndexRoute = JoinIndexRouteImport.update({
 const WebsitePreviewPageIdRoute = WebsitePreviewPageIdRouteImport.update({
   id: '/website-preview/$pageId',
   path: '/website-preview/$pageId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorsSponsorIdRoute = SponsorsSponsorIdRouteImport.update({
+  id: '/sponsors/$sponsorId',
+  path: '/sponsors/$sponsorId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinCodeRoute = JoinCodeRouteImport.update({
@@ -513,6 +527,11 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const POrgSlugSponsorsIndexRoute = POrgSlugSponsorsIndexRouteImport.update({
+  id: '/p/$orgSlug/sponsors/',
+  path: '/p/$orgSlug/sponsors/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
   id: '/pages/',
   path: '/pages/',
@@ -523,6 +542,12 @@ const AppCeAdminIndexRoute = AppCeAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppCeAdminRoute,
 } as any)
+const POrgSlugSponsorsSponsorIdRoute =
+  POrgSlugSponsorsSponsorIdRouteImport.update({
+    id: '/p/$orgSlug/sponsors/$sponsorId',
+    path: '/p/$orgSlug/sponsors/$sponsorId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -654,8 +679,10 @@ export interface FileRoutesByFullPath {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
+  '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -720,8 +747,10 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -750,8 +779,10 @@ export interface FileRoutesByTo {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join': typeof JoinIndexRoute
+  '/sponsors': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -815,8 +846,10 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin': typeof AppCeAdminIndexRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -852,8 +885,10 @@ export interface FileRoutesById {
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/join/$code': typeof JoinCodeRoute
+  '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
+  '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -918,8 +953,10 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
 }
@@ -956,8 +993,10 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join/'
+    | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1022,8 +1061,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesByTo: FileRoutesByTo
@@ -1052,8 +1093,10 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join'
+    | '/sponsors'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1117,8 +1160,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin'
     | '/app/website/pages'
+    | '/p/$orgSlug/sponsors'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   id:
@@ -1153,8 +1198,10 @@ export interface FileRouteTypes {
     | '/checkout/return'
     | '/email/unsubscribe'
     | '/join/$code'
+    | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
     | '/join/'
+    | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1219,8 +1266,10 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
   fileRoutesById: FileRoutesById
@@ -1243,8 +1292,10 @@ export interface RootRouteChildren {
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   JoinCodeRoute: typeof JoinCodeRoute
+  SponsorsSponsorIdRoute: typeof SponsorsSponsorIdRoute
   WebsitePreviewPageIdRoute: typeof WebsitePreviewPageIdRoute
   JoinIndexRoute: typeof JoinIndexRoute
+  SponsorsIndexRoute: typeof SponsorsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
@@ -1261,6 +1312,8 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  POrgSlugSponsorsSponsorIdRoute: typeof POrgSlugSponsorsSponsorIdRoute
+  POrgSlugSponsorsIndexRoute: typeof POrgSlugSponsorsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1349,6 +1402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sponsors/': {
+      id: '/sponsors/'
+      path: '/sponsors'
+      fullPath: '/sponsors/'
+      preLoaderRoute: typeof SponsorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/join/': {
       id: '/join/'
       path: '/join'
@@ -1361,6 +1421,13 @@ declare module '@tanstack/react-router' {
       path: '/website-preview/$pageId'
       fullPath: '/website-preview/$pageId'
       preLoaderRoute: typeof WebsitePreviewPageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsors/$sponsorId': {
+      id: '/sponsors/$sponsorId'
+      path: '/sponsors/$sponsorId'
+      fullPath: '/sponsors/$sponsorId'
+      preLoaderRoute: typeof SponsorsSponsorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join/$code': {
@@ -1825,6 +1892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$orgSlug/sponsors/': {
+      id: '/p/$orgSlug/sponsors/'
+      path: '/p/$orgSlug/sponsors'
+      fullPath: '/p/$orgSlug/sponsors/'
+      preLoaderRoute: typeof POrgSlugSponsorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/website/pages/': {
       id: '/app/website/pages/'
       path: '/pages'
@@ -1838,6 +1912,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/ce/admin/'
       preLoaderRoute: typeof AppCeAdminIndexRouteImport
       parentRoute: typeof AppCeAdminRoute
+    }
+    '/p/$orgSlug/sponsors/$sponsorId': {
+      id: '/p/$orgSlug/sponsors/$sponsorId'
+      path: '/p/$orgSlug/sponsors/$sponsorId'
+      fullPath: '/p/$orgSlug/sponsors/$sponsorId'
+      preLoaderRoute: typeof POrgSlugSponsorsSponsorIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
@@ -2222,8 +2303,10 @@ const rootRouteChildren: RootRouteChildren = {
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   JoinCodeRoute: JoinCodeRoute,
+  SponsorsSponsorIdRoute: SponsorsSponsorIdRoute,
   WebsitePreviewPageIdRoute: WebsitePreviewPageIdRoute,
   JoinIndexRoute: JoinIndexRoute,
+  SponsorsIndexRoute: SponsorsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
@@ -2240,6 +2323,8 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  POrgSlugSponsorsSponsorIdRoute: POrgSlugSponsorsSponsorIdRoute,
+  POrgSlugSponsorsIndexRoute: POrgSlugSponsorsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
