@@ -78,6 +78,9 @@ export const Route = createFileRoute("/sitemap.xml")({
                 priority: isDefault ? "1.0" : "0.7",
               });
             }
+            if (await orgHasActiveSponsors(domain.organization_id)) {
+              entries.push({ loc: `https://${host}/sponsors`, changefreq: "monthly", priority: "0.6" });
+            }
           }
           return new Response(render(entries), {
             headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
