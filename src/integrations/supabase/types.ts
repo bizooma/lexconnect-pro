@@ -2877,7 +2877,14 @@ export type Database = {
       ce_question_kind: "multiple_choice" | "true_false"
       meeting_status: "scheduled" | "completed" | "cancelled"
       mentorship_status: "pending" | "active" | "declined" | "completed"
-      org_kind: "firm" | "bar_association"
+      org_kind:
+        | "firm"
+        | "bar_association"
+        | "law_school"
+        | "legal_nonprofit"
+        | "in_house"
+        | "attorney_group"
+        | "other"
       org_member_status: "active" | "invited" | "removed"
       org_role: "owner" | "admin" | "member" | "content_editor"
       qa_notif_mode: "all" | "my_posts" | "followed" | "digest" | "muted"
@@ -3081,7 +3088,15 @@ export const Constants = {
       ce_question_kind: ["multiple_choice", "true_false"],
       meeting_status: ["scheduled", "completed", "cancelled"],
       mentorship_status: ["pending", "active", "declined", "completed"],
-      org_kind: ["firm", "bar_association"],
+      org_kind: [
+        "firm",
+        "bar_association",
+        "law_school",
+        "legal_nonprofit",
+        "in_house",
+        "attorney_group",
+        "other",
+      ],
       org_member_status: ["active", "invited", "removed"],
       org_role: ["owner", "admin", "member", "content_editor"],
       qa_notif_mode: ["all", "my_posts", "followed", "digest", "muted"],
