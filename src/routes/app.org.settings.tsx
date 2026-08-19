@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+import { type OrgKind, isOrgKind, ORG_KIND_LABELS, ORG_KIND_VALUES } from "@/lib/org-kind";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/app/org/settings")({
   component: OrgSettingsPage,
