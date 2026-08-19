@@ -48,6 +48,15 @@ async function loadOrgPages(organizationId: string) {
   return data ?? [];
 }
 
+async function orgHasActiveSponsors(organizationId: string) {
+  const { count } = await supabaseAdmin
+    .from("org_sponsors")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .eq("status", "active");
+  return (count ?? 0) > 0;
+}
+
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
