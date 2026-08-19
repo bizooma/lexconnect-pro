@@ -67,7 +67,9 @@ function AiBuilderPage() {
     setBusy(true);
     try {
       const r = await gen({ data: { organizationId: currentOrgId, prompt: prompt.trim() } });
-      toast.success("Draft created");
+      toast.success(
+        `Draft created${r.droppedSections > 0 ? ` · ${r.droppedSections} invalid section(s) dropped` : ""} · ${r.remaining} of ${r.limit} AI runs left this month`,
+      );
       navigate({ to: "/app/website/pages/$pageId", params: { pageId: r.pageId } });
     } catch (e) {
       toast.error((e as Error).message);
