@@ -66,6 +66,7 @@ import { Route as AppQaAskRouteImport } from './routes/app.qa.ask'
 import { Route as AppQaAdminRouteImport } from './routes/app.qa.admin'
 import { Route as AppQaPostIdRouteImport } from './routes/app.qa.$postId'
 import { Route as AppOrgWellnessRouteImport } from './routes/app.org.wellness'
+import { Route as AppOrgSponsorsRouteImport } from './routes/app.org.sponsors'
 import { Route as AppOrgSettingsRouteImport } from './routes/app.org.settings'
 import { Route as AppOrgResourcesRouteImport } from './routes/app.org.resources'
 import { Route as AppOrgPortalRouteImport } from './routes/app.org.portal'
@@ -394,6 +395,11 @@ const AppOrgWellnessRoute = AppOrgWellnessRouteImport.update({
   path: '/org/wellness',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrgSponsorsRoute = AppOrgSponsorsRouteImport.update({
+  id: '/org/sponsors',
+  path: '/org/sponsors',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrgSettingsRoute = AppOrgSettingsRouteImport.update({
   id: '/org/settings',
   path: '/org/settings',
@@ -658,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/sponsors': typeof AppOrgSponsorsRoute
   '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
@@ -750,6 +757,7 @@ export interface FileRoutesByTo {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/sponsors': typeof AppOrgSponsorsRoute
   '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
@@ -850,6 +858,7 @@ export interface FileRoutesById {
   '/app/org/portal': typeof AppOrgPortalRoute
   '/app/org/resources': typeof AppOrgResourcesRoute
   '/app/org/settings': typeof AppOrgSettingsRoute
+  '/app/org/sponsors': typeof AppOrgSponsorsRoute
   '/app/org/wellness': typeof AppOrgWellnessRoute
   '/app/qa/$postId': typeof AppQaPostIdRoute
   '/app/qa/admin': typeof AppQaAdminRoute
@@ -951,6 +960,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/sponsors'
     | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
@@ -1043,6 +1053,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/sponsors'
     | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
@@ -1142,6 +1153,7 @@ export interface FileRouteTypes {
     | '/app/org/portal'
     | '/app/org/resources'
     | '/app/org/settings'
+    | '/app/org/sponsors'
     | '/app/org/wellness'
     | '/app/qa/$postId'
     | '/app/qa/admin'
@@ -1628,6 +1640,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrgWellnessRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/org/sponsors': {
+      id: '/app/org/sponsors'
+      path: '/org/sponsors'
+      fullPath: '/app/org/sponsors'
+      preLoaderRoute: typeof AppOrgSponsorsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/org/settings': {
       id: '/app/org/settings'
       path: '/org/settings'
@@ -2096,6 +2115,7 @@ interface AppRouteChildren {
   AppOrgPortalRoute: typeof AppOrgPortalRoute
   AppOrgResourcesRoute: typeof AppOrgResourcesRoute
   AppOrgSettingsRoute: typeof AppOrgSettingsRoute
+  AppOrgSponsorsRoute: typeof AppOrgSponsorsRoute
   AppOrgWellnessRoute: typeof AppOrgWellnessRoute
   AppOrgIndexRoute: typeof AppOrgIndexRoute
 }
@@ -2122,6 +2142,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrgPortalRoute: AppOrgPortalRoute,
   AppOrgResourcesRoute: AppOrgResourcesRoute,
   AppOrgSettingsRoute: AppOrgSettingsRoute,
+  AppOrgSponsorsRoute: AppOrgSponsorsRoute,
   AppOrgWellnessRoute: AppOrgWellnessRoute,
   AppOrgIndexRoute: AppOrgIndexRoute,
 }
