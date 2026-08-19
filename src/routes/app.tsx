@@ -91,6 +91,13 @@ function AppLayout() {
       enabled: isOrgAdmin,
       locked: !isOrgAdmin,
     },
+    {
+      to: "/app/org/sponsors",
+      label: "Sponsors",
+      icon: TagIcon,
+      enabled: isOrgAdmin,
+      locked: !isOrgAdmin,
+    },
   ];
   const clientsLabel = currentOrg?.kind === "firm" ? "Clients" : "Members";
   const orgNav: NavItem[] = isOrgAdmin
