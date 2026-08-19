@@ -71,6 +71,9 @@ export function OrgSwitcher() {
         {!isPortal && (
           <Link to="/app/org/billing" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Billing & seats</Link>
         )}
+        {isOrgAdmin && (
+          <Link to="/app/org/sponsors" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Sponsors</Link>
+        )}
         <Link to="/app/org/settings" className="rounded px-1.5 py-1 text-muted-foreground hover:bg-accent hover:text-foreground">Org settings</Link>
       </div>
     </div>
