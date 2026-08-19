@@ -13,6 +13,7 @@ import { OrgSwitcher } from "@/components/org-switcher";
 import { usePortalTheme } from "@/components/portal-theme-provider";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
 
+
 export const Route = createFileRoute("/app")({
   beforeLoad: ({ location }) => {
     if (location.pathname === "/app" || location.pathname === "/app/") {
