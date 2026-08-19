@@ -21,6 +21,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SponsorsIndexRouteImport } from './routes/sponsors.index'
 import { Route as JoinIndexRouteImport } from './routes/join.index'
 import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-preview.$pageId'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
@@ -170,6 +171,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorsIndexRoute = SponsorsIndexRouteImport.update({
+  id: '/sponsors/',
+  path: '/sponsors/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinIndexRoute = JoinIndexRouteImport.update({
@@ -669,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/join/$code': typeof JoinCodeRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
+  '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -767,6 +774,7 @@ export interface FileRoutesByTo {
   '/join/$code': typeof JoinCodeRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join': typeof JoinIndexRoute
+  '/sponsors': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -871,6 +879,7 @@ export interface FileRoutesById {
   '/join/$code': typeof JoinCodeRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
   '/join/': typeof JoinIndexRoute
+  '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/website-preview/$pageId'
     | '/join/'
+    | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1075,6 +1085,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/website-preview/$pageId'
     | '/join'
+    | '/sponsors'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1178,6 +1189,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/website-preview/$pageId'
     | '/join/'
+    | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
@@ -1270,6 +1282,7 @@ export interface RootRouteChildren {
   JoinCodeRoute: typeof JoinCodeRoute
   WebsitePreviewPageIdRoute: typeof WebsitePreviewPageIdRoute
   JoinIndexRoute: typeof JoinIndexRoute
+  SponsorsIndexRoute: typeof SponsorsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
@@ -1374,6 +1387,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsors/': {
+      id: '/sponsors/'
+      path: '/sponsors'
+      fullPath: '/sponsors/'
+      preLoaderRoute: typeof SponsorsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join/': {
@@ -2265,6 +2285,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinCodeRoute: JoinCodeRoute,
   WebsitePreviewPageIdRoute: WebsitePreviewPageIdRoute,
   JoinIndexRoute: JoinIndexRoute,
+  SponsorsIndexRoute: SponsorsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
