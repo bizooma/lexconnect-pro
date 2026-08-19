@@ -183,6 +183,8 @@ function SponsorsPage() {
       name: s.name,
       tier: s.tier,
       tier_rank: s.tier_rank,
+      tier_id: s.tier_id ?? null,
+
       category: s.category ?? "",
       blurb: s.blurb ?? "",
       offer: s.offer ?? "",
