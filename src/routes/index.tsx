@@ -560,13 +560,15 @@ function Landing() {
                     height={800}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                   />
-                  <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                    card.badge === "Available now"
-                      ? "bg-gold text-gold-foreground"
-                      : "bg-destructive text-destructive-foreground"
-                  }`}>
-                    {card.badge}
-                  </span>
+                  {card.badge && (
+                    <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                      card.badge === "Available now"
+                        ? "bg-gold text-gold-foreground"
+                        : "bg-destructive text-destructive-foreground"
+                    }`}>
+                      {card.badge}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="font-serif text-xl font-semibold text-foreground">{card.title}</h3>
