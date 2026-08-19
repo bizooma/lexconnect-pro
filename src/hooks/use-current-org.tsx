@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { usePortalTheme } from "@/components/portal-theme-provider";
+import { type OrgKind } from "@/lib/org-kind";
+
 
 export type OrgMembership = {
   organization_id: string;
