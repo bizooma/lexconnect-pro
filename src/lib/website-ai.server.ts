@@ -20,20 +20,11 @@ type FieldSpec = {
   zod: z.ZodTypeAny;
 };
 
-const href = z
-  .string()
-  .trim()
-  .refine((v) => v.startsWith("/") || v.startsWith("#") || v.startsWith("https://"))
-  .catch(undefined as unknown as string)
-  .optional();
-
-// z.catch on a required-ish optional is awkward; use a preprocessor instead.
 const hrefField = z.preprocess((v) => {
   if (typeof v !== "string") return undefined;
   const t = v.trim();
   return t.startsWith("/") || t.startsWith("#") || t.startsWith("https://") ? t : undefined;
 }, z.string().optional());
-void href;
 
 const text = z.string().trim().min(1).optional();
 
