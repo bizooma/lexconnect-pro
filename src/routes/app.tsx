@@ -44,7 +44,6 @@ const CORE_NAV_DEF = [
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
-  { to: "/app/sponsors", label: "Sponsors", icon: TagIcon },
 ] as const;
 
 function AppLayout() {
