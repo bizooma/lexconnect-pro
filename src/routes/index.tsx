@@ -590,13 +590,6 @@ function Landing() {
                           </li>
                         ))}
                       </ul>
-                      {card.cta && (
-                        <div className="mt-4">
-                          <a href="#contact" className="text-sm font-medium text-primary hover:underline">
-                            {card.cta}
-                          </a>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
