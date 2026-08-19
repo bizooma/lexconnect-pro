@@ -219,11 +219,15 @@ function SponsorsPage() {
         videoId = parsed.videoId;
       }
 
+      const selectedTier = tiers.find((t) => t.id === form.tier_id) ?? null;
+
       const payload = {
         organization_id: currentOrgId,
         name: form.name.trim(),
-        tier: form.tier.trim() || "standard",
-        tier_rank: Number(form.tier_rank) || 100,
+        tier_id: selectedTier?.id ?? null,
+        tier: selectedTier?.name ?? (form.tier.trim() || "standard"),
+        tier_rank: selectedTier?.rank ?? (Number(form.tier_rank) || 100),
+
         category: form.category.trim() || null,
         blurb: form.blurb.trim() || null,
         offer: form.offer.trim() || null,
