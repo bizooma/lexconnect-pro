@@ -507,15 +507,40 @@ function Landing() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-4 md:grid-cols-2">
+          <div className="mt-12 space-y-10">
             {[
               {
                 img: addonWebsiteBuilder,
-                alt: "Website Builder — drag-and-drop editor for legal organizations",
-                badge: "Coming soon",
-                title: "Website Builder",
-                desc: "Create a beautiful, professional website for your bar association or legal organization with our drag-and-drop editor. No coding required.",
-                features: ["Drag-and-drop page editor", "Custom domains & SSL", "Lead capture forms", "Organization branding"],
+                alt: "Campaign & Program Pages — website builder for bar associations",
+                title: "Campaign & Program Pages",
+                desc: "Launch polished pages for everything your bar runs — your annual convention, CLE events, committees, well-being resources, membership drives — without touching your main website. Legal-specific templates, your branding, live in minutes.",
+                features: ["14 templates built for bar associations", "Custom domains & SSL", "Lead capture forms", "Works alongside any existing website"],
+                imageLeft: true,
+              },
+              {
+                img: addonCleLms,
+                alt: "CLE & Learning Management System — continuing legal education courses",
+                title: "CLE & Learning Management",
+                desc: "Deliver Continuing Legal Education courses, certification tracks, and professional development through an integrated learning platform.",
+                features: ["Course creation & hosting", "Progress tracking", "Certificates & credits", "Member enrollment"],
+                imageLeft: false,
+              },
+              {
+                img: addonWellBeing,
+                alt: "Attorney Well-Being Program — wellness resources and pulse surveys for legal organizations",
+                title: "Attorney Well-Being Program",
+                desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
+                features: ["Well-being resource hub with your LAP and crisis contacts", "Wellness CLE tracking for state requirements", "Anonymous member pulse surveys with aggregate-only results", "Well-Being Week events and programming"],
+                cta: "Talk to us about early access",
+                imageLeft: true,
+              },
+              {
+                img: addonSponsorProgram,
+                alt: "Sponsorship Program — tiered sponsor directory and performance tracking",
+                title: "Sponsorship Program",
+                desc: "Turn sponsorships from a spreadsheet into a program. Tiered sponsor directories on your website and member portal, member-exclusive offers, and the numbers no bar has today — views and click-throughs per sponsor, ready for every renewal conversation.",
+                features: ["Tiered public & member directories", "Sponsor pages with video & galleries", "Member offers", "Per-sponsor performance stats"],
+                imageLeft: false,
               },
               {
                 img: addonAttorneyDirectory,
@@ -524,76 +549,60 @@ function Landing() {
                 title: "Attorney Directory & Referral Service",
                 desc: "A searchable directory of vetted attorneys that evolves into a full lawyer referral service for your members and the public.",
                 features: ["Searchable attorney profiles", "Practice area filters", "Referral tracking", "Public & member access"],
+                imageLeft: true,
               },
-              {
-                img: addonCleLms,
-                alt: "CLE Learning Management System — continuing legal education courses",
-                badge: "Coming soon",
-                title: "CLE & Learning Management",
-                desc: "Deliver Continuing Legal Education courses, certification tracks, and professional development through an integrated learning platform.",
-                features: ["Course creation & hosting", "Progress tracking", "Certificates & credits", "Member enrollment"],
-              },
-              {
-                img: addonWellBeing,
-                alt: "Attorney Well-Being Program — wellness resources and pulse surveys for legal organizations",
-                badge: null,
-                title: "Attorney Well-Being Program",
-                desc: "68% of attorneys report anxiety and nearly half call it a crisis in the profession. Give your members a place to start — and give your wellness committee the local data national surveys can't.",
-                features: [
-                  "Well-being resource hub with your LAP and crisis contacts",
-                  "Wellness CLE tracking for state requirements",
-                  "Anonymous member pulse surveys with aggregate-only results",
-                  "Well-Being Week events and programming",
-                ],
-                cta: "Talk to us about early access",
-              },
-            ].map((card) => (
-              <div
-                key={card.title}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:shadow-elegant"
-              >
-                <div className="relative aspect-[3/2] overflow-hidden">
-                  <img
-                    src={card.img}
-                    alt={card.alt}
-                    loading="lazy"
-                    width={1200}
-                    height={800}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  />
-                  {card.badge && (
-                    <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                      card.badge === "Available now"
-                        ? "bg-gold text-gold-foreground"
-                        : "bg-destructive text-destructive-foreground"
-                    }`}>
-                      {card.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col p-6">
-                  <h3 className="font-serif text-xl font-semibold text-foreground">{card.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
-                  <ul className="mt-4 space-y-1.5">
-                    {card.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {card.cta && (
-                    <div className="mt-4">
-                      <a href="#contact" className="text-sm font-medium text-primary hover:underline">
-                        {card.cta}
-                      </a>
+            ].map((card) => {
+              const imageLeft = card.imageLeft;
+              return (
+                <div
+                  key={card.title}
+                  className="group overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:shadow-elegant"
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12">
+                    <div className={`relative aspect-[3/2] overflow-hidden lg:aspect-auto lg:col-span-4 order-1 ${imageLeft ? "lg:order-1" : "lg:order-2"}`}>
+                      <img
+                        src={card.img}
+                        alt={card.alt}
+                        loading="lazy"
+                        width={1200}
+                        height={800}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                      />
+                      {card.badge && (
+                        <span className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                          card.badge === "Available now"
+                            ? "bg-gold text-gold-foreground"
+                            : "bg-destructive text-destructive-foreground"
+                        }`}>
+                          {card.badge}
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <div className={`flex flex-col justify-center p-6 sm:p-8 lg:col-span-8 order-2 ${imageLeft ? "lg:order-2" : "lg:order-1"}`}>
+                      <h3 className="font-serif text-xl font-semibold text-foreground sm:text-2xl">{card.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">{card.desc}</p>
+                      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                        {card.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-gold" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {card.cta && (
+                        <div className="mt-4">
+                          <a href="#contact" className="text-sm font-medium text-primary hover:underline">
+                            {card.cta}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
