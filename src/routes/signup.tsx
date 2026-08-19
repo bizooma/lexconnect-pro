@@ -196,10 +196,11 @@ function StandardSignup() {
       const { data: orgId, error: rpcErr } = await supabase.rpc("create_organization_with_owner", {
         _name: orgName,
         _slug: slug,
-        _kind: orgKindValue as any,
+        _kind: orgKindValue,
         _plan: planValue,
         _max_users: plan.seats,
       });
+
 
       if (rpcErr) throw rpcErr;
 

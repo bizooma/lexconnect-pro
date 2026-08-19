@@ -92,7 +92,7 @@ function AppLayout() {
       locked: !isOrgAdmin,
     },
   ];
-  const clientsLabel = (currentOrg?.kind as string) === "firm" ? "Clients" : "Members";
+  const clientsLabel = currentOrg?.kind === "firm" ? "Clients" : "Members";
   const orgNav: NavItem[] = isOrgAdmin
     ? [{ to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true }]
     : [];

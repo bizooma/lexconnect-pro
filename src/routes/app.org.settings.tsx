@@ -122,13 +122,14 @@ function OrgSettingsPage() {
       .update({
         name,
         slug,
-        kind: kind as any,
+        kind,
         website: website || null,
         logo_url: logoUrl || null,
         accent_color: accentColor,
         welcome_message: welcomeMessage || null,
         join_policy: joinPolicy,
       } as any)
+
 
       .eq("id", currentOrgId);
 
