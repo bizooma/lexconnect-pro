@@ -14,14 +14,17 @@ export const Route = createFileRoute("/app/admin/orgs")({
   component: AdminOrgs,
 });
 
+import { type OrgKind } from "@/lib/org-kind";
+
 type Org = {
   id: string;
   name: string;
   slug: string;
-  kind: "firm" | "bar_association";
+  kind: OrgKind;
   created_at: string;
   paused: boolean;
 };
+
 
 type Sub = {
   organization_id: string;
