@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PasswordInput } from "@/components/password-input";
 import { toast } from "sonner";
 import { usePortalContext, type PortalContext } from "@/hooks/use-portal-context";
+import { type OrgKind, ORG_KIND_LABELS, ORG_KIND_VALUES } from "@/lib/org-kind";
+
 
 
 type PlanId = "starter" | "professional" | "enterprise" | "test";
