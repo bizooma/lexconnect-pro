@@ -4,6 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   GUARDRAILS,
   PAGE_TYPES,
+  SECTION_SPECS,
+  isAiSectionType,
   callGateway,
   checkAiQuota,
   loadOrgContext,
@@ -230,6 +232,172 @@ export const improvePageSeo = createServerFn({ method: "POST" })
     return {
       meta_title: String(output.meta_title ?? ""),
       meta_description: String(output.meta_description ?? ""),
+      remaining: quota.remaining,
+      limit: quota.limit,
+    };
+  });
+
+// ---------------- Generate from template + intake answers ----------------
+
+export const generateFromTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      organizationId: z.string().uuid(),
+      templateId: z.string().uuid(),
+      answers: z.record(z.string(), z.string().trim().max(500)),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const model = "google/gemini-2.5-flash";
+
+    const { data: allowed, error: permErr } = await supabase.rpc("can_edit_website", {
+      _org: data.organizationId,
+      _user: userId,
+    });
+    if (permErr) throw new Error(permErr.message);
+    if (!allowed) throw new Error("You do not have permission to edit this website.");
+
+    const { data: tpl, error: tplErr } = await supabase
+      .from("website_templates")
+      .select("id,name,page_type,default_sections_json,starter_prompt,intake_questions,is_global,organization_id")
+      .eq("id", data.templateId)
+      .maybeSingle();
+    if (tplErr) throw new Error(tplErr.message);
+    if (!tpl) throw new Error("Template not found");
+    if (!tpl.is_global && tpl.organization_id !== data.organizationId) {
+      throw new Error("Template not found");
+    }
+
+    const skeleton = (Array.isArray(tpl.default_sections_json) ? tpl.default_sections_json : [])
+      .map((s) => (s as { section_type?: unknown }).section_type)
+      .filter((t): t is string => typeof t === "string");
+    const aiSkeleton = skeleton.filter((t) => isAiSectionType(t));
+    if (aiSkeleton.length === 0) throw new Error("This template has no AI-generatable sections.");
+
+    const quota = await checkAiQuota(supabase, data.organizationId);
+    const orgContext = await loadOrgContext(supabase, data.organizationId);
+
+    const questions = (Array.isArray(tpl.intake_questions) ? tpl.intake_questions : []) as Array<{
+      id?: string;
+      label?: string;
+    }>;
+    const answerLines = questions
+      .map((q) => {
+        const val = q.id ? data.answers[q.id] : undefined;
+        return val && val.trim() ? `${q.label ?? q.id}: ${val.trim()}` : null;
+      })
+      .filter(Boolean) as string[];
+    // Include any extra answers not covered by the question list.
+    const known = new Set(questions.map((q) => q.id).filter(Boolean) as string[]);
+    for (const [k, v] of Object.entries(data.answers)) {
+      if (!known.has(k) && v.trim()) answerLines.push(`${k}: ${v.trim()}`);
+    }
+
+    const structureSpec = aiSkeleton
+      .map((t, i) => `${i + 1}. ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
+      .join("\n");
+
+    const output = await callGateway({
+      model,
+      system: [
+        "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
+        `Template: ${tpl.name}. ${tpl.starter_prompt ?? ""}`.trim(),
+        `You MUST return exactly ${aiSkeleton.length} sections, in this exact order and with these exact section_type values:\n${structureSpec}`,
+        "Each section's content_json must use ONLY the fields defined for that section_type. Do not output image URLs. Base all facts on the intake answers and organization context.",
+        orgContext,
+        GUARDRAILS,
+      ].filter(Boolean).join("\n\n"),
+      user: `Intake answers:\n${answerLines.join("\n") || "(none provided)"}`,
+      toolName: "generate_page_from_template",
+      toolDescription: "Return a structured website page draft matching the template structure.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          slug: { type: "string" },
+          meta_title: { type: "string" },
+          meta_description: { type: "string" },
+          sections: sectionsParameterSchema(),
+        },
+        required: ["title", "slug", "meta_title", "meta_description", "sections"],
+      },
+    });
+
+    const title = String(output.title || tpl.name).slice(0, 200);
+    const slug = slugify(String(output.slug || title));
+    const metaTitle = String(output.meta_title || title).slice(0, 120);
+    const metaDescription = String(output.meta_description || "").slice(0, 320);
+
+    // Align the model output to the template skeleton, in order.
+    const returned = (Array.isArray(output.sections) ? output.sections : []) as Array<{
+      section_type?: unknown;
+      content_json?: unknown;
+    }>;
+    const pool = [...returned];
+    const validSections: Array<{ section_type: string; content_json: Record<string, unknown> }> = [];
+    let droppedSections = 0;
+    for (const type of aiSkeleton) {
+      const idx = pool.findIndex((s) => s.section_type === type);
+      if (idx === -1) {
+        droppedSections++;
+        continue;
+      }
+      const [match] = pool.splice(idx, 1);
+      const clean = validateSectionContent(type, match.content_json ?? {});
+      if (!clean) {
+        droppedSections++;
+        continue;
+      }
+      validSections.push({ section_type: type, content_json: clean });
+    }
+
+    const { data: pageRow, error: pageErr } = await (supabase.from("website_pages") as any)
+      .insert({
+        organization_id: data.organizationId,
+        title,
+        slug,
+        page_type: tpl.page_type,
+        status: "draft",
+        meta_title: metaTitle,
+        meta_description: metaDescription,
+        created_by: userId,
+        updated_by: userId,
+      })
+      .select("id")
+      .single();
+    if (pageErr) throw new Error(pageErr.message);
+
+    const rows = validSections.map((s, i) => ({
+      page_id: pageRow.id,
+      organization_id: data.organizationId,
+      section_type: s.section_type,
+      display_order: i,
+      settings_json: {},
+      content_json: s.content_json,
+      visible: true,
+      responsive_json: {},
+    }));
+    if (rows.length > 0) {
+      const { error: secErr } = await (supabase.from("website_sections") as any).insert(rows);
+      if (secErr) throw new Error(secErr.message);
+    }
+
+    await logGeneration(
+      supabase,
+      data.organizationId,
+      userId,
+      "page_draft",
+      `[Template: ${tpl.name}] ${answerLines.join(" | ")}`.slice(0, 2000),
+      output,
+      model,
+    );
+
+    return {
+      pageId: pageRow.id as string,
+      slug,
+      droppedSections,
       remaining: quota.remaining,
       limit: quota.limit,
     };
