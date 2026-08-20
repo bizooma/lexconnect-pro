@@ -50,7 +50,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/$sponsorId")({
 });
 
 function PublicSponsorDetail() {
-  const { organization, brand, sponsor } = Route.useLoaderData();
+  const { organization, brand, sponsor, navPages } = Route.useLoaderData();
 
   useEffect(() => {
     void recordSponsorEvent({ data: { sponsorId: sponsor.id, event: "view" } }).catch(() => {});
