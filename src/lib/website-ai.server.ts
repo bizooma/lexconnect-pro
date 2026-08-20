@@ -164,7 +164,7 @@ export function isAiSectionType(t: unknown): t is string {
   return typeof t === "string" && Object.prototype.hasOwnProperty.call(SECTION_SPECS, t);
 }
 
-/** JSON-schema for the sections array offered to the model. */
+/** Simple JSON-schema for the sections array offered to the model. */
 export function sectionsParameterSchema() {
   return {
     type: "array",
@@ -173,31 +173,80 @@ export function sectionsParameterSchema() {
     items: {
       type: "object",
       properties: {
-        section_type: { type: "string", enum: AI_SECTION_TYPES },
-        content_json: {
-          type: "object",
-          description:
-            "Use ONLY the fields defined for the chosen section_type: " +
-            AI_SECTION_TYPES.map(
-              (t) => `${t}: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`,
-            ).join(" | "),
-          properties: Object.values(SECTION_SPECS).reduce<Record<string, unknown>>(
-            (acc, spec) => ({ ...acc, ...spec.properties }),
-            {},
-          ),
-        },
+        section_type: { type: "string" },
+        content_json: { type: "object" },
       },
       required: ["section_type", "content_json"],
     },
   };
 }
 
+
+/**
+ * Plain-string JSON schema for one section type: no enums, no anyOf, no
+ * min/max constraints. Item arrays become arrays of plain string objects.
+ */
+function plainProperties(sectionType: string): Record<string, unknown> {
+  const spec = SECTION_SPECS[sectionType];
+  if (!spec) return {};
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(spec.properties)) {
+    const v = value as { type?: string; items?: { properties?: Record<string, unknown> } };
+    if (v?.type === "array") {
+      const itemProps = v.items?.properties ?? {};
+      const plainItem: Record<string, unknown> = {};
+      for (const k of Object.keys(itemProps)) plainItem[k] = { type: "string" };
+      out[key] = { type: "array", items: { type: "object", properties: plainItem } };
+    } else {
+      out[key] = { type: "string" };
+    }
+  }
+  return out;
+}
+
+/**
+ * Flat, request-specific schema for a known skeleton: one numbered key per
+ * section (s1..sN), each holding only that section type's plain fields.
+ */
+export function skeletonParameterSchema(skeleton: string[]) {
+  const properties: Record<string, unknown> = {};
+  const required: string[] = [];
+  skeleton.forEach((type, i) => {
+    const key = `s${i + 1}`;
+    properties[key] = {
+      type: "object",
+      description: `Content for the ${type} section`,
+      properties: plainProperties(type),
+    };
+    required.push(key);
+  });
+  return { type: "object", properties, required };
+}
+
+/** Human-readable content vocabulary listed in the system prompt. */
+export function sectionVocabularyText(): string {
+  return AI_SECTION_TYPES.map((t) => {
+    const props = SECTION_SPECS[t].properties;
+    const fields = Object.entries(props)
+      .map(([k, v]) => {
+        const spec = v as { type?: string; items?: { properties?: Record<string, unknown> } };
+        if (spec?.type === "array") {
+          return `${k} (array of objects with: ${Object.keys(spec.items?.properties ?? {}).join(", ")})`;
+        }
+        return k;
+      })
+      .join(", ");
+    return `- ${t}: ${fields}`;
+  }).join("\n");
+}
+
 /** JSON-schema properties for one section type (used by regenerateSection). */
 export function sectionContentSchema(sectionType: string) {
   const spec = SECTION_SPECS[sectionType];
   if (!spec) return null;
-  return { type: "object", properties: spec.properties };
+  return { type: "object", properties: plainProperties(sectionType) };
 }
+
 
 function stripUndefined(obj: Record<string, unknown>) {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));

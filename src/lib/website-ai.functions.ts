@@ -12,11 +12,14 @@ import {
   loadOrgContext,
   logGeneration,
   sectionContentSchema,
+  sectionVocabularyText,
   sectionsParameterSchema,
+  skeletonParameterSchema,
   slugify,
   validateSection,
   validateSectionContent,
 } from "@/lib/website-ai.server";
+
 
 // ---------------- Generate full page draft ----------------
 
@@ -35,42 +38,73 @@ export const generatePageDraft = createServerFn({ method: "POST" })
     const quota = await checkAiQuota(supabase, data.organizationId);
     const orgContext = await loadOrgContext(supabase, data.organizationId);
 
-    const output = await callGateway({
-      model,
-      system: [
-        "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
-        "Each section's content_json must use ONLY the fields defined for that section_type. Do not output image URLs.",
-        orgContext,
-        GUARDRAILS,
-      ].filter(Boolean).join("\n\n"),
-      user: data.prompt,
-      toolName: "generate_page_draft",
-      toolDescription: "Return a structured website page draft.",
-      parameters: {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          slug: { type: "string" },
-          page_type: { type: "string", enum: PAGE_TYPES as unknown as string[] },
-          meta_title: { type: "string" },
-          meta_description: { type: "string" },
-          sections: sectionsParameterSchema(),
-        },
-        required: ["title", "slug", "page_type", "meta_title", "meta_description", "sections"],
+    const system = [
+      "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
+      `Allowed section_type values and the EXACT content_json fields each one accepts:\n${sectionVocabularyText()}`,
+      "Each section's content_json must use ONLY the fields listed for that section_type. Do not add other fields. Do not output image URLs.",
+      orgContext,
+      GUARDRAILS,
+    ].filter(Boolean).join("\n\n");
+
+    const parameters = {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        slug: { type: "string" },
+        page_type: { type: "string" },
+        meta_title: { type: "string" },
+        meta_description: { type: "string" },
+        sections: sectionsParameterSchema(),
       },
-    });
+      required: ["title", "slug", "page_type", "meta_title", "meta_description", "sections"],
+    };
+
+    const runOnce = async (userMessage: string) =>
+      await callGateway({
+        model,
+        system,
+        user: userMessage,
+        toolName: "generate_page_draft",
+        toolDescription: "Return a structured website page draft.",
+        parameters,
+      });
+
+    let output = await runOnce(data.prompt);
+    let rawSections = Array.isArray(output.sections) ? output.sections : [];
+    let validSections = rawSections
+      .map((s: unknown) => validateSection(s))
+      .filter((s): s is { section_type: string; content_json: Record<string, unknown> } => s !== null);
+
+    if (validSections.length === 0) {
+      const failed = rawSections
+        .map((s) => String((s as { section_type?: unknown })?.section_type ?? "unknown"))
+        .slice(0, 10);
+      const reason = failed.length
+        ? `These sections were rejected: ${failed.join(", ")}. They used an unknown section_type or fields that are not in the allowed field list.`
+        : "No sections were returned.";
+      output = await runOnce(
+        `${data.prompt}\n\n${reason} Try again, using ONLY the allowed section_type values and their exact listed fields, with non-empty string values.`,
+      );
+      rawSections = Array.isArray(output.sections) ? output.sections : [];
+      validSections = rawSections
+        .map((s: unknown) => validateSection(s))
+        .filter((s): s is { section_type: string; content_json: Record<string, unknown> } => s !== null);
+      if (validSections.length === 0) {
+        throw new Error("AI could not produce a valid page. Try rephrasing your description.");
+      }
+    }
+
+    const droppedSections = rawSections.length - validSections.length;
 
     const title = String(output.title || "Untitled page").slice(0, 200);
     const slug = slugify(String(output.slug || title));
-    const pageType = String(output.page_type || "custom");
+    const rawType = String(output.page_type || "custom");
+    const pageType = (PAGE_TYPES as readonly string[]).includes(rawType) ? rawType : "custom";
     const metaTitle = String(output.meta_title || title).slice(0, 120);
     const metaDescription = String(output.meta_description || "").slice(0, 320);
 
-    const rawSections = Array.isArray(output.sections) ? output.sections : [];
-    const validSections = rawSections
-      .map((s: unknown) => validateSection(s))
-      .filter((s): s is { section_type: string; content_json: Record<string, unknown> } => s !== null);
-    const droppedSections = rawSections.length - validSections.length;
+
+
 
     const { data: pageRow, error: pageErr } = await (supabase.from("website_pages") as any)
       .insert({
@@ -297,7 +331,7 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
     }
 
     const structureSpec = aiSkeleton
-      .map((t, i) => `${i + 1}. ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
+      .map((t, i) => `s${i + 1} = ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
       .join("\n");
 
     const output = await callGateway({
@@ -305,8 +339,8 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       system: [
         "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
         `Template: ${tpl.name}. ${tpl.starter_prompt ?? ""}`.trim(),
-        `You MUST return exactly ${aiSkeleton.length} sections, in this exact order and with these exact section_type values:\n${structureSpec}`,
-        "Each section's content_json must use ONLY the fields defined for that section_type. Do not output image URLs. Base all facts on the intake answers and organization context.",
+        `Fill one object per numbered key, in this order:\n${structureSpec}`,
+        "Use ONLY the fields listed for each key. Do not output image URLs. Base all facts on the intake answers and organization context.",
         orgContext,
         GUARDRAILS,
       ].filter(Boolean).join("\n\n"),
@@ -320,9 +354,15 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
           slug: { type: "string" },
           meta_title: { type: "string" },
           meta_description: { type: "string" },
-          sections: sectionsParameterSchema(),
+          ...(skeletonParameterSchema(aiSkeleton).properties as Record<string, unknown>),
         },
-        required: ["title", "slug", "meta_title", "meta_description", "sections"],
+        required: [
+          "title",
+          "slug",
+          "meta_title",
+          "meta_description",
+          ...aiSkeleton.map((_, i) => `s${i + 1}`),
+        ],
       },
     });
 
@@ -331,28 +371,19 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
     const metaTitle = String(output.meta_title || title).slice(0, 120);
     const metaDescription = String(output.meta_description || "").slice(0, 320);
 
-    // Align the model output to the template skeleton, in order.
-    const returned = (Array.isArray(output.sections) ? output.sections : []) as Array<{
-      section_type?: unknown;
-      content_json?: unknown;
-    }>;
-    const pool = [...returned];
+    // Map s1..sN back onto the skeleton's section types by position.
     const validSections: Array<{ section_type: string; content_json: Record<string, unknown> }> = [];
     let droppedSections = 0;
-    for (const type of aiSkeleton) {
-      const idx = pool.findIndex((s) => s.section_type === type);
-      if (idx === -1) {
-        droppedSections++;
-        continue;
-      }
-      const [match] = pool.splice(idx, 1);
-      const clean = validateSectionContent(type, match.content_json ?? {});
+    aiSkeleton.forEach((type, i) => {
+      const clean = validateSectionContent(type, output[`s${i + 1}`] ?? {});
       if (!clean) {
         droppedSections++;
-        continue;
+        return;
       }
       validSections.push({ section_type: type, content_json: clean });
-    }
+    });
+
+
 
     const { data: pageRow, error: pageErr } = await (supabase.from("website_pages") as any)
       .insert({
