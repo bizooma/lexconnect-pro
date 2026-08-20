@@ -808,6 +808,30 @@ function PageEditorPage() {
                 />
               </label>
             </div>
+            <div className="mt-3 space-y-2 rounded-lg border border-border p-2">
+              <label className="flex items-center gap-2 text-xs text-foreground">
+                <input
+                  type="checkbox"
+                  checked={page.show_in_nav}
+                  onChange={(e) => queueMetaSave({ show_in_nav: e.target.checked })}
+                />
+                Show in navigation
+              </label>
+              <label className="block text-xs">
+                <span className="text-muted-foreground">Nav order</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={9999}
+                  value={page.nav_order}
+                  onChange={(e) => queueMetaSave({ nav_order: Math.max(0, Math.min(9999, Number(e.target.value) || 0)) })}
+                  className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-foreground"
+                />
+                <span className="mt-1 block text-[11px] text-muted-foreground">
+                  Lower numbers appear first. Only published pages show in the public menu.
+                </span>
+              </label>
+            </div>
             <div className="mt-3">
               <ImageUploader
                 organizationId={page.organization_id}
