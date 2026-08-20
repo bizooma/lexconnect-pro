@@ -473,10 +473,11 @@ export async function buildSite(opts: {
 
   await saveSiteProfile(supabase, organizationId, userId, opts.profile);
 
-  const quota = await getAiUsage(supabase, organizationId);
-  if (quota.remaining < pages.length) {
+  assertGenerationCooldown(userId);
+  const quota = await aiUsageSnapshot(supabase, organizationId);
+  if (quota.total_remaining < pages.length) {
     throw new Error(
-      `This site needs ${pages.length} AI generations but only ${quota.remaining} remain this month (${quota.used} of ${quota.limit} used). Remove pages or wait for the reset on the 1st.`,
+      `This site needs ${pages.length} AI generations but only ${quota.total_remaining} remain (${quota.monthly_used} of ${quota.monthly_limit} monthly used, ${quota.purchased_balance} purchased credits). Remove pages or buy more credits.`,
     );
   }
 
@@ -487,6 +488,18 @@ export async function buildSite(opts: {
   const results: SitePageResult[] = [];
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
+    let reservation: { source: "monthly" | "purchased" } | null = null;
+    try {
+      reservation = await reserveAiGeneration(supabase, organizationId);
+    } catch (e) {
+      results.push({
+        key: page.key,
+        pageId: null,
+        slug: null,
+        error: e instanceof Error ? e.message : "Out of AI generations",
+      });
+      continue;
+    }
     const shared = {
       supabase,
       organizationId,
@@ -496,6 +509,7 @@ export async function buildSite(opts: {
       page,
       slug: slugs[i],
       navOrder: (i + 1) * 10,
+      chargedTo: reservation.source,
     };
     try {
       let pageId: string;
@@ -508,6 +522,7 @@ export async function buildSite(opts: {
       } else pageId = await generateFreeform(shared);
       results.push({ key: page.key, pageId, slug: slugs[i], error: null });
     } catch (e) {
+      await releaseAiGeneration(supabase, organizationId, reservation.source);
       results.push({
         key: page.key,
         pageId: null,
@@ -517,6 +532,11 @@ export async function buildSite(opts: {
     }
   }
 
-  const after = await getAiUsage(supabase, organizationId);
-  return { results, used: after.used, limit: after.limit, remaining: after.remaining };
+  const after = await aiUsageSnapshot(supabase, organizationId);
+  return {
+    results,
+    used: after.monthly_used,
+    limit: after.monthly_limit,
+    remaining: after.total_remaining,
+  };
 }
