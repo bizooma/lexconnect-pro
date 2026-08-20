@@ -13,6 +13,7 @@ import {
   updateJoinPolicy,
   updateWellnessSettings,
 } from "@/lib/org-portal.functions";
+import { hasTopTierAccess } from "@/lib/entitlements";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/website/ImageUploader";
