@@ -20,7 +20,7 @@ type Row = {
 };
 
 function PagesListPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const list = useServerFn(listWebsitePages);
   const del = useServerFn(deleteWebsitePage);
   const dup = useServerFn(duplicateWebsitePage);
@@ -65,6 +65,21 @@ function PagesListPage() {
           ✨ Create page with AI
         </Link>
       </div>
+
+      {!loading && rows.length === 0 && isOrgAdmin && (
+        <section className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-accent/10 to-transparent p-5">
+          <h2 className="text-base font-semibold text-foreground">Build your whole site with AI</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Answer a few questions, get a complete draft site.
+          </p>
+          <Link
+            to={"/app/website/build" as any}
+            className="mt-4 inline-block rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            Build my site
+          </Link>
+        </section>
+      )}
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         {loading ? (
