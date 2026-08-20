@@ -207,12 +207,13 @@ function StandardSignup() {
       if (typeof window !== "undefined" && orgId) {
         window.localStorage.setItem("lexguild.currentOrgId", orgId as unknown as string);
       }
-      toast.success("Organization created");
+      toast.success("Organization created — your 7-day free trial has started");
       if (plan.contactOnly) {
         navigate({ to: "/onboarding" });
       } else {
-        const priceId = priceIdForPlan(plan, billing);
-        navigate({ to: "/checkout", search: { price: priceId } });
+        // No card required up front: land on the dashboard for the trial.
+        // Upgrades happen later from Billing & Seats.
+        navigate({ to: "/app/dashboard" });
       }
     } catch (err: any) {
       setError(err.message ?? "Could not create your organization.");
