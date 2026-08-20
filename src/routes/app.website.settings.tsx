@@ -7,6 +7,7 @@ import { getBrandSettings, updateBrandSettings } from "@/lib/website.functions";
 import type { WebsiteBrandSettings } from "@/lib/website";
 import { SiteProfileCard } from "@/components/website/SiteProfileCard";
 import { NavigationCard } from "@/components/website/NavigationCard";
+import { AiUsageCard } from "@/components/website/AiUsageCard";
 
 export const Route = createFileRoute("/app/website/settings")({
   component: WebsiteSettingsPage,
@@ -46,6 +47,8 @@ function WebsiteSettingsPage() {
         <h2 className="text-lg font-semibold text-foreground">Module Settings</h2>
         <p className="text-sm text-muted-foreground">SEO defaults, footer, and module-wide options for the Website Builder.</p>
       </div>
+
+      {currentOrgId && isOrgAdmin && <AiUsageCard />}
 
       {currentOrgId && <SiteProfileCard organizationId={currentOrgId} canEdit={isOrgAdmin} />}
 
@@ -105,3 +108,4 @@ function WebsiteSettingsPage() {
     </div>
   );
 }
+

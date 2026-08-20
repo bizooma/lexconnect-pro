@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentOrg } from "@/hooks/use-current-org";
+
 import { generateSite, getAiQuota } from "@/lib/website-ai.functions";
 import { getWebsitePage } from "@/lib/website.functions";
 import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
@@ -152,15 +153,25 @@ function BuildSiteWizard() {
   const quotaFn = useServerFn(getAiQuota);
   const pageFn = useServerFn(getWebsitePage);
 
+  type Quota = {
+    used: number;
+    limit: number;
+    remaining: number;
+    purchased: number;
+    period: string;
+    resetsOn: string;
+  };
+
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState({ ...PROFILE_EMPTY });
   const [rows, setRows] = useState<Row[]>([]);
-  const [quota, setQuota] = useState({ used: 0, limit: 0, remaining: 0 });
+  const [quota, setQuota] = useState<Quota>({ used: 0, limit: 0, remaining: 0, purchased: 0, period: "", resetsOn: "" });
   const [running, setRunning] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, RowStatus>>({});
   const [results, setResults] = useState<Result[] | null>(null);
   const [previews, setPreviews] = useState<Record<string, { title: string; sections: unknown }>>({});
   const [fatal, setFatal] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!currentOrgId) return;
@@ -197,12 +208,22 @@ function BuildSiteWizard() {
           notes: prof.data.notes ?? "",
         });
       }
-      if (q) setQuota(q);
+      if (q) {
+        setQuota({
+          used: q.used,
+          limit: q.limit,
+          remaining: q.remaining,
+          purchased: q.purchased,
+          period: q.period,
+          resetsOn: q.resetsOn,
+        });
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, [currentOrgId, quotaFn]);
+
 
   const selected = useMemo(() => rows.filter((r) => r.checked), [rows]);
   const setP = (k: keyof typeof PROFILE_EMPTY, v: string) =>
@@ -267,9 +288,10 @@ function BuildSiteWizard() {
       (res.results as Result[]).forEach((r) => (next[r.key] = r.error ? "error" : "done"));
       setStatuses(next);
       setResults(res.results as Result[]);
-      setQuota({ used: res.used, limit: res.limit, remaining: res.remaining });
+      setQuota((q) => ({ ...q, used: res.used, limit: res.limit, remaining: res.remaining }));
 
       const previewEntries = await Promise.all(
+
         (res.results as Result[])
           .filter((r) => r.pageId)
           .map(async (r) => {
@@ -283,8 +305,19 @@ function BuildSiteWizard() {
       );
       setPreviews(Object.fromEntries(previewEntries.filter(Boolean) as never));
     } catch (e) {
-      setFatal(e instanceof Error ? e.message : "Generation failed");
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
+      setFatal(msg);
+      toast.error(msg, {
+        action: isCreditError
+          ? {
+              label: "View usage",
+              onClick: () => navigate({ to: "/app/website/settings" }),
+            }
+          : undefined,
+      });
       setStatuses((s) => {
+
         const n = { ...s };
         Object.keys(n).forEach((k) => (n[k] = n[k] === "done" ? "done" : "error"));
         return n;
@@ -476,14 +509,16 @@ function BuildSiteWizard() {
             ))}
           </ol>
           <p className="text-sm text-muted-foreground">
-            This will use {selected.length} of your {quota.remaining} remaining generations this month (
-            {quota.used} of {quota.limit} used).
+            This will use {selected.length} of your {quota.remaining} remaining generations
+            {quota.purchased > 0 ? ` (${quota.purchased} purchased credits included)` : ""} (
+            {quota.used} of {quota.limit} monthly used).
           </p>
           {selected.length > quota.remaining && (
             <p className="text-sm text-destructive">
-              Not enough generations remaining. Remove pages or wait for the monthly reset.
+              Not enough generations remaining. Remove pages, buy more credits in Settings → Website Builder, or wait for the monthly reset.
             </p>
           )}
+
           <div className="flex justify-between">
             <Button variant="outline" onClick={() => setStep(1)}>
               Back

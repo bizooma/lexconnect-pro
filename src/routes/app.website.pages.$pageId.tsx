@@ -115,7 +115,16 @@ function PageEditorPage() {
   const quotaFn = useServerFn(getAiQuota);
   const [regenInputs, setRegenInputs] = useState<AiRegenStash | null>(null);
   const [regenBusy, setRegenBusy] = useState(false);
-  const [aiQuota, setAiQuota] = useState<{ remaining: number; limit: number } | null>(null);
+
+  type AiQuota = {
+    used: number;
+    limit: number;
+    remaining: number;
+    purchased: number;
+    period: string;
+    resetsOn: string;
+  };
+  const [aiQuota, setAiQuota] = useState<AiQuota | null>(null);
 
   useEffect(() => {
     setRegenInputs(readAiInputs(pageId));
@@ -124,9 +133,19 @@ function PageEditorPage() {
   useEffect(() => {
     if (!currentOrgId) return;
     quotaFn({ data: { organizationId: currentOrgId } })
-      .then((r) => setAiQuota({ remaining: r.remaining, limit: r.limit }))
+      .then((r) =>
+        setAiQuota({
+          used: r.used,
+          limit: r.limit,
+          remaining: r.remaining,
+          purchased: r.purchased,
+          period: r.period,
+          resetsOn: r.resetsOn,
+        }),
+      )
       .catch(() => {});
   }, [currentOrgId, quotaFn]);
+
 
   // Page-level AI conversation bar
   const reviseFn = useServerFn(revisePage);
@@ -143,8 +162,9 @@ function PageEditorPage() {
     setReviseError(null);
     try {
       const r = await reviseFn({ data: { pageId, instruction: text } });
-      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setAiQuota((q) => (q ? { ...q, remaining: r.remaining, limit: r.limit } : null));
       setLastRevisionId(r.revisionId);
+
       setInstruction("");
       toast.success("Page updated by AI.");
       await refreshRef.current();
@@ -183,8 +203,9 @@ function PageEditorPage() {
                 answers: regenInputs.answers,
               },
             });
-      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setAiQuota((q) => (q ? { ...q, remaining: r.remaining, limit: r.limit } : null));
       if (!r?.pageId) {
+
         toast.error("Generation didn't produce a page — please try again.");
         return;
       }
@@ -192,8 +213,18 @@ function PageEditorPage() {
       toast.success("New draft created — your previous draft is untouched.");
       navigate({ to: "/app/website/pages/$pageId", params: { pageId: r.pageId } });
     } catch (e) {
-      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
+      const msg = e instanceof Error && e.message ? e.message : "Generation failed — please try again.";
+      const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
+      toast.error(msg, {
+        action: isCreditError
+          ? {
+              label: "View usage",
+              onClick: () => navigate({ to: "/app/website/settings" }),
+            }
+          : undefined,
+      });
     } finally {
+
       setRegenBusy(false);
     }
   }, [regenInputs, currentOrgId, regenBusy, aiFreeform, aiTemplate, navigate]);
@@ -486,16 +517,17 @@ function PageEditorPage() {
               disabled={regenBusy || (aiQuota !== null && aiQuota.remaining <= 0)}
               title={
                 aiQuota !== null && aiQuota.remaining <= 0
-                  ? "You've used all your AI generations this month"
+                  ? "You've used all your AI generations"
                   : "Re-run the same AI generation into a new draft page (uses one generation)"
               }
               className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent disabled:opacity-50"
             >
               {regenBusy
                 ? "Generating…"
-                : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left)` : ""}`}
+                : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left${aiQuota.purchased ? ` + ${aiQuota.purchased} purchased` : ""})` : ""}`}
             </button>
           )}
+
           {lastRevisionId && (
             <button
               onClick={revertRevision}
@@ -711,9 +743,12 @@ function PageEditorPage() {
               ) : (
                 <p className="text-[11px] text-muted-foreground">
                   Try “add an FAQ about parking after the schedule” or “move sponsors above the speakers”.
-                  {aiQuota ? ` · ${aiQuota.remaining} of ${aiQuota.limit} AI runs left this month` : ""}
+                  {aiQuota
+                    ? ` · ${aiQuota.remaining} of ${aiQuota.limit} AI runs left this month${aiQuota.purchased ? ` + ${aiQuota.purchased} purchased` : ""}`
+                    : ""}
                 </p>
               )}
+
             </div>
           </div>
         </main>
