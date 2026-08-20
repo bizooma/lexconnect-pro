@@ -565,7 +565,10 @@ export const revisePage = createServerFn({ method: "POST" })
     const existing = (sectionRows ?? []) as unknown as EditorSection[];
     if (existing.length === 0) throw new Error("This page has no sections to revise yet.");
 
-    const quota = await checkAiQuota(supabase, page.organization_id);
+    assertGenerationCooldown(userId);
+    const reservation = await reserveAiGeneration(supabase, page.organization_id);
+    let committed = false;
+    try {
     const orgContext = await loadOrgContext(supabase, page.organization_id);
 
     const structure = existing
