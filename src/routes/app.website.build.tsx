@@ -543,7 +543,7 @@ function BuildSiteWizard() {
                     >
                       <TemplateMiniPreview sections={previews[r.key]?.sections ?? []} />
                       <p className="mt-2 truncate text-sm font-medium text-foreground">
-                        {previews[r.key]?.title ?? r.title}
+                        {previews[r.key]?.title ?? selected.find((s) => s.key === r.key)?.title ?? r.key}
                       </p>
                       <p className="text-xs text-muted-foreground">/{r.slug} · Draft</p>
                     </Link>
