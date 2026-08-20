@@ -83,6 +83,9 @@ function PageEditorPage() {
   const [savingMeta, setSavingMeta] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleAt, setScheduleAt] = useState<string>("");
+  const inspectorRef = useRef<HTMLElement | null>(null);
+  const [photoNudgeDismissed, setPhotoNudgeDismissed] = useState(true);
+
   const { user } = useAuth();
   const { isOrgAdmin } = useCurrentOrg();
   const { isAdmin: isPlatformAdmin } = useIsAdmin();
