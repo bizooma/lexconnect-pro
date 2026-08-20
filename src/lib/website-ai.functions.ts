@@ -262,7 +262,10 @@ export const improvePageSeo = createServerFn({ method: "POST" })
       .single();
     if (error || !page) throw new Error(error?.message || "Page not found");
 
-    const quota = await checkAiQuota(supabase, page.organization_id);
+    assertGenerationCooldown(userId);
+    const reservation = await reserveAiGeneration(supabase, page.organization_id);
+    let committed = false;
+    try {
     const orgContext = await loadOrgContext(supabase, page.organization_id);
 
     const { data: sections } = await supabase
@@ -271,7 +274,7 @@ export const improvePageSeo = createServerFn({ method: "POST" })
       .eq("page_id", data.pageId)
       .order("display_order", { ascending: true });
 
-    const output = await callGateway({
+    const { output, usage } = await callGateway({
       model,
       system: [
         "You optimize SEO metadata for legal organization websites. Title 50–60 chars, description 140–160 chars, both keyword-rich and human-readable.",
@@ -300,14 +303,22 @@ export const improvePageSeo = createServerFn({ method: "POST" })
       .eq("id", data.pageId);
     if (upErr) throw new Error(upErr.message);
 
-    await logGeneration(supabase, page.organization_id, userId, "seo", page.title, output, model);
+    await logGeneration(supabase, page.organization_id, userId, "seo", page.title, output, model, {
+      usage,
+      chargedTo: reservation.source,
+    });
+    committed = true;
+    const snap = await aiUsageSnapshot(supabase, page.organization_id);
 
     return {
       meta_title: String(output.meta_title ?? ""),
       meta_description: String(output.meta_description ?? ""),
-      remaining: quota.remaining,
-      limit: quota.limit,
+      remaining: snap.total_remaining,
+      limit: snap.monthly_limit,
     };
+    } finally {
+      if (!committed) await releaseAiGeneration(supabase, page.organization_id, reservation.source);
+    }
   });
 
 // ---------------- Generate from template + intake answers ----------------
