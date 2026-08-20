@@ -305,8 +305,19 @@ function BuildSiteWizard() {
       );
       setPreviews(Object.fromEntries(previewEntries.filter(Boolean) as never));
     } catch (e) {
-      setFatal(e instanceof Error ? e.message : "Generation failed");
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
+      setFatal(msg);
+      toast.error(msg, {
+        action: isCreditError
+          ? {
+              label: "View usage",
+              onClick: () => navigate({ to: "/app/website/settings" }),
+            }
+          : undefined,
+      });
       setStatuses((s) => {
+
         const n = { ...s };
         Object.keys(n).forEach((k) => (n[k] = n[k] === "done" ? "done" : "error"));
         return n;
