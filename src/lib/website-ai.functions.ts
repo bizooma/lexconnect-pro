@@ -156,15 +156,23 @@ export const generatePageDraft = createServerFn({ method: "POST" })
       if (secErr) throw new Error(secErr.message);
     }
 
-    await logGeneration(supabase, data.organizationId, userId, "page_draft", data.prompt, output, model);
+    await logGeneration(supabase, data.organizationId, userId, "page_draft", data.prompt, output, model, {
+      usage,
+      chargedTo: reservation.source,
+    });
+    committed = true;
+    const snap = await aiUsageSnapshot(supabase, data.organizationId);
 
     return {
       pageId: pageRow.id as string,
       slug,
       droppedSections,
-      remaining: quota.remaining,
-      limit: quota.limit,
+      remaining: snap.total_remaining,
+      limit: snap.monthly_limit,
     };
+    } finally {
+      if (!committed) await releaseAiGeneration(supabase, data.organizationId, reservation.source);
+    }
   });
 
 // ---------------- Regenerate / rewrite a single section ----------------
