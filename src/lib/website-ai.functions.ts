@@ -331,7 +331,7 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
     }
 
     const structureSpec = aiSkeleton
-      .map((t, i) => `${i + 1}. ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
+      .map((t, i) => `s${i + 1} = ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
       .join("\n");
 
     const output = await callGateway({
@@ -339,8 +339,8 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       system: [
         "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
         `Template: ${tpl.name}. ${tpl.starter_prompt ?? ""}`.trim(),
-        `You MUST return exactly ${aiSkeleton.length} sections, in this exact order and with these exact section_type values:\n${structureSpec}`,
-        "Each section's content_json must use ONLY the fields defined for that section_type. Do not output image URLs. Base all facts on the intake answers and organization context.",
+        `Fill one object per numbered key, in this order:\n${structureSpec}`,
+        "Use ONLY the fields listed for each key. Do not output image URLs. Base all facts on the intake answers and organization context.",
         orgContext,
         GUARDRAILS,
       ].filter(Boolean).join("\n\n"),
@@ -354,9 +354,15 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
           slug: { type: "string" },
           meta_title: { type: "string" },
           meta_description: { type: "string" },
-          sections: sectionsParameterSchema(),
+          ...(skeletonParameterSchema(aiSkeleton).properties as Record<string, unknown>),
         },
-        required: ["title", "slug", "meta_title", "meta_description", "sections"],
+        required: [
+          "title",
+          "slug",
+          "meta_title",
+          "meta_description",
+          ...aiSkeleton.map((_, i) => `s${i + 1}`),
+        ],
       },
     });
 
@@ -365,28 +371,19 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
     const metaTitle = String(output.meta_title || title).slice(0, 120);
     const metaDescription = String(output.meta_description || "").slice(0, 320);
 
-    // Align the model output to the template skeleton, in order.
-    const returned = (Array.isArray(output.sections) ? output.sections : []) as Array<{
-      section_type?: unknown;
-      content_json?: unknown;
-    }>;
-    const pool = [...returned];
+    // Map s1..sN back onto the skeleton's section types by position.
     const validSections: Array<{ section_type: string; content_json: Record<string, unknown> }> = [];
     let droppedSections = 0;
-    for (const type of aiSkeleton) {
-      const idx = pool.findIndex((s) => s.section_type === type);
-      if (idx === -1) {
-        droppedSections++;
-        continue;
-      }
-      const [match] = pool.splice(idx, 1);
-      const clean = validateSectionContent(type, match.content_json ?? {});
+    aiSkeleton.forEach((type, i) => {
+      const clean = validateSectionContent(type, output[`s${i + 1}`] ?? {});
       if (!clean) {
         droppedSections++;
-        continue;
+        return;
       }
       validSections.push({ section_type: type, content_json: clean });
-    }
+    });
+
+
 
     const { data: pageRow, error: pageErr } = await (supabase.from("website_pages") as any)
       .insert({
