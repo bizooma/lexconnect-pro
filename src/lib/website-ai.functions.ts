@@ -94,9 +94,11 @@ export const generatePageDraft = createServerFn({ method: "POST" })
       const reason = failed.length
         ? `These sections were rejected: ${failed.join(", ")}. They used an unknown section_type or fields that are not in the allowed field list.`
         : "No sections were returned.";
-      output = await runOnce(
+      const retry = await runOnce(
         `${data.prompt}\n\n${reason} Try again, using ONLY the allowed section_type values and their exact listed fields, with non-empty string values.`,
       );
+      output = retry.output;
+      usage = retry.usage;
       rawSections = Array.isArray(output.sections) ? output.sections : [];
       validSections = rawSections
         .map((s: unknown) => validateSection(s))
