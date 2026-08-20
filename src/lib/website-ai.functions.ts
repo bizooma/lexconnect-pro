@@ -360,7 +360,10 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
     const aiSkeleton = skeleton.filter((t) => isAiSectionType(t));
     if (aiSkeleton.length === 0) throw new Error("This template has no AI-generatable sections.");
 
-    const quota = await checkAiQuota(supabase, data.organizationId);
+    assertGenerationCooldown(userId);
+    const reservation = await reserveAiGeneration(supabase, data.organizationId);
+    let committed = false;
+    try {
     const orgContext = await loadOrgContext(supabase, data.organizationId);
 
     const questions = (Array.isArray(tpl.intake_questions) ? tpl.intake_questions : []) as Array<{
