@@ -120,11 +120,52 @@ function PageEditorPage() {
   }, [pageId]);
 
   useEffect(() => {
-    if (!regenInputs || !currentOrgId) return;
+    if (!currentOrgId) return;
     quotaFn({ data: { organizationId: currentOrgId } })
       .then((r) => setAiQuota({ remaining: r.remaining, limit: r.limit }))
       .catch(() => {});
-  }, [regenInputs, currentOrgId, quotaFn]);
+  }, [currentOrgId, quotaFn]);
+
+  // Page-level AI conversation bar
+  const reviseFn = useServerFn(revisePage);
+  const revertFn = useServerFn(revertPageRevision);
+  const [instruction, setInstruction] = useState("");
+  const [reviseBusy, setReviseBusy] = useState(false);
+  const [reviseError, setReviseError] = useState<string | null>(null);
+  const [lastRevisionId, setLastRevisionId] = useState<string | null>(null);
+
+  const runRevision = useCallback(async () => {
+    const text = instruction.trim();
+    if (text.length < 5 || reviseBusy) return;
+    setReviseBusy(true);
+    setReviseError(null);
+    try {
+      const r = await reviseFn({ data: { pageId, instruction: text } });
+      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setLastRevisionId(r.revisionId);
+      setInstruction("");
+      toast.success("Page updated by AI.");
+      await refreshRef.current();
+    } catch (e) {
+      setReviseError(
+        e instanceof Error && e.message ? e.message : "The AI couldn't apply that change.",
+      );
+    } finally {
+      setReviseBusy(false);
+    }
+  }, [instruction, reviseBusy, reviseFn, pageId]);
+
+  const revertRevision = useCallback(async () => {
+    if (!lastRevisionId) return;
+    try {
+      await revertFn({ data: { revisionId: lastRevisionId } });
+      setLastRevisionId(null);
+      toast.success("Reverted the AI change.");
+      await refreshRef.current();
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Couldn't revert.");
+    }
+  }, [lastRevisionId, revertFn]);
 
   const tryAnotherVersion = useCallback(async () => {
     if (!regenInputs || !currentOrgId || regenBusy) return;
