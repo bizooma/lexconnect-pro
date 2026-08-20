@@ -12,6 +12,7 @@ import { CurrentOrgProvider, useCurrentOrg } from "@/hooks/use-current-org";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { usePortalTheme } from "@/components/portal-theme-provider";
 import { useOrgWellness } from "@/hooks/use-org-wellness";
+import { TrialCountdownBar } from "@/components/trial-countdown-bar";
 
 
 export const Route = createFileRoute("/app")({
@@ -222,6 +223,8 @@ function AppLayout() {
   );
 
   return (
+    <>
+    <TrialCountdownBar />
     <div className="min-h-screen bg-background lg:flex">
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
@@ -373,6 +376,7 @@ function AppLayout() {
         </div>
       </nav>
     </div>
+    </>
   );
 }
 
