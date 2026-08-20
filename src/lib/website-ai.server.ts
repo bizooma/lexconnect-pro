@@ -521,7 +521,7 @@ export async function loadSiteProfile(supabase: any, organizationId: string): Pr
   return `Site profile: ${parts.join(" ")}`;
 }
 
-// ---------------- Quotas ----------------
+// ---------------- Quotas (counter-table backed) ----------------
 
 export const PLAN_AI_LIMITS: Record<"starter" | "pro" | "firm", number> = {
   starter: 20,
@@ -529,33 +529,66 @@ export const PLAN_AI_LIMITS: Record<"starter" | "pro" | "firm", number> = {
   firm: 300,
 };
 
-export async function checkAiQuota(
+export type AiUsageSnapshot = {
+  monthly_used: number;
+  monthly_limit: number;
+  monthly_remaining: number;
+  purchased_balance: number;
+  total_remaining: number;
+  period: string;
+  resets_on: string;
+};
+
+export type AiReservation = { source: "monthly" | "purchased" };
+
+const OUT_OF_CREDITS =
+  "You've used all your AI generations. Buy more credits or wait for your monthly reset.";
+
+/** Read-only usage snapshot (server-authoritative). */
+export async function aiUsageSnapshot(
   supabase: any,
   organizationId: string,
-): Promise<{ used: number; limit: number; remaining: number }> {
-  const { data: sub } = await supabase
-    .from("subscriptions")
-    .select("plan")
-    .eq("organization_id", organizationId)
-    .maybeSingle();
-  const rawPlan = (sub as { plan?: string } | null)?.plan;
-  const plan = rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter";
-  const limit = PLAN_AI_LIMITS[plan];
+): Promise<AiUsageSnapshot> {
+  const { data, error } = await supabase.rpc("get_ai_usage", { _org: organizationId });
+  if (error) throw new Error(error.message);
+  return data as AiUsageSnapshot;
+}
 
-  const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-  const { count } = await supabase
-    .from("website_ai_generations")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", organizationId)
-    .gte("created_at", start)
-    .not("kind", "like", "%\\_failed");
+/**
+ * Atomically reserve one generation (monthly counter first, then purchased
+ * credits). Throws when nothing is left — the gateway must not be called.
+ */
+export async function reserveAiGeneration(
+  supabase: any,
+  organizationId: string,
+): Promise<AiReservation> {
+  const { data, error } = await supabase.rpc("reserve_ai_generation", { _org: organizationId });
+  if (error) throw new Error(error.message);
+  const res = data as { ok?: boolean; source?: "monthly" | "purchased" | null };
+  if (!res?.ok || !res.source) throw new Error(OUT_OF_CREDITS);
+  return { source: res.source };
+}
 
-  const used = count ?? 0;
-  if (used >= limit) {
-    throw new Error("Monthly AI generation limit reached. Resets on the 1st.");
+/** Refund a reservation whose generation failed. Never throws. */
+export async function releaseAiGeneration(
+  supabase: any,
+  organizationId: string,
+  source: "monthly" | "purchased",
+) {
+  try {
+    await supabase.rpc("release_ai_generation", { _org: organizationId, _source: source });
+  } catch {
+    // refund is best-effort; never mask the original failure
   }
-  return { used, limit, remaining: Math.max(0, limit - used - 1) };
+}
+
+/**
+ * Per-user cooldown so rapid retries can't burn gateway credits even though
+ * failed generations are refunded.
+ */
+export function assertGenerationCooldown(userId: string) {
+  const { allowed } = rateLimit(`ai-gen:${userId}`, { limit: 10, windowMs: 60_000 });
+  if (!allowed) throw new Error("Please wait a moment before generating again.");
 }
 
 // ---------------- Gateway ----------------
@@ -564,6 +597,17 @@ export function slugify(input: string): string {
   return input.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").slice(0, 80) || "page";
 }
 
+export type GatewayUsage = {
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  total_tokens: number | null;
+};
+
+export type GatewayResult = {
+  output: Record<string, unknown>;
+  usage: GatewayUsage;
+};
+
 export async function callGateway(opts: {
   system: string;
   user: string;
@@ -571,7 +615,7 @@ export async function callGateway(opts: {
   toolDescription: string;
   parameters: Record<string, unknown>;
   model?: string;
-}): Promise<Record<string, unknown>> {
+}): Promise<GatewayResult> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("AI gateway is not configured.");
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -604,14 +648,22 @@ export async function callGateway(opts: {
     throw new Error(`AI gateway error (${res.status}): ${t.slice(0, 200)}`);
   }
   const json = await res.json();
+  const u = (json?.usage ?? {}) as Record<string, unknown>;
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+  const usage: GatewayUsage = {
+    prompt_tokens: num(u.prompt_tokens),
+    completion_tokens: num(u.completion_tokens),
+    total_tokens: num(u.total_tokens),
+  };
   const call = json?.choices?.[0]?.message?.tool_calls?.[0];
   if (!call?.function?.arguments) throw new Error("AI returned no structured output.");
   try {
-    return JSON.parse(call.function.arguments);
+    return { output: JSON.parse(call.function.arguments), usage };
   } catch {
     throw new Error("AI returned malformed structured output.");
   }
 }
+
 
 export async function logGeneration(
   supabase: any,
