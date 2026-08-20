@@ -86,12 +86,16 @@ function NewPagePage() {
 
   const quotaLabel = quota ? `${quota.remaining} of ${quota.limit} AI generations left this month` : null;
 
-  const afterGenerate = (r: { pageId?: string; droppedSections: number; remaining: number; limit: number }) => {
+  const afterGenerate = (
+    r: { pageId?: string; droppedSections: number; remaining: number; limit: number },
+    inputs: AiRegenStash,
+  ) => {
     if (!r?.pageId) {
       toast.error("Generation didn't produce a page — please try again.");
       return;
     }
     setQuota({ remaining: r.remaining, limit: r.limit });
+    stashAiInputs(r.pageId, inputs);
 
     toast.success("AI draft created — review everything before publishing.", {
       description:
@@ -110,7 +114,11 @@ function NewPagePage() {
     }
     setBusy("freeform");
     try {
-      afterGenerate(await aiFreeform({ data: { organizationId: currentOrgId, prompt: prompt.trim() } }));
+      const p = prompt.trim();
+      afterGenerate(await aiFreeform({ data: { organizationId: currentOrgId, prompt: p } }), {
+        mode: "freeform",
+        prompt: p,
+      });
     } catch (e) {
       toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
     } finally {
@@ -122,16 +130,14 @@ function NewPagePage() {
     if (!currentOrgId || !active) return;
     setBusy("template");
     try {
+      const answersTrimmed = Object.fromEntries(
+        Object.entries(answers).map(([k, v]) => [k, v.slice(0, 500)]),
+      );
       afterGenerate(
         await aiTemplate({
-          data: {
-            organizationId: currentOrgId,
-            templateId: active.id,
-            answers: Object.fromEntries(
-              Object.entries(answers).map(([k, v]) => [k, v.slice(0, 500)]),
-            ),
-          },
+          data: { organizationId: currentOrgId, templateId: active.id, answers: answersTrimmed },
         }),
+        { mode: "template", templateId: active.id, answers: answersTrimmed },
       );
       setActive(null);
     } catch (e) {
