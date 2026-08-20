@@ -69,7 +69,7 @@ function PublicSponsorDetail() {
   const video = sponsorEmbedUrl(sponsor.video_provider, sponsor.video_id);
 
   return (
-    <PublicSponsorShell organization={organization} brand={brand}>
+    <PublicSponsorShell organization={organization} brand={brand} navPages={navPages}>
       <Link
         to="/p/$orgSlug/sponsors"
         params={{ orgSlug: organization.slug }}

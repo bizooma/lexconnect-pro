@@ -43,7 +43,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/")({
 });
 
 function PublicSponsorsPage() {
-  const { organization, brand, sponsors } = Route.useLoaderData();
+  const { organization, brand, sponsors, navPages } = Route.useLoaderData();
   const [category, setCategory] = useState("all");
 
   const categories = useMemo(
@@ -64,7 +64,7 @@ function PublicSponsorsPage() {
   }, [filtered]);
 
   return (
-    <PublicSponsorShell organization={organization} brand={brand}>
+    <PublicSponsorShell organization={organization} brand={brand} navPages={navPages}>
       <h1 className="text-3xl font-semibold tracking-tight">Support the sponsors who support {organization.name}</h1>
       <p className="mt-2 text-muted-foreground">
         These partners help make our programs possible.
