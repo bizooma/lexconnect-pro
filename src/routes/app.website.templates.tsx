@@ -161,12 +161,21 @@ function TemplatesPage() {
                     )}
                   </div>
                 )}
-                <button
-                  onClick={() => openInstantiate(t)}
-                  className="mt-3 self-start rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
-                >
-                  Use template
-                </button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => openInstantiate(t)}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    Use template
+                  </button>
+                  <button
+                    onClick={() => setPreview(t)}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent"
+                  >
+                    Preview
+                  </button>
+                </div>
+
               </article>
             );
           })}
