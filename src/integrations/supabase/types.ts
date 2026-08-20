@@ -2593,6 +2593,7 @@ export type Database = {
           id: string
           meta_description: string | null
           meta_title: string | null
+          nav_order: number
           og_description: string | null
           og_image: string | null
           og_title: string | null
@@ -2600,6 +2601,7 @@ export type Database = {
           page_type: Database["public"]["Enums"]["website_page_type"]
           published_at: string | null
           scheduled_at: string | null
+          show_in_nav: boolean
           slug: string
           status: Database["public"]["Enums"]["website_page_status"]
           title: string
@@ -2615,6 +2617,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          nav_order?: number
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
@@ -2622,6 +2625,7 @@ export type Database = {
           page_type?: Database["public"]["Enums"]["website_page_type"]
           published_at?: string | null
           scheduled_at?: string | null
+          show_in_nav?: boolean
           slug: string
           status?: Database["public"]["Enums"]["website_page_status"]
           title: string
@@ -2637,6 +2641,7 @@ export type Database = {
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          nav_order?: number
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
@@ -2644,6 +2649,7 @@ export type Database = {
           page_type?: Database["public"]["Enums"]["website_page_type"]
           published_at?: string | null
           scheduled_at?: string | null
+          show_in_nav?: boolean
           slug?: string
           status?: Database["public"]["Enums"]["website_page_status"]
           title?: string
@@ -3166,6 +3172,10 @@ export type Database = {
         Returns: number
       }
       org_can_write: { Args: { _org: string }; Returns: boolean }
+      page_in_org: {
+        Args: { _org_id: string; _page_id: string }
+        Returns: boolean
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
