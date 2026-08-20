@@ -3,14 +3,16 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   GUARDRAILS,
-  
-  PLAN_AI_LIMITS,
+
   SECTION_SPECS,
   isAiSectionType,
+  aiUsageSnapshot,
+  assertGenerationCooldown,
   callGateway,
-  checkAiQuota,
   loadOrgContext,
   normalizePageType,
+  releaseAiGeneration,
+  reserveAiGeneration,
   revisionParameterSchema,
   logFailedGeneration,
   logGeneration,
@@ -21,6 +23,7 @@ import {
   slugify,
   validateSection,
   validateSectionContent,
+  type GatewayUsage,
 } from "@/lib/website-ai.server";
 
 
