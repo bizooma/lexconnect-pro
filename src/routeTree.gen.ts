@@ -60,6 +60,7 @@ import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.set
 import { Route as AppWebsiteSectionsRouteImport } from './routes/app.website.sections'
 import { Route as AppWebsitePublishedRouteImport } from './routes/app.website.published'
 import { Route as AppWebsiteDomainsRouteImport } from './routes/app.website.domains'
+import { Route as AppWebsiteBuildRouteImport } from './routes/app.website.build'
 import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
 import { Route as AppWebsiteAiRouteImport } from './routes/app.website.ai'
 import { Route as AppSponsorsSponsorIdRouteImport } from './routes/app.sponsors.$sponsorId'
@@ -369,6 +370,11 @@ const AppWebsitePublishedRoute = AppWebsitePublishedRouteImport.update({
 const AppWebsiteDomainsRoute = AppWebsiteDomainsRouteImport.update({
   id: '/domains',
   path: '/domains',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteBuildRoute = AppWebsiteBuildRouteImport.update({
+  id: '/build',
+  path: '/build',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppWebsiteBrandRoute = AppWebsiteBrandRouteImport.update({
@@ -714,6 +720,7 @@ export interface FileRoutesByFullPath {
   '/app/sponsors/$sponsorId': typeof AppSponsorsSponsorIdRoute
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
@@ -813,6 +820,7 @@ export interface FileRoutesByTo {
   '/app/sponsors/$sponsorId': typeof AppSponsorsSponsorIdRoute
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
@@ -920,6 +928,7 @@ export interface FileRoutesById {
   '/app/sponsors/$sponsorId': typeof AppSponsorsSponsorIdRoute
   '/app/website/ai': typeof AppWebsiteAiRoute
   '/app/website/brand': typeof AppWebsiteBrandRoute
+  '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
@@ -1028,6 +1037,7 @@ export interface FileRouteTypes {
     | '/app/sponsors/$sponsorId'
     | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/build'
     | '/app/website/domains'
     | '/app/website/published'
     | '/app/website/sections'
@@ -1127,6 +1137,7 @@ export interface FileRouteTypes {
     | '/app/sponsors/$sponsorId'
     | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/build'
     | '/app/website/domains'
     | '/app/website/published'
     | '/app/website/sections'
@@ -1233,6 +1244,7 @@ export interface FileRouteTypes {
     | '/app/sponsors/$sponsorId'
     | '/app/website/ai'
     | '/app/website/brand'
+    | '/app/website/build'
     | '/app/website/domains'
     | '/app/website/published'
     | '/app/website/sections'
@@ -1673,6 +1685,13 @@ declare module '@tanstack/react-router' {
       path: '/domains'
       fullPath: '/app/website/domains'
       preLoaderRoute: typeof AppWebsiteDomainsRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/build': {
+      id: '/app/website/build'
+      path: '/build'
+      fullPath: '/app/website/build'
+      preLoaderRoute: typeof AppWebsiteBuildRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
     '/app/website/brand': {
@@ -2163,6 +2182,7 @@ const AppWebsitePagesPageIdRouteWithChildren =
 interface AppWebsiteRouteChildren {
   AppWebsiteAiRoute: typeof AppWebsiteAiRoute
   AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
+  AppWebsiteBuildRoute: typeof AppWebsiteBuildRoute
   AppWebsiteDomainsRoute: typeof AppWebsiteDomainsRoute
   AppWebsitePublishedRoute: typeof AppWebsitePublishedRoute
   AppWebsiteSectionsRoute: typeof AppWebsiteSectionsRoute
@@ -2178,6 +2198,7 @@ interface AppWebsiteRouteChildren {
 const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteAiRoute: AppWebsiteAiRoute,
   AppWebsiteBrandRoute: AppWebsiteBrandRoute,
+  AppWebsiteBuildRoute: AppWebsiteBuildRoute,
   AppWebsiteDomainsRoute: AppWebsiteDomainsRoute,
   AppWebsitePublishedRoute: AppWebsitePublishedRoute,
   AppWebsiteSectionsRoute: AppWebsiteSectionsRoute,
