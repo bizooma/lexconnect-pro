@@ -2,6 +2,7 @@
 // validation, org context, guardrails, quotas, gateway calls.
 import { z } from "zod";
 import { orgKindLabel } from "@/lib/org-kind";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const GUARDRAILS =
   "Never invent statistics, member counts, years, awards, prices, or quotes. If example content is unavoidable (testimonials, stats), clearly label it: '[Sample — replace with your organization's real content]'. Never produce legal advice or content that could be read as legal advice. Do not invent names of real people; use placeholder names only in clearly-labeled samples.";
