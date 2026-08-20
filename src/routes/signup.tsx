@@ -117,10 +117,6 @@ const PLANS: Plan[] = [
   },
 ];
 
-function priceIdForPlan(plan: Plan, billing: "monthly" | "annual") {
-  if (plan.id === "test") return "test_monthly";
-  return `${plan.id}_${billing}`;
-}
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "org";
@@ -207,12 +203,13 @@ function StandardSignup() {
       if (typeof window !== "undefined" && orgId) {
         window.localStorage.setItem("lexguild.currentOrgId", orgId as unknown as string);
       }
-      toast.success("Organization created");
+      toast.success("Organization created — your 7-day free trial has started");
       if (plan.contactOnly) {
         navigate({ to: "/onboarding" });
       } else {
-        const priceId = priceIdForPlan(plan, billing);
-        navigate({ to: "/checkout", search: { price: priceId } });
+        // No card required up front: land on the dashboard for the trial.
+        // Upgrades happen later from Billing & Seats.
+        navigate({ to: "/app/dashboard" });
       }
     } catch (err: any) {
       setError(err.message ?? "Could not create your organization.");
@@ -341,7 +338,7 @@ function StandardSignup() {
             <p className="mt-4 text-xs text-muted-foreground">
               {selectedPlan?.contactOnly
                 ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
-                : "After creating your organization, you'll continue to secure checkout to activate billing."}
+                : "Start with a 7-day free trial — no credit card required. You can upgrade anytime from Billing & Seats."}
             </p>
             {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
             <Footer
