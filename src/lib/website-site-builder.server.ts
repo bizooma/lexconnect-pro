@@ -1,8 +1,8 @@
 // Server-only internals for the "Build my site" wizard: multi-page,
 // sitemap-aware draft generation in a single run.
+import { aiMonthlyLimit } from "@/lib/entitlements";
 import {
   GUARDRAILS,
-  PLAN_AI_LIMITS,
   aiUsageSnapshot,
   assertGenerationCooldown,
   releaseAiGeneration,
