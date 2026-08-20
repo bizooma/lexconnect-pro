@@ -84,6 +84,8 @@ export type WebsitePage = {
   published_at: string | null;
   scheduled_at: string | null;
   archived_at: string | null;
+  show_in_nav: boolean;
+  nav_order: number;
   created_at: string;
   updated_at: string;
 };

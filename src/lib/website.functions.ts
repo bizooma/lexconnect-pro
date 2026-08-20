@@ -34,7 +34,7 @@ export const listWebsitePages = createServerFn({ method: "POST" })
     const { supabase } = context;
     let q = supabase
       .from("website_pages")
-      .select("id,title,slug,page_type,status,updated_at,published_at,scheduled_at,meta_title,meta_description")
+      .select("id,title,slug,page_type,status,updated_at,published_at,scheduled_at,meta_title,meta_description,show_in_nav,nav_order")
       .eq("organization_id", data.organizationId)
       .order("updated_at", { ascending: false });
     if (data.status) q = q.eq("status", data.status);
@@ -129,6 +129,8 @@ export const updateWebsitePage = createServerFn({ method: "POST" })
         og_title: z.string().max(200).nullable().optional(),
         og_description: z.string().max(400).nullable().optional(),
         og_image: z.string().url().nullable().optional(),
+        show_in_nav: z.boolean().optional(),
+        nav_order: z.number().int().min(0).max(9999).optional(),
       }),
     }).parse(input),
   )
