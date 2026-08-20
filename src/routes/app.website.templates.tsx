@@ -13,6 +13,8 @@ import {
 } from "@/lib/website";
 import { toast } from "sonner";
 import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+import { TemplatePreviewModal } from "@/components/website/TemplatePreviewModal";
+
 
 
 export const Route = createFileRoute("/app/website/templates")({
@@ -31,6 +33,8 @@ function TemplatesPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [active, setActive] = useState<WebsiteTemplate | null>(null);
+  const [preview, setPreview] = useState<WebsiteTemplate | null>(null);
+
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -161,12 +165,21 @@ function TemplatesPage() {
                     )}
                   </div>
                 )}
-                <button
-                  onClick={() => openInstantiate(t)}
-                  className="mt-3 self-start rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
-                >
-                  Use template
-                </button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => openInstantiate(t)}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    Use template
+                  </button>
+                  <button
+                    onClick={() => setPreview(t)}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent"
+                  >
+                    Preview
+                  </button>
+                </div>
+
               </article>
             );
           })}
@@ -222,6 +235,23 @@ function TemplatesPage() {
           </div>
         </div>
       )}
+
+      {preview && (
+        <TemplatePreviewModal
+          name={preview.name}
+          description={preview.description}
+          pageType={preview.page_type}
+          sections={preview.default_sections_json}
+          organizationId={currentOrgId}
+          onClose={() => setPreview(null)}
+          onUse={() => {
+            const t = preview;
+            setPreview(null);
+            openInstantiate(t);
+          }}
+        />
+      )}
+
     </div>
   );
 }

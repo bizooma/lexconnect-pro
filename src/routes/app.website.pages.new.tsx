@@ -12,6 +12,8 @@ import { PAGE_TYPE_LABELS, type WebsitePageType } from "@/lib/website";
 import { stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import { toast } from "sonner";
 import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+import { TemplatePreviewModal } from "@/components/website/TemplatePreviewModal";
+
 
 
 export const Route = createFileRoute("/app/website/pages/new")({
@@ -67,6 +69,8 @@ function NewPagePage() {
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState<null | string>(null);
   const [active, setActive] = useState<TemplateRow | null>(null);
+  const [previewTpl, setPreviewTpl] = useState<TemplateRow | null>(null);
+
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [manual, setManual] = useState(false);
 
@@ -238,11 +242,9 @@ function NewPagePage() {
             {templates.map((t) => {
               const qs = Array.isArray(t.intake_questions) ? t.intake_questions : [];
               return (
-                <button
+                <div
                   key={t.id}
-                  onClick={() => openTemplate(t)}
-                  disabled={busy !== null}
-                  className="flex flex-col items-start rounded-xl border border-border bg-card p-4 text-left transition hover:border-primary/60 hover:shadow-sm disabled:opacity-50"
+                  className="flex flex-col items-start rounded-xl border border-border bg-card p-4 text-left transition hover:border-primary/60 hover:shadow-sm"
                 >
                   <TemplateMiniPreview sections={t.default_sections_json} className="mb-3 w-full" />
                   <span className="text-sm font-semibold text-foreground">{t.name}</span>
@@ -251,11 +253,24 @@ function NewPagePage() {
                   <span className="mt-2 line-clamp-2 text-xs text-muted-foreground">
                     {t.starter_prompt || t.description || "Generate this page with AI."}
                   </span>
-                  <span className="mt-3 text-[11px] font-medium text-primary">
-                    {qs.length > 0 ? `✨ Answer ${qs.length} questions` : "✨ Generate"}
-                  </span>
-                </button>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => openTemplate(t)}
+                      disabled={busy !== null}
+                      className="rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-primary-foreground disabled:opacity-50"
+                    >
+                      {qs.length > 0 ? `✨ Answer ${qs.length} questions` : "✨ Generate"}
+                    </button>
+                    <button
+                      onClick={() => setPreviewTpl(t)}
+                      className="rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-accent"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </div>
               );
+
             })}
           </div>
         )}
@@ -397,6 +412,24 @@ function NewPagePage() {
           </div>
         </div>
       )}
+
+      {previewTpl && (
+        <TemplatePreviewModal
+          name={previewTpl.name}
+          description={previewTpl.starter_prompt || previewTpl.description}
+          pageType={previewTpl.page_type}
+          sections={previewTpl.default_sections_json}
+          organizationId={currentOrgId}
+          busy={busy !== null}
+          onClose={() => setPreviewTpl(null)}
+          onUse={() => {
+            const t = previewTpl;
+            setPreviewTpl(null);
+            openTemplate(t);
+          }}
+        />
+      )}
+
     </div>
   );
 }
