@@ -84,22 +84,31 @@ export function PublicSectionRenderer({
   const image = str(c.image_url);
 
   switch (section.section_type) {
-    case "hero":
-      return (
-        <section
-          className="px-6 py-24 text-center"
-          style={{
+    case "hero": {
+      const heroBg = image
+        ? {
+            backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }
+        : {
             background:
-              "linear-gradient(135deg, color-mix(in oklab, var(--site-primary, hsl(var(--primary))) 12%, transparent), color-mix(in oklab, var(--site-accent, hsl(var(--accent))) 12%, transparent))",
-          }}
-        >
+              "radial-gradient(120% 120% at 15% 0%, color-mix(in oklab, var(--site-accent, var(--site-primary, hsl(var(--primary)))) 32%, transparent) 0%, transparent 60%), linear-gradient(135deg, color-mix(in oklab, var(--site-primary, hsl(var(--primary))) 18%, transparent), color-mix(in oklab, var(--site-accent, hsl(var(--accent))) 22%, transparent))",
+          };
+      return (
+        <section className="px-6 py-24 text-center" style={heroBg}>
           <div className="mx-auto max-w-4xl">
             {headline && (
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight" style={{ fontFamily: "var(--site-heading-font, inherit)" }}>
+              <h1
+                className={`text-4xl md:text-6xl font-bold tracking-tight ${image ? "text-white" : ""}`}
+                style={{ fontFamily: "var(--site-heading-font, inherit)" }}
+              >
                 {headline}
               </h1>
             )}
-            {sub && <p className="mt-6 text-lg md:text-xl text-muted-foreground">{sub}</p>}
+            {sub && (
+              <p className={`mt-6 text-lg md:text-xl ${image ? "text-white/85" : "text-muted-foreground"}`}>{sub}</p>
+            )}
             {ctaLabel && (
               <a href={ctaHref} className="mt-8 inline-block rounded-lg px-6 py-3 text-sm font-medium text-white" style={PRIMARY_BTN}>
                 {ctaLabel}
@@ -108,6 +117,7 @@ export function PublicSectionRenderer({
           </div>
         </section>
       );
+    }
     case "cta":
       return (
         <section className="px-6 py-16 text-center" style={{ background: "color-mix(in oklab, var(--site-primary, hsl(var(--primary))) 6%, transparent)" }}>
@@ -134,8 +144,19 @@ export function PublicSectionRenderer({
     case "image_text":
       return (
         <section className="px-6 py-12">
-          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2 md:items-center">
-            <div className="aspect-video bg-muted" style={image ? { ...RADIUS, backgroundImage: `url(${image})`, backgroundSize: "cover", backgroundPosition: "center" } : RADIUS} />
+          <div
+            className={
+              image
+                ? "mx-auto grid max-w-5xl gap-8 md:grid-cols-2 md:items-center"
+                : "mx-auto max-w-3xl"
+            }
+          >
+            {image && (
+              <div
+                className="aspect-video bg-muted"
+                style={{ ...RADIUS, backgroundImage: `url(${image})`, backgroundSize: "cover", backgroundPosition: "center" }}
+              />
+            )}
             <div>
               {headline && <h2 className="text-2xl font-semibold">{headline}</h2>}
               {body && <p className="mt-3 whitespace-pre-wrap text-muted-foreground">{body}</p>}
@@ -148,6 +169,7 @@ export function PublicSectionRenderer({
           </div>
         </section>
       );
+
     case "feature_grid": {
       const items = arr(c.items);
       return (
