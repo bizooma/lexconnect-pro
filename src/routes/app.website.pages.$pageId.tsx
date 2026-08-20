@@ -11,7 +11,8 @@ import {
   setPageStatus,
   saveSectionAsReusable,
 } from "@/lib/website.functions";
-import { regenerateSection, improvePageSeo } from "@/lib/website-ai.functions";
+import { regenerateSection, improvePageSeo, generatePageDraft, generateFromTemplate, getAiQuota } from "@/lib/website-ai.functions";
+import { readAiInputs, stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import {
   SECTION_LABELS,
   STATUS_LABELS,
