@@ -30,6 +30,8 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [showUrl, setShowUrl] = useState(false);
+  const [tab, setTab] = useState<"upload" | "library">("upload");
+  const [refreshKey, setRefreshKey] = useState(0);
   const aspectClass =
     aspect === "square" ? "aspect-square" : aspect === "wide" ? "aspect-[1200/630]" : "aspect-video";
 
