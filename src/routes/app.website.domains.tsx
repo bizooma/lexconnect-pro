@@ -9,6 +9,7 @@ import {
   verifyCustomDomain,
   updateCustomDomain,
 } from "@/lib/website-domains.functions";
+import { hasTopTierAccess } from "@/lib/entitlements";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/website/domains")({
