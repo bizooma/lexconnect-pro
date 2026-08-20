@@ -397,6 +397,7 @@ function Landing() {
                   "Meeting scheduling",
                   "Mobile PWA access",
                   "Basic analytics",
+                  "AI website builder — describe a page, get an on-brand draft in seconds",
                 ],
                 cta: "Start your organization",
                 href: `/signup?plan=starter&billing=${billing}`,
@@ -416,6 +417,7 @@ function Landing() {
                   "Member management: roster import, tags, notes & follow-ups",
                   "Mentorship reporting & enhanced analytics",
                   "Priority support",
+                  "AI website builder — describe a page, get an on-brand draft in seconds",
                 ],
                 cta: "Start your organization",
                 href: `/signup?plan=professional&billing=${billing}`,
@@ -435,6 +437,7 @@ function Landing() {
                   "Custom onboarding & dedicated success manager",
                   "SSO (roadmap)",
                   "API access (roadmap)",
+                  "AI website builder — describe a page, get an on-brand draft in seconds",
                 ],
                 cta: "Contact sales",
                 href: "#contact",
@@ -776,6 +779,10 @@ const FAQS: { q: string; a: string }[] = [
   {
     q: "How does the AI website builder work?",
     a: "Describe the page you want — a convention landing page, a well-being resource hub, a membership drive — and LexGuild's AI drafts it from a legal-specific template and your organization's real details. You can edit it conversationally by typing instructions like 'add an FAQ about parking,' and the AI revises the page while preserving your images, settings, and custom sections. For a complete linked site, the Build-My-Site wizard drafts multiple pages with navigation and branding in one run. Everything stays a draft until a human reviews and clicks publish.",
+  },
+  {
+    q: "How does the AI website builder work with each plan?",
+    a: "Every plan includes the full AI website builder — prompt-drafted pages, legal templates, edit-by-typing, and the Build-My-Site wizard. Monthly AI generations are generous on every tier (Starter 20, Professional 100, Enterprise 300 — more than most bars ever use), and you can add credits anytime. Your free trial includes full access.",
   },
   {
     q: "How much does LexGuild cost?",
