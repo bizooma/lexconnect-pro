@@ -706,15 +706,21 @@ export const revisePage = createServerFn({ method: "POST" })
     await logGeneration(
       supabase, page.organization_id, userId, "page_draft",
       `[Revision] ${data.instruction}`.slice(0, 2000), output, model,
+      { usage, chargedTo: reservation.source },
     );
+    committed = true;
+    const snap = await aiUsageSnapshot(supabase, page.organization_id);
 
     return {
       revisionId: revRow.id as string,
       dropped,
       removed: removed.length,
-      remaining: quota.remaining,
-      limit: quota.limit,
+      remaining: snap.total_remaining,
+      limit: snap.monthly_limit,
     };
+    } finally {
+      if (!committed) await releaseAiGeneration(supabase, page.organization_id, reservation.source);
+    }
   });
 
 /** Restore a page's sections from a revision snapshot (undo one AI revision). */
