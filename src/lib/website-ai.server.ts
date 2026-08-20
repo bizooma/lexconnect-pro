@@ -415,7 +415,9 @@ export async function checkAiQuota(
     .from("website_ai_generations")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", organizationId)
-    .gte("created_at", start);
+    .gte("created_at", start)
+    .not("kind", "like", "%\\_failed");
+
   const used = count ?? 0;
   if (used >= limit) {
     throw new Error("Monthly AI generation limit reached. Resets on the 1st.");
