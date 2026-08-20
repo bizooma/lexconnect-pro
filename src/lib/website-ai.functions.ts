@@ -586,7 +586,7 @@ export const revisePage = createServerFn({ method: "POST" })
       GUARDRAILS,
     ].filter(Boolean).join("\n\n");
 
-    const output = await callGateway({
+    const { output, usage } = await callGateway({
       model,
       system,
       user: `Page: ${page.title} (${page.page_type})\n\nCurrent sections in order:\n${structure}\n\nInstruction: ${data.instruction}`,
