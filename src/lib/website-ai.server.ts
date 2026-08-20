@@ -252,18 +252,94 @@ function stripUndefined(obj: Record<string, unknown>) {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
 }
 
+// ---------------- Alias normalization ----------------
+
+const FIELD_ALIASES: Record<string, string> = {
+  title: "headline",
+  subtitle: "subheadline",
+  tagline: "subheadline",
+  text: "body",
+  description: "body",
+  content: "body",
+  q: "question",
+  a: "answer",
+  url: "cta_href",
+  link: "cta_href",
+  button: "cta_label",
+  button_label: "cta_label",
+  author_name: "author",
+};
+
+const SECTION_TYPE_ALIASES: Record<string, string> = {
+  calendar: "event_details",
+  events: "event_details",
+  form: "contact_form",
+  registration: "contact_form",
+  about: "text",
+};
+
+/** Map near-miss section_type values onto known types. */
+export function normalizeSectionType(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const t = raw.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (isAiSectionType(t)) return t;
+  const mapped = SECTION_TYPE_ALIASES[t];
+  return mapped && isAiSectionType(mapped) ? mapped : null;
+}
+
+function renameKeys(
+  obj: Record<string, unknown>,
+  allowed: Set<string>,
+  sectionType: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [rawKey, value] of Object.entries(obj)) {
+    const key = rawKey.trim().toLowerCase().replace(/[\s-]+/g, "_");
+    let target = key;
+    if (!allowed.has(key)) {
+      if (key === "name" && sectionType === "testimonials") target = "author";
+      else target = FIELD_ALIASES[key] ?? key;
+    }
+    if (out[target] === undefined) out[target] = value;
+  }
+  return out;
+}
+
+/** Normalize model-emitted field aliases for one section's content_json. */
+export function normalizeContent(sectionType: string, raw: unknown): Record<string, unknown> {
+  const spec = SECTION_SPECS[sectionType];
+  if (!spec || !raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const topAllowed = new Set(Object.keys(spec.properties));
+  const content = renameKeys(raw as Record<string, unknown>, topAllowed, sectionType);
+
+  const itemsSpec = spec.properties.items as
+    | { items?: { properties?: Record<string, unknown> } }
+    | undefined;
+  if (itemsSpec && Array.isArray(content.items)) {
+    const itemAllowed = new Set(Object.keys(itemsSpec.items?.properties ?? {}));
+    content.items = (content.items as unknown[]).map((it) =>
+      it && typeof it === "object" && !Array.isArray(it)
+        ? renameKeys(it as Record<string, unknown>, itemAllowed, sectionType)
+        : it,
+    );
+  }
+  return content;
+}
+
 /** Validate one AI section; returns null when it must be dropped. */
 export function validateSection(
   raw: unknown,
 ): { section_type: string; content_json: Record<string, unknown> } | null {
   const s = raw as { section_type?: unknown; content_json?: unknown } | null;
-  if (!s || !isAiSectionType(s.section_type)) return null;
-  const spec = SECTION_SPECS[s.section_type];
-  const parsed = spec.zod.safeParse(s.content_json ?? {});
+  if (!s) return null;
+  const sectionType = normalizeSectionType(s.section_type);
+  if (!sectionType) return null;
+  const spec = SECTION_SPECS[sectionType];
+  const parsed = spec.zod.safeParse(normalizeContent(sectionType, s.content_json ?? {}));
   if (!parsed.success) return null;
   const content = stripUndefined(parsed.data as Record<string, unknown>);
   if (Object.keys(content).length === 0) return null;
-  return { section_type: s.section_type, content_json: content };
+  return { section_type: sectionType, content_json: content };
 }
 
 /** Validate rewritten content for a single existing section. */
@@ -273,11 +349,12 @@ export function validateSectionContent(
 ): Record<string, unknown> | null {
   const spec = SECTION_SPECS[sectionType];
   if (!spec) return null;
-  const parsed = spec.zod.safeParse(raw ?? {});
+  const parsed = spec.zod.safeParse(normalizeContent(sectionType, raw ?? {}));
   if (!parsed.success) return null;
   const content = stripUndefined(parsed.data as Record<string, unknown>);
   return Object.keys(content).length === 0 ? null : content;
 }
+
 
 // ---------------- Org context ----------------
 
