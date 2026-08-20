@@ -678,7 +678,9 @@ function PageEditorPage() {
                     selected={selectedId === s.id}
                     onSelect={() => setSelectedId(s.id)}
                     onAddImage={focusImageUploader}
+                    onPickStarterPhoto={(url) => void setSectionImageUrl(s.id, url)}
                   />
+
                 ))}
               </div>
             )}
