@@ -117,10 +117,6 @@ const PLANS: Plan[] = [
   },
 ];
 
-function priceIdForPlan(plan: Plan, billing: "monthly" | "annual") {
-  if (plan.id === "test") return "test_monthly";
-  return `${plan.id}_${billing}`;
-}
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "org";
