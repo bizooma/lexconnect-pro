@@ -10,6 +10,7 @@ import {
   callGateway,
   checkAiQuota,
   loadOrgContext,
+  normalizePageType,
   logFailedGeneration,
   logGeneration,
   sectionContentSchema,
