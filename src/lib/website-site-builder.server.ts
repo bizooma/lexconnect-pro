@@ -225,6 +225,7 @@ async function generateFreeform(opts: {
   page: SitePageInput;
   slug: string;
   navOrder: number;
+  chargedTo: "monthly" | "purchased";
 }) {
   const { supabase, organizationId, userId, page } = opts;
   const system = [
@@ -240,7 +241,7 @@ async function generateFreeform(opts: {
 
   const prompt = `Page title: ${page.title}\n${page.brief ? `Brief: ${page.brief}` : "Write a page that fits this title and the organization context."}`;
 
-  const output = await callGateway({
+  const { output, usage } = await callGateway({
     model: MODEL,
     system,
     user: prompt,
@@ -281,7 +282,7 @@ async function generateFreeform(opts: {
     },
     sections,
   );
-  await logGeneration(supabase, organizationId, userId, "page_draft", prompt, output, MODEL);
+  await logGeneration(supabase, organizationId, userId, "page_draft", prompt, output, MODEL, { usage, chargedTo: opts.chargedTo });
   return pageId;
 }
 
@@ -294,6 +295,7 @@ async function generateTemplate(opts: {
   page: SitePageInput;
   slug: string;
   navOrder: number;
+  chargedTo: "monthly" | "purchased";
 }) {
   const { supabase, organizationId, userId, page } = opts;
   const { data: tpl } = await supabase
@@ -316,7 +318,7 @@ async function generateTemplate(opts: {
 
   const prompt = `Page title: ${page.title}\n${page.brief ? `Brief: ${page.brief}` : ""}`.trim();
 
-  const output = await callGateway({
+  const { output, usage } = await callGateway({
     model: MODEL,
     system: [
       "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible.",
@@ -375,6 +377,7 @@ async function generateTemplate(opts: {
     `[Template: ${tpl.name}] ${prompt}`.slice(0, 2000),
     output,
     MODEL,
+    { usage, chargedTo: opts.chargedTo },
   );
   return pageId;
 }
@@ -388,6 +391,7 @@ async function generateModuleIntro(opts: {
   page: SitePageInput;
   slug: string;
   navOrder: number;
+  chargedTo: "monthly" | "purchased";
   href: string;
 }) {
   const { supabase, organizationId, userId, page } = opts;
@@ -395,7 +399,7 @@ async function generateModuleIntro(opts: {
   const label = page.moduleTarget === "sponsors" ? "sponsorship program" : "well-being program";
   const prompt = `Short intro page titled "${page.title}" that introduces the organization's ${label} and sends visitors to the live ${label} page. ${page.brief ?? ""}`.trim();
 
-  const output = await callGateway({
+  const { output, usage } = await callGateway({
     model: MODEL,
     system: [
       "You write short, professional intro pages for legal organizations. Keep it to a hero, one short body section, and a call to action.",
@@ -452,7 +456,7 @@ async function generateModuleIntro(opts: {
     },
     sections,
   );
-  await logGeneration(supabase, organizationId, userId, "page_draft", prompt, output, MODEL);
+  await logGeneration(supabase, organizationId, userId, "page_draft", prompt, output, MODEL, { usage, chargedTo: opts.chargedTo });
   return pageId;
 }
 
