@@ -85,6 +85,20 @@ function PageEditorPage() {
   const [scheduleAt, setScheduleAt] = useState<string>("");
   const inspectorRef = useRef<HTMLElement | null>(null);
   const [photoNudgeDismissed, setPhotoNudgeDismissed] = useState(true);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setPhotoNudgeDismissed(window.localStorage.getItem(`lexguild.photoNudge.${pageId}`) === "1");
+  }, [pageId]);
+  const dismissPhotoNudge = useCallback(() => {
+    if (typeof window !== "undefined") window.localStorage.setItem(`lexguild.photoNudge.${pageId}`, "1");
+    setPhotoNudgeDismissed(true);
+  }, [pageId]);
+  const focusImageUploader = useCallback(() => {
+    requestAnimationFrame(() => {
+      inspectorRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }, []);
+
 
   const { user } = useAuth();
   const { isOrgAdmin } = useCurrentOrg();
