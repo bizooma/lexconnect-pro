@@ -454,7 +454,49 @@ export async function loadOrgContext(supabase: any, organizationId: string): Pro
   if (brand?.social_links && Object.keys(brand.social_links).length > 0) {
     lines.push(`Social links: ${JSON.stringify(brand.social_links).slice(0, 300)}`);
   }
+  const profile = await loadSiteProfile(supabase, organizationId);
+  if (profile) lines.push(profile);
   return `Organization context (use these real details; do not invent others):\n${lines.join("\n")}`;
+}
+
+/**
+ * Durable, org-authored facts used on every AI generation.
+ * Missing profile (or no read access) => empty string, behave exactly as before.
+ */
+export async function loadSiteProfile(supabase: any, organizationId: string): Promise<string> {
+  const { data } = await supabase
+    .from("org_site_profile")
+    .select("founded_year, region, audience, tone, primary_goal, programs, contact, notes")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (!data) return "";
+  const p = data as {
+    founded_year: number | null;
+    region: string | null;
+    audience: string | null;
+    tone: string | null;
+    primary_goal: string | null;
+    programs: string[] | null;
+    contact: Record<string, unknown> | null;
+    notes: string | null;
+  };
+  const parts: string[] = [];
+  if (p.founded_year) parts.push(`Founded ${p.founded_year}.`);
+  if (p.region) parts.push(`Serves ${p.region}.`);
+  if (p.programs && p.programs.length > 0) parts.push(`Programs: ${p.programs.slice(0, 12).join(", ")}.`);
+  if (p.audience) parts.push(`Primary audience: ${p.audience}.`);
+  if (p.tone) parts.push(`Tone: ${p.tone}.`);
+  if (p.primary_goal) parts.push(`Primary goal: ${p.primary_goal}.`);
+  if (p.contact && typeof p.contact === "object") {
+    const c = p.contact as Record<string, unknown>;
+    const bits = ["phone", "email", "address"]
+      .map((k) => (typeof c[k] === "string" && c[k] ? `${k}: ${String(c[k]).slice(0, 160)}` : null))
+      .filter(Boolean);
+    if (bits.length) parts.push(`Contact: ${bits.join(", ")}.`);
+  }
+  if (p.notes) parts.push(String(p.notes).slice(0, 1000));
+  if (parts.length === 0) return "";
+  return `Site profile: ${parts.join(" ")}`;
 }
 
 // ---------------- Quotas ----------------
