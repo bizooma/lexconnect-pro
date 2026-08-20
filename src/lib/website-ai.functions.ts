@@ -78,7 +78,10 @@ export const generatePageDraft = createServerFn({ method: "POST" })
         parameters,
       });
 
-    let output = await runOnce(data.prompt);
+    let usage: GatewayUsage = { prompt_tokens: null, completion_tokens: null, total_tokens: null };
+    let first = await runOnce(data.prompt);
+    let output = first.output;
+    usage = first.usage;
     let rawSections = Array.isArray(output.sections) ? output.sections : [];
     let validSections = rawSections
       .map((s: unknown) => validateSection(s))
