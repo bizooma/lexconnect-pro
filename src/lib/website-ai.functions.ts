@@ -12,11 +12,14 @@ import {
   loadOrgContext,
   logGeneration,
   sectionContentSchema,
+  sectionVocabularyText,
   sectionsParameterSchema,
+  skeletonParameterSchema,
   slugify,
   validateSection,
   validateSectionContent,
 } from "@/lib/website-ai.server";
+
 
 // ---------------- Generate full page draft ----------------
 
