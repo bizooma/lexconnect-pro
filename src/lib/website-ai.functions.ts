@@ -386,7 +386,7 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       .map((t, i) => `s${i + 1} = ${t} — fields: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`)
       .join("\n");
 
-    const output = await callGateway({
+    const { output, usage } = await callGateway({
       model,
       system: [
         "You generate website page drafts for legal organizations (bar associations, legal aid, law firms). Be professional, concise, accessible. Use clear headings and short paragraphs.",
