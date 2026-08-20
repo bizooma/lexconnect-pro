@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useCurrentOrg } from "@/hooks/use-current-org";
@@ -48,11 +48,35 @@ type TemplateRow = {
   intake_questions: IntakeQuestion[] | null;
 };
 
+type Quota = {
+  used: number;
+  limit: number;
+  remaining: number;
+  purchased: number;
+  period: string;
+  resetsOn: string;
+};
+
 const DRAFTING_MESSAGES = [
   "Drafting your page…",
   "Writing sections…",
   "Polishing the copy…",
 ];
+
+const OUT_OF_CREDITS_MESSAGE = "You've used all your AI generations.";
+
+function showGenerationError(err: unknown, navigate: ReturnType<typeof useNavigate>) {
+  const msg = err instanceof Error && err.message ? err.message : "Generation failed — please try again.";
+  const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
+  toast.error(msg, {
+    action: isCreditError
+      ? {
+          label: "View usage",
+          onClick: () => navigate({ to: "/app/website/settings" }),
+        }
+      : undefined,
+  });
+}
 
 function NewPagePage() {
   const { currentOrgId } = useCurrentOrg();
@@ -65,7 +89,7 @@ function NewPagePage() {
   const quotaFn = useServerFn(getAiQuota);
 
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
-  const [quota, setQuota] = useState<{ remaining: number; limit: number } | null>(null);
+  const [quota, setQuota] = useState<Quota | null>(null);
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState<null | string>(null);
   const [active, setActive] = useState<TemplateRow | null>(null);
@@ -86,21 +110,34 @@ function NewPagePage() {
       .then((r) => setTemplates(r.templates as unknown as TemplateRow[]))
       .catch(() => {});
     quotaFn({ data: { organizationId: currentOrgId } })
-      .then((r) => setQuota({ remaining: r.remaining, limit: r.limit }))
+      .then((r) =>
+        setQuota({
+          used: r.used,
+          limit: r.limit,
+          remaining: r.remaining,
+          purchased: r.purchased,
+          period: r.period,
+          resetsOn: r.resetsOn,
+        }),
+      )
       .catch(() => {});
   }, [currentOrgId, listTpls, quotaFn]);
 
-  const quotaLabel = quota ? `${quota.remaining} of ${quota.limit} AI generations left this month` : null;
+  const quotaLabel = useMemo(() => {
+    if (!quota) return null;
+    const suffix = quota.purchased > 0 ? ` + ${quota.purchased} purchased` : "";
+    return `${quota.remaining} of ${quota.limit} AI generations left this month${suffix}`;
+  }, [quota]);
 
   const afterGenerate = (
-    r: { pageId?: string; droppedSections: number; remaining: number; limit: number },
+    r: { pageId?: string; droppedSections: number; remaining: number; limit: number; purchased?: number },
     inputs: AiRegenStash,
   ) => {
     if (!r?.pageId) {
       toast.error("Generation didn't produce a page — please try again.");
       return;
     }
-    setQuota({ remaining: r.remaining, limit: r.limit });
+    setQuota((q) => (q ? { ...q, remaining: r.remaining } : null));
     stashAiInputs(r.pageId, inputs);
 
     toast.success("AI draft created — review everything before publishing.", {
@@ -126,7 +163,7 @@ function NewPagePage() {
         prompt: p,
       });
     } catch (e) {
-      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
+      showGenerationError(e, navigate);
     } finally {
       setBusy(null);
     }
@@ -147,7 +184,7 @@ function NewPagePage() {
       );
       setActive(null);
     } catch (e) {
-      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
+      showGenerationError(e, navigate);
     } finally {
       setBusy(null);
     }
@@ -188,6 +225,7 @@ function NewPagePage() {
     const qs = Array.isArray(t.intake_questions) ? t.intake_questions : [];
     setAnswers(Object.fromEntries(qs.map((q) => [q.id, ""])));
   };
+
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
