@@ -235,6 +235,23 @@ function TemplatesPage() {
           </div>
         </div>
       )}
+
+      {preview && (
+        <TemplatePreviewModal
+          name={preview.name}
+          description={preview.description}
+          pageType={preview.page_type}
+          sections={preview.default_sections_json}
+          organizationId={currentOrgId}
+          onClose={() => setPreview(null)}
+          onUse={() => {
+            const t = preview;
+            setPreview(null);
+            openInstantiate(t);
+          }}
+        />
+      )}
+
     </div>
   );
 }
