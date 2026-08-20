@@ -373,31 +373,6 @@ function PageEditorPage() {
     broadcastSaved();
   };
 
-  const setSectionImageUrl = useCallback(async (sectionId: string, url: string) => {
-    const section = sections.find((s) => s.id === sectionId);
-    if (!section || !page) return;
-    pushSnapshot();
-    const merged = {
-      ...section,
-      content_json: { ...(section.content_json ?? {}), image_url: url },
-    } as WebsiteSection;
-    setSections(sections.map((s) => (s.id === sectionId ? merged : s)));
-    setSelectedId(sectionId);
-    await upsert({
-      data: {
-        sectionId,
-        pageId,
-        organizationId: page.organization_id,
-        section_type: merged.section_type,
-        display_order: merged.display_order,
-        settings_json: merged.settings_json,
-        content_json: merged.content_json,
-        visible: merged.visible,
-        responsive_json: merged.responsive_json,
-      },
-    });
-    broadcastSaved();
-  }, [sections, page, pageId, upsert, pushSnapshot, broadcastSaved]);
 
   const restoreSnapshot = async (snap: Snapshot) => {
 
