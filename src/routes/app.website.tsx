@@ -12,6 +12,7 @@ const TABS: Array<{ to: string; label: string; exact?: boolean }> = [
   { to: "/app/website/published", label: "Published" },
   { to: "/app/website/templates", label: "Templates" },
   { to: "/app/website/sections", label: "Saved Sections" },
+  { to: "/app/website/media", label: "Media" },
   { to: "/app/website/submissions", label: "Submissions" },
   { to: "/app/website/brand", label: "Brand" },
   { to: "/app/website/domains", label: "Domains" },
