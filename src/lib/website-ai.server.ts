@@ -496,3 +496,29 @@ export async function logGeneration(
     model,
   });
 }
+
+/**
+ * Telemetry for generations that produced nothing usable. Logged with a
+ * `_failed` kind so it never counts against the monthly quota.
+ */
+export async function logFailedGeneration(
+  supabase: any,
+  organizationId: string,
+  userId: string,
+  kind: string,
+  prompt: string,
+  raw: unknown,
+) {
+  try {
+    await (supabase.from("website_ai_generations") as any).insert({
+      organization_id: organizationId,
+      user_id: userId,
+      kind: `${kind}_failed`,
+      prompt,
+      generated_content_json: { failed: true, raw },
+      model: "google/gemini-2.5-flash",
+    });
+  } catch {
+    // telemetry must never break the request
+  }
+}
