@@ -41,7 +41,10 @@ export const generatePageDraft = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const model = "google/gemini-2.5-flash";
 
-    const quota = await checkAiQuota(supabase, data.organizationId);
+    assertGenerationCooldown(userId);
+    const reservation = await reserveAiGeneration(supabase, data.organizationId);
+    let committed = false;
+    try {
     const orgContext = await loadOrgContext(supabase, data.organizationId);
 
     const system = [
