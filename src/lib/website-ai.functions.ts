@@ -10,6 +10,7 @@ import {
   callGateway,
   checkAiQuota,
   loadOrgContext,
+  logFailedGeneration,
   logGeneration,
   sectionContentSchema,
   sectionVocabularyText,
@@ -90,7 +91,12 @@ export const generatePageDraft = createServerFn({ method: "POST" })
         .map((s: unknown) => validateSection(s))
         .filter((s): s is { section_type: string; content_json: Record<string, unknown> } => s !== null);
       if (validSections.length === 0) {
-        throw new Error("AI could not produce a valid page. Try rephrasing your description.");
+        await logFailedGeneration(
+          supabase, data.organizationId, userId, "page_draft", data.prompt, output,
+        );
+        throw new Error(
+          "The AI couldn't produce a valid draft for that description. Try adding more specifics, or start from a template.",
+        );
       }
     }
 
@@ -382,6 +388,16 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       }
       validSections.push({ section_type: type, content_json: clean });
     });
+
+    if (validSections.length === 0) {
+      await logFailedGeneration(
+        supabase, data.organizationId, userId, "template_draft",
+        `template:${tpl.name} ${JSON.stringify(data.answers)}`.slice(0, 2000), output,
+      );
+      throw new Error(
+        "The AI couldn't produce a valid draft for that description. Try adding more specifics, or start from a template.",
+      );
+    }
 
 
 
