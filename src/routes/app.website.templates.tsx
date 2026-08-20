@@ -124,27 +124,19 @@ function TemplatesPage() {
                 key={t.id}
                 className="group flex flex-col rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
               >
-                <div className="relative aspect-video overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5">
+                <div className="relative">
                   {t.preview_image ? (
-                    <img src={t.preview_image} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full flex-col gap-1.5 p-3">
-                      {sections.slice(0, 5).map((s, i) => (
-                        <div
-                          key={i}
-                          className="rounded bg-foreground/10"
-                          style={{
-                            height: s.section_type === "hero" ? "30%" : "12%",
-                            width: `${70 + Math.random() * 30}%`,
-                          }}
-                        />
-                      ))}
+                    <div className="aspect-video overflow-hidden rounded-lg border border-border">
+                      <img src={t.preview_image} alt="" className="h-full w-full object-cover" />
                     </div>
+                  ) : (
+                    <TemplateMiniPreview sections={t.default_sections_json} />
                   )}
                   <span className="absolute bottom-2 right-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground">
                     {sections.length} sections
                   </span>
                 </div>
+
                 <h3 className="mt-3 text-sm font-semibold text-foreground">{t.name}</h3>
                 <p className="text-xs text-muted-foreground">{PAGE_TYPE_LABELS[t.page_type]}</p>
                 {t.description && (
