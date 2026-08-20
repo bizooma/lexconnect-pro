@@ -496,6 +496,25 @@ function PageEditorPage() {
 
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto bg-muted/20 p-6">
+          {!photoNudgeDismissed &&
+            page.status === "draft" &&
+            !page.published_at &&
+            sections.some((s) => sectionNeedsImage(s)) && (
+              <div
+                className="mx-auto mb-4 flex items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3"
+                style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
+              >
+                <p className="text-xs text-foreground">
+                  <span className="font-medium">Your draft is ready</span> — add photos to make it yours.
+                </p>
+                <button
+                  onClick={dismissPhotoNudge}
+                  className="shrink-0 rounded px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
           <div
             className="mx-auto rounded-xl border border-border bg-background shadow-sm transition-all"
             style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
@@ -512,6 +531,7 @@ function PageEditorPage() {
                     section={s}
                     selected={selectedId === s.id}
                     onSelect={() => setSelectedId(s.id)}
+                    onAddImage={focusImageUploader}
                   />
                 ))}
               </div>
@@ -520,7 +540,8 @@ function PageEditorPage() {
         </main>
 
         {/* Right: Inspector + SEO */}
-        <aside className="w-80 shrink-0 overflow-y-auto border-l border-border bg-card">
+        <aside ref={inspectorRef} className="w-80 shrink-0 overflow-y-auto border-l border-border bg-card">
+
           {selected ? (
             <div className="space-y-4 p-4">
               <div>
