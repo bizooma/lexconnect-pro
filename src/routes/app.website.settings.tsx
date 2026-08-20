@@ -12,7 +12,7 @@ export const Route = createFileRoute("/app/website/settings")({
 });
 
 function WebsiteSettingsPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const get = useServerFn(getBrandSettings);
   const upd = useServerFn(updateBrandSettings);
   const [brand, setBrand] = useState<WebsiteBrandSettings | null>(null);
