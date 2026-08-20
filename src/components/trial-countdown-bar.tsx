@@ -34,13 +34,17 @@ export function TrialCountdownBar() {
   useEffect(() => {
     if (!active || !trialEnd) return;
     const end = new Date(trialEnd).getTime();
-    const tick = () => setNow(Date.now());
+    let id: number;
+    const tick = () => {
+      const t = Date.now();
+      setNow(t);
+      const remaining = end - t;
+      if (remaining <= 0) return;
+      id = window.setTimeout(tick, remaining < 60 * 60 * 1000 ? 1000 : 60 * 1000);
+    };
     tick();
-    const remaining = end - Date.now();
-    const interval = remaining < 60 * 60 * 1000 ? 1000 : 60 * 1000;
-    const id = window.setInterval(tick, interval);
-    return () => window.clearInterval(id);
-  }, [active, trialEnd, Math.floor((new Date(trialEnd ?? 0).getTime() - now) / (60 * 60 * 1000))]);
+    return () => window.clearTimeout(id);
+  }, [active, trialEnd]);
 
   if (!active || !trialEnd) return null;
 
