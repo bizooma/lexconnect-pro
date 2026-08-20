@@ -31,7 +31,7 @@ export const getPublicPage = createServerFn({ method: "GET" })
     if (pageErr) throw new Error(pageErr.message);
     if (!page) throw new Error("Page not found");
 
-    const [sectionsRes, brandRes] = await Promise.all([
+    const [sectionsRes, brandRes, navRes, sponsorRes] = await Promise.all([
       supabaseAdmin
         .from("website_sections")
         .select("*")
@@ -43,6 +43,20 @@ export const getPublicPage = createServerFn({ method: "GET" })
         .select("*")
         .eq("organization_id", org.id)
         .maybeSingle(),
+      supabaseAdmin
+        .from("website_pages")
+        .select("id,title,slug,nav_order")
+        .eq("organization_id", org.id)
+        .eq("status", "published")
+        .eq("show_in_nav", true)
+        .order("nav_order", { ascending: true })
+        .order("title", { ascending: true }),
+      supabaseAdmin
+        .from("org_sponsors")
+        .select("id")
+        .eq("organization_id", org.id)
+        .eq("status", "active")
+        .limit(1),
     ]);
     if (sectionsRes.error) throw new Error(sectionsRes.error.message);
     if (brandRes.error) throw new Error(brandRes.error.message);
@@ -57,5 +71,8 @@ export const getPublicPage = createServerFn({ method: "GET" })
       page,
       sections: sectionsRes.data ?? [],
       brand: brandRes.data ?? null,
+      navPages: (navRes.data ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
+      hasSponsors: (sponsorRes.data?.length ?? 0) > 0,
     };
   });
+
