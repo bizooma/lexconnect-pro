@@ -15,7 +15,7 @@ type HistoryItem = { id: string; page_id: string; action: string; published_at: 
 type AiItem = { id: string; kind: string; prompt: string; created_at: string };
 
 function WebsiteOverviewPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const stats = useServerFn(getWebsiteStats);
   const aiList = useServerFn(listAiGenerations);
   const analytics = useServerFn(getWebsiteAnalytics);
@@ -85,6 +85,21 @@ function WebsiteOverviewPage() {
         <Stat label="Published" value={counts.published} />
         <Stat label="Scheduled" value={counts.scheduled} />
       </div>
+
+      {isOrgAdmin && (
+        <section className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-accent/10 to-transparent p-5">
+          <h2 className="text-base font-semibold text-foreground">Build your whole site with AI</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Answer a few questions, get a complete draft site — home, membership, committees and more.
+          </p>
+          <Link
+            to={"/app/website/build" as any}
+            className="mt-4 inline-block rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-elegant hover:opacity-90"
+          >
+            {counts.total === 0 ? "Build my site" : "Build more pages"}
+          </Link>
+        </section>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <Link
