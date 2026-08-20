@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -11,7 +11,8 @@ import {
   setPageStatus,
   saveSectionAsReusable,
 } from "@/lib/website.functions";
-import { regenerateSection, improvePageSeo } from "@/lib/website-ai.functions";
+import { regenerateSection, improvePageSeo, generatePageDraft, generateFromTemplate, getAiQuota } from "@/lib/website-ai.functions";
+import { readAiInputs, stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import {
   SECTION_LABELS,
   STATUS_LABELS,
@@ -101,9 +102,59 @@ function PageEditorPage() {
 
 
   const { user } = useAuth();
-  const { isOrgAdmin } = useCurrentOrg();
+  const { isOrgAdmin, currentOrgId } = useCurrentOrg();
   const { isAdmin: isPlatformAdmin } = useIsAdmin();
   const canPublish = isOrgAdmin || isPlatformAdmin;
+
+  // "Try another version" — re-runs the original AI generation into a NEW draft page
+  const navigate = useNavigate();
+  const aiFreeform = useServerFn(generatePageDraft);
+  const aiTemplate = useServerFn(generateFromTemplate);
+  const quotaFn = useServerFn(getAiQuota);
+  const [regenInputs, setRegenInputs] = useState<AiRegenStash | null>(null);
+  const [regenBusy, setRegenBusy] = useState(false);
+  const [aiQuota, setAiQuota] = useState<{ remaining: number; limit: number } | null>(null);
+
+  useEffect(() => {
+    setRegenInputs(readAiInputs(pageId));
+  }, [pageId]);
+
+  useEffect(() => {
+    if (!regenInputs || !currentOrgId) return;
+    quotaFn({ data: { organizationId: currentOrgId } })
+      .then((r) => setAiQuota({ remaining: r.remaining, limit: r.limit }))
+      .catch(() => {});
+  }, [regenInputs, currentOrgId, quotaFn]);
+
+  const tryAnotherVersion = useCallback(async () => {
+    if (!regenInputs || !currentOrgId || regenBusy) return;
+    setRegenBusy(true);
+    try {
+      const r =
+        regenInputs.mode === "freeform"
+          ? await aiFreeform({ data: { organizationId: currentOrgId, prompt: regenInputs.prompt } })
+          : await aiTemplate({
+              data: {
+                organizationId: currentOrgId,
+                templateId: regenInputs.templateId,
+                answers: regenInputs.answers,
+              },
+            });
+      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      if (!r?.pageId) {
+        toast.error("Generation didn't produce a page — please try again.");
+        return;
+      }
+      stashAiInputs(r.pageId, regenInputs);
+      toast.success("New draft created — your previous draft is untouched.");
+      navigate({ to: "/app/website/pages/$pageId", params: { pageId: r.pageId } });
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
+    } finally {
+      setRegenBusy(false);
+    }
+  }, [regenInputs, currentOrgId, regenBusy, aiFreeform, aiTemplate, navigate]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -357,6 +408,22 @@ function PageEditorPage() {
               </button>
             ))}
           </div>
+          {regenInputs && (
+            <button
+              onClick={tryAnotherVersion}
+              disabled={regenBusy || (aiQuota !== null && aiQuota.remaining <= 0)}
+              title={
+                aiQuota !== null && aiQuota.remaining <= 0
+                  ? "You've used all your AI generations this month"
+                  : "Re-run the same AI generation into a new draft page (uses one generation)"
+              }
+              className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent disabled:opacity-50"
+            >
+              {regenBusy
+                ? "Generating…"
+                : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left)` : ""}`}
+            </button>
+          )}
           <Link
             to="/app/website/pages/$pageId/history"
             params={{ pageId }}
