@@ -96,6 +96,15 @@ export const generatePageDraft = createServerFn({ method: "POST" })
 
     const droppedSections = rawSections.length - validSections.length;
 
+    const title = String(output.title || "Untitled page").slice(0, 200);
+    const slug = slugify(String(output.slug || title));
+    const rawType = String(output.page_type || "custom");
+    const pageType = (PAGE_TYPES as readonly string[]).includes(rawType) ? rawType : "custom";
+    const metaTitle = String(output.meta_title || title).slice(0, 120);
+    const metaDescription = String(output.meta_description || "").slice(0, 320);
+
+
+
 
     const { data: pageRow, error: pageErr } = await (supabase.from("website_pages") as any)
       .insert({
