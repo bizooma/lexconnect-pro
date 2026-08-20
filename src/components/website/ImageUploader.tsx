@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaGrid } from "@/components/website/MediaLibrary";
+import { StarterPhotosGrid } from "@/components/website/StarterPhotosGrid";
 import { toast } from "sonner";
+
 
 const DEFAULT_BUCKET = "website-media";
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
@@ -30,7 +32,8 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [showUrl, setShowUrl] = useState(false);
-  const [tab, setTab] = useState<"upload" | "library">("upload");
+  const [tab, setTab] = useState<"upload" | "library" | "starter">("upload");
+
   const [refreshKey, setRefreshKey] = useState(0);
   const aspectClass =
     aspect === "square" ? "aspect-square" : aspect === "wide" ? "aspect-[1200/630]" : "aspect-video";
@@ -86,7 +89,7 @@ export function ImageUploader({
       ) : (
         <div className="space-y-2">
           <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-0.5">
-            {(["upload", "library"] as const).map((t) => (
+            {(["upload", "library", "starter"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -97,7 +100,7 @@ export function ImageUploader({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t}
+                {t === "starter" ? "Starter" : t}
               </button>
             ))}
           </div>
@@ -122,7 +125,7 @@ export function ImageUploader({
               </button>
               {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
             </div>
-          ) : (
+          ) : tab === "library" ? (
             <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-background p-2">
               <MediaGrid
                 bucket={BUCKET}
@@ -132,7 +135,12 @@ export function ImageUploader({
                 onSelect={(item) => onChange(item.url)}
               />
             </div>
+          ) : (
+            <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-background p-2">
+              <StarterPhotosGrid compact onSelect={(url) => onChange(url)} />
+            </div>
           )}
+
         </div>
       )}
       <input
