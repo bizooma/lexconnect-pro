@@ -773,6 +773,10 @@ const FAQS: { q: string; a: string }[] = [
     a: "Yes. On the white-label plan, your portal lives at your own domain (like portal.yourbar.org) with your logo, colors, and welcome message on the login page. Setup takes two DNS records, and we activate your domain within one business day.",
   },
   {
+    q: "How does the AI website builder work?",
+    a: "Describe the page you want — a convention landing page, a well-being resource hub, a membership drive — and LexGuild's AI drafts it from a legal-specific template and your organization's real details. You can edit it conversationally by typing instructions like 'add an FAQ about parking,' and the AI revises the page while preserving your images, settings, and custom sections. For a complete linked site, the Build-My-Site wizard drafts multiple pages with navigation and branding in one run. Everything stays a draft until a human reviews and clicks publish.",
+  },
+  {
     q: "How much does LexGuild cost?",
     a: "LexGuild offers three tiers: Starter at $399 per month for up to 25 members, Professional at $899 per month for up to 100 members, and Enterprise with custom pricing starting at $1,500 per month for 250+ members. Annual plans include roughly two months free. The white-label portal with your own custom domain is included with Enterprise.",
   },
