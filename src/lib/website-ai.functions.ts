@@ -11,6 +11,7 @@ import {
   checkAiQuota,
   loadOrgContext,
   normalizePageType,
+  revisionParameterSchema,
   logFailedGeneration,
   logGeneration,
   sectionContentSchema,
@@ -490,6 +491,8 @@ type EditorSection = {
   content_json: Record<string, unknown>;
   display_order: number;
   visible: boolean;
+  settings_json?: Record<string, unknown>;
+  responsive_json?: Record<string, unknown>;
 };
 
 export const revisePage = createServerFn({ method: "POST" })
@@ -513,7 +516,7 @@ export const revisePage = createServerFn({ method: "POST" })
 
     const { data: sectionRows, error: secErr } = await supabase
       .from("website_sections")
-      .select("id,section_type,content_json,display_order,visible")
+      .select("id,section_type,content_json,display_order,visible,settings_json,responsive_json")
       .eq("page_id", data.pageId)
       .order("display_order", { ascending: true });
     if (secErr) throw new Error(secErr.message);
@@ -699,10 +702,10 @@ export const revertPageRevision = createServerFn({ method: "POST" })
       organization_id: rev.organization_id,
       section_type: s.section_type,
       display_order: s.display_order ?? i,
-      settings_json: {},
+      settings_json: s.settings_json ?? {},
       content_json: s.content_json ?? {},
       visible: s.visible ?? true,
-      responsive_json: {},
+      responsive_json: s.responsive_json ?? {},
     }));
     const { error: insErr } = await (supabase.from("website_sections") as any).insert(rows);
     if (insErr) throw new Error(insErr.message);
