@@ -498,14 +498,16 @@ function BuildSiteWizard() {
             ))}
           </ol>
           <p className="text-sm text-muted-foreground">
-            This will use {selected.length} of your {quota.remaining} remaining generations this month (
-            {quota.used} of {quota.limit} used).
+            This will use {selected.length} of your {quota.remaining} remaining generations
+            {quota.purchased > 0 ? ` (${quota.purchased} purchased credits included)` : ""} (
+            {quota.used} of {quota.limit} monthly used).
           </p>
           {selected.length > quota.remaining && (
             <p className="text-sm text-destructive">
-              Not enough generations remaining. Remove pages or wait for the monthly reset.
+              Not enough generations remaining. Remove pages, buy more credits in Settings → Website Builder, or wait for the monthly reset.
             </p>
           )}
+
           <div className="flex justify-between">
             <Button variant="outline" onClick={() => setStep(1)}>
               Back
