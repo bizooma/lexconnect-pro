@@ -733,9 +733,12 @@ function PageEditorPage() {
               ) : (
                 <p className="text-[11px] text-muted-foreground">
                   Try “add an FAQ about parking after the schedule” or “move sponsors above the speakers”.
-                  {aiQuota ? ` · ${aiQuota.remaining} of ${aiQuota.limit} AI runs left this month` : ""}
+                  {aiQuota
+                    ? ` · ${aiQuota.remaining} of ${aiQuota.limit} AI runs left this month${aiQuota.purchased ? ` + ${aiQuota.purchased} purchased` : ""}`
+                    : ""}
                 </p>
               )}
+
             </div>
           </div>
         </main>
