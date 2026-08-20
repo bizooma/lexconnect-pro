@@ -305,7 +305,7 @@ async function generateTemplate(opts: {
     .maybeSingle();
   if (!tpl) throw new Error(`Template "${page.templateName}" was not found.`);
 
-  const skeleton = (Array.isArray(tpl.default_sections_json) ? tpl.default_sections_json : [])
+  const skeleton: string[] = (Array.isArray(tpl.default_sections_json) ? tpl.default_sections_json : [])
     .map((s: unknown) => (s as { section_type?: unknown }).section_type)
     .filter((t: unknown): t is string => typeof t === "string" && isAiSectionType(t));
   if (skeleton.length === 0) throw new Error("This template has no AI-generatable sections.");
