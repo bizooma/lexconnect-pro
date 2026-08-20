@@ -14,7 +14,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/$sponsorId")({
     }
     const sponsor = payload.sponsors.find((s) => s.id === params.sponsorId);
     if (!sponsor) throw notFound();
-    return { organization: payload.organization, brand: payload.brand, sponsor };
+    return { organization: payload.organization, brand: payload.brand, sponsor, navPages: payload.navPages };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Sponsor" }, { name: "robots", content: "noindex" }] };
