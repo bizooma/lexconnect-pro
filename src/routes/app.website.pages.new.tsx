@@ -85,8 +85,13 @@ function NewPagePage() {
 
   const quotaLabel = quota ? `${quota.remaining} of ${quota.limit} AI generations left this month` : null;
 
-  const afterGenerate = (r: { pageId: string; droppedSections: number; remaining: number; limit: number }) => {
+  const afterGenerate = (r: { pageId?: string; droppedSections: number; remaining: number; limit: number }) => {
+    if (!r?.pageId) {
+      toast.error("Generation didn't produce a page — please try again.");
+      return;
+    }
     setQuota({ remaining: r.remaining, limit: r.limit });
+
     toast.success("AI draft created — review everything before publishing.", {
       description:
         r.droppedSections > 0
