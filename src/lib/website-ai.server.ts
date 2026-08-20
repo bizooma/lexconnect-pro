@@ -164,6 +164,51 @@ export function isAiSectionType(t: unknown): t is string {
   return typeof t === "string" && Object.prototype.hasOwnProperty.call(SECTION_SPECS, t);
 }
 
+/**
+ * Shared flat content shape for freeform generation. Every field optional and
+ * a plain string so the gateway's constrained decoder can actually emit values;
+ * per-type zod validation strips whatever a section type doesn't use.
+ */
+function sharedContentSchema() {
+  const s = { type: "string" } as const;
+  return {
+    type: "object",
+    properties: {
+      headline: s,
+      subheadline: s,
+      body: s,
+      cta_label: s,
+      cta_href: s,
+      event_date: s,
+      location: s,
+      credits: s,
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            title: s,
+            description: s,
+            question: s,
+            answer: s,
+            name: s,
+            role: s,
+            bio: s,
+            quote: s,
+            author: s,
+            price: s,
+            label: s,
+            value: s,
+            date: s,
+            kind: s,
+            features: { type: "array", items: s },
+          },
+        },
+      },
+    },
+  };
+}
+
 /** Simple JSON-schema for the sections array offered to the model. */
 export function sectionsParameterSchema() {
   return {
@@ -174,12 +219,36 @@ export function sectionsParameterSchema() {
       type: "object",
       properties: {
         section_type: { type: "string" },
-        content_json: { type: "object" },
+        content_json: sharedContentSchema(),
       },
       required: ["section_type", "content_json"],
     },
   };
 }
+
+const PAGE_TYPE_ALIASES: Record<string, string> = {
+  landing_page: "landing",
+  home_page: "home",
+  homepage: "home",
+  event_page: "event",
+  events: "event",
+  sponsors: "sponsor",
+  sponsorship: "sponsor",
+  committees: "committee",
+  resources: "resource",
+  blog_post: "blog",
+  cle_page: "cle",
+  legal_aid_page: "legal_aid",
+};
+
+/** Never pass a raw model string into the page_type enum column. */
+export function normalizePageType(raw: unknown): string {
+  const t = String(raw ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if ((PAGE_TYPES as readonly string[]).includes(t)) return t;
+  const mapped = PAGE_TYPE_ALIASES[t];
+  return mapped && (PAGE_TYPES as readonly string[]).includes(mapped) ? mapped : "custom";
+}
+
 
 
 /**

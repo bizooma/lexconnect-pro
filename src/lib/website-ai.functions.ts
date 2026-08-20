@@ -3,13 +3,14 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   GUARDRAILS,
-  PAGE_TYPES,
+  
   PLAN_AI_LIMITS,
   SECTION_SPECS,
   isAiSectionType,
   callGateway,
   checkAiQuota,
   loadOrgContext,
+  normalizePageType,
   logFailedGeneration,
   logGeneration,
   sectionContentSchema,
@@ -104,8 +105,8 @@ export const generatePageDraft = createServerFn({ method: "POST" })
 
     const title = String(output.title || "Untitled page").slice(0, 200);
     const slug = slugify(String(output.slug || title));
-    const rawType = String(output.page_type || "custom");
-    const pageType = (PAGE_TYPES as readonly string[]).includes(rawType) ? rawType : "custom";
+    const pageType = normalizePageType(output.page_type);
+
     const metaTitle = String(output.meta_title || title).slice(0, 120);
     const metaDescription = String(output.meta_description || "").slice(0, 320);
 
