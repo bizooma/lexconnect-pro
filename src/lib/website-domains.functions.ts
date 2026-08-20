@@ -290,17 +290,9 @@ export const getPortalContext = createServerFn({ method: "GET" }).handler(async 
     .eq("organization_id", row.organization_id)
     .maybeSingle();
   const s = sub as { plan?: string; status?: string; trial_end?: string | null } | null;
-  const rawPlan = s?.plan;
-  const plan = (rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter") as
-    | "starter"
-    | "pro"
-    | "firm";
-  const status = s?.status ?? null;
-  const trialActive =
-    status === "trialing" && (!s?.trial_end || new Date(s.trial_end) > new Date());
-  const statusOk = status === "active" || status === "grandfathered" || trialActive;
-  // Server-authoritative: entitlement = top-tier plan AND current subscription.
-  const entitled = plan === "firm" && statusOk;
+  const plan = normalizePlan(s?.plan);
+  // Server-authoritative: top-tier plan in good standing OR an active trial.
+  const entitled = hasTopTierAccess(s);
   // If entitlement lapses (downgrade or non-current sub), show the LexGuild mark.
   const show_powered_by = !entitled;
   const jp = org.join_policy;
