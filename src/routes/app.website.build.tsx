@@ -153,15 +153,25 @@ function BuildSiteWizard() {
   const quotaFn = useServerFn(getAiQuota);
   const pageFn = useServerFn(getWebsitePage);
 
+  type Quota = {
+    used: number;
+    limit: number;
+    remaining: number;
+    purchased: number;
+    period: string;
+    resetsOn: string;
+  };
+
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState({ ...PROFILE_EMPTY });
   const [rows, setRows] = useState<Row[]>([]);
-  const [quota, setQuota] = useState({ used: 0, limit: 0, remaining: 0 });
+  const [quota, setQuota] = useState<Quota>({ used: 0, limit: 0, remaining: 0, purchased: 0, period: "", resetsOn: "" });
   const [running, setRunning] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, RowStatus>>({});
   const [results, setResults] = useState<Result[] | null>(null);
   const [previews, setPreviews] = useState<Record<string, { title: string; sections: unknown }>>({});
   const [fatal, setFatal] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!currentOrgId) return;
