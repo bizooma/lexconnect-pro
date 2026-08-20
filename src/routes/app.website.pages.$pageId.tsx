@@ -507,16 +507,17 @@ function PageEditorPage() {
               disabled={regenBusy || (aiQuota !== null && aiQuota.remaining <= 0)}
               title={
                 aiQuota !== null && aiQuota.remaining <= 0
-                  ? "You've used all your AI generations this month"
+                  ? "You've used all your AI generations"
                   : "Re-run the same AI generation into a new draft page (uses one generation)"
               }
               className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent disabled:opacity-50"
             >
               {regenBusy
                 ? "Generating…"
-                : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left)` : ""}`}
+                : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left${aiQuota.purchased ? ` + ${aiQuota.purchased} purchased` : ""})` : ""}`}
             </button>
           )}
+
           {lastRevisionId && (
             <button
               onClick={revertRevision}
