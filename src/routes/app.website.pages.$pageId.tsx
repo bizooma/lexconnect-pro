@@ -22,7 +22,9 @@ import {
   type WebsiteSectionType,
 } from "@/lib/website";
 import { ImageUploader } from "@/components/website/ImageUploader";
+import { StarterPhotosGrid } from "@/components/website/StarterPhotosGrid";
 import { ItemListEditor, getItemSchema } from "@/components/website/ItemListEditor";
+
 import { PublicSectionRenderer } from "@/components/website/PublicSectionRenderer";
 import { usePagePresence, type PresencePeer } from "@/hooks/use-page-presence";
 import { useAuth } from "@/hooks/use-auth";
