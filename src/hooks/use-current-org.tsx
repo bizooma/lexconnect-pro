@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isSubscriptionCurrent } from "@/lib/entitlements";
 import { useAuth } from "@/hooks/use-auth";
 import { usePortalTheme } from "@/components/portal-theme-provider";
 import { type OrgKind } from "@/lib/org-kind";
@@ -154,7 +155,7 @@ export function CurrentOrgProvider({ children }: { children: ReactNode }) {
       currentOrg: membership?.organizations ?? null,
       role: membership?.org_role ?? null,
       subscription,
-      canWrite: status === "active" || status === "trialing" || status === "grandfathered",
+      canWrite: isSubscriptionCurrent(subscription),
       isOrgAdmin: membership?.org_role === "owner" || membership?.org_role === "admin",
       canEditWebsite:
         membership?.org_role === "owner" ||

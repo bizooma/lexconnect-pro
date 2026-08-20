@@ -9,6 +9,7 @@ import {
   verifyCustomDomain,
   updateCustomDomain,
 } from "@/lib/website-domains.functions";
+import { hasTopTierAccess } from "@/lib/entitlements";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/website/domains")({
@@ -29,14 +30,8 @@ type DomainRow = {
 
 function DomainsPage() {
   const { currentOrgId, subscription } = useCurrentOrg();
-  const trialActive =
-    subscription?.status === "trialing" &&
-    (!subscription.trial_end || new Date(subscription.trial_end) > new Date());
-  const hasWhiteLabel =
-    subscription?.plan === "firm" &&
-    (subscription.status === "active" ||
-      subscription.status === "grandfathered" ||
-      trialActive);
+  // Entitlement: active trial = top-tier access (see src/lib/entitlements.ts).
+  const hasWhiteLabel = hasTopTierAccess(subscription);
   const list = useServerFn(listCustomDomains);
   const add = useServerFn(addCustomDomain);
   const remove = useServerFn(removeCustomDomain);

@@ -1,8 +1,8 @@
 // Server-only internals for the "Build my site" wizard: multi-page,
 // sitemap-aware draft generation in a single run.
+import { aiMonthlyLimit } from "@/lib/entitlements";
 import {
   GUARDRAILS,
-  PLAN_AI_LIMITS,
   aiUsageSnapshot,
   assertGenerationCooldown,
   releaseAiGeneration,
@@ -57,12 +57,11 @@ type Section = { section_type: string; content_json: Record<string, unknown> };
 export async function getAiUsage(supabase: any, organizationId: string) {
   const { data: sub } = await supabase
     .from("subscriptions")
-    .select("plan")
+    .select("plan, status, trial_end")
     .eq("organization_id", organizationId)
     .maybeSingle();
-  const rawPlan = (sub as { plan?: string } | null)?.plan;
-  const plan = rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter";
-  const limit = PLAN_AI_LIMITS[plan];
+  // Active trial evaluates at the top-tier limit (mirrors ai_monthly_limit()).
+  const limit = aiMonthlyLimit(sub as { plan?: string; status?: string; trial_end?: string | null } | null);
   const now = new Date();
   const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   const { count } = await supabase

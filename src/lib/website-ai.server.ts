@@ -524,11 +524,8 @@ export async function loadSiteProfile(supabase: any, organizationId: string): Pr
 
 // ---------------- Quotas (counter-table backed) ----------------
 
-export const PLAN_AI_LIMITS: Record<"starter" | "pro" | "firm", number> = {
-  starter: 20,
-  pro: 100,
-  firm: 300,
-};
+// Single source of truth lives in src/lib/entitlements.ts (active trial = top tier).
+export { PLAN_AI_LIMITS } from "@/lib/entitlements";
 
 export type AiUsageSnapshot = {
   monthly_used: number;

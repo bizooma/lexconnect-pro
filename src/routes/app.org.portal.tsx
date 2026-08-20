@@ -13,6 +13,7 @@ import {
   updateJoinPolicy,
   updateWellnessSettings,
 } from "@/lib/org-portal.functions";
+import { hasTopTierAccess } from "@/lib/entitlements";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/website/ImageUploader";
@@ -49,14 +50,8 @@ type DomainRow = {
 
 function PortalPage() {
   const { currentOrgId, currentOrg, isOrgAdmin, subscription, refresh } = useCurrentOrg();
-  const trialActive =
-    subscription?.status === "trialing" &&
-    (!subscription.trial_end || new Date(subscription.trial_end) > new Date());
-  const hasWhiteLabel =
-    subscription?.plan === "firm" &&
-    (subscription.status === "active" ||
-      subscription.status === "grandfathered" ||
-      trialActive);
+  // Entitlement: active trial = top-tier access (see src/lib/entitlements.ts).
+  const hasWhiteLabel = hasTopTierAccess(subscription);
 
   const list = useServerFn(listCustomDomains);
   const add = useServerFn(addCustomDomain);
