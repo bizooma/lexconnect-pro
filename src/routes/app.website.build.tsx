@@ -208,12 +208,22 @@ function BuildSiteWizard() {
           notes: prof.data.notes ?? "",
         });
       }
-      if (q) setQuota(q);
+      if (q) {
+        setQuota({
+          used: q.used,
+          limit: q.limit,
+          remaining: q.remaining,
+          purchased: q.purchased,
+          period: q.period,
+          resetsOn: q.resetsOn,
+        });
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, [currentOrgId, quotaFn]);
+
 
   const selected = useMemo(() => rows.filter((r) => r.checked), [rows]);
   const setP = (k: keyof typeof PROFILE_EMPTY, v: string) =>
