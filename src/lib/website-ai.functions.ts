@@ -11,6 +11,7 @@ import {
   checkAiQuota,
   loadOrgContext,
   normalizePageType,
+  revisionParameterSchema,
   logFailedGeneration,
   logGeneration,
   sectionContentSchema,
@@ -478,4 +479,236 @@ export const getAiQuota = createServerFn({ method: "POST" })
       .gte("created_at", start);
     const used = count ?? 0;
     return { used, limit, remaining: Math.max(0, limit - used) };
+  });
+
+// ---------------- Page-level AI revision ----------------
+
+const FROZEN_TYPES = new Set(["custom_html", "video"]);
+
+type EditorSection = {
+  id: string;
+  section_type: string;
+  content_json: Record<string, unknown>;
+  display_order: number;
+  visible: boolean;
+  settings_json?: Record<string, unknown>;
+  responsive_json?: Record<string, unknown>;
+};
+
+export const revisePage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      pageId: z.string().uuid(),
+      instruction: z.string().min(5).max(1000),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const model = "google/gemini-2.5-flash";
+
+    const { data: page, error: pageErr } = await supabase
+      .from("website_pages")
+      .select("id,organization_id,title,page_type")
+      .eq("id", data.pageId)
+      .single();
+    if (pageErr || !page) throw new Error(pageErr?.message || "Page not found");
+
+    const { data: sectionRows, error: secErr } = await supabase
+      .from("website_sections")
+      .select("id,section_type,content_json,display_order,visible,settings_json,responsive_json")
+      .eq("page_id", data.pageId)
+      .order("display_order", { ascending: true });
+    if (secErr) throw new Error(secErr.message);
+    const existing = (sectionRows ?? []) as unknown as EditorSection[];
+    if (existing.length === 0) throw new Error("This page has no sections to revise yet.");
+
+    const quota = await checkAiQuota(supabase, page.organization_id);
+    const orgContext = await loadOrgContext(supabase, page.organization_id);
+
+    const structure = existing
+      .map((s, i) =>
+        `${i + 1}. id=${s.id} type=${s.section_type}${FROZEN_TYPES.has(s.section_type) ? " (LOCKED: keep as-is, may be reordered)" : ""} content=${JSON.stringify(s.content_json).slice(0, 900)}`,
+      )
+      .join("\n");
+
+    const system = [
+      "You revise an existing website page for a legal organization. Return the FULL revised page as an ordered array of sections.",
+      "For a section you keep, set ref to its existing id and return its (possibly rewritten) content. For a brand-new section, set ref to \"new\". Omit a section only if the instruction clearly asks to remove it. Never omit LOCKED sections; you may reorder them.",
+      `Allowed section_type values and the EXACT content_json fields each one accepts:\n${sectionVocabularyText()}`,
+      "Use ONLY the fields listed for that section_type. Never output image URLs.",
+      orgContext,
+      GUARDRAILS,
+    ].filter(Boolean).join("\n\n");
+
+    const output = await callGateway({
+      model,
+      system,
+      user: `Page: ${page.title} (${page.page_type})\n\nCurrent sections in order:\n${structure}\n\nInstruction: ${data.instruction}`,
+      toolName: "revise_page",
+      toolDescription: "Return the full revised ordered list of page sections.",
+      parameters: revisionParameterSchema(),
+    });
+
+    const returned = Array.isArray(output.sections) ? output.sections : [];
+    const byId = new Map(existing.map((s) => [s.id, s]));
+
+    type Planned =
+      | { kind: "keep"; section: EditorSection; content: Record<string, unknown> }
+      | { kind: "new"; section_type: string; content: Record<string, unknown> };
+
+    const planned: Planned[] = [];
+    const seen = new Set<string>();
+    let dropped = 0;
+
+    for (const raw of returned) {
+      const item = raw as { ref?: unknown; section_type?: unknown; content_json?: unknown };
+      const ref = typeof item.ref === "string" ? item.ref.trim() : "";
+      const current = byId.get(ref);
+      if (current) {
+        if (seen.has(current.id)) continue;
+        seen.add(current.id);
+        if (FROZEN_TYPES.has(current.section_type)) {
+          planned.push({ kind: "keep", section: current, content: current.content_json });
+          continue;
+        }
+        const clean = validateSectionContent(current.section_type, item.content_json ?? {});
+        planned.push({
+          kind: "keep",
+          section: current,
+          content: clean
+            ? { ...(current.content_json ?? {}), ...clean }
+            : (current.content_json ?? {}),
+        });
+        if (!clean) dropped++;
+        continue;
+      }
+      const valid = validateSection(item);
+      if (!valid) {
+        dropped++;
+        continue;
+      }
+      planned.push({ kind: "new", section_type: valid.section_type, content: valid.content_json });
+    }
+
+    if (planned.length === 0) {
+      await logFailedGeneration(
+        supabase, page.organization_id, userId, "page_draft", data.instruction, output,
+      );
+      throw new Error(
+        "The AI couldn't apply that change. Try being more specific about which sections to change.",
+      );
+    }
+
+    // Re-insert any LOCKED section the model dropped, at its original relative position.
+    for (const s of existing) {
+      if (!FROZEN_TYPES.has(s.section_type) || seen.has(s.id)) continue;
+      let idx = planned.length;
+      for (let i = 0; i < planned.length; i++) {
+        const p = planned[i];
+        if (p.kind === "keep" && p.section.display_order > s.display_order) {
+          idx = i;
+          break;
+        }
+      }
+      planned.splice(idx, 0, { kind: "keep", section: s, content: s.content_json });
+      seen.add(s.id);
+    }
+
+    // Snapshot BEFORE applying.
+    const { data: revRow, error: revErr } = await (supabase.from("website_page_revisions") as any)
+      .insert({
+        page_id: data.pageId,
+        organization_id: page.organization_id,
+        sections_json: existing,
+        reason: data.instruction.slice(0, 500),
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+    if (revErr) throw new Error(revErr.message);
+
+    // Apply: updates, inserts, deletions.
+    let order = 0;
+    for (const p of planned) {
+      if (p.kind === "keep") {
+        const { error } = await (supabase.from("website_sections") as any)
+          .update({ content_json: p.content, display_order: order })
+          .eq("id", p.section.id);
+        if (error) throw new Error(error.message);
+      } else {
+        const { error } = await (supabase.from("website_sections") as any).insert({
+          page_id: data.pageId,
+          organization_id: page.organization_id,
+          section_type: p.section_type,
+          display_order: order,
+          settings_json: {},
+          content_json: p.content,
+          visible: true,
+          responsive_json: {},
+        });
+        if (error) throw new Error(error.message);
+      }
+      order++;
+    }
+
+    const removed = existing.filter((s) => !seen.has(s.id)).map((s) => s.id);
+    if (removed.length > 0) {
+      const { error } = await supabase.from("website_sections").delete().in("id", removed);
+      if (error) throw new Error(error.message);
+    }
+
+    await logGeneration(
+      supabase, page.organization_id, userId, "page_draft",
+      `[Revision] ${data.instruction}`.slice(0, 2000), output, model,
+    );
+
+    return {
+      revisionId: revRow.id as string,
+      dropped,
+      removed: removed.length,
+      remaining: quota.remaining,
+      limit: quota.limit,
+    };
+  });
+
+/** Restore a page's sections from a revision snapshot (undo one AI revision). */
+export const revertPageRevision = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ revisionId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: rev, error } = await supabase
+      .from("website_page_revisions")
+      .select("id,page_id,organization_id,sections_json")
+      .eq("id", data.revisionId)
+      .single();
+    if (error || !rev) throw new Error(error?.message || "Revision not found");
+
+    const snapshot = (Array.isArray(rev.sections_json) ? rev.sections_json : []) as unknown as EditorSection[];
+    if (snapshot.length === 0) throw new Error("This revision has no snapshot to restore.");
+
+    const { error: delErr } = await supabase
+      .from("website_sections")
+      .delete()
+      .eq("page_id", rev.page_id);
+    if (delErr) throw new Error(delErr.message);
+
+    const rows = snapshot.map((s, i) => ({
+      id: s.id,
+      page_id: rev.page_id,
+      organization_id: rev.organization_id,
+      section_type: s.section_type,
+      display_order: s.display_order ?? i,
+      settings_json: s.settings_json ?? {},
+      content_json: s.content_json ?? {},
+      visible: s.visible ?? true,
+      responsive_json: s.responsive_json ?? {},
+    }));
+    const { error: insErr } = await (supabase.from("website_sections") as any).insert(rows);
+    if (insErr) throw new Error(insErr.message);
+
+    return { ok: true, pageId: rev.page_id as string };
   });

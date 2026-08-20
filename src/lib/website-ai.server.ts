@@ -226,6 +226,28 @@ export function sectionsParameterSchema() {
   };
 }
 
+/** Tool schema for a whole-page revision: refs onto existing section ids. */
+export function revisionParameterSchema() {
+  return {
+    type: "object",
+    properties: {
+      sections: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            ref: { type: "string" },
+            section_type: { type: "string" },
+            content_json: sharedContentSchema(),
+          },
+          required: ["ref", "section_type", "content_json"],
+        },
+      },
+    },
+    required: ["sections"],
+  };
+}
+
 const PAGE_TYPE_ALIASES: Record<string, string> = {
   landing_page: "landing",
   home_page: "home",

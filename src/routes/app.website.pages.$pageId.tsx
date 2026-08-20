@@ -11,7 +11,7 @@ import {
   setPageStatus,
   saveSectionAsReusable,
 } from "@/lib/website.functions";
-import { regenerateSection, improvePageSeo, generatePageDraft, generateFromTemplate, getAiQuota } from "@/lib/website-ai.functions";
+import { regenerateSection, improvePageSeo, generatePageDraft, generateFromTemplate, getAiQuota, revisePage, revertPageRevision } from "@/lib/website-ai.functions";
 import { readAiInputs, stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import {
   SECTION_LABELS,
@@ -120,11 +120,52 @@ function PageEditorPage() {
   }, [pageId]);
 
   useEffect(() => {
-    if (!regenInputs || !currentOrgId) return;
+    if (!currentOrgId) return;
     quotaFn({ data: { organizationId: currentOrgId } })
       .then((r) => setAiQuota({ remaining: r.remaining, limit: r.limit }))
       .catch(() => {});
-  }, [regenInputs, currentOrgId, quotaFn]);
+  }, [currentOrgId, quotaFn]);
+
+  // Page-level AI conversation bar
+  const reviseFn = useServerFn(revisePage);
+  const revertFn = useServerFn(revertPageRevision);
+  const [instruction, setInstruction] = useState("");
+  const [reviseBusy, setReviseBusy] = useState(false);
+  const [reviseError, setReviseError] = useState<string | null>(null);
+  const [lastRevisionId, setLastRevisionId] = useState<string | null>(null);
+
+  const runRevision = useCallback(async () => {
+    const text = instruction.trim();
+    if (text.length < 5 || reviseBusy) return;
+    setReviseBusy(true);
+    setReviseError(null);
+    try {
+      const r = await reviseFn({ data: { pageId, instruction: text } });
+      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setLastRevisionId(r.revisionId);
+      setInstruction("");
+      toast.success("Page updated by AI.");
+      await refreshRef.current();
+    } catch (e) {
+      setReviseError(
+        e instanceof Error && e.message ? e.message : "The AI couldn't apply that change.",
+      );
+    } finally {
+      setReviseBusy(false);
+    }
+  }, [instruction, reviseBusy, reviseFn, pageId]);
+
+  const revertRevision = useCallback(async () => {
+    if (!lastRevisionId) return;
+    try {
+      await revertFn({ data: { revisionId: lastRevisionId } });
+      setLastRevisionId(null);
+      toast.success("Reverted the AI change.");
+      await refreshRef.current();
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Couldn't revert.");
+    }
+  }, [lastRevisionId, revertFn]);
 
   const tryAnotherVersion = useCallback(async () => {
     if (!regenInputs || !currentOrgId || regenBusy) return;
@@ -424,6 +465,15 @@ function PageEditorPage() {
                 : `✨ Try another version${aiQuota ? ` (${aiQuota.remaining} left)` : ""}`}
             </button>
           )}
+          {lastRevisionId && (
+            <button
+              onClick={revertRevision}
+              title="Restore the page to how it was before the last AI change"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+            >
+              ↩ Revert AI change
+            </button>
+          )}
           <Link
             to="/app/website/pages/$pageId/history"
             params={{ pageId }}
@@ -603,6 +653,35 @@ function PageEditorPage() {
                 ))}
               </div>
             )}
+          </div>
+          <div className="sticky bottom-0 z-10 -mx-6 mt-6 border-t border-border bg-card/95 px-6 py-3 backdrop-blur">
+            <div className="mx-auto flex max-w-3xl flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <input
+                  value={instruction}
+                  onChange={(e) => { setInstruction(e.target.value); setReviseError(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void runRevision(); } }}
+                  disabled={reviseBusy}
+                  placeholder="Tell the AI what to change on this page…"
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none disabled:opacity-60"
+                />
+                <button
+                  onClick={() => void runRevision()}
+                  disabled={reviseBusy || instruction.trim().length < 5 || (aiQuota !== null && aiQuota.remaining <= 0)}
+                  className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground disabled:opacity-50"
+                >
+                  {reviseBusy ? "Working…" : "Send"}
+                </button>
+              </div>
+              {reviseError ? (
+                <p className="text-[11px] text-destructive">{reviseError}</p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  Try “add an FAQ about parking after the schedule” or “move sponsors above the speakers”.
+                  {aiQuota ? ` · ${aiQuota.remaining} of ${aiQuota.limit} AI runs left this month` : ""}
+                </p>
+              )}
+            </div>
           </div>
         </main>
 
