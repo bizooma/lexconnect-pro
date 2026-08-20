@@ -54,6 +54,7 @@ export function ImageUploader({
       if (error) throw error;
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
       onChange(data.publicUrl);
+      setRefreshKey((k) => k + 1);
       toast.success("Image uploaded");
     } catch (e) {
       toast.error((e as Error).message ?? "Upload failed");
