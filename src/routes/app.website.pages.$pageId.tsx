@@ -751,14 +751,22 @@ function ContentFields({
   );
 }
 
+function sectionNeedsImage(s: WebsiteSection): boolean {
+  if (s.section_type !== "hero" && s.section_type !== "image_text") return false;
+  const url = (s.content_json as Record<string, unknown>)?.image_url;
+  return typeof url !== "string" || url.trim() === "";
+}
+
 function SectionPreview({
   section,
   selected,
   onSelect,
+  onAddImage,
 }: {
   section: WebsiteSection;
   selected: boolean;
   onSelect: () => void;
+  onAddImage?: () => void;
 }) {
   const ring = selected ? "ring-2 ring-primary ring-inset" : "hover:ring-2 hover:ring-border hover:ring-inset";
   return (
@@ -766,10 +774,24 @@ function SectionPreview({
       onClick={onSelect}
       className={`relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`}
     >
+      {onAddImage && sectionNeedsImage(section) && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+            onAddImage();
+          }}
+          className="absolute right-2 top-2 z-10 rounded-full border border-border bg-card/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm backdrop-blur hover:border-primary hover:text-primary"
+        >
+          + Add an image
+        </button>
+      )}
       <PublicSectionRenderer section={section as never} context={{ preview: true }} />
     </div>
   );
 }
+
 
 function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
