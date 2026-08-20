@@ -46,6 +46,8 @@ function WebsiteSettingsPage() {
         <p className="text-sm text-muted-foreground">SEO defaults, footer, and module-wide options for the Website Builder.</p>
       </div>
 
+      {currentOrgId && <SiteProfileCard organizationId={currentOrgId} canEdit={isOrgAdmin} />}
+
       <section className="rounded-xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">SEO defaults</h3>
         <p className="mt-1 text-xs text-muted-foreground">
