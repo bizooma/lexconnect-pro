@@ -106,7 +106,7 @@ function NewPagePage() {
     try {
       afterGenerate(await aiFreeform({ data: { organizationId: currentOrgId, prompt: prompt.trim() } }));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
     } finally {
       setBusy(null);
     }
@@ -129,7 +129,7 @@ function NewPagePage() {
       );
       setActive(null);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
     } finally {
       setBusy(null);
     }

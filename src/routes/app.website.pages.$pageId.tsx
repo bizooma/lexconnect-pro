@@ -534,7 +534,7 @@ function PageEditorPage() {
                         const r = await aiRewrite({ data: { sectionId: selected.id, instruction: q.instr } });
                         await updateSelected({ content_json: r.content_json as Record<string, unknown> });
                         toast.success(`Applied: ${q.label}`);
-                      } catch (e) { toast.error((e as Error).message); }
+                      } catch (e) { toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again."); }
                     }}
                     className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary"
                   >
@@ -801,7 +801,7 @@ function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<vo
           onClick={async () => {
             setBusy(true);
             try { await onRun(instruction.trim()); setOpen(false); setInstruction(""); }
-            catch (e) { toast.error((e as Error).message); }
+            catch (e) { toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again."); }
             finally { setBusy(false); }
           }}
           className="rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground disabled:opacity-50"
