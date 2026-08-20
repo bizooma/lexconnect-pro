@@ -35,6 +35,7 @@ type NavItem = {
   icon: (p: any) => React.ReactElement;
   enabled: boolean;
   locked?: boolean;
+  comingSoon?: boolean;
 };
 
 const CORE_NAV_DEF = [
@@ -77,15 +78,16 @@ function AppLayout() {
       to: "/app/website",
       label: "Website Builder",
       icon: GlobeIcon,
-      enabled: isPlatformAdmin,
-      locked: !isPlatformAdmin,
+      enabled: isOrgAdmin || canEditWebsite,
+      locked: !(isOrgAdmin || canEditWebsite),
     },
     {
       to: "/app/directory",
       label: "Attorney Directory",
       icon: BookIcon,
-      enabled: isPlatformAdmin,
-      locked: !isPlatformAdmin,
+      enabled: false,
+      locked: true,
+      comingSoon: true,
     },
     {
       to: "/app/ce",
@@ -170,7 +172,13 @@ function AppLayout() {
   // Mobile bottom nav: keep 5 core + a "More" entry that links to dashboard groups page
   const mobileNav = coreNav.slice(0, 5);
 
-  const handleLockedClick = () => {
+  const handleLockedClick = (item?: NavItem) => {
+    if (item?.comingSoon) {
+      toast.message("Coming soon", {
+        description: `${item.label} isn't available yet. We'll let you know when it launches.`,
+      });
+      return;
+    }
     toast.message("Add-on not enabled", {
       description: "This module isn't included in your plan yet. Contact your administrator to enable it.",
     });
@@ -185,9 +193,9 @@ function AppLayout() {
         <button
           key={item.to}
           type="button"
-          onClick={handleLockedClick}
+          onClick={() => handleLockedClick(item)}
           className={`${baseClass} w-full text-left text-muted-foreground/70 hover:bg-accent/40`}
-          title="Add-on not enabled"
+          title={item.comingSoon ? "Coming soon" : "Add-on not enabled"}
         >
           <Icon className="h-4 w-4 opacity-60" />
           <span className="flex-1 truncate">{item.label}</span>
@@ -379,7 +387,7 @@ function MobileMoreMenu({
   addonNav: NavItem[];
   platformNav: NavItem[];
   pathname: string;
-  onLocked: () => void;
+  onLocked: (item: NavItem) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -410,7 +418,7 @@ function MobileMoreMenu({
                       <button
                         key={item.to}
                         type="button"
-                        onClick={() => { onLocked(); setOpen(false); }}
+                        onClick={() => { onLocked(item); setOpen(false); }}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70"
                       >
                         <Icon className="h-4 w-4 opacity-60" />
@@ -443,7 +451,7 @@ function MobileMoreMenu({
                     <button
                       key={item.to}
                       type="button"
-                      onClick={() => { onLocked(); setOpen(false); }}
+                      onClick={() => { onLocked(item); setOpen(false); }}
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70"
                     >
                       <Icon className="h-4 w-4 opacity-60" />
