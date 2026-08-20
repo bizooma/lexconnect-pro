@@ -9,6 +9,7 @@ import {
   getAiQuota,
 } from "@/lib/website-ai.functions";
 import { PAGE_TYPE_LABELS, type WebsitePageType } from "@/lib/website";
+import { stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/website/pages/new")({
