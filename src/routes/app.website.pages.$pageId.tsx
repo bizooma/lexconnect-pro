@@ -203,8 +203,9 @@ function PageEditorPage() {
                 answers: regenInputs.answers,
               },
             });
-      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setAiQuota((q) => (q ? { ...q, remaining: r.remaining, limit: r.limit } : null));
       if (!r?.pageId) {
+
         toast.error("Generation didn't produce a page — please try again.");
         return;
       }
