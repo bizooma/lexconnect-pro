@@ -162,8 +162,9 @@ function PageEditorPage() {
     setReviseError(null);
     try {
       const r = await reviseFn({ data: { pageId, instruction: text } });
-      setAiQuota({ remaining: r.remaining, limit: r.limit });
+      setAiQuota((q) => (q ? { ...q, remaining: r.remaining, limit: r.limit } : null));
       setLastRevisionId(r.revisionId);
+
       setInstruction("");
       toast.success("Page updated by AI.");
       await refreshRef.current();
