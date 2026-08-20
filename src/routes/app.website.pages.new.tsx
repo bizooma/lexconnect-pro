@@ -67,6 +67,8 @@ function NewPagePage() {
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState<null | string>(null);
   const [active, setActive] = useState<TemplateRow | null>(null);
+  const [previewTpl, setPreviewTpl] = useState<TemplateRow | null>(null);
+
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [manual, setManual] = useState(false);
 
