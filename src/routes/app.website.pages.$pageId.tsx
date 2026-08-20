@@ -115,7 +115,16 @@ function PageEditorPage() {
   const quotaFn = useServerFn(getAiQuota);
   const [regenInputs, setRegenInputs] = useState<AiRegenStash | null>(null);
   const [regenBusy, setRegenBusy] = useState(false);
-  const [aiQuota, setAiQuota] = useState<{ remaining: number; limit: number } | null>(null);
+
+  type AiQuota = {
+    used: number;
+    limit: number;
+    remaining: number;
+    purchased: number;
+    period: string;
+    resetsOn: string;
+  };
+  const [aiQuota, setAiQuota] = useState<AiQuota | null>(null);
 
   useEffect(() => {
     setRegenInputs(readAiInputs(pageId));
@@ -124,9 +133,19 @@ function PageEditorPage() {
   useEffect(() => {
     if (!currentOrgId) return;
     quotaFn({ data: { organizationId: currentOrgId } })
-      .then((r) => setAiQuota({ remaining: r.remaining, limit: r.limit }))
+      .then((r) =>
+        setAiQuota({
+          used: r.used,
+          limit: r.limit,
+          remaining: r.remaining,
+          purchased: r.purchased,
+          period: r.period,
+          resetsOn: r.resetsOn,
+        }),
+      )
       .catch(() => {});
   }, [currentOrgId, quotaFn]);
+
 
   // Page-level AI conversation bar
   const reviseFn = useServerFn(revisePage);
