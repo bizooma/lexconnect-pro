@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaGrid } from "@/components/website/MediaLibrary";
+import { StarterPhotosGrid } from "@/components/website/StarterPhotosGrid";
 import { toast } from "sonner";
+
 
 const DEFAULT_BUCKET = "website-media";
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
