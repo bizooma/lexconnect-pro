@@ -486,15 +486,21 @@ export const generateFromTemplate = createServerFn({ method: "POST" })
       `[Template: ${tpl.name}] ${answerLines.join(" | ")}`.slice(0, 2000),
       output,
       model,
+      { usage, chargedTo: reservation.source },
     );
+    committed = true;
+    const snap = await aiUsageSnapshot(supabase, data.organizationId);
 
     return {
       pageId: pageRow.id as string,
       slug,
       droppedSections,
-      remaining: quota.remaining,
-      limit: quota.limit,
+      remaining: snap.total_remaining,
+      limit: snap.monthly_limit,
     };
+    } finally {
+      if (!committed) await releaseAiGeneration(supabase, data.organizationId, reservation.source);
+    }
   });
 
 // ---------------- Monthly quota (read-only) ----------------
