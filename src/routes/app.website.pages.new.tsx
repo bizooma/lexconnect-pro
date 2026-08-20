@@ -11,6 +11,8 @@ import {
 import { PAGE_TYPE_LABELS, type WebsitePageType } from "@/lib/website";
 import { stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import { toast } from "sonner";
+import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+
 
 export const Route = createFileRoute("/app/website/pages/new")({
   head: () => ({
