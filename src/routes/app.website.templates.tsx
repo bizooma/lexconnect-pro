@@ -12,6 +12,8 @@ import {
   slugify,
 } from "@/lib/website";
 import { toast } from "sonner";
+import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+
 
 export const Route = createFileRoute("/app/website/templates")({
   component: TemplatesPage,
