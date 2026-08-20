@@ -712,3 +712,48 @@ export const revertPageRevision = createServerFn({ method: "POST" })
 
     return { ok: true, pageId: rev.page_id as string };
   });
+
+// ---------------- Build my site (multi-page draft run) ----------------
+
+export const generateSite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        profile: z.object({
+          founded_year: z.number().int().min(1700).max(2100).nullable().optional(),
+          region: z.string().trim().max(120).nullable().optional(),
+          audience: z.enum(["members", "public", "both"]).nullable().optional(),
+          tone: z.enum(["professional", "warm", "modern"]).nullable().optional(),
+          primary_goal: z.string().trim().max(200).nullable().optional(),
+          programs: z.array(z.string().trim().min(1).max(80)).max(20).optional(),
+          contact: z.record(z.string(), z.string().trim().max(200)).optional(),
+          notes: z.string().trim().max(1000).nullable().optional(),
+        }),
+        pages: z
+          .array(
+            z.object({
+              key: z.string().min(1).max(60),
+              title: z.string().trim().min(2).max(120),
+              mode: z.enum(["template", "freeform", "module_intro"]),
+              templateName: z.string().trim().max(120).optional(),
+              brief: z.string().trim().max(1000).optional(),
+              moduleTarget: z.enum(["sponsors", "wellbeing"]).optional(),
+            }),
+          )
+          .min(1)
+          .max(8),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { buildSite } = await import("@/lib/website-site-builder.server");
+    return await buildSite({
+      supabase: context.supabase,
+      userId: context.userId,
+      organizationId: data.organizationId,
+      profile: data.profile,
+      pages: data.pages,
+    });
+  });
