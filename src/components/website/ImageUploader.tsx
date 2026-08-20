@@ -84,25 +84,55 @@ export function ImageUploader({
           <img src={value} alt="" className="h-full w-full object-cover" />
         </div>
       ) : (
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            const f = e.dataTransfer.files?.[0];
-            if (f) upload(f);
-          }}
-          className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background px-3 py-6 text-center ${aspectClass}`}
-        >
-          <p className="text-[11px] text-muted-foreground">Drop image or</p>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => inputRef.current?.click()}
-            className="rounded border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
-          >
-            {busy ? "Uploading…" : "Choose file"}
-          </button>
-          {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+        <div className="space-y-2">
+          <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-0.5">
+            {(["upload", "library"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`flex-1 rounded-md px-2 py-1 text-[11px] font-medium capitalize transition ${
+                  tab === t
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          {tab === "upload" ? (
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const f = e.dataTransfer.files?.[0];
+                if (f) upload(f);
+              }}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background px-3 py-6 text-center ${aspectClass}`}
+            >
+              <p className="text-[11px] text-muted-foreground">Drop image or</p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => inputRef.current?.click()}
+                className="rounded border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
+              >
+                {busy ? "Uploading…" : "Choose file"}
+              </button>
+              {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+            </div>
+          ) : (
+            <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-background p-2">
+              <MediaGrid
+                bucket={BUCKET}
+                organizationId={organizationId}
+                compact
+                refreshKey={refreshKey}
+                onSelect={(item) => onChange(item.url)}
+              />
+            </div>
+          )}
         </div>
       )}
       <input
