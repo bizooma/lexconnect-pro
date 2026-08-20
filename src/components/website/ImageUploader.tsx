@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { MediaGrid } from "@/components/website/MediaLibrary";
 import { toast } from "sonner";
 
 const DEFAULT_BUCKET = "website-media";
@@ -29,6 +30,8 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [showUrl, setShowUrl] = useState(false);
+  const [tab, setTab] = useState<"upload" | "library">("upload");
+  const [refreshKey, setRefreshKey] = useState(0);
   const aspectClass =
     aspect === "square" ? "aspect-square" : aspect === "wide" ? "aspect-[1200/630]" : "aspect-video";
 
@@ -51,6 +54,7 @@ export function ImageUploader({
       if (error) throw error;
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
       onChange(data.publicUrl);
+      setRefreshKey((k) => k + 1);
       toast.success("Image uploaded");
     } catch (e) {
       toast.error((e as Error).message ?? "Upload failed");
@@ -80,25 +84,55 @@ export function ImageUploader({
           <img src={value} alt="" className="h-full w-full object-cover" />
         </div>
       ) : (
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            const f = e.dataTransfer.files?.[0];
-            if (f) upload(f);
-          }}
-          className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background px-3 py-6 text-center ${aspectClass}`}
-        >
-          <p className="text-[11px] text-muted-foreground">Drop image or</p>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => inputRef.current?.click()}
-            className="rounded border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
-          >
-            {busy ? "Uploading…" : "Choose file"}
-          </button>
-          {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+        <div className="space-y-2">
+          <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-0.5">
+            {(["upload", "library"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`flex-1 rounded-md px-2 py-1 text-[11px] font-medium capitalize transition ${
+                  tab === t
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          {tab === "upload" ? (
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const f = e.dataTransfer.files?.[0];
+                if (f) upload(f);
+              }}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background px-3 py-6 text-center ${aspectClass}`}
+            >
+              <p className="text-[11px] text-muted-foreground">Drop image or</p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => inputRef.current?.click()}
+                className="rounded border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
+              >
+                {busy ? "Uploading…" : "Choose file"}
+              </button>
+              {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+            </div>
+          ) : (
+            <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-background p-2">
+              <MediaGrid
+                bucket={BUCKET}
+                organizationId={organizationId}
+                compact
+                refreshKey={refreshKey}
+                onSelect={(item) => onChange(item.url)}
+              />
+            </div>
+          )}
         </div>
       )}
       <input

@@ -59,6 +59,7 @@ import { Route as AppWebsiteSubmissionsRouteImport } from './routes/app.website.
 import { Route as AppWebsiteSettingsRouteImport } from './routes/app.website.settings'
 import { Route as AppWebsiteSectionsRouteImport } from './routes/app.website.sections'
 import { Route as AppWebsitePublishedRouteImport } from './routes/app.website.published'
+import { Route as AppWebsiteMediaRouteImport } from './routes/app.website.media'
 import { Route as AppWebsiteDomainsRouteImport } from './routes/app.website.domains'
 import { Route as AppWebsiteBuildRouteImport } from './routes/app.website.build'
 import { Route as AppWebsiteBrandRouteImport } from './routes/app.website.brand'
@@ -365,6 +366,11 @@ const AppWebsiteSectionsRoute = AppWebsiteSectionsRouteImport.update({
 const AppWebsitePublishedRoute = AppWebsitePublishedRouteImport.update({
   id: '/published',
   path: '/published',
+  getParentRoute: () => AppWebsiteRoute,
+} as any)
+const AppWebsiteMediaRoute = AppWebsiteMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
   getParentRoute: () => AppWebsiteRoute,
 } as any)
 const AppWebsiteDomainsRoute = AppWebsiteDomainsRouteImport.update({
@@ -722,6 +728,7 @@ export interface FileRoutesByFullPath {
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
+  '/app/website/media': typeof AppWebsiteMediaRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -822,6 +829,7 @@ export interface FileRoutesByTo {
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
+  '/app/website/media': typeof AppWebsiteMediaRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -930,6 +938,7 @@ export interface FileRoutesById {
   '/app/website/brand': typeof AppWebsiteBrandRoute
   '/app/website/build': typeof AppWebsiteBuildRoute
   '/app/website/domains': typeof AppWebsiteDomainsRoute
+  '/app/website/media': typeof AppWebsiteMediaRoute
   '/app/website/published': typeof AppWebsitePublishedRoute
   '/app/website/sections': typeof AppWebsiteSectionsRoute
   '/app/website/settings': typeof AppWebsiteSettingsRoute
@@ -1039,6 +1048,7 @@ export interface FileRouteTypes {
     | '/app/website/brand'
     | '/app/website/build'
     | '/app/website/domains'
+    | '/app/website/media'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -1139,6 +1149,7 @@ export interface FileRouteTypes {
     | '/app/website/brand'
     | '/app/website/build'
     | '/app/website/domains'
+    | '/app/website/media'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -1246,6 +1257,7 @@ export interface FileRouteTypes {
     | '/app/website/brand'
     | '/app/website/build'
     | '/app/website/domains'
+    | '/app/website/media'
     | '/app/website/published'
     | '/app/website/sections'
     | '/app/website/settings'
@@ -1678,6 +1690,13 @@ declare module '@tanstack/react-router' {
       path: '/published'
       fullPath: '/app/website/published'
       preLoaderRoute: typeof AppWebsitePublishedRouteImport
+      parentRoute: typeof AppWebsiteRoute
+    }
+    '/app/website/media': {
+      id: '/app/website/media'
+      path: '/media'
+      fullPath: '/app/website/media'
+      preLoaderRoute: typeof AppWebsiteMediaRouteImport
       parentRoute: typeof AppWebsiteRoute
     }
     '/app/website/domains': {
@@ -2184,6 +2203,7 @@ interface AppWebsiteRouteChildren {
   AppWebsiteBrandRoute: typeof AppWebsiteBrandRoute
   AppWebsiteBuildRoute: typeof AppWebsiteBuildRoute
   AppWebsiteDomainsRoute: typeof AppWebsiteDomainsRoute
+  AppWebsiteMediaRoute: typeof AppWebsiteMediaRoute
   AppWebsitePublishedRoute: typeof AppWebsitePublishedRoute
   AppWebsiteSectionsRoute: typeof AppWebsiteSectionsRoute
   AppWebsiteSettingsRoute: typeof AppWebsiteSettingsRoute
@@ -2200,6 +2220,7 @@ const AppWebsiteRouteChildren: AppWebsiteRouteChildren = {
   AppWebsiteBrandRoute: AppWebsiteBrandRoute,
   AppWebsiteBuildRoute: AppWebsiteBuildRoute,
   AppWebsiteDomainsRoute: AppWebsiteDomainsRoute,
+  AppWebsiteMediaRoute: AppWebsiteMediaRoute,
   AppWebsitePublishedRoute: AppWebsitePublishedRoute,
   AppWebsiteSectionsRoute: AppWebsiteSectionsRoute,
   AppWebsiteSettingsRoute: AppWebsiteSettingsRoute,
