@@ -3,6 +3,10 @@
 import {
   GUARDRAILS,
   PLAN_AI_LIMITS,
+  aiUsageSnapshot,
+  assertGenerationCooldown,
+  releaseAiGeneration,
+  reserveAiGeneration,
   SECTION_SPECS,
   callGateway,
   isAiSectionType,
@@ -488,7 +492,7 @@ export async function buildSite(opts: {
   const results: SitePageResult[] = [];
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
-    let reservation: { source: "monthly" | "purchased" } | null = null;
+    let reservation: { source: "monthly" | "purchased" };
     try {
       reservation = await reserveAiGeneration(supabase, organizationId);
     } catch (e) {
