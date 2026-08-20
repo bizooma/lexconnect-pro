@@ -3137,6 +3137,8 @@ export type Database = {
         | "accessibility"
         | "faq"
         | "cta"
+        | "page_draft_failed"
+        | "section_rewrite_failed"
       website_page_status:
         | "draft"
         | "ready_for_review"
@@ -3351,6 +3353,8 @@ export const Constants = {
         "accessibility",
         "faq",
         "cta",
+        "page_draft_failed",
+        "section_rewrite_failed",
       ],
       website_page_status: [
         "draft",
