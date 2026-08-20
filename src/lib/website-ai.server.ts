@@ -164,7 +164,7 @@ export function isAiSectionType(t: unknown): t is string {
   return typeof t === "string" && Object.prototype.hasOwnProperty.call(SECTION_SPECS, t);
 }
 
-/** JSON-schema for the sections array offered to the model. */
+/** Simple JSON-schema for the sections array offered to the model. */
 export function sectionsParameterSchema() {
   return {
     type: "array",
@@ -173,24 +173,14 @@ export function sectionsParameterSchema() {
     items: {
       type: "object",
       properties: {
-        section_type: { type: "string", enum: AI_SECTION_TYPES },
-        content_json: {
-          type: "object",
-          description:
-            "Use ONLY the fields defined for the chosen section_type: " +
-            AI_SECTION_TYPES.map(
-              (t) => `${t}: ${Object.keys(SECTION_SPECS[t].properties).join(", ")}`,
-            ).join(" | "),
-          properties: Object.values(SECTION_SPECS).reduce<Record<string, unknown>>(
-            (acc, spec) => ({ ...acc, ...spec.properties }),
-            {},
-          ),
-        },
+        section_type: { type: "string" },
+        content_json: { type: "object" },
       },
       required: ["section_type", "content_json"],
     },
   };
 }
+
 
 /**
  * Plain-string JSON schema for one section type: no enums, no anyOf, no
