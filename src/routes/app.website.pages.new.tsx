@@ -11,6 +11,8 @@ import {
 import { PAGE_TYPE_LABELS, type WebsitePageType } from "@/lib/website";
 import { stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import { toast } from "sonner";
+import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+
 
 export const Route = createFileRoute("/app/website/pages/new")({
   head: () => ({
@@ -242,8 +244,10 @@ function NewPagePage() {
                   disabled={busy !== null}
                   className="flex flex-col items-start rounded-xl border border-border bg-card p-4 text-left transition hover:border-primary/60 hover:shadow-sm disabled:opacity-50"
                 >
+                  <TemplateMiniPreview sections={t.default_sections_json} className="mb-3 w-full" />
                   <span className="text-sm font-semibold text-foreground">{t.name}</span>
                   <span className="text-xs text-muted-foreground">{PAGE_TYPE_LABELS[t.page_type]}</span>
+
                   <span className="mt-2 line-clamp-2 text-xs text-muted-foreground">
                     {t.starter_prompt || t.description || "Generate this page with AI."}
                   </span>
