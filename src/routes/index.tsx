@@ -511,10 +511,10 @@ function Landing() {
             {[
               {
                 img: addonWebsiteBuilder,
-                alt: "Campaign & Program Pages — website builder for bar associations",
-                title: "Campaign & Program Pages",
-                desc: "Launch polished pages for everything your bar runs — your annual convention, CLE events, committees, well-being resources, membership drives — without touching your main website. Legal-specific templates, your branding, live in minutes.",
-                features: ["14 templates built for bar associations", "Custom domains & SSL", "Lead capture forms", "Works alongside any existing website"],
+                alt: "Campaign & Program Pages — AI-drafted website pages for bar associations",
+                title: "Campaign & Program Pages — Drafted by AI",
+                desc: "Describe the page you want — a convention landing page, a well-being resource hub, a membership drive — and the AI drafts it in seconds, using legal-specific templates and your organization's real details. Edit by typing ('add an FAQ about parking'), and nothing goes live until you approve it. Need more than a page? Answer eight questions and the Build-My-Site wizard drafts your whole site — linked, branded, and navigation-ready.",
+                features: ["Describe it, get a draft — AI that knows your organization", "Edit by conversation; you approve before anything publishes", "Guardrailed: the AI never invents facts about your bar", "14 legal templates · custom domains & SSL · works alongside any existing website"],
                 imageLeft: true,
               },
               {
