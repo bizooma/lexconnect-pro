@@ -1157,6 +1157,59 @@ export type Database = {
           },
         ]
       }
+      org_site_profile: {
+        Row: {
+          audience: string | null
+          contact: Json
+          created_at: string
+          founded_year: number | null
+          notes: string | null
+          organization_id: string
+          primary_goal: string | null
+          programs: string[]
+          region: string | null
+          tone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          audience?: string | null
+          contact?: Json
+          created_at?: string
+          founded_year?: number | null
+          notes?: string | null
+          organization_id: string
+          primary_goal?: string | null
+          programs?: string[]
+          region?: string | null
+          tone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          audience?: string | null
+          contact?: Json
+          created_at?: string
+          founded_year?: number | null
+          notes?: string | null
+          organization_id?: string
+          primary_goal?: string | null
+          programs?: string[]
+          region?: string | null
+          tone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_site_profile_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_sponsor_admin: {
         Row: {
           annual_amount_cents: number | null
