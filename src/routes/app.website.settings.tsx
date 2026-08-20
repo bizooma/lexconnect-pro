@@ -5,13 +5,14 @@ import { toast } from "sonner";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { getBrandSettings, updateBrandSettings } from "@/lib/website.functions";
 import type { WebsiteBrandSettings } from "@/lib/website";
+import { SiteProfileCard } from "@/components/website/SiteProfileCard";
 
 export const Route = createFileRoute("/app/website/settings")({
   component: WebsiteSettingsPage,
 });
 
 function WebsiteSettingsPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const get = useServerFn(getBrandSettings);
   const upd = useServerFn(updateBrandSettings);
   const [brand, setBrand] = useState<WebsiteBrandSettings | null>(null);
@@ -44,6 +45,8 @@ function WebsiteSettingsPage() {
         <h2 className="text-lg font-semibold text-foreground">Module Settings</h2>
         <p className="text-sm text-muted-foreground">SEO defaults, footer, and module-wide options for the Website Builder.</p>
       </div>
+
+      {currentOrgId && <SiteProfileCard organizationId={currentOrgId} canEdit={isOrgAdmin} />}
 
       <section className="rounded-xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">SEO defaults</h3>
