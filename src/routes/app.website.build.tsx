@@ -278,9 +278,10 @@ function BuildSiteWizard() {
       (res.results as Result[]).forEach((r) => (next[r.key] = r.error ? "error" : "done"));
       setStatuses(next);
       setResults(res.results as Result[]);
-      setQuota({ used: res.used, limit: res.limit, remaining: res.remaining });
+      setQuota((q) => ({ ...q, used: res.used, limit: res.limit, remaining: res.remaining }));
 
       const previewEntries = await Promise.all(
+
         (res.results as Result[])
           .filter((r) => r.pageId)
           .map(async (r) => {
