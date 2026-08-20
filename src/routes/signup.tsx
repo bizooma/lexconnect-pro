@@ -338,7 +338,7 @@ function StandardSignup() {
             <p className="mt-4 text-xs text-muted-foreground">
               {selectedPlan?.contactOnly
                 ? "Enterprise plans are tailored — we'll reach out within one business day to scope onboarding."
-                : "After creating your organization, you'll continue to secure checkout to activate billing."}
+                : "Start with a 7-day free trial — no credit card required. You can upgrade anytime from Billing & Seats."}
             </p>
             {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">{error}</div>}
             <Footer
