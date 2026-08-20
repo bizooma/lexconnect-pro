@@ -2508,6 +2508,51 @@ export type Database = {
           },
         ]
       }
+      website_page_revisions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          organization_id: string
+          page_id: string
+          reason: string | null
+          sections_json: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id: string
+          page_id: string
+          reason?: string | null
+          sections_json?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id?: string
+          page_id?: string
+          reason?: string | null
+          sections_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_page_revisions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "website_page_revisions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "website_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       website_page_views: {
         Row: {
           created_at: string
