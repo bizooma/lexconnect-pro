@@ -376,6 +376,7 @@ function AppLayout() {
         </div>
       </nav>
     </div>
+    </>
   );
 }
 
