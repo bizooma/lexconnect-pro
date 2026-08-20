@@ -13,6 +13,8 @@ import {
 } from "@/lib/website";
 import { toast } from "sonner";
 import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+import { TemplatePreviewModal } from "@/components/website/TemplatePreviewModal";
+
 
 
 export const Route = createFileRoute("/app/website/templates")({
@@ -31,6 +33,8 @@ function TemplatesPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [active, setActive] = useState<WebsiteTemplate | null>(null);
+  const [preview, setPreview] = useState<WebsiteTemplate | null>(null);
+
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
 
