@@ -15,7 +15,7 @@ type HistoryItem = { id: string; page_id: string; action: string; published_at: 
 type AiItem = { id: string; kind: string; prompt: string; created_at: string };
 
 function WebsiteOverviewPage() {
-  const { currentOrgId } = useCurrentOrg();
+  const { currentOrgId, isOrgAdmin } = useCurrentOrg();
   const stats = useServerFn(getWebsiteStats);
   const aiList = useServerFn(listAiGenerations);
   const analytics = useServerFn(getWebsiteAnalytics);
