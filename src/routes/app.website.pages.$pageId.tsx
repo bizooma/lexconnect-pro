@@ -213,8 +213,18 @@ function PageEditorPage() {
       toast.success("New draft created — your previous draft is untouched.");
       navigate({ to: "/app/website/pages/$pageId", params: { pageId: r.pageId } });
     } catch (e) {
-      toast.error(e instanceof Error && e.message ? e.message : "Generation failed — please try again.");
+      const msg = e instanceof Error && e.message ? e.message : "Generation failed — please try again.";
+      const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
+      toast.error(msg, {
+        action: isCreditError
+          ? {
+              label: "View usage",
+              onClick: () => navigate({ to: "/app/website/settings" }),
+            }
+          : undefined,
+      });
     } finally {
+
       setRegenBusy(false);
     }
   }, [regenInputs, currentOrgId, regenBusy, aiFreeform, aiTemplate, navigate]);
