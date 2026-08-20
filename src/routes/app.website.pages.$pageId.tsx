@@ -83,6 +83,23 @@ function PageEditorPage() {
   const [savingMeta, setSavingMeta] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleAt, setScheduleAt] = useState<string>("");
+  const inspectorRef = useRef<HTMLElement | null>(null);
+  const [photoNudgeDismissed, setPhotoNudgeDismissed] = useState(true);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setPhotoNudgeDismissed(window.localStorage.getItem(`lexguild.photoNudge.${pageId}`) === "1");
+  }, [pageId]);
+  const dismissPhotoNudge = useCallback(() => {
+    if (typeof window !== "undefined") window.localStorage.setItem(`lexguild.photoNudge.${pageId}`, "1");
+    setPhotoNudgeDismissed(true);
+  }, [pageId]);
+  const focusImageUploader = useCallback(() => {
+    requestAnimationFrame(() => {
+      inspectorRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }, []);
+
+
   const { user } = useAuth();
   const { isOrgAdmin } = useCurrentOrg();
   const { isAdmin: isPlatformAdmin } = useIsAdmin();
@@ -479,6 +496,25 @@ function PageEditorPage() {
 
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto bg-muted/20 p-6">
+          {!photoNudgeDismissed &&
+            page.status === "draft" &&
+            !page.published_at &&
+            sections.some((s) => sectionNeedsImage(s)) && (
+              <div
+                className="mx-auto mb-4 flex items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3"
+                style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
+              >
+                <p className="text-xs text-foreground">
+                  <span className="font-medium">Your draft is ready</span> — add photos to make it yours.
+                </p>
+                <button
+                  onClick={dismissPhotoNudge}
+                  className="shrink-0 rounded px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
           <div
             className="mx-auto rounded-xl border border-border bg-background shadow-sm transition-all"
             style={{ maxWidth: VIEWPORT_WIDTHS[viewport] }}
@@ -495,6 +531,7 @@ function PageEditorPage() {
                     section={s}
                     selected={selectedId === s.id}
                     onSelect={() => setSelectedId(s.id)}
+                    onAddImage={focusImageUploader}
                   />
                 ))}
               </div>
@@ -503,7 +540,8 @@ function PageEditorPage() {
         </main>
 
         {/* Right: Inspector + SEO */}
-        <aside className="w-80 shrink-0 overflow-y-auto border-l border-border bg-card">
+        <aside ref={inspectorRef} className="w-80 shrink-0 overflow-y-auto border-l border-border bg-card">
+
           {selected ? (
             <div className="space-y-4 p-4">
               <div>
@@ -751,14 +789,22 @@ function ContentFields({
   );
 }
 
+function sectionNeedsImage(s: WebsiteSection): boolean {
+  if (s.section_type !== "hero" && s.section_type !== "image_text") return false;
+  const url = (s.content_json as Record<string, unknown>)?.image_url;
+  return typeof url !== "string" || url.trim() === "";
+}
+
 function SectionPreview({
   section,
   selected,
   onSelect,
+  onAddImage,
 }: {
   section: WebsiteSection;
   selected: boolean;
   onSelect: () => void;
+  onAddImage?: () => void;
 }) {
   const ring = selected ? "ring-2 ring-primary ring-inset" : "hover:ring-2 hover:ring-border hover:ring-inset";
   return (
@@ -766,10 +812,24 @@ function SectionPreview({
       onClick={onSelect}
       className={`relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`}
     >
+      {onAddImage && sectionNeedsImage(section) && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+            onAddImage();
+          }}
+          className="absolute right-2 top-2 z-10 rounded-full border border-border bg-card/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm backdrop-blur hover:border-primary hover:text-primary"
+        >
+          + Add an image
+        </button>
+      )}
       <PublicSectionRenderer section={section as never} context={{ preview: true }} />
     </div>
   );
 }
+
 
 function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
