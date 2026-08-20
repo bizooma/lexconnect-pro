@@ -883,6 +883,58 @@ export type Database = {
           },
         ]
       }
+      org_ai_credits: {
+        Row: {
+          balance: number
+          organization_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          balance?: number
+          organization_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          balance?: number
+          organization_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_ai_credits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_ai_usage: {
+        Row: {
+          monthly_used: number
+          organization_id: string
+          period: string
+        }
+        Insert: {
+          monthly_used?: number
+          organization_id: string
+          period: string
+        }
+        Update: {
+          monthly_used?: number
+          organization_id?: string
+          period?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_ai_usage_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_contact_interactions: {
         Row: {
           contact_id: string
@@ -2314,6 +2366,8 @@ export type Database = {
       }
       website_ai_generations: {
         Row: {
+          charged_to: string | null
+          completion_tokens: number | null
           created_at: string
           generated_content_json: Json
           id: string
@@ -2321,10 +2375,14 @@ export type Database = {
           model: string | null
           organization_id: string
           prompt: string
+          prompt_tokens: number | null
           tokens_used: number | null
+          total_tokens: number | null
           user_id: string
         }
         Insert: {
+          charged_to?: string | null
+          completion_tokens?: number | null
           created_at?: string
           generated_content_json?: Json
           id?: string
@@ -2332,10 +2390,14 @@ export type Database = {
           model?: string | null
           organization_id: string
           prompt: string
+          prompt_tokens?: number | null
           tokens_used?: number | null
+          total_tokens?: number | null
           user_id: string
         }
         Update: {
+          charged_to?: string | null
+          completion_tokens?: number | null
           created_at?: string
           generated_content_json?: Json
           id?: string
@@ -2343,7 +2405,9 @@ export type Database = {
           model?: string | null
           organization_id?: string
           prompt?: string
+          prompt_tokens?: number | null
           tokens_used?: number | null
+          total_tokens?: number | null
           user_id?: string
         }
         Relationships: []
@@ -3090,6 +3154,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ai_monthly_limit: { Args: { _org: string }; Returns: number }
       approve_join_request: { Args: { _request_id: string }; Returns: string }
       can_edit_website: {
         Args: { _org: string; _user: string }
@@ -3129,6 +3194,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_ai_usage: { Args: { _org: string }; Returns: Json }
       get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
       get_public_sponsors: { Args: { _org_slug: string }; Returns: Json }
       get_sponsor_stats: { Args: { _sponsor_id: string }; Returns: Json }
@@ -3186,6 +3252,11 @@ export type Database = {
       }
       redeem_invite: { Args: { _token: string }; Returns: string }
       redeem_invite_code: { Args: { _code: string }; Returns: string }
+      release_ai_generation: {
+        Args: { _org: string; _source: string }
+        Returns: undefined
+      }
+      reserve_ai_generation: { Args: { _org: string }; Returns: Json }
       shares_org_with: {
         Args: { _other_user: string; _viewer: string }
         Returns: boolean
