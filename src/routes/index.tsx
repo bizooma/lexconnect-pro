@@ -511,10 +511,10 @@ function Landing() {
             {[
               {
                 img: addonWebsiteBuilder,
-                alt: "Campaign & Program Pages — website builder for bar associations",
-                title: "Campaign & Program Pages",
-                desc: "Launch polished pages for everything your bar runs — your annual convention, CLE events, committees, well-being resources, membership drives — without touching your main website. Legal-specific templates, your branding, live in minutes.",
-                features: ["14 templates built for bar associations", "Custom domains & SSL", "Lead capture forms", "Works alongside any existing website"],
+                alt: "Campaign & Program Pages — AI-drafted website pages for bar associations",
+                title: "Campaign & Program Pages — Drafted by AI",
+                desc: "Describe the page you want — a convention landing page, a well-being resource hub, a membership drive — and the AI drafts it in seconds, using legal-specific templates and your organization's real details. Edit by typing ('add an FAQ about parking'), and nothing goes live until you approve it. Need more than a page? Answer eight questions and the Build-My-Site wizard drafts your whole site — linked, branded, and navigation-ready.",
+                features: ["Describe it, get a draft — AI that knows your organization", "Edit by conversation; you approve before anything publishes", "Guardrailed: the AI never invents facts about your bar", "14 legal templates · custom domains & SSL · works alongside any existing website"],
                 imageLeft: true,
               },
               {
@@ -771,6 +771,10 @@ const FAQS: { q: string; a: string }[] = [
   {
     q: "Can we use our own domain and branding?",
     a: "Yes. On the white-label plan, your portal lives at your own domain (like portal.yourbar.org) with your logo, colors, and welcome message on the login page. Setup takes two DNS records, and we activate your domain within one business day.",
+  },
+  {
+    q: "How does the AI website builder work?",
+    a: "Describe the page you want — a convention landing page, a well-being resource hub, a membership drive — and LexGuild's AI drafts it from a legal-specific template and your organization's real details. You can edit it conversationally by typing instructions like 'add an FAQ about parking,' and the AI revises the page while preserving your images, settings, and custom sections. For a complete linked site, the Build-My-Site wizard drafts multiple pages with navigation and branding in one run. Everything stays a draft until a human reviews and clicks publish.",
   },
   {
     q: "How much does LexGuild cost?",
