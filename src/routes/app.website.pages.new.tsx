@@ -12,6 +12,8 @@ import { PAGE_TYPE_LABELS, type WebsitePageType } from "@/lib/website";
 import { stashAiInputs, type AiRegenStash } from "@/lib/ai-regen-stash";
 import { toast } from "sonner";
 import { TemplateMiniPreview } from "@/components/website/TemplateMiniPreview";
+import { TemplatePreviewModal } from "@/components/website/TemplatePreviewModal";
+
 
 
 export const Route = createFileRoute("/app/website/pages/new")({
@@ -410,6 +412,24 @@ function NewPagePage() {
           </div>
         </div>
       )}
+
+      {previewTpl && (
+        <TemplatePreviewModal
+          name={previewTpl.name}
+          description={previewTpl.starter_prompt || previewTpl.description}
+          pageType={previewTpl.page_type}
+          sections={previewTpl.default_sections_json}
+          organizationId={currentOrgId}
+          busy={busy !== null}
+          onClose={() => setPreviewTpl(null)}
+          onUse={() => {
+            const t = previewTpl;
+            setPreviewTpl(null);
+            openTemplate(t);
+          }}
+        />
+      )}
+
     </div>
   );
 }
