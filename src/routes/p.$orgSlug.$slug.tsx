@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { getPublicPage } from "@/lib/website-public.functions";
 import { trackPageView } from "@/lib/website-analytics.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
+import { PublicSiteHeader } from "@/components/website/PublicSiteHeader";
 
 export const Route = createFileRoute("/p/$orgSlug/$slug")({
   loader: async ({ params }) => {
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/p/$orgSlug/$slug")({
 });
 
 function PublicPage() {
-  const { page, sections, brand, organization } = Route.useLoaderData();
+  const { page, sections, brand, organization, navPages, hasSponsors } = Route.useLoaderData();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
