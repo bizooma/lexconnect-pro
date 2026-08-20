@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   GUARDRAILS,
-  PAGE_TYPES,
+  
   PLAN_AI_LIMITS,
   SECTION_SPECS,
   isAiSectionType,
