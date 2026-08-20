@@ -1,14 +1,17 @@
 import type { ReactNode } from "react";
 import { brandStyle } from "@/components/website/PublicSectionRenderer";
+import { PublicSiteHeader, type PublicNavPage } from "@/components/website/PublicSiteHeader";
 
 export function PublicSponsorShell({
   organization,
   brand,
   children,
+  navPages = [],
 }: {
   organization: { name: string; slug: string; logo_url: string | null };
   brand: any | null;
   children: ReactNode;
+  navPages?: PublicNavPage[];
 }) {
   const maxWidth = brand?.page_width || "1200px";
   const fontImports: string[] = [];
@@ -29,20 +32,30 @@ export function PublicSponsorShell({
       }}
     >
       {fontHref && <link rel="stylesheet" href={fontHref} />}
-      <header className="border-b border-border">
-        <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
-          <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
-            {organization.logo_url ? (
-              <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
-            ) : (
-              <span className="text-lg font-semibold">{organization.name}</span>
-            )}
-          </a>
-          <a href={`/p/${organization.slug}/sponsors`} className="text-sm text-muted-foreground hover:text-foreground">
-            Sponsors
-          </a>
-        </div>
-      </header>
+      {navPages.length > 0 ? (
+        <PublicSiteHeader
+          organization={organization}
+          navPages={navPages}
+          hasSponsors
+          maxWidth={maxWidth}
+          currentSlug="sponsors"
+        />
+      ) : (
+        <header className="border-b border-border">
+          <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
+            <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
+              {organization.logo_url ? (
+                <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
+              ) : (
+                <span className="text-lg font-semibold">{organization.name}</span>
+              )}
+            </a>
+            <a href={`/p/${organization.slug}/sponsors`} className="text-sm text-muted-foreground hover:text-foreground">
+              Sponsors
+            </a>
+          </div>
+        </header>
+      )}
       <main className="mx-auto px-6 py-12" style={{ maxWidth }}>
         {children}
       </main>
