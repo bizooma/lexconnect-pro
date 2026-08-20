@@ -512,23 +512,15 @@ export const getAiQuota = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("plan")
-      .eq("organization_id", data.organizationId)
-      .maybeSingle();
-    const rawPlan = (sub as { plan?: string } | null)?.plan;
-    const plan = rawPlan === "pro" ? "pro" : rawPlan === "firm" ? "firm" : "starter";
-    const limit = PLAN_AI_LIMITS[plan];
-    const now = new Date();
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-    const { count } = await supabase
-      .from("website_ai_generations")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", data.organizationId)
-      .gte("created_at", start);
-    const used = count ?? 0;
-    return { used, limit, remaining: Math.max(0, limit - used) };
+    const snap = await aiUsageSnapshot(supabase, data.organizationId);
+    return {
+      used: snap.monthly_used,
+      limit: snap.monthly_limit,
+      remaining: snap.total_remaining,
+      purchased: snap.purchased_balance,
+      period: snap.period,
+      resetsOn: snap.resets_on,
+    };
   });
 
 // ---------------- Page-level AI revision ----------------
