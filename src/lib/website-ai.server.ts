@@ -674,6 +674,7 @@ export async function logGeneration(
   prompt: string,
   output: Record<string, unknown>,
   model: string,
+  meta?: { usage?: GatewayUsage; chargedTo?: "monthly" | "purchased" },
 ) {
   await (supabase.from("website_ai_generations") as any).insert({
     organization_id: organizationId,
@@ -682,6 +683,10 @@ export async function logGeneration(
     prompt,
     generated_content_json: output,
     model,
+    prompt_tokens: meta?.usage?.prompt_tokens ?? null,
+    completion_tokens: meta?.usage?.completion_tokens ?? null,
+    total_tokens: meta?.usage?.total_tokens ?? null,
+    charged_to: meta?.chargedTo ?? null,
   });
 }
 
