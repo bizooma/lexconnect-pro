@@ -64,9 +64,8 @@ const DRAFTING_MESSAGES = [
   "Polishing the copy…",
 ];
 
-const OUT_OF_CREDITS_MESSAGE = "You've used all your AI generations.";
-
 function showGenerationError(err: unknown, navigate: ReturnType<typeof useNavigate>) {
+
   const msg = err instanceof Error && err.message ? err.message : "Generation failed — please try again.";
   const isCreditError = msg.includes("used all your AI generations") || msg.includes("Buy more credits");
   toast.error(msg, {
