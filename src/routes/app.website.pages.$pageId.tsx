@@ -1001,35 +1001,100 @@ function SectionPreview({
   selected,
   onSelect,
   onAddImage,
+  onPickStarterPhoto,
 }: {
   section: WebsiteSection;
   selected: boolean;
   onSelect: () => void;
   onAddImage?: () => void;
+  onPickStarterPhoto?: (url: string) => void;
 }) {
   const ring = selected ? "ring-2 ring-primary ring-inset" : "hover:ring-2 hover:ring-border hover:ring-inset";
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   return (
     <div
       onClick={onSelect}
       className={`relative cursor-pointer ${ring} ${section.visible ? "" : "opacity-40"}`}
     >
-      {onAddImage && sectionNeedsImage(section) && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-            onAddImage();
-          }}
-          className="absolute right-2 top-2 z-10 rounded-full border border-border bg-card/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm backdrop-blur hover:border-primary hover:text-primary"
-        >
-          + Add an image
-        </button>
+      {(onAddImage || onPickStarterPhoto) && sectionNeedsImage(section) && (
+        <div className="absolute right-2 top-2 z-10">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect();
+                setMenuOpen((v) => !v);
+              }}
+              className="rounded-full border border-border bg-card/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm backdrop-blur hover:border-primary hover:text-primary"
+            >
+              + Add an image
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1 w-44 rounded-lg border border-border bg-card p-1 shadow-lg">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onAddImage?.();
+                  }}
+                  className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-foreground hover:bg-muted"
+                >
+                  Upload or media library
+                </button>
+                {onPickStarterPhoto && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      setPickerOpen(true);
+                    }}
+                    className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-foreground hover:bg-muted"
+                  >
+                    Use a starter photo
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {pickerOpen && (
+            <div
+              className="absolute right-0 top-full mt-1 w-80 rounded-xl border border-border bg-card p-3 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-foreground">Choose a starter photo</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPickerOpen(false);
+                  }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground"
+                >
+                  Close
+                </button>
+              </div>
+              <StarterPhotosGrid
+                compact
+                onSelect={(url) => {
+                  setPickerOpen(false);
+                  onPickStarterPhoto?.(url);
+                }}
+              />
+            </div>
+          )}
+        </div>
       )}
       <PublicSectionRenderer section={section as never} context={{ preview: true }} />
     </div>
   );
 }
+
 
 
 function AiRewriteButton({ onRun }: { onRun: (instruction: string) => Promise<void> }) {
