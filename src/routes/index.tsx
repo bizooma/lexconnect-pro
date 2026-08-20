@@ -167,7 +167,7 @@ function Landing() {
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               White-label client portal
             </span>
-            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-foreground">
               A branded portal your members will actually use
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
