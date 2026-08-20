@@ -66,9 +66,19 @@ export const getPublicSponsors = createServerFn({ method: "GET" })
       .eq("organization_id", org.id)
       .maybeSingle();
 
+    const { data: navPages } = await supabaseAdmin
+      .from("website_pages")
+      .select("id,title,slug,nav_order")
+      .eq("organization_id", org.id)
+      .eq("status", "published")
+      .eq("show_in_nav", true)
+      .order("nav_order", { ascending: true })
+      .order("title", { ascending: true });
+
     return {
       organization: { id: org.id, name: org.name, slug: org.slug, logo_url: org.logo_url },
       brand: brand ?? null,
       sponsors,
+      navPages: (navPages ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
     };
   });

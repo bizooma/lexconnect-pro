@@ -14,7 +14,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/$sponsorId")({
     }
     const sponsor = payload.sponsors.find((s) => s.id === params.sponsorId);
     if (!sponsor) throw notFound();
-    return { organization: payload.organization, brand: payload.brand, sponsor };
+    return { organization: payload.organization, brand: payload.brand, sponsor, navPages: payload.navPages };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Sponsor" }, { name: "robots", content: "noindex" }] };
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/$sponsorId")({
 });
 
 function PublicSponsorDetail() {
-  const { organization, brand, sponsor } = Route.useLoaderData();
+  const { organization, brand, sponsor, navPages } = Route.useLoaderData();
 
   useEffect(() => {
     void recordSponsorEvent({ data: { sponsorId: sponsor.id, event: "view" } }).catch(() => {});
@@ -69,7 +69,7 @@ function PublicSponsorDetail() {
   const video = sponsorEmbedUrl(sponsor.video_provider, sponsor.video_id);
 
   return (
-    <PublicSponsorShell organization={organization} brand={brand}>
+    <PublicSponsorShell organization={organization} brand={brand} navPages={navPages}>
       <Link
         to="/p/$orgSlug/sponsors"
         params={{ orgSlug: organization.slug }}

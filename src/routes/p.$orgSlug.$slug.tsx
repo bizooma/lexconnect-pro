@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { getPublicPage } from "@/lib/website-public.functions";
 import { trackPageView } from "@/lib/website-analytics.functions";
 import { PublicSectionRenderer, brandStyle } from "@/components/website/PublicSectionRenderer";
+import { PublicSiteHeader } from "@/components/website/PublicSiteHeader";
 
 export const Route = createFileRoute("/p/$orgSlug/$slug")({
   loader: async ({ params }) => {
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/p/$orgSlug/$slug")({
 });
 
 function PublicPage() {
-  const { page, sections, brand, organization } = Route.useLoaderData();
+  const { page, sections, brand, organization, navPages, hasSponsors } = Route.useLoaderData();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -88,17 +89,14 @@ function PublicPage() {
       }}
     >
       {fontHref && <link rel="stylesheet" href={fontHref} />}
-      <header className="border-b border-border">
-        <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
-          <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
-            {organization.logo_url ? (
-              <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
-            ) : (
-              <span className="text-lg font-semibold">{organization.name}</span>
-            )}
-          </a>
-        </div>
-      </header>
+      <PublicSiteHeader
+        organization={organization}
+        navPages={navPages}
+        hasSponsors={hasSponsors}
+        maxWidth={maxWidth}
+        currentSlug={page.slug}
+      />
+
       <main style={{ maxWidth, margin: "0 auto" }}>
         {sections.length === 0 ? (
           <section className="px-6 py-24 text-center">

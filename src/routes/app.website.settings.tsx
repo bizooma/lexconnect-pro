@@ -6,6 +6,7 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { getBrandSettings, updateBrandSettings } from "@/lib/website.functions";
 import type { WebsiteBrandSettings } from "@/lib/website";
 import { SiteProfileCard } from "@/components/website/SiteProfileCard";
+import { NavigationCard } from "@/components/website/NavigationCard";
 
 export const Route = createFileRoute("/app/website/settings")({
   component: WebsiteSettingsPage,
@@ -47,6 +48,8 @@ function WebsiteSettingsPage() {
       </div>
 
       {currentOrgId && <SiteProfileCard organizationId={currentOrgId} canEdit={isOrgAdmin} />}
+
+      {currentOrgId && <NavigationCard organizationId={currentOrgId} />}
 
       <section className="rounded-xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">SEO defaults</h3>
