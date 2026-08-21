@@ -102,11 +102,11 @@ function DirectoryPage() {
 
   useEffect(() => {
     void loadDirectory();
-  }, [currentOrgId]);
+  }, [currentOrgId, loadDirectory]);
 
   useEffect(() => {
     void loadPrefs();
-  }, [currentOrgId, user?.id]);
+  }, [currentOrgId, user?.id, loadPrefs]);
 
   const practiceAreas = useMemo(() => {
     const set = new Set<string>();
