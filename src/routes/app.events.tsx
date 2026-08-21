@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatInTz } from "@/lib/event-time";
+import { EventMarkdown } from "@/components/events/EventMarkdown";
 
 export const Route = createFileRoute("/app/events")({
   component: MemberEventsPage,
@@ -51,54 +52,6 @@ const viewerTz = () => {
     return "UTC";
   }
 };
-
-/** Escaped light-markdown renderer — plain React nodes, no HTML passthrough. */
-function inlineMd(text: string, keyBase: string) {
-  const nodes: React.ReactNode[] = [];
-  const re = /(\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_)/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let i = 0;
-  while ((m = re.exec(text))) {
-    if (m.index > last) nodes.push(text.slice(last, m.index));
-    const tok = m[0];
-    const key = `${keyBase}-${i++}`;
-    if (tok.startsWith("**")) nodes.push(<strong key={key}>{tok.slice(2, -2)}</strong>);
-    else nodes.push(<em key={key}>{tok.slice(1, -1)}</em>);
-    last = m.index + tok.length;
-  }
-  if (last < text.length) nodes.push(text.slice(last));
-  return nodes;
-}
-
-function Markdown({ text }: { text: string }) {
-  const blocks: React.ReactNode[] = [];
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  let bullets: string[] = [];
-  const flush = (k: string) => {
-    if (!bullets.length) return;
-    blocks.push(
-      <ul key={`ul-${k}`} className="list-disc space-y-1 pl-5">
-        {bullets.map((b, i) => (
-          <li key={i}>{inlineMd(b, `${k}-${i}`)}</li>
-        ))}
-      </ul>,
-    );
-    bullets = [];
-  };
-  lines.forEach((raw, idx) => {
-    const line = raw.trimEnd();
-    const bullet = /^\s*[-*]\s+(.*)$/.exec(line);
-    if (bullet) {
-      bullets.push(bullet[1]);
-      return;
-    }
-    flush(String(idx));
-    if (line.trim()) blocks.push(<p key={`p-${idx}`}>{inlineMd(line, `p${idx}`)}</p>);
-  });
-  flush("end");
-  return <div className="space-y-3 text-sm leading-relaxed">{blocks}</div>;
-}
 
 function TimeLine({ event }: { event: EventRow }) {
   const local = viewerTz();
@@ -338,7 +291,7 @@ function MemberEventsPage() {
                     {detail.location_address ? ` · ${detail.location_address}` : ""}
                   </p>
                 )}
-                {detail.description && <Markdown text={detail.description} />}
+                {detail.description && <EventMarkdown text={detail.description} />}
                 {detail.status !== "cancelled" && detail.rsvp_enabled && (
                   <div className="flex gap-2 pt-2">
                     {myStatus(detail.id) ? (

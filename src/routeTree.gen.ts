@@ -24,9 +24,11 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SponsorsIndexRouteImport } from './routes/sponsors.index'
 import { Route as JoinIndexRouteImport } from './routes/join.index'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as WebsitePreviewPageIdRouteImport } from './routes/website-preview.$pageId'
 import { Route as SponsorsSponsorIdRouteImport } from './routes/sponsors.$sponsorId'
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
+import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AppWellnessRouteImport } from './routes/app.wellness'
@@ -94,13 +96,16 @@ import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
 import { Route as AppAdminDomainsRouteImport } from './routes/app.admin.domains'
 import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
 import { Route as ApiPublicHostEchoRouteImport } from './routes/api/public/host-echo'
+import { Route as ApiPublicEventsDoticsRouteImport } from './routes/api/public/events[.]ics'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as POrgSlugSponsorsIndexRouteImport } from './routes/p.$orgSlug.sponsors.index'
+import { Route as POrgSlugEventsIndexRouteImport } from './routes/p.$orgSlug.events.index'
 import { Route as AppWebsitePagesIndexRouteImport } from './routes/app.website.pages.index'
 import { Route as AppCeAdminIndexRouteImport } from './routes/app.ce.admin.index'
 import { Route as POrgSlugSponsorsSponsorIdRouteImport } from './routes/p.$orgSlug.sponsors.$sponsorId'
+import { Route as POrgSlugEventsSlugRouteImport } from './routes/p.$orgSlug.events.$slug'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -195,6 +200,11 @@ const JoinIndexRoute = JoinIndexRouteImport.update({
   path: '/join/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WebsitePreviewPageIdRoute = WebsitePreviewPageIdRouteImport.update({
   id: '/website-preview/$pageId',
   path: '/website-preview/$pageId',
@@ -208,6 +218,11 @@ const SponsorsSponsorIdRoute = SponsorsSponsorIdRouteImport.update({
 const JoinCodeRoute = JoinCodeRouteImport.update({
   id: '/join/$code',
   path: '/join/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSlugRoute = EventsSlugRouteImport.update({
+  id: '/events/$slug',
+  path: '/events/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -547,6 +562,11 @@ const ApiPublicHostEchoRoute = ApiPublicHostEchoRouteImport.update({
   path: '/api/public/host-echo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEventsDoticsRoute = ApiPublicEventsDoticsRouteImport.update({
+  id: '/api/public/events.ics',
+  path: '/api/public/events.ics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   id: '/api/public/contact',
   path: '/api/public/contact',
@@ -568,6 +588,11 @@ const POrgSlugSponsorsIndexRoute = POrgSlugSponsorsIndexRouteImport.update({
   path: '/p/$orgSlug/sponsors/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const POrgSlugEventsIndexRoute = POrgSlugEventsIndexRouteImport.update({
+  id: '/p/$orgSlug/events/',
+  path: '/p/$orgSlug/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppWebsitePagesIndexRoute = AppWebsitePagesIndexRouteImport.update({
   id: '/pages/',
   path: '/pages/',
@@ -584,6 +609,11 @@ const POrgSlugSponsorsSponsorIdRoute =
     path: '/p/$orgSlug/sponsors/$sponsorId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const POrgSlugEventsSlugRoute = POrgSlugEventsSlugRouteImport.update({
+  id: '/p/$orgSlug/events/$slug',
+  path: '/p/$orgSlug/events/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -716,14 +746,17 @@ export interface FileRoutesByFullPath {
   '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/join/$code': typeof JoinCodeRoute
   '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
+  '/events/': typeof EventsIndexRoute
   '/join/': typeof JoinIndexRoute
   '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/events.ics': typeof ApiPublicEventsDoticsRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/domains': typeof AppAdminDomainsRoute
@@ -789,9 +822,11 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/events/$slug': typeof POrgSlugEventsSlugRoute
   '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/events/': typeof POrgSlugEventsIndexRoute
   '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
@@ -822,14 +857,17 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/join/$code': typeof JoinCodeRoute
   '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
+  '/events': typeof EventsIndexRoute
   '/join': typeof JoinIndexRoute
   '/sponsors': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/events.ics': typeof ApiPublicEventsDoticsRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/domains': typeof AppAdminDomainsRoute
@@ -894,9 +932,11 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/events/$slug': typeof POrgSlugEventsSlugRoute
   '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin': typeof AppCeAdminIndexRoute
   '/app/website/pages': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/events': typeof POrgSlugEventsIndexRoute
   '/p/$orgSlug/sponsors': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
@@ -934,14 +974,17 @@ export interface FileRoutesById {
   '/app/wellness': typeof AppWellnessRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/join/$code': typeof JoinCodeRoute
   '/sponsors/$sponsorId': typeof SponsorsSponsorIdRoute
   '/website-preview/$pageId': typeof WebsitePreviewPageIdRoute
+  '/events/': typeof EventsIndexRoute
   '/join/': typeof JoinIndexRoute
   '/sponsors/': typeof SponsorsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/events.ics': typeof ApiPublicEventsDoticsRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
   '/app/admin/domains': typeof AppAdminDomainsRoute
@@ -1007,9 +1050,11 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/p/$orgSlug/events/$slug': typeof POrgSlugEventsSlugRoute
   '/p/$orgSlug/sponsors/$sponsorId': typeof POrgSlugSponsorsSponsorIdRoute
   '/app/ce/admin/': typeof AppCeAdminIndexRoute
   '/app/website/pages/': typeof AppWebsitePagesIndexRoute
+  '/p/$orgSlug/events/': typeof POrgSlugEventsIndexRoute
   '/p/$orgSlug/sponsors/': typeof POrgSlugSponsorsIndexRoute
   '/app/ce/admin/course/$courseId': typeof AppCeAdminCourseCourseIdRoute
   '/app/website/pages/$pageId/history': typeof AppWebsitePagesPageIdHistoryRoute
@@ -1048,14 +1093,17 @@ export interface FileRouteTypes {
     | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/join/$code'
     | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
+    | '/events/'
     | '/join/'
     | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/events.ics'
     | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/domains'
@@ -1121,9 +1169,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/events/$slug'
     | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/events/'
     | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
@@ -1154,14 +1204,17 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/join/$code'
     | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
+    | '/events'
     | '/join'
     | '/sponsors'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/events.ics'
     | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/domains'
@@ -1226,9 +1279,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/events/$slug'
     | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin'
     | '/app/website/pages'
+    | '/p/$orgSlug/events'
     | '/p/$orgSlug/sponsors'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
@@ -1265,14 +1320,17 @@ export interface FileRouteTypes {
     | '/app/wellness'
     | '/checkout/return'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/join/$code'
     | '/sponsors/$sponsorId'
     | '/website-preview/$pageId'
+    | '/events/'
     | '/join/'
     | '/sponsors/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/contact'
+    | '/api/public/events.ics'
     | '/api/public/host-echo'
     | '/api/public/website-form'
     | '/app/admin/domains'
@@ -1338,9 +1396,11 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/p/$orgSlug/events/$slug'
     | '/p/$orgSlug/sponsors/$sponsorId'
     | '/app/ce/admin/'
     | '/app/website/pages/'
+    | '/p/$orgSlug/events/'
     | '/p/$orgSlug/sponsors/'
     | '/app/ce/admin/course/$courseId'
     | '/app/website/pages/$pageId/history'
@@ -1364,14 +1424,17 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AcceptInviteTokenRoute: typeof AcceptInviteTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  EventsSlugRoute: typeof EventsSlugRoute
   JoinCodeRoute: typeof JoinCodeRoute
   SponsorsSponsorIdRoute: typeof SponsorsSponsorIdRoute
   WebsitePreviewPageIdRoute: typeof WebsitePreviewPageIdRoute
+  EventsIndexRoute: typeof EventsIndexRoute
   JoinIndexRoute: typeof JoinIndexRoute
   SponsorsIndexRoute: typeof SponsorsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
+  ApiPublicEventsDoticsRoute: typeof ApiPublicEventsDoticsRoute
   ApiPublicHostEchoRoute: typeof ApiPublicHostEchoRoute
   ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -1385,7 +1448,9 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  POrgSlugEventsSlugRoute: typeof POrgSlugEventsSlugRoute
   POrgSlugSponsorsSponsorIdRoute: typeof POrgSlugSponsorsSponsorIdRoute
+  POrgSlugEventsIndexRoute: typeof POrgSlugEventsIndexRoute
   POrgSlugSponsorsIndexRoute: typeof POrgSlugSponsorsIndexRoute
 }
 
@@ -1496,6 +1561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/website-preview/$pageId': {
       id: '/website-preview/$pageId'
       path: '/website-preview/$pageId'
@@ -1515,6 +1587,13 @@ declare module '@tanstack/react-router' {
       path: '/join/$code'
       fullPath: '/join/$code'
       preLoaderRoute: typeof JoinCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$slug': {
+      id: '/events/$slug'
+      path: '/events/$slug'
+      fullPath: '/events/$slug'
+      preLoaderRoute: typeof EventsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -1986,6 +2065,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHostEchoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/events.ics': {
+      id: '/api/public/events.ics'
+      path: '/api/public/events.ics'
+      fullPath: '/api/public/events.ics'
+      preLoaderRoute: typeof ApiPublicEventsDoticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/contact': {
       id: '/api/public/contact'
       path: '/api/public/contact'
@@ -2014,6 +2100,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof POrgSlugSponsorsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$orgSlug/events/': {
+      id: '/p/$orgSlug/events/'
+      path: '/p/$orgSlug/events'
+      fullPath: '/p/$orgSlug/events/'
+      preLoaderRoute: typeof POrgSlugEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/website/pages/': {
       id: '/app/website/pages/'
       path: '/pages'
@@ -2033,6 +2126,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$orgSlug/sponsors/$sponsorId'
       fullPath: '/p/$orgSlug/sponsors/$sponsorId'
       preLoaderRoute: typeof POrgSlugSponsorsSponsorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$orgSlug/events/$slug': {
+      id: '/p/$orgSlug/events/$slug'
+      path: '/p/$orgSlug/events/$slug'
+      fullPath: '/p/$orgSlug/events/$slug'
+      preLoaderRoute: typeof POrgSlugEventsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/send': {
@@ -2428,14 +2528,17 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AcceptInviteTokenRoute: AcceptInviteTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  EventsSlugRoute: EventsSlugRoute,
   JoinCodeRoute: JoinCodeRoute,
   SponsorsSponsorIdRoute: SponsorsSponsorIdRoute,
   WebsitePreviewPageIdRoute: WebsitePreviewPageIdRoute,
+  EventsIndexRoute: EventsIndexRoute,
   JoinIndexRoute: JoinIndexRoute,
   SponsorsIndexRoute: SponsorsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
+  ApiPublicEventsDoticsRoute: ApiPublicEventsDoticsRoute,
   ApiPublicHostEchoRoute: ApiPublicHostEchoRoute,
   ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
@@ -2449,7 +2552,9 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  POrgSlugEventsSlugRoute: POrgSlugEventsSlugRoute,
   POrgSlugSponsorsSponsorIdRoute: POrgSlugSponsorsSponsorIdRoute,
+  POrgSlugEventsIndexRoute: POrgSlugEventsIndexRoute,
   POrgSlugSponsorsIndexRoute: POrgSlugSponsorsIndexRoute,
 }
 export const routeTree = rootRouteImport

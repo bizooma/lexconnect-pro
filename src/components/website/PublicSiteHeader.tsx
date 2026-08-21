@@ -12,12 +12,14 @@ export function PublicSiteHeader({
   organization,
   navPages,
   hasSponsors,
+  hasEvents = false,
   maxWidth,
   currentSlug,
 }: {
   organization: { name: string; slug: string; logo_url: string | null };
   navPages: PublicNavPage[];
   hasSponsors: boolean;
+  hasEvents?: boolean;
   maxWidth: string;
   currentSlug?: string;
 }) {
@@ -30,6 +32,14 @@ export function PublicSiteHeader({
     href: siteHref(base, `/${p.slug}`),
     active: p.slug === currentSlug,
   }));
+  if (hasEvents) {
+    links.push({
+      key: "events",
+      label: "Events",
+      href: siteHref(base, "/events"),
+      active: currentSlug === "events",
+    });
+  }
   if (hasSponsors) {
     links.push({
       key: "sponsors",

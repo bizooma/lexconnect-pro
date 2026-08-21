@@ -34,13 +34,14 @@ export const Route = createFileRoute("/sponsors/")({
 });
 
 function HostSponsorsPage() {
-  const { organization, brand, sponsors, navPages } = Route.useLoaderData();
+  const { organization, brand, sponsors, navPages, hasEvents } = Route.useLoaderData();
   return (
     <SponsorsDirectory
       organization={organization}
       brand={brand}
       sponsors={sponsors}
       navPages={navPages}
+      hasEvents={hasEvents}
       basePath=""
     />
   );

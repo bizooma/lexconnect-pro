@@ -23,7 +23,7 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
   if (pageErr) throw new Error(pageErr.message);
   if (!page) throw new Error("Page not found");
 
-  const [sectionsRes, brandRes, navRes, sponsorRes] = await Promise.all([
+  const [sectionsRes, brandRes, navRes, sponsorRes, eventRes] = await Promise.all([
     supabaseAdmin
       .from("website_sections")
       .select("*")
@@ -49,6 +49,13 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
       .eq("organization_id", org.id)
       .eq("status", "active")
       .limit(1),
+    supabaseAdmin
+      .from("org_events")
+      .select("id")
+      .eq("organization_id", org.id)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .limit(1),
   ]);
   if (sectionsRes.error) throw new Error(sectionsRes.error.message);
   if (brandRes.error) throw new Error(brandRes.error.message);
@@ -65,5 +72,6 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
     brand: brandRes.data ?? null,
     navPages: (navRes.data ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
     hasSponsors: (sponsorRes.data?.length ?? 0) > 0,
+    hasEvents: (eventRes.data?.length ?? 0) > 0,
   };
 }
