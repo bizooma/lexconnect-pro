@@ -742,6 +742,103 @@ export type Database = {
           },
         ]
       }
+      member_directory_prefs: {
+        Row: {
+          accepting_referrals: boolean
+          directory_opt_out: boolean
+          headline: string | null
+          id: string
+          organization_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepting_referrals?: boolean
+          directory_opt_out?: boolean
+          headline?: string | null
+          id?: string
+          organization_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepting_referrals?: boolean
+          directory_opt_out?: boolean
+          headline?: string | null
+          id?: string
+          organization_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_directory_prefs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_referrals: {
+        Row: {
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          description: string | null
+          from_user_id: string
+          id: string
+          matter_type: string | null
+          organization_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: string
+          to_user_id: string
+          urgency: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          description?: string | null
+          from_user_id: string
+          id?: string
+          matter_type?: string | null
+          organization_id: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          to_user_id: string
+          urgency?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          description?: string | null
+          from_user_id?: string
+          id?: string
+          matter_type?: string | null
+          organization_id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          to_user_id?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_referrals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mentorships: {
         Row: {
           created_at: string
@@ -3337,6 +3434,7 @@ export type Database = {
       get_ai_usage: { Args: { _org: string }; Returns: Json }
       get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
       get_event_rsvp_counts: { Args: { _org_id: string }; Returns: Json }
+      get_org_directory: { Args: { _org_id: string }; Returns: Json }
       get_public_event: {
         Args: { _org_id: string; _slug: string }
         Returns: Json
@@ -3403,6 +3501,31 @@ export type Database = {
         Returns: undefined
       }
       reserve_ai_generation: { Args: { _org: string }; Returns: Json }
+      respond_to_member_referral: {
+        Args: { _referral_id: string; _response_note?: string; _status: string }
+        Returns: {
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          description: string | null
+          from_user_id: string
+          id: string
+          matter_type: string | null
+          organization_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: string
+          to_user_id: string
+          urgency: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "member_referrals"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rsvp_to_event: {
         Args: { _event_id: string; _guest_email?: string; _guest_name?: string }
         Returns: {
@@ -3419,6 +3542,40 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "event_rsvps"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      send_member_referral: {
+        Args: {
+          _client_email?: string
+          _client_name: string
+          _client_phone?: string
+          _description?: string
+          _matter_type?: string
+          _org_id: string
+          _to_user_id: string
+          _urgency?: string
+        }
+        Returns: {
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          description: string | null
+          from_user_id: string
+          id: string
+          matter_type: string | null
+          organization_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: string
+          to_user_id: string
+          urgency: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "member_referrals"
           isOneToOne: true
           isSetofReturn: false
         }
