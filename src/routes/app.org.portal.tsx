@@ -323,17 +323,29 @@ function PortalPage() {
             </div>
             <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">DNS setup (once your domain is added):</p>
-              <ol className="mt-2 list-decimal space-y-1 pl-5">
-                <li>
-                  Add a <strong>TXT</strong> record at <code>_lovable-verify.&lt;your-domain&gt;</code> with the
-                  verification token we show you, then click Verify.
-                </li>
-                <li>
-                  Add a <strong>CNAME</strong> for your portal subdomain pointing to
-                  <code className="mx-1">cname.lovable.app</code> (or an A record to your hosting IP if using
-                  the apex).
-                </li>
-              </ol>
+              <p className="mt-2">1. Add the verification TXT record we will show you.</p>
+              <p className="mt-1">2. Then connect your domain with one of these records:</p>
+              <p className="mt-2 text-muted-foreground">If this is a subdomain (e.g. portal.yourbar.org):</p>
+              <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                <dt className="text-muted-foreground">Type</dt>
+                <dd>CNAME</dd>
+                <dt className="text-muted-foreground">Name</dt>
+                <dd>&lt;subdomain label, e.g. portal&gt;</dd>
+                <dt className="text-muted-foreground">Value</dt>
+                <dd>lexguild.com</dd>
+              </dl>
+              <p className="mt-2 text-muted-foreground">If this is your root domain (e.g. yourbar.org):</p>
+              <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                <dt className="text-muted-foreground">Type</dt>
+                <dd>A</dd>
+                <dt className="text-muted-foreground">Name</dt>
+                <dd>@</dd>
+                <dt className="text-muted-foreground">Value</dt>
+                <dd>185.158.133.1</dd>
+              </dl>
+              <p className="mt-2">
+                After both records are added and you click Verify, your domain is activated within 1 business day.
+              </p>
             </div>
           </div>
         ) : (
@@ -369,9 +381,27 @@ function PortalPage() {
                           <dt className="text-muted-foreground">Value</dt>
                           <dd className="break-all">{d.verification_token}</dd>
                         </dl>
-                        <p className="mt-2 text-muted-foreground">
-                          Also add a <strong>CNAME</strong> pointing <code>{d.domain}</code> to your hosting
-                          target (or an A record for an apex).
+                        <p className="mt-3 font-medium text-foreground">Then connect your domain with one of these records:</p>
+                        <p className="mt-2 text-muted-foreground">If this is a subdomain (e.g. portal.yourbar.org):</p>
+                        <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                          <dt className="text-muted-foreground">Type</dt>
+                          <dd>CNAME</dd>
+                          <dt className="text-muted-foreground">Name</dt>
+                          <dd>{d.domain.split(".").slice(0, -2).join(".") || "www"}</dd>
+                          <dt className="text-muted-foreground">Value</dt>
+                          <dd>lexguild.com</dd>
+                        </dl>
+                        <p className="mt-2 text-muted-foreground">If this is your root domain (e.g. yourbar.org):</p>
+                        <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                          <dt className="text-muted-foreground">Type</dt>
+                          <dd>A</dd>
+                          <dt className="text-muted-foreground">Name</dt>
+                          <dd>@</dd>
+                          <dt className="text-muted-foreground">Value</dt>
+                          <dd>185.158.133.1</dd>
+                        </dl>
+                        <p className="mt-3 text-muted-foreground">
+                          After both records are added and you click Verify, your domain is activated within 1 business day.
                         </p>
                       </div>
                     )}
