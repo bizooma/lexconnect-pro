@@ -257,9 +257,24 @@ function DirectoryPage() {
 
       <MemberDetailDialog
         member={selectedMember}
-        open={!!selectedMember}
+        open={!!selectedMember && !referralTarget}
         onOpenChange={(open) => {
           if (!open) setSelectedMember(null);
+        }}
+        onSendReferral={(m) => setReferralTarget(m)}
+      />
+
+      <ReferralFormDialog
+        member={referralTarget}
+        orgId={currentOrgId ?? null}
+        practiceAreas={practiceAreaOptions}
+        open={!!referralTarget}
+        onOpenChange={(open) => {
+          if (!open) setReferralTarget(null);
+        }}
+        onSent={() => {
+          setReferralTarget(null);
+          setSelectedMember(null);
         }}
       />
 
