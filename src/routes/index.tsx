@@ -16,6 +16,8 @@ import addonSponsorProgram from "@/assets/addon-sponsor-program.jpg";
 
 const addonWellBeing = addonWellBeingAsset.url;
 import { resolveCurrentHost } from "@/lib/website-domains.functions";
+import { getHostPage } from "@/lib/website-public.functions";
+import { PublicPageView, publicPageMeta } from "@/components/website/PublicPageView";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -27,7 +29,19 @@ export const Route = createFileRoute("/")({
     }
     if (redirectTo) throw redirect({ to: redirectTo });
   },
-  head: () => ({
+  // On a verified site-mode custom domain, serve the tenant's default
+  // published page IN PLACE at "/" (no redirect to /p/<orgSlug>/<slug>).
+  loader: async () => {
+    try {
+      const { page } = await getHostPage({ data: {} });
+      return { hostPage: page };
+    } catch {
+      return { hostPage: null };
+    }
+  },
+  head: ({ loaderData }) => {
+    if (loaderData?.hostPage) return publicPageMeta(loaderData.hostPage);
+    return {
     meta: [
       { title: "LexGuild — The platform for modern bar associations" },
       { name: "description", content: "A branded member portal for bar associations and legal organizations — mentorship, CLE, and member engagement on your own domain." },
@@ -39,9 +53,16 @@ export const Route = createFileRoute("/")({
     links: [
       { rel: "canonical", href: "https://lexguild.com/" },
     ],
-  }),
-  component: Landing,
+    };
+  },
+  component: IndexRoute,
 });
+
+function IndexRoute() {
+  const { hostPage } = Route.useLoaderData();
+  if (hostPage) return <PublicPageView data={hostPage} basePath="" />;
+  return <Landing />;
+}
 
 function Landing() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
