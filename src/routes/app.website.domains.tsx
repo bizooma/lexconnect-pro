@@ -241,10 +241,27 @@ function DomainsPage() {
                           <dt className="text-muted-foreground">Value</dt>
                           <dd className="break-all">{d.verification_token}</dd>
                         </dl>
-                        <p className="mt-2 text-muted-foreground">
-                          After the TXT record propagates, also add a CNAME record pointing{" "}
-                          <code className="rounded bg-background px-1">{d.domain}</code> to your published site host.
-                          Then click Verify.
+                        <p className="mt-3 font-medium text-foreground">Then connect your domain with one of these records:</p>
+                        <p className="mt-2 text-muted-foreground">If this is a subdomain (e.g. portal.yourbar.org):</p>
+                        <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                          <dt className="text-muted-foreground">Type</dt>
+                          <dd>CNAME</dd>
+                          <dt className="text-muted-foreground">Name</dt>
+                          <dd>{d.domain.split(".").slice(0, -2).join(".") || "www"}</dd>
+                          <dt className="text-muted-foreground">Value</dt>
+                          <dd>lexguild.com</dd>
+                        </dl>
+                        <p className="mt-2 text-muted-foreground">If this is your root domain (e.g. yourbar.org):</p>
+                        <dl className="mt-1 grid grid-cols-[80px_1fr] gap-y-1 font-mono">
+                          <dt className="text-muted-foreground">Type</dt>
+                          <dd>A</dd>
+                          <dt className="text-muted-foreground">Name</dt>
+                          <dd>@</dd>
+                          <dt className="text-muted-foreground">Value</dt>
+                          <dd>185.158.133.1</dd>
+                        </dl>
+                        <p className="mt-3 text-muted-foreground">
+                          After both records are added and you click Verify, your domain is activated within 1 business day.
                         </p>
                       </div>
                     )}
