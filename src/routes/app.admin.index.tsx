@@ -38,7 +38,15 @@ function AdminOverview() {
     })();
   }, []);
 
+  const stats = [
+    { label: "Organizations", value: counts?.orgs, to: "/app/admin/orgs" as const },
+    { label: "Users", value: counts?.profiles, to: "/app/admin/users" as const },
+    { label: "Active subscriptions", value: counts?.activeSubs, to: undefined },
+    { label: "Mentorships", value: counts?.mentorships, to: undefined },
+  ];
+
   const [seeding, setSeeding] = useState(false);
+
 
   async function runSeed() {
     setSeeding(true);
