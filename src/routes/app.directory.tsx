@@ -17,6 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Link } from "@tanstack/react-router";
 import { Search, Settings, MapPin, Briefcase, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/app/directory")({
@@ -61,6 +70,7 @@ function DirectoryPage() {
   const [practiceFilter, setPracticeFilter] = useState<string>("all");
 
   const [selectedMember, setSelectedMember] = useState<MemberDirectoryEntry | null>(null);
+  const [referralTarget, setReferralTarget] = useState<MemberDirectoryEntry | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [prefs, setPrefs] = useState<MemberPrefs>(DEFAULT_PREFS);
   const [savingPrefs, setSavingPrefs] = useState(false);
@@ -257,9 +267,24 @@ function DirectoryPage() {
 
       <MemberDetailDialog
         member={selectedMember}
-        open={!!selectedMember}
+        open={!!selectedMember && !referralTarget}
         onOpenChange={(open) => {
           if (!open) setSelectedMember(null);
+        }}
+        onSendReferral={(m) => setReferralTarget(m)}
+      />
+
+      <ReferralFormDialog
+        member={referralTarget}
+        orgId={currentOrgId ?? null}
+        practiceAreas={practiceAreas}
+        open={!!referralTarget}
+        onOpenChange={(open) => {
+          if (!open) setReferralTarget(null);
+        }}
+        onSent={() => {
+          setReferralTarget(null);
+          setSelectedMember(null);
         }}
       />
 
@@ -425,10 +450,12 @@ function MemberDetailDialog({
   member,
   open,
   onOpenChange,
+  onSendReferral,
 }: {
   member: MemberDirectoryEntry | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSendReferral: (member: MemberDirectoryEntry) => void;
 }) {
   if (!member) return null;
   const initials = (member.full_name ?? "?")
@@ -512,9 +539,184 @@ function MemberDetailDialog({
         )}
 
         <div className="mt-6 flex justify-end">
-          <Button disabled title="Coming next">
-            Send referral
-          </Button>
+          <Button onClick={() => onSendReferral(member)}>Send referral</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const URGENCIES = [
+  { value: "low", label: "Low" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "High" },
+] as const;
+
+function ReferralFormDialog({
+  member,
+  orgId,
+  practiceAreas,
+  open,
+  onOpenChange,
+  onSent,
+}: {
+  member: MemberDirectoryEntry | null;
+  orgId: string | null;
+  practiceAreas: string[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSent: () => void;
+}) {
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [matterType, setMatterType] = useState("");
+  const [description, setDescription] = useState("");
+  const [urgency, setUrgency] = useState<string>("normal");
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setClientName("");
+      setClientEmail("");
+      setClientPhone("");
+      setMatterType("");
+      setDescription("");
+      setUrgency("normal");
+    }
+  }, [open]);
+
+  if (!member) return null;
+
+  const submit = async () => {
+    if (!orgId) return;
+    const name = clientName.trim();
+    if (!name) {
+      toast.error("Client name is required");
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.rpc("send_member_referral", {
+      _to_user_id: member.user_id,
+      _org_id: orgId,
+      _client_name: name.slice(0, 200),
+      _client_email: clientEmail.trim().slice(0, 255),
+      _client_phone: clientPhone.trim().slice(0, 50),
+      _matter_type: matterType.trim().slice(0, 120),
+      _description: description.trim().slice(0, 2000),
+      _urgency: urgency,
+    });
+    setSending(false);
+    if (error) {
+      toast.error("Could not send referral", { description: error.message });
+      return;
+    }
+    toast.success(`Referral sent to ${member.full_name}`, {
+      description: "Track it under Referrals → Sent.",
+      action: { label: "View", onClick: () => { window.location.href = "/app/referrals"; } },
+    });
+    onSent();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-serif">Refer a client to {member.full_name}</DialogTitle>
+          <DialogDescription>
+            {member.accepting_referrals
+              ? "Share the client's details for a warm handoff."
+              : "This member isn't currently accepting referrals — you can still send it."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="ref-client-name">Client name *</Label>
+            <Input
+              id="ref-client-name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              maxLength={200}
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="ref-client-email">Client email</Label>
+              <Input
+                id="ref-client-email"
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+                maxLength={255}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ref-client-phone">Client phone</Label>
+              <Input
+                id="ref-client-phone"
+                value={clientPhone}
+                onChange={(e) => setClientPhone(e.target.value)}
+                maxLength={50}
+              />
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="ref-matter">Matter type</Label>
+              <Input
+                id="ref-matter"
+                list="ref-practice-areas"
+                placeholder="e.g., Employment"
+                value={matterType}
+                onChange={(e) => setMatterType(e.target.value)}
+                maxLength={120}
+              />
+              <datalist id="ref-practice-areas">
+                {practiceAreas.map((a) => (
+                  <option key={a} value={a} />
+                ))}
+              </datalist>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Urgency</Label>
+              <Select value={urgency} onValueChange={setUrgency}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {URGENCIES.map((u) => (
+                    <SelectItem key={u.value} value={u.value}>
+                      {u.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ref-description">Description</Label>
+            <Textarea
+              id="ref-description"
+              rows={4}
+              placeholder="Brief context on the matter and what the client needs."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={2000}
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <Link to="/app/referrals" className="text-xs text-muted-foreground hover:text-foreground">
+            View my referrals
+          </Link>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
+              Cancel
+            </Button>
+            <Button onClick={submit} disabled={sending}>
+              {sending ? "Sending…" : "Send referral"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
