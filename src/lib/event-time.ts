@@ -91,11 +91,14 @@ export function formatInTz(iso: string | null | undefined, timeZone: string): st
   try {
     return new Intl.DateTimeFormat("en-US", {
       timeZone,
-      dateStyle: "medium",
-      timeStyle: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
       timeZoneName: "short",
     }).format(new Date(iso));
   } catch {
-    return new Date(iso).toLocaleString();
+    return new Date(iso).toLocaleString("en-US", { timeZone });
   }
 }
