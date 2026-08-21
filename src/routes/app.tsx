@@ -109,7 +109,7 @@ function AppLayout() {
   const orgNav: NavItem[] = isOrgAdmin
     ? [
         { to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true },
-        { to: "/app/org/events", label: "Events", icon: CalIcon, enabled: true },
+        { to: "/app/org/events", label: "Manage Events", icon: CalIcon, enabled: true },
       ]
     : [];
   const platformNav: NavItem[] = isAdmin
