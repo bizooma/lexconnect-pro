@@ -8,11 +8,17 @@ export function PublicSponsorShell({
   brand,
   children,
   navPages = [],
+  hasSponsors = true,
+  hasEvents = false,
+  currentSlug = "sponsors",
 }: {
   organization: { name: string; slug: string; logo_url: string | null };
   brand: any | null;
   children: ReactNode;
   navPages?: PublicNavPage[];
+  hasSponsors?: boolean;
+  hasEvents?: boolean;
+  currentSlug?: string;
 }) {
   const base = useSiteBase();
   const maxWidth = brand?.page_width || "1200px";
@@ -34,13 +40,14 @@ export function PublicSponsorShell({
       }}
     >
       {fontHref && <link rel="stylesheet" href={fontHref} />}
-      {navPages.length > 0 ? (
+      {navPages.length > 0 || hasEvents ? (
         <PublicSiteHeader
           organization={organization}
           navPages={navPages}
-          hasSponsors
+          hasSponsors={hasSponsors}
+          hasEvents={hasEvents}
           maxWidth={maxWidth}
-          currentSlug="sponsors"
+          currentSlug={currentSlug}
         />
       ) : (
         <header className="border-b border-border">
