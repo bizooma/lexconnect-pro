@@ -569,6 +569,50 @@ export type Database = {
         }
         Relationships: []
       }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          guest_email: string | null
+          guest_name: string | null
+          id: string
+          organization_id: string
+          payment_status: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          guest_email?: string | null
+          guest_name?: string | null
+          id?: string
+          organization_id: string
+          payment_status?: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          guest_email?: string | null
+          guest_name?: string | null
+          id?: string
+          organization_id?: string
+          payment_status?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "org_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invite_codes: {
         Row: {
           active: boolean
@@ -1110,6 +1154,92 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "org_contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_events: {
+        Row: {
+          capacity: number | null
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_virtual: boolean
+          location_address: string | null
+          location_name: string | null
+          organization_id: string
+          price_cents: number | null
+          registration_mode: string
+          rsvp_enabled: boolean
+          slug: string | null
+          starts_at: string
+          status: string
+          timezone: string
+          title: string
+          updated_at: string
+          virtual_url: string | null
+          visibility: string
+        }
+        Insert: {
+          capacity?: number | null
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_virtual?: boolean
+          location_address?: string | null
+          location_name?: string | null
+          organization_id: string
+          price_cents?: number | null
+          registration_mode?: string
+          rsvp_enabled?: boolean
+          slug?: string | null
+          starts_at: string
+          status?: string
+          timezone?: string
+          title: string
+          updated_at?: string
+          virtual_url?: string | null
+          visibility?: string
+        }
+        Update: {
+          capacity?: number | null
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_virtual?: boolean
+          location_address?: string | null
+          location_name?: string | null
+          organization_id?: string
+          price_cents?: number | null
+          registration_mode?: string
+          rsvp_enabled?: boolean
+          slug?: string | null
+          starts_at?: string
+          status?: string
+          timezone?: string
+          title?: string
+          updated_at?: string
+          virtual_url?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_events_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -3169,6 +3299,7 @@ export type Database = {
         Args: { _org: string; _user: string }
         Returns: boolean
       }
+      cancel_event_rsvp: { Args: { _event_id: string }; Returns: undefined }
       ce_org_of_course: { Args: { _course_id: string }; Returns: string }
       ce_org_of_lesson: { Args: { _lesson_id: string }; Returns: string }
       ce_user_can_access_course: {
@@ -3205,6 +3336,11 @@ export type Database = {
       }
       get_ai_usage: { Args: { _org: string }; Returns: Json }
       get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
+      get_public_event: {
+        Args: { _org_id: string; _slug: string }
+        Returns: Json
+      }
+      get_public_events: { Args: { _org_id: string }; Returns: Json }
       get_public_sponsors: { Args: { _org_slug: string }; Returns: Json }
       get_sponsor_stats: { Args: { _sponsor_id: string }; Returns: Json }
       get_wellness_interest_aggregates: {
@@ -3266,6 +3402,26 @@ export type Database = {
         Returns: undefined
       }
       reserve_ai_generation: { Args: { _org: string }; Returns: Json }
+      rsvp_to_event: {
+        Args: { _event_id: string; _guest_email?: string; _guest_name?: string }
+        Returns: {
+          created_at: string
+          event_id: string
+          guest_email: string | null
+          guest_name: string | null
+          id: string
+          organization_id: string
+          payment_status: string
+          status: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "event_rsvps"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       shares_org_with: {
         Args: { _other_user: string; _viewer: string }
         Returns: boolean
