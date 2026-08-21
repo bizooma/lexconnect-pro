@@ -128,8 +128,7 @@ function DirectoryPage() {
         (m.headline ?? "").toLowerCase().includes(q) ||
         (m.practice_areas ?? []).some((a) => a.toLowerCase().includes(q));
       const matchesPractice =
-        practiceFilter === "all" ||
-        (m.practice_areas ?? []).some((a) => a === practiceFilter);
+        practiceFilter === "all" || (m.practice_areas ?? []).some((a) => a === practiceFilter);
       return matchesSearch && matchesPractice;
     });
   }, [members, searchQuery, practiceFilter]);
@@ -137,19 +136,17 @@ function DirectoryPage() {
   const handleSavePrefs = async () => {
     if (!currentOrgId || !user) return;
     setSavingPrefs(true);
-    const { error: upsertError } = await supabase
-      .from("member_directory_prefs")
-      .upsert(
-        {
-          organization_id: currentOrgId,
-          user_id: user.id,
-          directory_opt_out: prefs.directory_opt_out,
-          accepting_referrals: prefs.accepting_referrals,
-          headline: prefs.headline.trim() || null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "organization_id,user_id" },
-      );
+    const { error: upsertError } = await supabase.from("member_directory_prefs").upsert(
+      {
+        organization_id: currentOrgId,
+        user_id: user.id,
+        directory_opt_out: prefs.directory_opt_out,
+        accepting_referrals: prefs.accepting_referrals,
+        headline: prefs.headline.trim() || null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "organization_id,user_id" },
+    );
     setSavingPrefs(false);
     if (upsertError) {
       toast.error("Could not save settings", { description: upsertError.message });
@@ -167,8 +164,12 @@ function DirectoryPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-gold">Member network</p>
-          <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground">Member Directory</h1>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-gold">
+            Member network
+          </p>
+          <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground">
+            Member Directory
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Browse and connect with attorneys in your organization.
           </p>
@@ -217,10 +218,7 @@ function DirectoryPage() {
       {loading && (
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-40 animate-pulse rounded-xl border border-border bg-card"
-            />
+            <div key={i} className="h-40 animate-pulse rounded-xl border border-border bg-card" />
           ))}
         </div>
       )}
@@ -269,9 +267,7 @@ function DirectoryPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-serif">Directory settings</DialogTitle>
-            <DialogDescription>
-              Control how you appear in the member directory.
-            </DialogDescription>
+            <DialogDescription>Control how you appear in the member directory.</DialogDescription>
           </DialogHeader>
           <div className="space-y-5 py-4">
             <div className="flex items-center justify-between gap-4">
@@ -379,7 +375,10 @@ function MemberCard({
             )}
           </div>
           {member.accepting_referrals && (
-            <Badge variant="outline" className="shrink-0 text-[10px] text-emerald-600 dark:text-emerald-400">
+            <Badge
+              variant="outline"
+              className="shrink-0 text-[10px] text-emerald-600 dark:text-emerald-400"
+            >
               Accepting referrals
             </Badge>
           )}
@@ -398,7 +397,9 @@ function MemberCard({
             </span>
           )}
           {member.years_experience !== null && member.years_experience !== undefined && (
-            <span>{member.years_experience} year{member.years_experience === 1 ? "" : "s"}</span>
+            <span>
+              {member.years_experience} year{member.years_experience === 1 ? "" : "s"}
+            </span>
           )}
         </div>
         {member.practice_areas && member.practice_areas.length > 0 && (
@@ -466,7 +467,10 @@ function MemberDetailDialog({
                 </span>
               )}
               {member.years_experience !== null && member.years_experience !== undefined && (
-                <span>{member.years_experience} year{member.years_experience === 1 ? "" : "s"} experience</span>
+                <span>
+                  {member.years_experience} year{member.years_experience === 1 ? "" : "s"}{" "}
+                  experience
+                </span>
               )}
             </div>
           </div>
@@ -479,7 +483,9 @@ function MemberDetailDialog({
 
         {member.practice_areas && member.practice_areas.length > 0 && (
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Practice areas</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Practice areas
+            </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {member.practice_areas.map((area) => (
                 <Badge key={area} variant="secondary">
@@ -492,7 +498,9 @@ function MemberDetailDialog({
 
         {member.bar_admissions && member.bar_admissions.length > 0 && (
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bar admissions</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Bar admissions
+            </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {member.bar_admissions.map((bar) => (
                 <Badge key={bar} variant="secondary">
