@@ -45,6 +45,7 @@ const CORE_NAV_DEF = [
   { to: "/app/qa", label: "Community Q&A", icon: QaIcon },
   { to: "/app/messages", label: "Messages", icon: ChatIcon },
   { to: "/app/meetings", label: "Meetings", icon: CalIcon },
+  { to: "/app/events", label: "Events", icon: CalIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
 ] as const;
 
@@ -108,7 +109,7 @@ function AppLayout() {
   const orgNav: NavItem[] = isOrgAdmin
     ? [
         { to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true },
-        { to: "/app/org/events", label: "Events", icon: CalIcon, enabled: true },
+        { to: "/app/org/events", label: "Manage Events", icon: CalIcon, enabled: true },
       ]
     : [];
   const platformNav: NavItem[] = isAdmin

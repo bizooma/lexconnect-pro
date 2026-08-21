@@ -499,7 +499,11 @@ function RosterPanel({
   };
 
   const exportCsv = () => {
-    const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    // Neutralize CSV formula injection: guest-supplied values are untrusted.
+    const esc = (v: string) => {
+      const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
     const lines = [
       ["Name", "Email", "Type", "Status", "RSVP time"].join(","),
       ...rows
