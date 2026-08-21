@@ -73,7 +73,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  loader: async () => {
+    let platformHost = false;
+    try {
+      platformHost = await isPlatformHost();
+    } catch {
+      platformHost = false;
+    }
+    return { platformHost };
+  },
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
