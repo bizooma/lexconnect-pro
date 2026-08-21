@@ -85,14 +85,6 @@ function AppLayout() {
       locked: !(isOrgAdmin || canEditWebsite),
     },
     {
-      to: "/app/directory",
-      label: "Attorney Directory",
-      icon: BookIcon,
-      enabled: false,
-      locked: true,
-      comingSoon: true,
-    },
-    {
       to: "/app/ce",
       label: "CE Learning",
       icon: GraduationIcon,
