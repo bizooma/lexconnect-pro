@@ -9,6 +9,7 @@ const TABS = [
   { to: "/app/admin", label: "Overview", exact: true },
   { to: "/app/admin/orgs", label: "Organizations" },
   { to: "/app/admin/users", label: "Users" },
+  { to: "/app/admin/domains", label: "Custom domains" },
 ];
 
 function AdminLayout() {
