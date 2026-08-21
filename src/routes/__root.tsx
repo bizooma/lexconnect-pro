@@ -153,7 +153,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         ? [
             {
               src: "https://datarightsos.com/functions/widgetJs",
-              defer: true,
               async: true,
               "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
             },
