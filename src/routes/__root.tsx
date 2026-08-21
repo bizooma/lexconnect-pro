@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { VideoAskWidget } from "@/components/videoask-widget";
 import { PortalThemeProvider, usePortalTheme } from "@/components/portal-theme-provider";
+import { isPlatformHost } from "@/lib/platform-host.functions";
+
 
 function NotFoundComponent() {
   const { portal, displayName } = usePortalTheme();
