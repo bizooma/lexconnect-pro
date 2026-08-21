@@ -34,6 +34,7 @@ import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AppWellnessRouteImport } from './routes/app.wellness'
 import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppReferralsRouteImport } from './routes/app.referrals'
 import { Route as AppQaRouteImport } from './routes/app.qa'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
@@ -248,6 +249,11 @@ const AppWebsiteRoute = AppWebsiteRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReferralsRoute = AppReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AppRoute,
 } as any)
 const AppQaRoute = AppQaRouteImport.update({
@@ -741,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
+  '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
   '/app/wellness': typeof AppWellnessRouteWithChildren
@@ -854,6 +861,7 @@ export interface FileRoutesByTo {
   '/app/discover': typeof AppDiscoverRoute
   '/app/events': typeof AppEventsRoute
   '/app/meetings': typeof AppMeetingsRoute
+  '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -969,6 +977,7 @@ export interface FileRoutesById {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
+  '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
   '/app/wellness': typeof AppWellnessRouteWithChildren
@@ -1088,6 +1097,7 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
+    | '/app/referrals'
     | '/app/settings'
     | '/app/website'
     | '/app/wellness'
@@ -1201,6 +1211,7 @@ export interface FileRouteTypes {
     | '/app/discover'
     | '/app/events'
     | '/app/meetings'
+    | '/app/referrals'
     | '/app/settings'
     | '/checkout/return'
     | '/email/unsubscribe'
@@ -1315,6 +1326,7 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
+    | '/app/referrals'
     | '/app/settings'
     | '/app/website'
     | '/app/wellness'
@@ -1629,6 +1641,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/referrals': {
+      id: '/app/referrals'
+      path: '/referrals'
+      fullPath: '/app/referrals'
+      preLoaderRoute: typeof AppReferralsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/qa': {
@@ -2444,6 +2463,7 @@ interface AppRouteChildren {
   AppMeetingsRoute: typeof AppMeetingsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppQaRoute: typeof AppQaRouteWithChildren
+  AppReferralsRoute: typeof AppReferralsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
   AppWellnessRoute: typeof AppWellnessRouteWithChildren
@@ -2475,6 +2495,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMeetingsRoute: AppMeetingsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppQaRoute: AppQaRouteWithChildren,
+  AppReferralsRoute: AppReferralsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
   AppWellnessRoute: AppWellnessRouteWithChildren,
