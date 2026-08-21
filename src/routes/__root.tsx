@@ -145,18 +145,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-startup-image", href: "/splash/splash-ipad-mini.png", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" },
     ],
     scripts: [
-      {
-        src: "https://datarightsos.com/functions/widgetJs",
-        defer: true,
-        "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
-      },
-      {
-        async: true,
-        src: "https://www.googletagmanager.com/gtag/js?id=G-T5YBQFESKV",
-      },
-      {
-        children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
-      },
+      // Platform-only chrome: cookie/privacy widget + LexGuild analytics.
+      // Never loaded on tenant custom domains.
+      ...(loaderData?.platformHost
+        ? [
+            {
+              src: "https://datarightsos.com/functions/widgetJs",
+              defer: true,
+              "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
+            },
+            {
+              async: true,
+              src: "https://www.googletagmanager.com/gtag/js?id=G-T5YBQFESKV",
+            },
+            {
+              children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
+            },
+          ]
+        : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({
