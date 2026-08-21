@@ -348,7 +348,7 @@ export async function runRiverbendSeed() {
           "reed",
         ],
         checkins: 4,
-        value: (i) => 4000 + ((i * 2300) % 8000),
+        value: (i) => 11000 + ((i * 900) % 2000),
       },
       {
         key: "no-email-sunday",
