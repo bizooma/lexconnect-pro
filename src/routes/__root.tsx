@@ -260,8 +260,11 @@ function RootComponent() {
 function PortalAwareVideoAsk() {
   const { portal, loading } = usePortalTheme();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { platformHost } = Route.useLoaderData();
 
+  if (!platformHost) return null;
   if (loading || portal) return null;
+
 
   const isPublicMarketingPage =
     pathname === "/" ||
