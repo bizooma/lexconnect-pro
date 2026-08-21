@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { brandStyle } from "@/components/website/PublicSectionRenderer";
 import { PublicSiteHeader, type PublicNavPage } from "@/components/website/PublicSiteHeader";
+import { useSiteBase, siteHref, homeHref } from "@/components/website/site-base";
 
 export function PublicSponsorShell({
   organization,
@@ -13,6 +14,7 @@ export function PublicSponsorShell({
   children: ReactNode;
   navPages?: PublicNavPage[];
 }) {
+  const base = useSiteBase();
   const maxWidth = brand?.page_width || "1200px";
   const fontImports: string[] = [];
   if (brand?.heading_font) fontImports.push(brand.heading_font);
@@ -43,14 +45,14 @@ export function PublicSponsorShell({
       ) : (
         <header className="border-b border-border">
           <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
-            <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
+            <a href={homeHref(base)} className="flex items-center gap-2">
               {organization.logo_url ? (
                 <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
               ) : (
                 <span className="text-lg font-semibold">{organization.name}</span>
               )}
             </a>
-            <a href={`/p/${organization.slug}/sponsors`} className="text-sm text-muted-foreground hover:text-foreground">
+            <a href={siteHref(base, "/sponsors")} className="text-sm text-muted-foreground hover:text-foreground">
               Sponsors
             </a>
           </div>

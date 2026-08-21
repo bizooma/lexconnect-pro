@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { loadPublicPage } from "@/lib/website-public.server";
+import { resolveSiteHostTarget } from "@/lib/website-host-resolve.server";
 
 const slugSchema = z
   .string()
@@ -12,67 +13,20 @@ export const getPublicPage = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) =>
     z.object({ orgSlug: slugSchema, slug: slugSchema }).parse(input),
   )
+  .handler(async ({ data }) => loadPublicPage(data.orgSlug, data.slug));
+
+/**
+ * Host-aware page load for verified SITE-mode custom domains.
+ * Renders in place at clean paths — no redirect to /p/<orgSlug>/<slug>.
+ * Returns { page: null } when the host isn't a site-mode tenant domain.
+ */
+export const getHostPage = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) =>
+    z.object({ slug: slugSchema.nullable().optional() }).parse(input ?? {}),
+  )
   .handler(async ({ data }) => {
-    const { data: org, error: orgErr } = await supabaseAdmin
-      .from("organizations")
-      .select("id,name,slug,logo_url,paused")
-      .eq("slug", data.orgSlug)
-      .maybeSingle();
-    if (orgErr) throw new Error(orgErr.message);
-    if (!org || org.paused) throw new Error("Page not found");
-
-    const { data: page, error: pageErr } = await supabaseAdmin
-      .from("website_pages")
-      .select("*")
-      .eq("organization_id", org.id)
-      .eq("slug", data.slug)
-      .eq("status", "published")
-      .maybeSingle();
-    if (pageErr) throw new Error(pageErr.message);
-    if (!page) throw new Error("Page not found");
-
-    const [sectionsRes, brandRes, navRes, sponsorRes] = await Promise.all([
-      supabaseAdmin
-        .from("website_sections")
-        .select("*")
-        .eq("page_id", page.id)
-        .eq("visible", true)
-        .order("display_order", { ascending: true }),
-      supabaseAdmin
-        .from("website_brand_settings")
-        .select("*")
-        .eq("organization_id", org.id)
-        .maybeSingle(),
-      supabaseAdmin
-        .from("website_pages")
-        .select("id,title,slug,nav_order")
-        .eq("organization_id", org.id)
-        .eq("status", "published")
-        .eq("show_in_nav", true)
-        .order("nav_order", { ascending: true })
-        .order("title", { ascending: true }),
-      supabaseAdmin
-        .from("org_sponsors")
-        .select("id")
-        .eq("organization_id", org.id)
-        .eq("status", "active")
-        .limit(1),
-    ]);
-    if (sectionsRes.error) throw new Error(sectionsRes.error.message);
-    if (brandRes.error) throw new Error(brandRes.error.message);
-
-    return {
-      organization: {
-        id: org.id,
-        name: org.name,
-        slug: org.slug,
-        logo_url: org.logo_url,
-      },
-      page,
-      sections: sectionsRes.data ?? [],
-      brand: brandRes.data ?? null,
-      navPages: (navRes.data ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
-      hasSponsors: (sponsorRes.data?.length ?? 0) > 0,
-    };
+    const target = await resolveSiteHostTarget();
+    if (!target) return { page: null as null | Awaited<ReturnType<typeof loadPublicPage>> };
+    const slug = data.slug || target.defaultSlug;
+    return { page: await loadPublicPage(target.orgSlug, slug) };
   });
-
