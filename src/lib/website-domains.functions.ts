@@ -181,6 +181,16 @@ export const verifyCustomDomain = createServerFn({ method: "POST" })
       .select()
       .single();
     if (upErr) throw new Error(upErr.message);
+
+    // Notify platform admins that this domain needs manual connection in Lovable.
+    // Idempotent: fires once per domain.
+    try {
+      const { notifyAdminsDomainReady } = await import("@/lib/domain-notify.server");
+      await notifyAdminsDomainReady(data.id);
+    } catch (e) {
+      console.error("[verifyCustomDomain] admin notification failed", e);
+    }
+
     return { domain: updated };
   });
 
