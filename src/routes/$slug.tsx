@@ -1,14 +1,22 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { getPublicPage } from "@/lib/website-public.functions";
+import { getHostPage } from "@/lib/website-public.functions";
 import { PublicPageView, publicPageMeta } from "@/components/website/PublicPageView";
 
-export const Route = createFileRoute("/p/$orgSlug/$slug")({
+/**
+ * Clean-path page route for verified site-mode custom domains:
+ * demobar.org/<slug> renders the published page in place.
+ * On reserved hosts (lexguild.com, previews) this 404s.
+ */
+export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
+    let res: Awaited<ReturnType<typeof getHostPage>>;
     try {
-      return await getPublicPage({ data: { orgSlug: params.orgSlug, slug: params.slug } });
+      res = await getHostPage({ data: { slug: params.slug } });
     } catch {
       throw notFound();
     }
+    if (!res.page) throw notFound();
+    return res.page;
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Page not found" }, { name: "robots", content: "noindex" }] };
@@ -30,11 +38,10 @@ export const Route = createFileRoute("/p/$orgSlug/$slug")({
       </div>
     </div>
   ),
-  component: PublicPage,
+  component: HostPage,
 });
 
-function PublicPage() {
+function HostPage() {
   const data = Route.useLoaderData();
-  const { orgSlug } = Route.useParams();
-  return <PublicPageView data={data} basePath={`/p/${orgSlug}`} />;
+  return <PublicPageView data={data} basePath="" />;
 }

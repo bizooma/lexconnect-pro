@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSiteBase, siteHref, homeHref } from "@/components/website/site-base";
 
 export type PublicNavPage = { id: string; title: string; slug: string };
 
@@ -21,18 +22,19 @@ export function PublicSiteHeader({
   currentSlug?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const base = useSiteBase();
 
   const links: Array<{ key: string; label: string; href: string; active: boolean }> = navPages.map((p) => ({
     key: p.id,
     label: p.title,
-    href: `/p/${organization.slug}/${p.slug}`,
+    href: siteHref(base, `/${p.slug}`),
     active: p.slug === currentSlug,
   }));
   if (hasSponsors) {
     links.push({
       key: "sponsors",
       label: "Sponsors",
-      href: `/p/${organization.slug}/sponsors`,
+      href: siteHref(base, "/sponsors"),
       active: currentSlug === "sponsors",
     });
   }
@@ -42,7 +44,7 @@ export function PublicSiteHeader({
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex items-center justify-between gap-4 px-6 py-4" style={{ maxWidth }}>
-        <a href={`/p/${organization.slug}/home`} className="flex items-center gap-2">
+        <a href={homeHref(base)} className="flex items-center gap-2">
           {organization.logo_url ? (
             <img src={organization.logo_url} alt={organization.name} className="h-8 w-auto" />
           ) : null}

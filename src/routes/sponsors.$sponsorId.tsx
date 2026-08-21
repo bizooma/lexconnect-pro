@@ -1,25 +1,49 @@
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { resolveSiteHostOrg } from "@/lib/website-domains.functions";
+import { getPublicSponsors } from "@/lib/sponsors-public.functions";
+import { SponsorDetailView, sponsorDetailMeta } from "@/components/website/SponsorDetailView";
 
-// Host-aware alias for the public sponsor detail page on site-mode domains.
+// Clean-path sponsor detail page for verified site-mode custom domains.
 export const Route = createFileRoute("/sponsors/$sponsorId")({
-  beforeLoad: async ({ params }) => {
+  loader: async ({ params }) => {
     let orgSlug: string | null = null;
     try {
       ({ orgSlug } = await resolveSiteHostOrg());
     } catch {
-      /* fall through to not found */
+      throw notFound();
     }
     if (!orgSlug) throw notFound();
-    throw redirect({
-      to: "/p/$orgSlug/sponsors/$sponsorId",
-      params: { orgSlug, sponsorId: params.sponsorId },
-    });
+    let payload;
+    try {
+      payload = await getPublicSponsors({ data: { orgSlug } });
+    } catch {
+      throw notFound();
+    }
+    const sponsor = payload.sponsors.find((s) => s.id === params.sponsorId);
+    if (!sponsor) throw notFound();
+    return { organization: payload.organization, brand: payload.brand, sponsor, navPages: payload.navPages };
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [{ title: "Sponsor" }, { name: "robots", content: "noindex" }] };
+    return sponsorDetailMeta(loaderData.organization.name, loaderData.sponsor);
   },
   notFoundComponent: () => (
     <div className="grid min-h-screen place-items-center px-6 text-center">
       <h1 className="text-3xl font-semibold">Page not found</h1>
     </div>
   ),
-  component: () => null,
+  component: HostSponsorDetail,
 });
+
+function HostSponsorDetail() {
+  const { organization, brand, sponsor, navPages } = Route.useLoaderData();
+  return (
+    <SponsorDetailView
+      organization={organization}
+      brand={brand}
+      sponsor={sponsor}
+      navPages={navPages}
+      basePath=""
+    />
+  );
+}

@@ -246,13 +246,9 @@ export const resolveCurrentHost = createServerFn({ method: "GET" }).handler(asyn
     // Portal mode: land on the app; /app gate bounces to /login if unauthenticated.
     return { redirectTo: "/app/dashboard" };
   }
-  const { data: org } = await supabaseAdmin
-    .from("organizations")
-    .select("slug")
-    .eq("id", row.organization_id)
-    .single();
-  if (!org) return { redirectTo: null };
-  return { redirectTo: `/p/${org.slug}/${row.default_page_slug || "home"}` };
+  // Site mode renders the tenant page IN PLACE at "/" — never redirect to
+  // the internal /p/<orgSlug>/<slug> path.
+  return { redirectTo: null };
 });
 
 // Resolves the current Host header to portal-mode branding context for the
