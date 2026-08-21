@@ -1,16 +1,12 @@
 import { useState } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtmlString } from "@/lib/sanitize-html";
 import type { WebsiteSectionType } from "@/lib/website";
 
+// Dependency-free sanitizer: safe in the edge/Worker SSR runtime (no DOM).
 export function sanitizeCustomHtml(input: string): string {
-  if (!input) return "";
-  return DOMPurify.sanitize(input, {
-    USE_PROFILES: { html: true },
-    FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form", "input", "button", "link", "meta", "base"],
-    FORBID_ATTR: ["style", "srcdoc", "formaction", "xlink:href"],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-  });
+  return sanitizeHtmlString(input);
 }
+
 
 type SectionLike = {
   id: string;
