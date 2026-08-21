@@ -75,7 +75,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  loader: async () => {
+  beforeLoad: async () => {
     let platformHost = false;
     try {
       platformHost = await isPlatformHost();
@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     }
     return { platformHost };
   },
-  head: ({ loaderData }) => ({
+  head: ({ match }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
@@ -149,7 +149,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       // Platform-only chrome: cookie/privacy widget + LexGuild analytics.
       // Never loaded on tenant custom domains.
-      ...(loaderData?.platformHost
+      ...(match.context?.platformHost
         ? [
             {
               src: "https://datarightsos.com/functions/widgetJs",
@@ -262,7 +262,7 @@ function RootComponent() {
 function PortalAwareVideoAsk() {
   const { portal, loading } = usePortalTheme();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { platformHost } = Route.useLoaderData();
+  const { platformHost } = Route.useRouteContext();
 
   if (!platformHost) return null;
   if (loading || portal) return null;
