@@ -65,7 +65,7 @@ function DirectoryPage() {
   const [prefs, setPrefs] = useState<MemberPrefs>(DEFAULT_PREFS);
   const [savingPrefs, setSavingPrefs] = useState(false);
 
-  const loadDirectory = async () => {
+  const loadDirectory = useCallback(async () => {
     if (!currentOrgId) return;
     setLoading(true);
     setError(null);
@@ -83,9 +83,9 @@ function DirectoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentOrgId]);
 
-  const loadPrefs = async () => {
+  const loadPrefs = useCallback(async () => {
     if (!currentOrgId || !user) return;
     const { data } = await supabase
       .from("member_directory_prefs")
@@ -98,7 +98,7 @@ function DirectoryPage() {
       accepting_referrals: data?.accepting_referrals ?? true,
       headline: data?.headline ?? "",
     });
-  };
+  }, [currentOrgId, user]);
 
   useEffect(() => {
     void loadDirectory();
