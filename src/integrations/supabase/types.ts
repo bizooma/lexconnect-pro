@@ -3336,6 +3336,7 @@ export type Database = {
       }
       get_ai_usage: { Args: { _org: string }; Returns: Json }
       get_challenge_stats: { Args: { _challenge_id: string }; Returns: Json }
+      get_event_rsvp_counts: { Args: { _org_id: string }; Returns: Json }
       get_public_event: {
         Args: { _org_id: string; _slug: string }
         Returns: Json
