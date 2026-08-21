@@ -461,3 +461,74 @@ export const setOrgAdminSafe = createServerFn({ method: "POST" })
       return { ok: false, error: e?.message ?? "Failed" };
     }
   });
+
+export const listCustomDomainsSafe = createServerFn({ method: "POST" })
+  .inputValidator((data: { accessToken: string }) => data)
+  .handler(async ({ data }) => {
+    try {
+      await requirePlatformAdmin(data.accessToken);
+      const { data: rows, error } = await supabaseAdmin
+        .from("website_custom_domains")
+        .select(
+          "id, domain, mode, verified_at, lovable_connected, lovable_connected_at, created_at, organization_id",
+        )
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      const orgIds = Array.from(new Set((rows ?? []).map((r) => r.organization_id)));
+      const { data: orgs } = orgIds.length
+        ? await supabaseAdmin.from("organizations").select("id, name").in("id", orgIds)
+        : { data: [] as { id: string; name: string }[] };
+      const nameById = new Map((orgs ?? []).map((o) => [o.id, o.name]));
+      const domains = (rows ?? []).map((r) => ({
+        ...r,
+        orgName: nameById.get(r.organization_id) ?? "—",
+      }));
+      // To-do first: verified but not yet connected in Lovable.
+      domains.sort((a, b) => {
+        const rank = (d: typeof a) =>
+          d.verified_at && !d.lovable_connected ? 0 : d.verified_at ? 2 : 1;
+        return rank(a) - rank(b);
+      });
+      return { ok: true, domains, error: null as string | null };
+    } catch (e: any) {
+      return { ok: false, domains: [] as any[], error: e?.message ?? "Failed" };
+    }
+  });
+
+export const setDomainLovableConnectedSafe = createServerFn({ method: "POST" })
+  .inputValidator((data: { accessToken: string; domainId: string; connected: boolean }) => data)
+  .handler(async ({ data }) => {
+    let actorUserId: string | null = null;
+    let actorEmail: string | null = null;
+    try {
+      const actor = await requirePlatformAdmin(data.accessToken);
+      actorUserId = actor.id;
+      actorEmail = actor.email;
+      const { error } = await supabaseAdmin
+        .from("website_custom_domains")
+        .update({
+          lovable_connected: data.connected,
+          lovable_connected_at: data.connected ? new Date().toISOString() : null,
+        })
+        .eq("id", data.domainId);
+      if (error) throw new Error(error.message);
+      await logAdminAction({
+        actorUserId,
+        actorEmail,
+        action: data.connected ? "domain_mark_connected" : "domain_unmark_connected",
+        details: { domainId: data.domainId },
+        result: "success",
+      });
+      return { ok: true, error: null as string | null };
+    } catch (e: any) {
+      await logAdminAction({
+        actorUserId,
+        actorEmail,
+        action: "domain_set_connected",
+        details: { domainId: data.domainId },
+        result: isDenied(e) ? "denied" : "error",
+        errorMessage: e?.message ?? "Failed",
+      });
+      return { ok: false, error: e?.message ?? "Failed" };
+    }
+  });
