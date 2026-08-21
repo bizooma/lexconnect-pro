@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { VideoAskWidget } from "@/components/videoask-widget";
 import { PortalThemeProvider, usePortalTheme } from "@/components/portal-theme-provider";
+import { isPlatformHost } from "@/lib/platform-host.functions";
+
 
 function NotFoundComponent() {
   const { portal, displayName } = usePortalTheme();
@@ -73,7 +75,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  loader: async () => {
+    let platformHost = false;
+    try {
+      platformHost = await isPlatformHost();
+    } catch {
+      platformHost = false;
+    }
+    return { platformHost };
+  },
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
@@ -136,18 +147,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-startup-image", href: "/splash/splash-ipad-mini.png", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" },
     ],
     scripts: [
-      {
-        src: "https://datarightsos.com/functions/widgetJs",
-        defer: true,
-        "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
-      },
-      {
-        async: true,
-        src: "https://www.googletagmanager.com/gtag/js?id=G-T5YBQFESKV",
-      },
-      {
-        children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
-      },
+      // Platform-only chrome: cookie/privacy widget + LexGuild analytics.
+      // Never loaded on tenant custom domains.
+      ...(loaderData?.platformHost
+        ? [
+            {
+              src: "https://datarightsos.com/functions/widgetJs",
+              defer: true,
+              "data-tessera-site": "sk_u8hbbxe6j9d83q3ajur13cil",
+            },
+            {
+              async: true,
+              src: "https://www.googletagmanager.com/gtag/js?id=G-T5YBQFESKV",
+            },
+            {
+              children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-T5YBQFESKV');`,
+            },
+          ]
+        : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -245,8 +262,11 @@ function RootComponent() {
 function PortalAwareVideoAsk() {
   const { portal, loading } = usePortalTheme();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { platformHost } = Route.useLoaderData();
 
+  if (!platformHost) return null;
   if (loading || portal) return null;
+
 
   const isPublicMarketingPage =
     pathname === "/" ||
