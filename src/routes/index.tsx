@@ -9,6 +9,7 @@ import installIosSafari from "@/assets/install-ios-safari.png";
 import installAndroid from "@/assets/install-android.png";
 import addonWebsiteBuilder from "@/assets/addon-website-builder.jpg";
 import addonAttorneyDirectory from "@/assets/addon-attorney-directory.jpg";
+import addonLawyerReferral from "@/assets/addon-lawyer-referral.jpg";
 import addonCleLmsAsset from "@/assets/addon-cle-lms.jpg.asset.json";
 const addonCleLms = addonCleLmsAsset.url;
 import addonWellBeingAsset from "@/assets/attorney-wellbeing.jpg.asset.json";
