@@ -11,6 +11,7 @@ export type PublicPagePayload = {
   brand: any | null;
   navPages: Array<{ id: string; title: string; slug: string; nav_order: number }>;
   hasSponsors: boolean;
+  hasEvents?: boolean;
 };
 
 /**
@@ -25,6 +26,7 @@ export function PublicPageView({
   basePath: string;
 }) {
   const { page, sections, brand, organization, navPages, hasSponsors } = data;
+  const hasEvents = !!data.hasEvents;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -65,6 +67,7 @@ export function PublicPageView({
           organization={organization}
           navPages={navPages}
           hasSponsors={hasSponsors}
+          hasEvents={hasEvents}
           maxWidth={maxWidth}
           currentSlug={page.slug}
         />
