@@ -569,12 +569,20 @@ function Landing() {
               },
               {
                 img: addonAttorneyDirectory,
-                alt: "Attorney Directory — searchable lawyer referral service",
-                badge: "Coming soon",
-                title: "Attorney Directory & Referral Service",
-                desc: "A searchable directory of vetted attorneys that evolves into a full lawyer referral service for your members and the public.",
-                features: ["Searchable attorney profiles", "Practice area filters", "Referral tracking", "Public & member access"],
+                alt: "Attorney Directory — searchable member directory with attorney-to-attorney referrals",
+                title: "Attorney Directory",
+                desc: "A searchable directory of your members — firm, practice areas, and experience — so attorneys can find colleagues, co-counsel, and refer clients to each other inside the association.",
+                features: ["Searchable attorney profiles", "Practice-area filters", "Attorney-to-attorney referrals", "Member-controlled visibility"],
                 imageLeft: true,
+              },
+              {
+                img: addonLawyerReferral,
+                alt: "Lawyer Referral Service — public referral intake matched to vetted panel attorneys",
+                badge: "Coming soon",
+                title: "Lawyer Referral Service",
+                desc: "Run your association's public referral service: a community member requests a referral and you match them to a vetted panel attorney — mediated, tracked, and operated by the bar.",
+                features: ["Public referral intake", "Practice-area matching", "Attorney panel management", "Referral tracking & reporting"],
+                imageLeft: false,
               },
             ].map((card) => {
               const imageLeft = card.imageLeft;
