@@ -106,7 +106,10 @@ function AppLayout() {
   ];
   const clientsLabel = currentOrg?.kind === "firm" ? "Clients" : "Members";
   const orgNav: NavItem[] = isOrgAdmin
-    ? [{ to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true }]
+    ? [
+        { to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true },
+        { to: "/app/org/events", label: "Events", icon: CalIcon, enabled: true },
+      ]
     : [];
   const platformNav: NavItem[] = isAdmin
     ? [{ to: "/app/admin", label: "Admin", icon: ShieldIcon, enabled: true }]

@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.cancel_event_rsvp(uuid) FROM anon;
