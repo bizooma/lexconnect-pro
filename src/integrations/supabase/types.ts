@@ -2474,12 +2474,15 @@ export type Database = {
       }
       website_custom_domains: {
         Row: {
+          admin_notified_at: string | null
           created_at: string
           created_by: string | null
           default_page_slug: string | null
           domain: string
           id: string
           is_primary: boolean
+          lovable_connected: boolean
+          lovable_connected_at: string | null
           mode: string
           organization_id: string
           updated_at: string
@@ -2487,12 +2490,15 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          admin_notified_at?: string | null
           created_at?: string
           created_by?: string | null
           default_page_slug?: string | null
           domain: string
           id?: string
           is_primary?: boolean
+          lovable_connected?: boolean
+          lovable_connected_at?: string | null
           mode?: string
           organization_id: string
           updated_at?: string
@@ -2500,12 +2506,15 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          admin_notified_at?: string | null
           created_at?: string
           created_by?: string | null
           default_page_slug?: string | null
           domain?: string
           id?: string
           is_primary?: boolean
+          lovable_connected?: boolean
+          lovable_connected_at?: string | null
           mode?: string
           organization_id?: string
           updated_at?: string

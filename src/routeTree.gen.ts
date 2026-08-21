@@ -88,6 +88,7 @@ import { Route as AppCeAdminRouteImport } from './routes/app.ce.admin'
 import { Route as AppCeCourseIdRouteImport } from './routes/app.ce.$courseId'
 import { Route as AppAdminUsersRouteImport } from './routes/app.admin.users'
 import { Route as AppAdminOrgsRouteImport } from './routes/app.admin.orgs'
+import { Route as AppAdminDomainsRouteImport } from './routes/app.admin.domains'
 import { Route as ApiPublicWebsiteFormRouteImport } from './routes/api/public/website-form'
 import { Route as ApiPublicHostEchoRouteImport } from './routes/api/public/host-echo'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
@@ -513,6 +514,11 @@ const AppAdminOrgsRoute = AppAdminOrgsRouteImport.update({
   path: '/orgs',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminDomainsRoute = AppAdminDomainsRouteImport.update({
+  id: '/domains',
+  path: '/domains',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const ApiPublicWebsiteFormRoute = ApiPublicWebsiteFormRouteImport.update({
   id: '/api/public/website-form',
   path: '/api/public/website-form',
@@ -700,6 +706,7 @@ export interface FileRoutesByFullPath {
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
+  '/app/admin/domains': typeof AppAdminDomainsRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
@@ -802,6 +809,7 @@ export interface FileRoutesByTo {
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
+  '/app/admin/domains': typeof AppAdminDomainsRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
@@ -910,6 +918,7 @@ export interface FileRoutesById {
   '/api/public/contact': typeof ApiPublicContactRoute
   '/api/public/host-echo': typeof ApiPublicHostEchoRoute
   '/api/public/website-form': typeof ApiPublicWebsiteFormRoute
+  '/app/admin/domains': typeof AppAdminDomainsRoute
   '/app/admin/orgs': typeof AppAdminOrgsRoute
   '/app/admin/users': typeof AppAdminUsersRoute
   '/app/ce/$courseId': typeof AppCeCourseIdRouteWithChildren
@@ -1020,6 +1029,7 @@ export interface FileRouteTypes {
     | '/api/public/contact'
     | '/api/public/host-echo'
     | '/api/public/website-form'
+    | '/app/admin/domains'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/ce/$courseId'
@@ -1122,6 +1132,7 @@ export interface FileRouteTypes {
     | '/api/public/contact'
     | '/api/public/host-echo'
     | '/api/public/website-form'
+    | '/app/admin/domains'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/ce/$courseId'
@@ -1229,6 +1240,7 @@ export interface FileRouteTypes {
     | '/api/public/contact'
     | '/api/public/host-echo'
     | '/api/public/website-form'
+    | '/app/admin/domains'
     | '/app/admin/orgs'
     | '/app/admin/users'
     | '/app/ce/$courseId'
@@ -1895,6 +1907,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminOrgsRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/domains': {
+      id: '/app/admin/domains'
+      path: '/domains'
+      fullPath: '/app/admin/domains'
+      preLoaderRoute: typeof AppAdminDomainsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/api/public/website-form': {
       id: '/api/public/website-form'
       path: '/api/public/website-form'
@@ -2088,12 +2107,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAdminRouteChildren {
+  AppAdminDomainsRoute: typeof AppAdminDomainsRoute
   AppAdminOrgsRoute: typeof AppAdminOrgsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminDomainsRoute: AppAdminDomainsRoute,
   AppAdminOrgsRoute: AppAdminOrgsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
