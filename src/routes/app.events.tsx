@@ -42,6 +42,7 @@ type EventRow = {
 };
 
 type MyRsvp = { event_id: string; status: string };
+type CountRow = { event_id: string; going: number; waitlist: number };
 
 const viewerTz = () => {
   try {
@@ -127,7 +128,7 @@ function MemberEventsPage() {
 
   const refresh = useCallback(async () => {
     if (!currentOrgId) return;
-    const [{ data: ev, error }, { data: rs }, { data: allRs }] = await Promise.all([
+    const [{ data: ev, error }, { data: rs }, { data: countRows }] = await Promise.all([
       supabase
         .from("org_events")
         .select("*")
@@ -136,16 +137,14 @@ function MemberEventsPage() {
       user
         ? supabase.from("event_rsvps").select("event_id, status").eq("user_id", user.id)
         : Promise.resolve({ data: [] as MyRsvp[] }),
-      supabase.from("event_rsvps").select("event_id, status").eq("organization_id", currentOrgId),
+      supabase.rpc("get_event_rsvp_counts", { _org_id: currentOrgId }),
     ]);
     if (error) { toast.error(error.message); return; }
     setEvents((ev ?? []) as EventRow[]);
     setMine((rs ?? []) as MyRsvp[]);
     const map: Record<string, { going: number; waitlist: number }> = {};
-    for (const r of (allRs ?? []) as MyRsvp[]) {
-      const c = (map[r.event_id] ??= { going: 0, waitlist: 0 });
-      if (r.status === "going") c.going += 1;
-      else if (r.status === "waitlist") c.waitlist += 1;
+    for (const r of (countRows ?? []) as CountRow[]) {
+      map[r.event_id] = { going: Number(r.going) || 0, waitlist: Number(r.waitlist) || 0 };
     }
     setCounts(map);
   }, [currentOrgId, user]);
