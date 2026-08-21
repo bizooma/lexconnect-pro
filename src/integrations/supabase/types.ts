@@ -2436,6 +2436,219 @@ export type Database = {
           },
         ]
       }
+      referral_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          intake_id: string
+          organization_id: string
+          panel_user_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: Database["public"]["Enums"]["lrs_referral_status"]
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          intake_id: string
+          organization_id: string
+          panel_user_id: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: Database["public"]["Enums"]["lrs_referral_status"]
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          intake_id?: string
+          organization_id?: string
+          panel_user_id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: Database["public"]["Enums"]["lrs_referral_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_assignments_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "referral_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_intakes: {
+        Row: {
+          area_of_law: string
+          assigned_user_id: string | null
+          caller_email: string | null
+          caller_name: string
+          caller_phone: string | null
+          county: string | null
+          created_at: string
+          id: string
+          intake_number: string
+          language_preference: string | null
+          narrative: string | null
+          organization_id: string
+          source: string
+          status: Database["public"]["Enums"]["lrs_intake_status"]
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          area_of_law: string
+          assigned_user_id?: string | null
+          caller_email?: string | null
+          caller_name: string
+          caller_phone?: string | null
+          county?: string | null
+          created_at?: string
+          id?: string
+          intake_number: string
+          language_preference?: string | null
+          narrative?: string | null
+          organization_id: string
+          source?: string
+          status?: Database["public"]["Enums"]["lrs_intake_status"]
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          area_of_law?: string
+          assigned_user_id?: string | null
+          caller_email?: string | null
+          caller_name?: string
+          caller_phone?: string | null
+          county?: string | null
+          created_at?: string
+          id?: string
+          intake_number?: string
+          language_preference?: string | null
+          narrative?: string | null
+          organization_id?: string
+          source?: string
+          status?: Database["public"]["Enums"]["lrs_intake_status"]
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_intakes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_matching_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          organization_id: string
+          rule_name: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          organization_id: string
+          rule_name: string
+          weight: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          organization_id?: string
+          rule_name?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_matching_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_panel: {
+        Row: {
+          application_status: string
+          capacity_status: string
+          counties: string[]
+          created_at: string
+          excluded_flags: string[]
+          id: string
+          is_active: boolean
+          languages: string[]
+          last_assigned_at: string | null
+          max_active_referrals: number | null
+          notes: string | null
+          organization_id: string
+          practice_areas: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_status?: string
+          capacity_status?: string
+          counties?: string[]
+          created_at?: string
+          excluded_flags?: string[]
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          last_assigned_at?: string | null
+          max_active_referrals?: number | null
+          notes?: string | null
+          organization_id: string
+          practice_areas?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_status?: string
+          capacity_status?: string
+          counties?: string[]
+          created_at?: string
+          excluded_flags?: string[]
+          id?: string
+          is_active?: boolean
+          languages?: string[]
+          last_assigned_at?: string | null
+          max_active_referrals?: number | null
+          notes?: string | null
+          organization_id?: string
+          practice_areas?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_panel_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           category: Database["public"]["Enums"]["resource_category"]
@@ -3391,7 +3604,58 @@ export type Database = {
     }
     Functions: {
       ai_monthly_limit: { Args: { _org: string }; Returns: number }
+      apply_to_referral_panel: {
+        Args: {
+          _counties: string[]
+          _languages: string[]
+          _org_id: string
+          _practice_areas: string[]
+        }
+        Returns: {
+          application_status: string
+          capacity_status: string
+          counties: string[]
+          created_at: string
+          excluded_flags: string[]
+          id: string
+          is_active: boolean
+          languages: string[]
+          last_assigned_at: string | null
+          max_active_referrals: number | null
+          notes: string | null
+          organization_id: string
+          practice_areas: string[]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "referral_panel"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       approve_join_request: { Args: { _request_id: string }; Returns: string }
+      assign_referral: {
+        Args: { _intake_id: string; _panel_user_id: string }
+        Returns: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          intake_id: string
+          organization_id: string
+          panel_user_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: Database["public"]["Enums"]["lrs_referral_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "referral_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       can_edit_website: {
         Args: { _org: string; _user: string }
         Returns: boolean
@@ -3526,6 +3790,26 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      respond_to_referral_assignment: {
+        Args: { _assignment_id: string; _note?: string; _status: string }
+        Returns: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          intake_id: string
+          organization_id: string
+          panel_user_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: Database["public"]["Enums"]["lrs_referral_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "referral_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rsvp_to_event: {
         Args: { _event_id: string; _guest_email?: string; _guest_name?: string }
         Returns: {
@@ -3546,6 +3830,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      run_intake_matching: { Args: { _intake_id: string }; Returns: Json }
       send_member_referral: {
         Args: {
           _client_email?: string
@@ -3588,9 +3873,56 @@ export type Database = {
         Args: { _org_id: string; _sponsor_id: string }
         Returns: boolean
       }
+      submit_referral_intake: {
+        Args: {
+          _area_of_law: string
+          _caller_email: string
+          _caller_name: string
+          _caller_phone: string
+          _county: string
+          _language_preference?: string
+          _narrative: string
+          _org_id: string
+          _urgency?: string
+        }
+        Returns: Json
+      }
       submit_wellness_response: {
         Args: { _answers: Json; _survey_id: string }
         Returns: undefined
+      }
+      update_my_panel_profile: {
+        Args: {
+          _capacity_status: string
+          _counties: string[]
+          _languages: string[]
+          _max_active_referrals: number
+          _org_id: string
+          _practice_areas: string[]
+        }
+        Returns: {
+          application_status: string
+          capacity_status: string
+          counties: string[]
+          created_at: string
+          excluded_flags: string[]
+          id: string
+          is_active: boolean
+          languages: string[]
+          last_assigned_at: string | null
+          max_active_referrals: number | null
+          notes: string | null
+          organization_id: string
+          practice_areas: string[]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "referral_panel"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       wellness_dimensions: { Args: never; Returns: string[] }
     }
@@ -3599,6 +3931,13 @@ export type Database = {
       ce_course_status: "draft" | "published" | "archived"
       ce_enrollment_status: "in_progress" | "completed"
       ce_question_kind: "multiple_choice" | "true_false"
+      lrs_intake_status: "new" | "matched" | "assigned" | "closed" | "cancelled"
+      lrs_referral_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "contacted"
+        | "closed"
       meeting_status: "scheduled" | "completed" | "cancelled"
       mentorship_status: "pending" | "active" | "declined" | "completed"
       org_kind:
@@ -3812,6 +4151,14 @@ export const Constants = {
       ce_course_status: ["draft", "published", "archived"],
       ce_enrollment_status: ["in_progress", "completed"],
       ce_question_kind: ["multiple_choice", "true_false"],
+      lrs_intake_status: ["new", "matched", "assigned", "closed", "cancelled"],
+      lrs_referral_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "contacted",
+        "closed",
+      ],
       meeting_status: ["scheduled", "completed", "cancelled"],
       mentorship_status: ["pending", "active", "declined", "completed"],
       org_kind: [
