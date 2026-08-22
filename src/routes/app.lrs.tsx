@@ -322,7 +322,7 @@ function IntakeDetail({ intake, onChanged }: { intake: Intake; onChanged: () => 
   const setStatus = async (status: string) => {
     const { error } = await supabase
       .from("referral_intakes")
-      .update({ status: status as Intake["status"] })
+      .update({ status: status as "new" | "matched" | "assigned" | "closed" | "cancelled" })
       .eq("id", intake.id);
     if (error) { toast.error(error.message); return; }
     toast.success(`Intake ${status}`);
@@ -476,7 +476,7 @@ function PanelTab({ orgId }: { orgId: string | null }) {
 
   useEffect(() => { void load(); }, [load]);
 
-  const update = async (id: string, patch: Partial<PanelRow>) => {
+  const update = async (id: string, patch: Record<string, unknown>) => {
     const { error } = await supabase.from("referral_panel").update(patch).eq("id", id);
     if (error) { toast.error(error.message); return false; }
     await load();
@@ -605,7 +605,7 @@ function PanelEditSheet({
 }: {
   row: PanelRow | null;
   onClose: () => void;
-  onSave: (patch: Partial<PanelRow>) => Promise<void>;
+  onSave: (patch: Record<string, unknown>) => Promise<void>;
 }) {
   const [areas, setAreas] = useState("");
   const [counties, setCounties] = useState("");
