@@ -12,6 +12,7 @@ export type PublicPagePayload = {
   navPages: Array<{ id: string; title: string; slug: string; nav_order: number }>;
   hasSponsors: boolean;
   hasEvents?: boolean;
+  hasReferralService?: boolean;
 };
 
 /**
@@ -27,6 +28,7 @@ export function PublicPageView({
 }) {
   const { page, sections, brand, organization, navPages, hasSponsors } = data;
   const hasEvents = !!data.hasEvents;
+  const hasReferralService = !!data.hasReferralService;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -68,6 +70,7 @@ export function PublicPageView({
           navPages={navPages}
           hasSponsors={hasSponsors}
           hasEvents={hasEvents}
+          hasReferralService={hasReferralService}
           maxWidth={maxWidth}
           currentSlug={page.slug}
         />

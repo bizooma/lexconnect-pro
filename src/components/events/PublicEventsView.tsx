@@ -157,6 +157,7 @@ export function PublicEventsView({
   brand,
   navPages,
   hasSponsors,
+  hasReferralService = false,
   events,
   basePath,
 }: {
@@ -164,6 +165,7 @@ export function PublicEventsView({
   brand: any | null;
   navPages: Array<{ id: string; title: string; slug: string; nav_order: number }>;
   hasSponsors: boolean;
+  hasReferralService?: boolean;
   events: PublicEvent[];
   basePath: string;
 }) {
@@ -175,6 +177,7 @@ export function PublicEventsView({
         navPages={navPages}
         hasSponsors={hasSponsors}
         hasEvents
+        hasReferralService={hasReferralService}
         currentSlug="events"
       >
         <EventsList organization={organization} events={events} />

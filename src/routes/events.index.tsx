@@ -39,6 +39,7 @@ function HostEventsPage() {
       brand={data.brand}
       navPages={data.navPages}
       hasSponsors={data.hasSponsors}
+      hasReferralService={data.hasReferralService}
       events={data.events}
       basePath=""
     />

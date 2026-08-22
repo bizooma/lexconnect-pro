@@ -10,6 +10,7 @@ export function SponsorsDirectory({
   navPages,
   basePath,
   hasEvents = false,
+  hasReferralService = false,
 }: {
   organization: { id: string; name: string; slug: string; logo_url: string | null };
   brand: any | null;
@@ -17,6 +18,7 @@ export function SponsorsDirectory({
   navPages: Array<{ id: string; title: string; slug: string; nav_order: number }>;
   basePath: string;
   hasEvents?: boolean;
+  hasReferralService?: boolean;
 }) {
   const [category, setCategory] = useState("all");
 
@@ -39,7 +41,7 @@ export function SponsorsDirectory({
 
   return (
     <SiteBaseProvider basePath={basePath}>
-      <PublicSponsorShell organization={organization} brand={brand} navPages={navPages} hasEvents={hasEvents}>
+      <PublicSponsorShell organization={organization} brand={brand} navPages={navPages} hasEvents={hasEvents} hasReferralService={hasReferralService}>
         <h1 className="text-3xl font-semibold tracking-tight">
           Support the sponsors who support {organization.name}
         </h1>

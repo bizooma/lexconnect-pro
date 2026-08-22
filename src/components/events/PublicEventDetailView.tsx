@@ -144,6 +144,7 @@ export function PublicEventDetailPage({
   brand,
   navPages,
   hasSponsors,
+  hasReferralService = false,
   event,
   basePath,
 }: {
@@ -151,6 +152,7 @@ export function PublicEventDetailPage({
   brand: any | null;
   navPages: Array<{ id: string; title: string; slug: string; nav_order: number }>;
   hasSponsors: boolean;
+  hasReferralService?: boolean;
   event: PublicEvent;
   basePath: string;
 }) {
@@ -162,6 +164,7 @@ export function PublicEventDetailPage({
         navPages={navPages}
         hasSponsors={hasSponsors}
         hasEvents
+        hasReferralService={hasReferralService}
         currentSlug="events"
       >
         <EventDetail event={event} />

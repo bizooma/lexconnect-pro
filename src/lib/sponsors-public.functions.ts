@@ -75,6 +75,14 @@ export const getPublicSponsors = createServerFn({ method: "GET" })
       .order("nav_order", { ascending: true })
       .order("title", { ascending: true });
 
+    const { data: refPanel } = await supabaseAdmin
+      .from("referral_panel")
+      .select("id")
+      .eq("organization_id", org.id)
+      .eq("application_status", "approved")
+      .eq("is_active", true)
+      .limit(1);
+
     const { data: pubEvents } = await supabaseAdmin
       .from("org_events")
       .select("id")
@@ -89,5 +97,6 @@ export const getPublicSponsors = createServerFn({ method: "GET" })
       sponsors,
       navPages: (navPages ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
       hasEvents: (pubEvents?.length ?? 0) > 0,
+      hasReferralService: (refPanel?.length ?? 0) > 0,
     };
   });
