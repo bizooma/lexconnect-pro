@@ -356,7 +356,7 @@ function AssignmentCard({
     const { error } = await supabase.rpc("respond_to_referral_assignment", {
       _assignment_id: assignment.id,
       _status: status,
-      _note: note || null,
+      _note: note || undefined,
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
