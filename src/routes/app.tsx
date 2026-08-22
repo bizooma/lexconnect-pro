@@ -48,6 +48,7 @@ const CORE_NAV_DEF = [
   { to: "/app/events", label: "Events", icon: CalIcon },
   { to: "/app/directory", label: "Directory", icon: BookIcon },
   { to: "/app/referrals", label: "Referrals", icon: ShareIcon },
+  { to: "/app/referral-panel", label: "Referral Panel", icon: ScaleIcon },
   { to: "/app/activity", label: "Activity", icon: ActivityIcon },
 ] as const;
 
