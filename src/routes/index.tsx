@@ -534,7 +534,8 @@ function Landing() {
           </div>
 
           <div className="mt-12 space-y-10">
-            {[
+            {(
+              [
               {
                 img: addonWebsiteBuilder,
                 alt: "Campaign & Program Pages — AI-drafted website pages for bar associations",
