@@ -477,7 +477,7 @@ function PanelTab({ orgId }: { orgId: string | null }) {
   useEffect(() => { void load(); }, [load]);
 
   const update = async (id: string, patch: Record<string, unknown>) => {
-    const { error } = await supabase.from("referral_panel").update(patch).eq("id", id);
+    const { error } = await supabase.from("referral_panel").update(patch as never).eq("id", id);
     if (error) { toast.error(error.message); return false; }
     await load();
     return true;
