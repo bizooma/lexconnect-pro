@@ -534,7 +534,8 @@ function Landing() {
           </div>
 
           <div className="mt-12 space-y-10">
-            {[
+            {(
+              [
               {
                 img: addonWebsiteBuilder,
                 alt: "Campaign & Program Pages — AI-drafted website pages for bar associations",
@@ -578,13 +579,12 @@ function Landing() {
               {
                 img: addonLawyerReferral,
                 alt: "Lawyer Referral Service — public referral intake matched to vetted panel attorneys",
-                badge: "Coming soon",
                 title: "Lawyer Referral Service",
                 desc: "Run your association's public referral service: a community member requests a referral and you match them to a vetted panel attorney — mediated, tracked, and operated by the bar.",
                 features: ["Public referral intake", "Practice-area matching", "Attorney panel management", "Referral tracking & reporting"],
                 imageLeft: false,
               },
-            ].map((card) => {
+            ] as { img: string; alt: string; title: string; desc: string; features: string[]; imageLeft: boolean; badge?: string }[]).map((card) => {
               const imageLeft = card.imageLeft;
               return (
                 <div
