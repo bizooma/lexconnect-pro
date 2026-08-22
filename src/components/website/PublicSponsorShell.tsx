@@ -10,6 +10,7 @@ export function PublicSponsorShell({
   navPages = [],
   hasSponsors = true,
   hasEvents = false,
+  hasReferralService = false,
   currentSlug = "sponsors",
 }: {
   organization: { name: string; slug: string; logo_url: string | null };
@@ -18,6 +19,7 @@ export function PublicSponsorShell({
   navPages?: PublicNavPage[];
   hasSponsors?: boolean;
   hasEvents?: boolean;
+  hasReferralService?: boolean;
   currentSlug?: string;
 }) {
   const base = useSiteBase();
@@ -40,16 +42,18 @@ export function PublicSponsorShell({
       }}
     >
       {fontHref && <link rel="stylesheet" href={fontHref} />}
-      {navPages.length > 0 || hasEvents ? (
+      {navPages.length > 0 || hasEvents || hasReferralService ? (
         <PublicSiteHeader
           organization={organization}
           navPages={navPages}
           hasSponsors={hasSponsors}
           hasEvents={hasEvents}
+          hasReferralService={hasReferralService}
           maxWidth={maxWidth}
           currentSlug={currentSlug}
         />
       ) : (
+
         <header className="border-b border-border">
           <div className="mx-auto flex items-center justify-between px-6 py-4" style={{ maxWidth }}>
             <a href={homeHref(base)} className="flex items-center gap-2">

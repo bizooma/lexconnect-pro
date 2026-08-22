@@ -23,7 +23,7 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
   if (pageErr) throw new Error(pageErr.message);
   if (!page) throw new Error("Page not found");
 
-  const [sectionsRes, brandRes, navRes, sponsorRes, eventRes] = await Promise.all([
+  const [sectionsRes, brandRes, navRes, sponsorRes, eventRes, referralRes] = await Promise.all([
     supabaseAdmin
       .from("website_sections")
       .select("*")
@@ -56,6 +56,13 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
       .eq("status", "published")
       .eq("visibility", "public")
       .limit(1),
+    supabaseAdmin
+      .from("referral_panel")
+      .select("id")
+      .eq("organization_id", org.id)
+      .eq("application_status", "approved")
+      .eq("is_active", true)
+      .limit(1),
   ]);
   if (sectionsRes.error) throw new Error(sectionsRes.error.message);
   if (brandRes.error) throw new Error(brandRes.error.message);
@@ -73,5 +80,6 @@ export async function loadPublicPage(orgSlug: string, slug: string) {
     navPages: (navRes.data ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
     hasSponsors: (sponsorRes.data?.length ?? 0) > 0,
     hasEvents: (eventRes.data?.length ?? 0) > 0,
+    hasReferralService: (referralRes.data?.length ?? 0) > 0,
   };
 }

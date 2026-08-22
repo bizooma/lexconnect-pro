@@ -34,7 +34,7 @@ export const Route = createFileRoute("/sponsors/")({
 });
 
 function HostSponsorsPage() {
-  const { organization, brand, sponsors, navPages, hasEvents } = Route.useLoaderData();
+  const { organization, brand, sponsors, navPages, hasEvents, hasReferralService } = Route.useLoaderData();
   return (
     <SponsorsDirectory
       organization={organization}
@@ -42,6 +42,7 @@ function HostSponsorsPage() {
       sponsors={sponsors}
       navPages={navPages}
       hasEvents={hasEvents}
+      hasReferralService={hasReferralService}
       basePath=""
     />
   );

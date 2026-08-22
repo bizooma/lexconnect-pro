@@ -13,6 +13,7 @@ export function PublicSiteHeader({
   navPages,
   hasSponsors,
   hasEvents = false,
+  hasReferralService = false,
   maxWidth,
   currentSlug,
 }: {
@@ -20,6 +21,7 @@ export function PublicSiteHeader({
   navPages: PublicNavPage[];
   hasSponsors: boolean;
   hasEvents?: boolean;
+  hasReferralService?: boolean;
   maxWidth: string;
   currentSlug?: string;
 }) {
@@ -40,6 +42,14 @@ export function PublicSiteHeader({
       active: currentSlug === "events",
     });
   }
+  if (hasReferralService) {
+    links.push({
+      key: "find-a-lawyer",
+      label: "Find a Lawyer",
+      href: siteHref(base, "/find-a-lawyer"),
+      active: currentSlug === "find-a-lawyer",
+    });
+  }
   if (hasSponsors) {
     links.push({
       key: "sponsors",
@@ -48,6 +58,7 @@ export function PublicSiteHeader({
       active: currentSlug === "sponsors",
     });
   }
+
 
   if (links.length === 0) return null;
 

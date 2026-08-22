@@ -1,10 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { resolveSiteHostOrg } from "@/lib/website-domains.functions";
-import { getPublicEventsPage } from "@/lib/events-public.functions";
-import { PublicEventsView, publicEventsMeta } from "@/components/events/PublicEventsView";
+import { getPublicReferralIntakePage } from "@/lib/lrs-public.functions";
+import { PublicIntakeView, publicIntakeMeta } from "@/components/lrs/PublicIntakeView";
 
-// Clean-path public events index for verified site-mode custom domains.
-export const Route = createFileRoute("/events/")({
+// Clean-path public referral intake for verified site-mode custom domains.
+export const Route = createFileRoute("/find-a-lawyer")({
   loader: async () => {
     let orgSlug: string | null = null;
     try {
@@ -14,33 +14,35 @@ export const Route = createFileRoute("/events/")({
     }
     if (!orgSlug) throw notFound();
     try {
-      return await getPublicEventsPage({ data: { orgSlug } });
+      return await getPublicReferralIntakePage({ data: { orgSlug } });
     } catch {
       throw notFound();
     }
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Events" }, { name: "robots", content: "noindex" }] };
-    return publicEventsMeta(loaderData.organization.name);
+    if (!loaderData)
+      return { meta: [{ title: "Find a Lawyer" }, { name: "robots", content: "noindex" }] };
+    return publicIntakeMeta(loaderData.organization.name);
   },
   notFoundComponent: () => (
     <div className="grid min-h-screen place-items-center px-6 text-center">
       <h1 className="text-3xl font-semibold">Page not found</h1>
     </div>
   ),
-  component: HostEventsPage,
+  component: HostIntakePage,
 });
 
-function HostEventsPage() {
+function HostIntakePage() {
   const data = Route.useLoaderData();
   return (
-    <PublicEventsView
+    <PublicIntakeView
       organization={data.organization}
       brand={data.brand}
       navPages={data.navPages}
       hasSponsors={data.hasSponsors}
-      hasReferralService={data.hasReferralService}
-      events={data.events}
+      hasEvents={data.hasEvents}
+      paused={data.paused}
+      customDisclaimer={data.customDisclaimer}
       basePath=""
     />
   );

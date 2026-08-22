@@ -18,6 +18,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FindALawyerRouteImport } from './routes/find-a-lawyer'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as SlugRouteImport } from './routes/$slug'
@@ -58,6 +59,7 @@ import { Route as AppOrgIndexRouteImport } from './routes/app.org.index'
 import { Route as AppMessagesIndexRouteImport } from './routes/app.messages.index'
 import { Route as AppCeIndexRouteImport } from './routes/app.ce.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
+import { Route as POrgSlugFindALawyerRouteImport } from './routes/p.$orgSlug.find-a-lawyer'
 import { Route as POrgSlugSlugRouteImport } from './routes/p.$orgSlug.$slug'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppWellnessDiscussionsRouteImport } from './routes/app.wellness.discussions'
@@ -171,6 +173,11 @@ const McpRoute = McpRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindALawyerRoute = FindALawyerRouteImport.update({
+  id: '/find-a-lawyer',
+  path: '/find-a-lawyer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -374,6 +381,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAdminRoute,
+} as any)
+const POrgSlugFindALawyerRoute = POrgSlugFindALawyerRouteImport.update({
+  id: '/p/$orgSlug/find-a-lawyer',
+  path: '/p/$orgSlug/find-a-lawyer',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const POrgSlugSlugRoute = POrgSlugSlugRouteImport.update({
   id: '/p/$orgSlug/$slug',
@@ -737,6 +749,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/app': typeof AppRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/find-a-lawyer': typeof FindALawyerRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
@@ -819,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
+  '/p/$orgSlug/find-a-lawyer': typeof POrgSlugFindALawyerRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/ce/': typeof AppCeIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -857,6 +871,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/app': typeof AppRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/find-a-lawyer': typeof FindALawyerRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
@@ -932,6 +947,7 @@ export interface FileRoutesByTo {
   '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
+  '/p/$orgSlug/find-a-lawyer': typeof POrgSlugFindALawyerRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/ce': typeof AppCeIndexRoute
   '/app/messages': typeof AppMessagesIndexRoute
@@ -971,6 +987,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/app': typeof AppRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/find-a-lawyer': typeof FindALawyerRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
@@ -1053,6 +1070,7 @@ export interface FileRoutesById {
   '/app/wellness/discussions': typeof AppWellnessDiscussionsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/p/$orgSlug/$slug': typeof POrgSlugSlugRoute
+  '/p/$orgSlug/find-a-lawyer': typeof POrgSlugFindALawyerRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/ce/': typeof AppCeIndexRoute
   '/app/messages/': typeof AppMessagesIndexRoute
@@ -1093,6 +1111,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/app'
     | '/checkout'
+    | '/find-a-lawyer'
     | '/login'
     | '/mcp'
     | '/onboarding'
@@ -1175,6 +1194,7 @@ export interface FileRouteTypes {
     | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
+    | '/p/$orgSlug/find-a-lawyer'
     | '/app/admin/'
     | '/app/ce/'
     | '/app/messages/'
@@ -1213,6 +1233,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/app'
     | '/checkout'
+    | '/find-a-lawyer'
     | '/login'
     | '/mcp'
     | '/onboarding'
@@ -1288,6 +1309,7 @@ export interface FileRouteTypes {
     | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
+    | '/p/$orgSlug/find-a-lawyer'
     | '/app/admin'
     | '/app/ce'
     | '/app/messages'
@@ -1326,6 +1348,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/app'
     | '/checkout'
+    | '/find-a-lawyer'
     | '/login'
     | '/mcp'
     | '/onboarding'
@@ -1408,6 +1431,7 @@ export interface FileRouteTypes {
     | '/app/wellness/discussions'
     | '/lovable/email/suppression'
     | '/p/$orgSlug/$slug'
+    | '/p/$orgSlug/find-a-lawyer'
     | '/app/admin/'
     | '/app/ce/'
     | '/app/messages/'
@@ -1447,6 +1471,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AppRoute: typeof AppRouteWithChildren
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  FindALawyerRoute: typeof FindALawyerRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -1475,6 +1500,7 @@ export interface RootRouteChildren {
   ApiPublicWebsiteFormRoute: typeof ApiPublicWebsiteFormRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   POrgSlugSlugRoute: typeof POrgSlugSlugRoute
+  POrgSlugFindALawyerRoute: typeof POrgSlugFindALawyerRoute
   ApiPublicHooksAutoPublishRoute: typeof ApiPublicHooksAutoPublishRoute
   ApiPublicHooksQaDigestRoute: typeof ApiPublicHooksQaDigestRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -1553,6 +1579,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-a-lawyer': {
+      id: '/find-a-lawyer'
+      path: '/find-a-lawyer'
+      fullPath: '/find-a-lawyer'
+      preLoaderRoute: typeof FindALawyerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -1834,6 +1867,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/'
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
+    }
+    '/p/$orgSlug/find-a-lawyer': {
+      id: '/p/$orgSlug/find-a-lawyer'
+      path: '/p/$orgSlug/find-a-lawyer'
+      fullPath: '/p/$orgSlug/find-a-lawyer'
+      preLoaderRoute: typeof POrgSlugFindALawyerRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/p/$orgSlug/$slug': {
       id: '/p/$orgSlug/$slug'
@@ -2577,6 +2617,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   AppRoute: AppRouteWithChildren,
   CheckoutRoute: CheckoutRouteWithChildren,
+  FindALawyerRoute: FindALawyerRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   OnboardingRoute: OnboardingRoute,
@@ -2606,6 +2647,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebsiteFormRoute: ApiPublicWebsiteFormRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   POrgSlugSlugRoute: POrgSlugSlugRoute,
+  POrgSlugFindALawyerRoute: POrgSlugFindALawyerRoute,
   ApiPublicHooksAutoPublishRoute: ApiPublicHooksAutoPublishRoute,
   ApiPublicHooksQaDigestRoute: ApiPublicHooksQaDigestRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

@@ -44,7 +44,7 @@ async function loadOrgChrome(orgSlug: string) {
     .maybeSingle();
   if (!org || org.paused) throw new Error("Not found");
 
-  const [brandRes, navRes, sponsorRes] = await Promise.all([
+  const [brandRes, navRes, sponsorRes, referralRes] = await Promise.all([
     supabaseAdmin.from("website_brand_settings").select("*").eq("organization_id", org.id).maybeSingle(),
     supabaseAdmin
       .from("website_pages")
@@ -55,6 +55,13 @@ async function loadOrgChrome(orgSlug: string) {
       .order("nav_order", { ascending: true })
       .order("title", { ascending: true }),
     supabaseAdmin.from("org_sponsors").select("id").eq("organization_id", org.id).eq("status", "active").limit(1),
+    supabaseAdmin
+      .from("referral_panel")
+      .select("id")
+      .eq("organization_id", org.id)
+      .eq("application_status", "approved")
+      .eq("is_active", true)
+      .limit(1),
   ]);
 
   return {
@@ -62,6 +69,7 @@ async function loadOrgChrome(orgSlug: string) {
     brand: brandRes.data ?? null,
     navPages: (navRes.data ?? []) as Array<{ id: string; title: string; slug: string; nav_order: number }>,
     hasSponsors: (sponsorRes.data?.length ?? 0) > 0,
+    hasReferralService: (referralRes.data?.length ?? 0) > 0,
   };
 }
 
