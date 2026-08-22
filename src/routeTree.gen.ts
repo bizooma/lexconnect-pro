@@ -35,6 +35,7 @@ import { Route as AppWellnessRouteImport } from './routes/app.wellness'
 import { Route as AppWebsiteRouteImport } from './routes/app.website'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppReferralsRouteImport } from './routes/app.referrals'
+import { Route as AppReferralPanelRouteImport } from './routes/app.referral-panel'
 import { Route as AppQaRouteImport } from './routes/app.qa'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
@@ -255,6 +256,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AppReferralsRoute = AppReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReferralPanelRoute = AppReferralPanelRouteImport.update({
+  id: '/referral-panel',
+  path: '/referral-panel',
   getParentRoute: () => AppRoute,
 } as any)
 const AppQaRoute = AppQaRouteImport.update({
@@ -754,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
+  '/app/referral-panel': typeof AppReferralPanelRoute
   '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
@@ -869,6 +876,7 @@ export interface FileRoutesByTo {
   '/app/events': typeof AppEventsRoute
   '/app/lrs': typeof AppLrsRoute
   '/app/meetings': typeof AppMeetingsRoute
+  '/app/referral-panel': typeof AppReferralPanelRoute
   '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -986,6 +994,7 @@ export interface FileRoutesById {
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
+  '/app/referral-panel': typeof AppReferralPanelRoute
   '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/website': typeof AppWebsiteRouteWithChildren
@@ -1107,6 +1116,7 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
+    | '/app/referral-panel'
     | '/app/referrals'
     | '/app/settings'
     | '/app/website'
@@ -1222,6 +1232,7 @@ export interface FileRouteTypes {
     | '/app/events'
     | '/app/lrs'
     | '/app/meetings'
+    | '/app/referral-panel'
     | '/app/referrals'
     | '/app/settings'
     | '/checkout/return'
@@ -1338,6 +1349,7 @@ export interface FileRouteTypes {
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
+    | '/app/referral-panel'
     | '/app/referrals'
     | '/app/settings'
     | '/app/website'
@@ -1660,6 +1672,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/app/referrals'
       preLoaderRoute: typeof AppReferralsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/referral-panel': {
+      id: '/app/referral-panel'
+      path: '/referral-panel'
+      fullPath: '/app/referral-panel'
+      preLoaderRoute: typeof AppReferralPanelRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/qa': {
@@ -2483,6 +2502,7 @@ interface AppRouteChildren {
   AppMeetingsRoute: typeof AppMeetingsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppQaRoute: typeof AppQaRouteWithChildren
+  AppReferralPanelRoute: typeof AppReferralPanelRoute
   AppReferralsRoute: typeof AppReferralsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppWebsiteRoute: typeof AppWebsiteRouteWithChildren
@@ -2516,6 +2536,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMeetingsRoute: AppMeetingsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppQaRoute: AppQaRouteWithChildren,
+  AppReferralPanelRoute: AppReferralPanelRoute,
   AppReferralsRoute: AppReferralsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppWebsiteRoute: AppWebsiteRouteWithChildren,
