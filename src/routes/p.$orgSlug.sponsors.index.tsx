@@ -32,7 +32,7 @@ export const Route = createFileRoute("/p/$orgSlug/sponsors/")({
 });
 
 function PublicSponsorsPage() {
-  const { organization, brand, sponsors, navPages, hasEvents } = Route.useLoaderData();
+  const { organization, brand, sponsors, navPages, hasEvents, hasReferralService } = Route.useLoaderData();
   const { orgSlug } = Route.useParams();
   return (
     <SponsorsDirectory
@@ -41,6 +41,7 @@ function PublicSponsorsPage() {
       sponsors={sponsors}
       navPages={navPages}
       hasEvents={hasEvents}
+      hasReferralService={hasReferralService}
       basePath={`/p/${orgSlug}`}
     />
   );
