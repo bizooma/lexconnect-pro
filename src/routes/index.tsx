@@ -584,7 +584,7 @@ function Landing() {
                 features: ["Public referral intake", "Practice-area matching", "Attorney panel management", "Referral tracking & reporting"],
                 imageLeft: false,
               },
-            ].map((card) => {
+            ] as { img: string; alt: string; title: string; desc: string; features: string[]; imageLeft: boolean; badge?: string }[]).map((card) => {
               const imageLeft = card.imageLeft;
               return (
                 <div
