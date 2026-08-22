@@ -104,6 +104,7 @@ function AppLayout() {
     ? [
         { to: "/app/org/clients", label: clientsLabel, icon: UsersIcon, enabled: true },
         { to: "/app/org/events", label: "Manage Events", icon: CalIcon, enabled: true },
+        { to: "/app/lrs", label: "Referral Service", icon: ShareIcon, enabled: true },
       ]
     : [];
   const platformNav: NavItem[] = isAdmin

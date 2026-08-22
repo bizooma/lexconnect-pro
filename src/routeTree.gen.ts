@@ -38,6 +38,7 @@ import { Route as AppReferralsRouteImport } from './routes/app.referrals'
 import { Route as AppQaRouteImport } from './routes/app.qa'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
 import { Route as AppMeetingsRouteImport } from './routes/app.meetings'
+import { Route as AppLrsRouteImport } from './routes/app.lrs'
 import { Route as AppEventsRouteImport } from './routes/app.events'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppDirectoryRouteImport } from './routes/app.directory'
@@ -269,6 +270,11 @@ const AppMessagesRoute = AppMessagesRouteImport.update({
 const AppMeetingsRoute = AppMeetingsRouteImport.update({
   id: '/meetings',
   path: '/meetings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLrsRoute = AppLrsRouteImport.update({
+  id: '/lrs',
+  path: '/lrs',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEventsRoute = AppEventsRouteImport.update({
@@ -744,6 +750,7 @@ export interface FileRoutesByFullPath {
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/events': typeof AppEventsRoute
+  '/app/lrs': typeof AppLrsRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
@@ -860,6 +867,7 @@ export interface FileRoutesByTo {
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/events': typeof AppEventsRoute
+  '/app/lrs': typeof AppLrsRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/referrals': typeof AppReferralsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -974,6 +982,7 @@ export interface FileRoutesById {
   '/app/directory': typeof AppDirectoryRoute
   '/app/discover': typeof AppDiscoverRoute
   '/app/events': typeof AppEventsRoute
+  '/app/lrs': typeof AppLrsRoute
   '/app/meetings': typeof AppMeetingsRoute
   '/app/messages': typeof AppMessagesRouteWithChildren
   '/app/qa': typeof AppQaRouteWithChildren
@@ -1094,6 +1103,7 @@ export interface FileRouteTypes {
     | '/app/directory'
     | '/app/discover'
     | '/app/events'
+    | '/app/lrs'
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
@@ -1210,6 +1220,7 @@ export interface FileRouteTypes {
     | '/app/directory'
     | '/app/discover'
     | '/app/events'
+    | '/app/lrs'
     | '/app/meetings'
     | '/app/referrals'
     | '/app/settings'
@@ -1323,6 +1334,7 @@ export interface FileRouteTypes {
     | '/app/directory'
     | '/app/discover'
     | '/app/events'
+    | '/app/lrs'
     | '/app/meetings'
     | '/app/messages'
     | '/app/qa'
@@ -1669,6 +1681,13 @@ declare module '@tanstack/react-router' {
       path: '/meetings'
       fullPath: '/app/meetings'
       preLoaderRoute: typeof AppMeetingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/lrs': {
+      id: '/app/lrs'
+      path: '/lrs'
+      fullPath: '/app/lrs'
+      preLoaderRoute: typeof AppLrsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/events': {
@@ -2460,6 +2479,7 @@ interface AppRouteChildren {
   AppDirectoryRoute: typeof AppDirectoryRoute
   AppDiscoverRoute: typeof AppDiscoverRoute
   AppEventsRoute: typeof AppEventsRoute
+  AppLrsRoute: typeof AppLrsRoute
   AppMeetingsRoute: typeof AppMeetingsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppQaRoute: typeof AppQaRouteWithChildren
@@ -2492,6 +2512,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDirectoryRoute: AppDirectoryRoute,
   AppDiscoverRoute: AppDiscoverRoute,
   AppEventsRoute: AppEventsRoute,
+  AppLrsRoute: AppLrsRoute,
   AppMeetingsRoute: AppMeetingsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppQaRoute: AppQaRouteWithChildren,
